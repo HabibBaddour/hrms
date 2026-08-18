@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}بوابة الموظف | HRMS{% endblock %}
+{% block page_title %}بوابة الموظف{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Employee Info Card -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-4" style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">
+                        {{ user.username|slice:":1"|upper }}
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1 text-dark">{{ user.get_full_name|default:user.username }}</h4>
+                        <p class="text-muted mb-2">{{ user.email }}</p>
+                        <div>
+                            {% if user.is_superuser %}
+                                <span class="badge bg-danger text-white">SuperUser</span>
+                            {% elif user.groups.all.0.name == 'Manager' %}
+                                <span class="badge bg-warning text-dark">مدير</span>
+                            {% elif user.groups.all.0.name == 'HR' %}
+                                <span class="badge bg-info text-dark">HR Admin</span>
+                            {% else %}
+                                <span class="badge bg-secondary text-white">موظف</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personal Statistics -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted small mb-1">رصيد الإجازات</h6>
+                        <h3 class="fw-bold mb-0 text-dark">{{ leave_balance }} يوم</h3>
+                    </div>
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted small mb-1">طلبات معلقة</h6>
+                        <h3 class="fw-bold mb-0 text-warning">{{ pending_leaves }}</h3>
+                    </div>
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted small mb-1">آخر راتب</h6>
+                        <h3 class="fw-bold mb-0 text-success">
+                            {% if last_payroll %}
+                                {{ last_payroll.net_salary|floatformat:2 }} $
+                            {% else %}
+                                غير متوفر
+                            {% endif %}
+                        </h3>
+                    </div>
+                    <div class="stat-icon bg-success bg-opacity-10 text-success">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="glass-card p-4">
+                <h5 class="fw-bold text-dark mb-4"><i class="fa-solid fa-bolt text-primary me-2"></i>إجراءات سريعة</h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <a href="{% url 'leaves:leave_list' %}" class="btn btn-outline-primary w-100 py-3 rounded-3">
+                            <i class="fa-solid fa-calendar-plus mb-2 d-block fs-4"></i>
+                            طلب إجازة
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="#" class="btn btn-outline-success w-100 py-3 rounded-3">
+                            <i class="fa-solid fa-file-invoice mb-2 d-block fs-4"></i>
+                            كشف الراتب
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="#" class="btn btn-outline-info w-100 py-3 rounded-3">
+                            <i class="fa-solid fa-id-card mb-2 d-block fs-4"></i>
+                            تحديث الملف
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'user_settings' %}" class="btn btn-outline-secondary w-100 py-3 rounded-3">
+                            <i class="fa-solid fa-gear mb-2 d-block fs-4"></i>
+                            الإعدادات
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Requests -->
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="glass-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>طلباتي الأخيرة</h5>
+                    <a href="{% url 'leaves:leave_list' %}" class="btn btn-sm btn-outline-primary">عرض الكل</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>نوع الطلب</th>
+                                <th>التاريخ</th>
+                                <th>المدة</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for leave in recent_leaves %}
+                            <tr>
+                                <td>{{ leave.get_leave_type_display }}</td>
+                                <td>{{ leave.start_date|date:'Y-m-d' }} - {{ leave.end_date|date:'Y-m-d' }}</td>
+                                <td>{{ leave.total_days }} يوم</td>
+                                <td>
+                                    {% if leave.status == 'PENDING' %}
+                                        <span class="badge bg-warning text-dark">معلق</span>
+                                    {% elif leave.status == 'APPROVED' %}
+                                        <span class="badge bg-success">مقبول</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">مرفوض</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">لا توجد طلبات حالياً</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

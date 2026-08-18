@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}تعديل بيانات الموظف | HRMS{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 850px;">
+    <!-- Header with back button -->
+    <div class="d-flex align-items-center mb-4">
+        <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary rounded-3 me-3">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+        <h4 class="fw-bold text-dark mb-0">تعديل بيانات الموظف: {{ first_name }} {{ last_name }}</h4>
+    </div>
+
+    <form method="POST" action="{% url 'employees:edit_employee' employee.id %}">
+        {% csrf_token %}
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+            <h5 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-user me-2"></i>البيانات الشخصية</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">الاسم الأول</label>
+                    <input type="text" name="first_name" class="form-control" required value="{{ first_name }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">الاسم الأخير</label>
+                    <input type="text" name="last_name" class="form-control" required value="{{ last_name }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">البريد الإلكتروني</label>
+                    <input type="email" name="email" class="form-control" value="{% if employee.user %}{{ employee.user.email }}{% endif %}" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">اسم المستخدم</label>
+                    <input type="text" name="username" class="form-control" value="{% if employee.user %}{{ employee.user.username }}{% endif %}" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">الرقم الوطني / الهوية</label>
+                    <input type="text" name="national_id" class="form-control" maxlength="11" minlength="11" pattern="\d{11}" value="{{ national_id }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">رقم الهاتف</label>
+                    <input type="text" name="phone" class="form-control" maxlength="10" minlength="10" pattern="\d{10}" value="{{ phone }}" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+            <h5 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-sitemap me-2"></i>التعيين والهيكل الوظيفي</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">القسم</label>
+                    <select id="input_department" name="department" class="form-select" required onchange="loadPositions(this.value)">
+                        <option value="">اختر القسم...</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.id }}" data-code="{{ dept.code }}" {% if employee.department and employee.department.id == dept.id %}selected{% endif %}>
+                            {{ dept.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">المسمى الوظيفي</label>
+                    <select id="input_position" name="position" class="form-select" required>
+                        <option value="">اختر القسم أولاً...</option>
+                        {% for pos in positions %}
+                        <option value="{{ pos.id }}" {% if employee.position and employee.position.id == pos.id %}selected{% endif %}>
+                            {{ pos.title }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+            <h5 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-file-contract me-2"></i>عقد التوظيف</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">نوع العقد</label>
+                    <select name="contract_type" class="form-select" required>
+                        <option value="">اختر نوع العقد...</option>
+                        <option value="Full-Time" {% if contract %}{% if contract.contract_type == 'Full-Time' %}selected{% endif %}{% endif %}>دوام كامل (Full-Time)</option>
+                        <option value="Part-Time" {% if contract %}{% if contract.contract_type == 'Part-Time' %}selected{% endif %}{% endif %}>دوام جزئي (Part-Time)</option>
+                        <option value="Fixed-Term" {% if contract %}{% if contract.contract_type == 'Fixed-Term' %}selected{% endif %}{% endif %}>عقد محدد المدة (Fixed-Term)</option>
+                        <option value="Internship" {% if contract %}{% if contract.contract_type == 'Internship' %}selected{% endif %}{% endif %}>تدريب (Internship)</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">الراتب الأساسي</label>
+                    <input type="number" name="salary" class="form-control" required value="{% if contract %}{{ contract.salary|floatformat:2 }}{% endif %}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">تاريخ المباشرة</label>
+                    <input type="date" name="start_date" class="form-control" required value="{% if contract %}{% if contract.start_date %}{{ contract.start_date|date:'Y-m-d' }}{% endif %}{% endif %}">
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary px-4 rounded-3">
+                <i class="fa-solid fa-arrow-right me-1"></i> إلغاء
+            </a>
+            <button type="submit" class="btn btn-primary px-4 rounded-3">
+                <i class="fa-solid fa-save me-1"></i> حفظ التغييرات
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+function loadPositions(departmentId) {
+    const positionSelect = document.getElementById('input_position');
+    positionSelect.innerHTML = '<option value="">جاري التحميل...</option>';
+    positionSelect.disabled = true;
+
+    if (!departmentId) {
+        positionSelect.innerHTML = '<option value="">اختر القسم أولاً...</option>';
+        return;
+    }
+
+    const employeeId = "{{ employee.id|default:'' }}";
+    fetch('/employees/api/positions/?department_id=' + departmentId + '&employee_id=' + employeeId)
+        .then(response => response.json())
+        .then(data => {
+            positionSelect.innerHTML = '<option value="">اختر المسمى الوظيفي...</option>';
+            data.forEach(pos => {
+                const option = document.createElement('option');
+                option.value = pos.id;
+                option.textContent = pos.title;
+                positionSelect.appendChild(option);
+            });
+            positionSelect.disabled = false;
+        })
+        .catch(error => {
+            console.error('Error loading positions:', error);
+            positionSelect.innerHTML = '<option value="">حدث خطأ في التحميل</option>';
+        });
+}
+</script>
+{% endblock %}

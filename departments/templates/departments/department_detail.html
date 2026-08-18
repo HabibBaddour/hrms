@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}تفاصيل {{ department.name }} | HRMS{% endblock %}
+
+{% block content %}
+<!-- Header Nav & Actions -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div class="d-flex align-items-center gap-3">
+        <a href="{% url 'departments:department_list' %}" class="btn btn-outline-secondary rounded-3 px-3">
+            <i class="fa-solid fa-arrow-right me-1"></i> رجوع
+        </a>
+        <div>
+            <h3 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+                <span>{{ department.name }}</span>
+                {% if department.code %}
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill fs-7 px-3 py-1">
+                    {{ department.code }}
+                </span>
+                {% endif %}
+            </h3>
+            <p class="text-muted small mb-0">عرض كافة البيانات الوظيفية والإحصاءات الخاصة بالقسم.</p>
+        </div>
+    </div>
+
+    <!-- Admin Actions -->
+    <div class="d-flex gap-2">
+        <a href="{% url 'departments:add_position' %}" class="btn btn-outline-primary fw-semibold rounded-3">
+            <i class="fa-solid fa-plus me-1"></i> إضافة مسمى وظيفي
+        </a>
+        <a href="{% url 'departments:edit_department' department.id %}" class="btn btn-primary fw-semibold rounded-3">
+            <i class="fa-solid fa-pen-to-square me-1"></i> تعديل بيانت القسم
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Department Stats & Info -->
+    <div class="col-lg-4">
+        <!-- Quick Stats Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6">
+                <div class="card border-0 shadow-sm rounded-4 bg-white p-3 text-center">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center">
+                        <i class="fa-solid fa-users fs-5"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-0">{{ department.employee_set.count|default:0 }}</h4>
+                    <span class="text-muted fs-7">إجمالي الموظفين</span>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card border-0 shadow-sm rounded-4 bg-white p-3 text-center">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center">
+                        <i class="fa-solid fa-briefcase fs-5"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-0">{{ department.positions.count|default:0 }}</h4>
+                    <span class="text-muted fs-7">المسميات الوظيفية</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Department Details Card -->
+        <div class="card border-0 shadow-sm rounded-4 bg-white mb-4">
+            <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold text-dark mb-0">معلومات القسم</h5>
+                <a href="{% url 'departments:edit_department' department.id %}" class="text-primary text-decoration-none fs-7 fw-semibold">
+                    <i class="fa-solid fa-pen me-1"></i>تعديل
+                </a>
+            </div>
+            <div class="card-body px-4 py-3">
+                <div class="mb-3">
+                    <span class="text-muted fs-7 d-block mb-1">تاريخ الإنشاء:</span>
+                    <span class="fw-semibold text-dark">
+                        <i class="fa-regular fa-calendar text-secondary me-1"></i>
+                        {{ department.created_at|date:"Y-m-d" }}
+                    </span>
+                </div>
+                <hr class="my-3 opacity-10">
+                <div>
+                    <span class="text-muted fs-7 d-block mb-1">وصف القسم:</span>
+                    <p class="text-dark fs-7 lh-base mb-0">
+                        {% if department.description %}
+                            {{ department.description }}
+                        {% else %}
+                            <span class="text-muted fst-italic">لا يوجد وصف مضاف لهذا القسم حالياً. يمكنك إضافته عبر زر التعديل.</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Positions List -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 bg-white">
+            <div class="card-header bg-transparent border-0 pt-4 px-4 pb-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold text-dark mb-1">المسميات الوظيفية التابعة للقسم</h5>
+                    <p class="text-muted fs-7 mb-0">قائمة الوظائف المعرفة ضمن هذا القسم الأدري وتوزيع الصلاحيات.</p>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover mb-0">
+                        <thead class="bg-light text-secondary border-top fs-7">
+                            <tr>
+                                <th class="ps-4 py-3">المسمى الوظيفي</th>
+                                <th class="py-3">الدور / الصلاحية</th>
+                                <th class="text-center py-3">عدد الموظفين</th>
+                                <th class="pe-4 text-end py-3">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-0 fs-7">
+                            {% for position in department.positions.all %}
+                            <tr>
+                                <td class="ps-4 py-3">
+                                    <div class="fw-bold text-dark">{{ position.title }}</div>
+                                </td>
+                                <td>
+                                    {% if position.group %}
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3 py-1 fw-semibold">
+                                        {{ position.group.name }}
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-3 py-1 fw-semibold">
+                                        بدون دور
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center fw-bold text-dark">
+                                    {{ position.employee_set.count|default:0 }}
+                                </td>
+                                <td class="pe-4 text-end">
+                                    <button class="btn btn-sm btn-light border text-secondary rounded-2" title="عرض التفاصيل">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    <i class="fa-solid fa-briefcase fs-2 mb-2 d-block opacity-50"></i>
+                                    <span>لا توجد مسميات وظيفية مضافة لهذا القسم حتى الآن.</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-icon {
+        width: 45px;
+        height: 45px;
+    }
+    .fs-7 {
+        font-size: 0.875rem;
+    }
+    .fs-8 {
+        font-size: 0.78rem;
+    }
+</style>
+{% endblock %}

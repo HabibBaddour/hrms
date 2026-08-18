@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}مركز الإشعارات | HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-dark mb-0">مركز الإشعارات</h3>
+        <div class="d-flex gap-2">
+            {% if notifications %}
+                <button onclick="markAllRead()" class="btn btn-sm btn-outline-primary rounded-3">
+                    <i class="fa-solid fa-check-double me-1"></i> تحديد الكل كمقروء
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-0">
+            {% if notifications %}
+                <div class="list-group list-group-flush">
+                    {% for notification in notifications %}
+                    <div class="list-group-item {% if not notification.is_read %}bg-light border-start border-4 border-primary{% endif %} py-3 {% if not notification.is_read %}unread{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center mb-2">
+                                    {% if notification.actor %}
+                                        <span class="badge bg-soft-primary text-primary me-2">
+                                            {{ notification.actor.get_full_name }}
+                                        </span>
+                                    {% endif %}
+                                    <span class="badge bg-secondary text-white">
+                                        {{ notification.get_notification_type_display }}
+                                    </span>
+                                    {% if not notification.is_read %}
+                                        <span class="badge bg-primary ms-2">جديد</span>
+                                    {% endif %}
+                                </div>
+                                <p class="mb-2">{{ notification.message }}</p>
+                                <small class="text-muted">
+                                    <i class="fa-regular fa-clock me-1"></i>
+                                    {{ notification.created_at|date:"Y-m-d H:i" }}
+                                </small>
+                            </div>
+                            <div class="d-flex flex-column align-items-end gap-2">
+                                {% if not notification.is_read %}
+                                <button onclick="markAsRead({{ notification.id }})" class="btn btn-sm btn-outline-secondary rounded-2">
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-bell-slash fs-1 mb-3"></i>
+                    <p class="mb-0">لا توجد إشعارات حالياً</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function markAsRead(notificationId) {
+    fetch(`/core/notifications/${notificationId}/read/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+
+function markAllRead() {
+    fetch('/core/notifications/mark-all-read/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

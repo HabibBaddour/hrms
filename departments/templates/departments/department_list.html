@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}إدارة الأقسام والوظائف | HRMS{% endblock %}
+
+{% block content %}
+<!-- Top Header Actions -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">الأقسام والوظائف</h3>
+        <p class="text-muted small mb-0">نظرة عامة على الهيكل التنظيمي والأقسام الإدارية للمؤسسة.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'departments:add_position' %}" class="btn btn-outline-primary fw-semibold">
+            <i class="fa-solid fa-briefcase me-1"></i> إضافة مسمى وظيفي
+        </a>
+
+        <a href="{% url 'departments:add_department' %}" class="btn btn-primary fw-semibold">
+            <i class="fa-solid fa-plus me-1"></i> إضافة قسم جديد
+        </a>
+    </div>
+</div>
+
+<!-- Departments Equal Height Grid -->
+<div class="row g-4">
+    {% for dept in departments %}
+    <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+        <div class="card border-0 shadow-sm rounded-4 w-100 d-flex flex-column justify-content-between bg-white hover-card transition-all">
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div>
+                    <!-- Header Badges and Icons -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        {% if dept.code %}
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-bold fs-7">
+                            {{ dept.code }}
+                        </span>
+                        {% else %}
+                        <div></div>
+                        {% endif %}
+                        <div class="avatar-icon bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center p-2">
+                            <i class="fa-solid fa-sitemap fs-5"></i>
+                        </div>
+                    </div>
+
+                    <!-- Department Name (Full text display) -->
+                    <h5 class="fw-bold text-dark lh-base mb-2 text-break" style="min-height: 2.8rem;">
+                        {{ dept.name }}
+                    </h5>
+                    
+                    <p class="text-muted small mb-3 d-flex align-items-center gap-1">
+                        <i class="fa-regular fa-calendar-alt text-secondary me-1"></i>
+                        <span>تاريخ الإنشاء: {{ dept.created_at|date:"Y-m-d" }}</span>
+                    </p>
+                </div>
+
+                <!-- Stats and Actions -->
+                <div class="border-top pt-3 mt-2">
+                    <div class="bg-light rounded-3 p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small fw-semibold">عدد الموظفين:</span>
+                            <span class="fw-bold text-dark bg-white px-3 py-1 rounded-pill border shadow-xs fs-7">
+                                {{ dept.employee_count|default:0 }}
+                            </span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small fw-semibold">المسميات الوظيفية:</span>
+                            <span class="fw-bold text-primary bg-primary-subtle px-3 py-1 rounded-pill fs-7">
+                                {{ dept.positions.count|default:0 }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'departments:department_detail' dept.id %}" class="btn btn-outline-primary flex-grow-1 rounded-3 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2">
+                            <i class="fa-solid fa-eye"></i>
+                            <span>عرض التفاصيل</span>
+                        </a>
+                        <button 
+                            data-dept-id="{{ dept.id }}"
+                            data-dept-name="{{ dept.name|escapejs }}"
+                            data-employee-count="{{ dept.employee_count|default:0 }}"
+                            data-position-count="{{ dept.positions.count|default:0 }}"
+                            class="btn btn-outline-danger rounded-3 py-2 px-3 fw-semibold delete-dept-btn" 
+                            title="حذف القسم">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <div class="text-muted">
+            <i class="fa-solid fa-folder-open fs-1 mb-3 d-block"></i>
+            <h5>لا توجد أقسام مسجلة حالياً</h5>
+            <p class="small">قم بالضغط على "إضافة قسم جديد" للبدء بإنشاء الهيكل التنظيمي.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .hover-card {
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .hover-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    }
+    .fs-7 {
+        font-size: 0.85rem;
+    }
+    .avatar-icon {
+        width: 42px;
+        height: 42px;
+    }
+</style>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fa-solid fa-exclamation-triangle me-2"></i>تأكيد الحذف
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="deleteModalContent">
+                    <p class="mb-3">هل أنت متأكد من حذف القسم <strong id="deptName"></strong>؟</p>
+                    <div id="warningMessage" class="alert alert-warning d-none">
+                        <i class="fa-solid fa-exclamation-circle me-2"></i>
+                        <span id="warningText"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Delete confirmation modal functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners to all delete buttons
+    document.querySelectorAll('.delete-dept-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const deptId = this.getAttribute('data-dept-id');
+            const deptName = this.getAttribute('data-dept-name');
+            const employeeCount = parseInt(this.getAttribute('data-employee-count'));
+            const positionCount = parseInt(this.getAttribute('data-position-count'));
+            
+            showDeleteModal(deptId, deptName, employeeCount, positionCount);
+        });
+    });
+});
+
+function showDeleteModal(deptId, deptName, employeeCount, positionCount) {
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    const deleteForm = document.getElementById('deleteForm');
+    const deptNameSpan = document.getElementById('deptName');
+    const warningMessage = document.getElementById('warningMessage');
+    const warningText = document.getElementById('warningText');
+    
+    deptNameSpan.textContent = deptName;
+    deleteForm.action = `/departments/${deptId}/delete/`;
+    
+    if (employeeCount > 0 || positionCount > 0) {
+        warningMessage.classList.remove('d-none');
+        let warnings = [];
+        if (employeeCount > 0) {
+            warnings.push(`يوجد ${employeeCount} موظف نشط في هذا القسم`);
+        }
+        if (positionCount > 0) {
+            warnings.push(`يوجد ${positionCount} مسمى وظيفي مرتبط`);
+        }
+        warningText.textContent = warnings.join(' و ') + '. يجب إزالتها أولاً.';
+        deleteForm.querySelector('button[type="submit"]').disabled = true;
+        deleteForm.querySelector('button[type="submit"]').classList.add('disabled');
+    } else {
+        warningMessage.classList.add('d-none');
+        deleteForm.querySelector('button[type="submit"]').disabled = false;
+        deleteForm.querySelector('button[type="submit"]').classList.remove('disabled');
+    }
+    
+    modal.show();
+}
+</script>
+{% endblock %}

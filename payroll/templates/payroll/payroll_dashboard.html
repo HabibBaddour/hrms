@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}تبويبة الرواتب | HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">تبويبة الرواتب والمسيرات</h3>
+            <p class="text-muted mb-0">مراجعة الرواتب الشهرية، الخصومات، وصافي الرواتب للموظفين</p>
+        </div>
+        <a href="{% url 'payroll_export_pdf' %}" class="btn btn-primary px-4">
+            <i class="fa-solid fa-file-export me-2"></i>تصدير التقرير
+        </a>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small">إجمالي الموظفين</div>
+                            <h4 class="fw-bold mt-2 mb-0">{{ total_employees }}</h4>
+                        </div>
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 text-primary">
+                            <i class="fa-solid fa-user-group fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small">إجمالي الرواتب</div>
+                            <h4 class="fw-bold mt-2 mb-0">{{ total_net_salary|floatformat:2 }} $</h4>
+                        </div>
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success">
+                            <i class="fa-solid fa-money-bill-wave fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small">الخصومات</div>
+                            <h4 class="fw-bold mt-2 mb-0">{{ total_deductions|floatformat:2 }} $</h4>
+                        </div>
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-3 text-warning">
+                            <i class="fa-solid fa-wallet fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small">الموظفون المودعين</div>
+                            <h4 class="fw-bold mt-2 mb-0">{{ processed_count }}</h4>
+                        </div>
+                        <div class="rounded-circle bg-info bg-opacity-10 p-3 text-info">
+                            <i class="fa-solid fa-circle-check fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">ملخص الرواتب الشهرية</h5>
+                <span class="badge bg-primary-subtle text-primary px-3 py-2">{{ selected_month }}</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>الموظف</th>
+                            <th>القسم</th>
+                            <th>الراتب الأساسي</th>
+                            <th>البدلات</th>
+                            <th>الخصومات</th>
+                            <th>صافي الراتب</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payroll in payrolls %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold">{{ payroll.employee.get_full_name|default:payroll.employee.user.username }}</div>
+                                <small class="text-muted">{{ payroll.employee.position.title|default:'غير محدد' }}</small>
+                            </td>
+                            <td>{{ payroll.employee.department.name|default:'غير محدد' }}</td>
+                            <td>{{ payroll.basic_salary|floatformat:2 }} $</td>
+                            <td>{{ payroll.allowances|floatformat:2 }} $</td>
+                            <td>{{ payroll.deductions_absence|add:payroll.deductions_delay|add:payroll.insurance|add:payroll.other_deductions|floatformat:2 }} $</td>
+                            <td class="fw-bold text-success">{{ payroll.net_salary|floatformat:2 }} $</td>
+                            <td>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle">تم الدفع</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">لا توجد سجلات رواتب لهذا الشهر حتى الآن.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

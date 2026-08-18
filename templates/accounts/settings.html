@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}إعدادات الحساب والمظهر | HRMS{% endblock %}
+{% block page_title %}إعدادات المظهر والواجهة والمستخدم{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- القائمة الجانبية للإعدادات -->
+        <div class="col-md-3 mb-4">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="list-group list-group-flush p-2">
+                    <a href="#theme-settings" class="list-group-item list-group-item-action border-0 rounded-3 active fw-semibold">
+                        <i class="fa-solid fa-palette me-2"></i> المظهر والواجهة
+                    </a>
+                    <a href="#profile-settings" class="list-group-item list-group-item-action border-0 rounded-3 fw-semibold">
+                        <i class="fa-solid fa-user-gear me-2"></i> معلومات الحساب
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- محتوى الإعدادات -->
+        <div class="col-md-9">
+            <!-- كارت إعدادات المظهر -->
+            <div class="card border-0 shadow-sm mb-4" id="theme-settings" style="border-radius: 12px;">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-sliders text-primary me-2"></i> إعدادات المظهر والوضع الليلي</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center pb-3 border-bottom">
+                        <div>
+                            <h6 class="fw-bold mb-1 text-dark">الوضع الليلي (Dark Mode)</h6>
+                            <p class="text-muted small mb-0">تفعيل خلفية المظهر الداكن لراحة العين أثناء العمل ليلاً.</p>
+                        </div>
+                        <div class="form-check form-switch fs-4">
+                            <input class="form-check-input theme-switcher-input" type="checkbox" id="page-theme-switch">
+                        </div>
+                    </div>
+
+                    <div class="pt-3">
+                        <h6 class="fw-bold mb-3 text-dark">اللون الرئيسي للواجهة</h6>
+                        <div class="d-flex gap-3">
+                            <button class="btn p-3 rounded-circle border border-2 border-primary" style="background-color: #312e81;" title="Indigo Standard"></button>
+                            <button class="btn p-3 rounded-circle border border-2" style="background-color: #0284c7;" title="Ocean Blue"></button>
+                            <button class="btn p-3 rounded-circle border border-2" style="background-color: #059669;" title="Emerald Green"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- كارت معلومات الحساب السريعة -->
+            <div class="card border-0 shadow-sm" id="profile-settings" style="border-radius: 12px;">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-id-card text-primary me-2"></i> معلومات الحساب الحالي</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted">اسم المستخدم</label>
+                            <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted">البريد الإلكتروني</label>
+                            <input type="email" class="form-control" value="{{ user.email|default:'لا يوجد بريد مسجل' }}" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}لوحة التحكم | HRMS{% endblock %}
+
+{% block content %}
+<!-- Welcome Banner -->
+<div class="glass-card p-4 mb-4 text-white" style="background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%);">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold mb-1">أهلاً بك، {{ user.get_full_name|default:user.username }} 👋</h2>
+            <p class="mb-0 text-white-50">إليك نظرة عامة على حالة النظام والأداء اليوم.</p>
+        </div>
+        <a href="#" class="btn btn-light text-primary fw-bold shadow-sm rounded-pill px-4">
+            <i class="fa-solid fa-plus me-1"></i> طلب إجازة جديد
+        </a>
+    </div>
+</div>
+
+<!-- Stats Counter Grid (Dynamic Data) -->
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="glass-card p-4 d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-muted fs-6 d-block mb-1">إجمالي الموظفين</span>
+                <h3 class="fw-bold mb-0 text-dark">{{ total_employees }}</h3>
+            </div>
+            <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                <i class="fa-solid fa-users"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="glass-card p-4 d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-muted fs-6 d-block mb-1">الإجازات المعلقة</span>
+                <h3 class="fw-bold mb-0 text-warning">{{ pending_leaves }}</h3>
+            </div>
+            <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="glass-card p-4 d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-muted fs-6 d-block mb-1">الأقسام الإدارية</span>
+                <h3 class="fw-bold mb-0 text-info">{{ total_departments }}</h3>
+            </div>
+            <div class="stat-icon bg-info bg-opacity-10 text-info">
+                <i class="fa-solid fa-sitemap"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="glass-card p-4 d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-muted fs-6 d-block mb-1">حالة النظام</span>
+                <h3 class="fw-bold mb-0 text-success">نشط</h3>
+            </div>
+            <div class="stat-icon bg-success bg-opacity-10 text-success">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dynamic Activity Table -->
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="glass-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0"><i class="fa-solid fa-list-check text-primary me-2"></i>أحدث طلبات الإجازات</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>الموظف</th>
+                            <th>نوع الإجازة</th>
+                            <th>الحالة</th>
+                            <th>التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave in recent_leaves %}
+                        <tr>
+                            <td class="fw-semibold">{{ leave.employee }}</td>
+                            <td>{{ leave.leave_type }}</td>
+                            <td>
+                                {% if leave.status == 'PENDING' %}
+                                    <span class="badge bg-warning-subtle text-warning border border-warning px-3 py-1 rounded-pill">معلق</span>
+                                {% elif leave.status == 'APPROVED' %}
+                                    <span class="badge bg-success-subtle text-success border border-success px-3 py-1 rounded-pill">مقبول</span>
+                                {% else %}
+                                    <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-1 rounded-pill">مرفوض</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ leave.created_at|date:"Y-m-d" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">لا توجد طلبات إجازة حالياً.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Feature Card -->
+    <div class="col-lg-4">
+        <div class="glass-card p-4 text-center h-100 d-flex flex-column justify-content-center" style="background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);">
+            <div class="mb-3">
+                <span class="badge bg-primary-subtle text-primary p-2 px-3 rounded-pill fw-bold">
+                    <i class="fa-solid fa-robot me-1"></i> التنبؤ الذكي
+                </span>
+            </div>
+            <h5 class="fw-bold mb-2">نموذج التنبؤ بالإجازات</h5>
+            <p class="text-muted small mb-4">تحليل وقبول الطلبات تلقائياً بناءً على نموذج Machine Learning.</p>
+            <button class="btn btn-custom-primary w-100">
+                تشغيل النموذج <i class="fa-solid fa-wand-magic-sparkles ms-1"></i>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

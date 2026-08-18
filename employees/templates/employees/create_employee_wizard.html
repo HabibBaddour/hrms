@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+
+{% block title %}تعيين موظف جديد | HRMS{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 850px;">
+    <!-- Header with back button -->
+    <div class="d-flex align-items-center mb-4">
+        <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary rounded-3 me-3">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+        <h4 class="fw-bold text-dark mb-0">استمارة تعيين موظف جديد</h4>
+    </div>
+
+    <!-- شريط الخطوات -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <h4 class="fw-bold text-dark mb-3">خطوات التعيين</h4>
+            <div class="progress mb-3" style="height: 8px;">
+                <div id="wizard-progress" class="progress-bar bg-primary" role="progressbar" style="width: 25%;"></div>
+            </div>
+            <div class="d-flex justify-content-between text-center fs-7 fw-semibold">
+                <span id="step-tab-1" class="text-primary">1. البيانات الشخصية</span>
+                <span id="step-tab-2" class="text-muted">2. التعيين والهيكل</span>
+                <span id="step-tab-3" class="text-muted">3. عقد التوظيف</span>
+                <span id="step-tab-4" class="text-muted">4. المراجعة والحساب</span>
+            </div>
+        </div>
+    </div>
+
+    <form id="employee-wizard-form" method="POST" action="{% url 'employees:add_employee_wizard' %}">
+        {% csrf_token %}
+
+        <!-- الخطوة 1: البيانات الشخصية -->
+        <div class="wizard-step card border-0 shadow-sm rounded-4 p-4" id="step-1">
+            <h5 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-user me-2"></i>البيانات الشخصية</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">الاسم الأول</label>
+                    <input type="text" id="input_first_name" name="first_name" class="form-control" required placeholder="أحمد / Ahmed">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">الاسم الأخير</label>
+                    <input type="text" id="input_last_name" name="last_name" class="form-control" required placeholder="العلي / Al-Ali">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">الرقم الوطني / الهوية (11 رقم)</label>
+                    <input type="text" id="input_national_id" name="national_id" class="form-control" maxlength="11" minlength="11" pattern="\d{11}" placeholder="12345678901" required>
+                    <div class="form-text text-muted">يجب أن يتكون الرقم الوطني من 11 رقم بالضبط.</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">رقم الهاتف (10 أرقام)</label>
+                    <input type="text" id="input_phone" name="phone" class="form-control" maxlength="10" minlength="10" pattern="\d{10}" placeholder="0912345678" required>
+                    <div class="form-text text-muted">يجب أن يتكون رقم الهاتف من 10 أرقام بالضبط.</div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end mt-4">
+                <button type="button" class="btn btn-primary px-4 rounded-3" onclick="validateAndNext(1, 2)">التالي <i class="fa-solid fa-arrow-left ms-1"></i></button>
+            </div>
+        </div>
+
+        <!-- الخطوة 2: التعيين والهيكل الوظيفي -->
+        <div class="wizard-step card border-0 shadow-sm rounded-4 p-4 d-none" id="step-2">
+            <h5 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-sitemap me-2"></i>التعيين والهيكل الوظيفي</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">القسم</label>
+                    <select id="input_department" name="department" class="form-select" required onchange="loadPositions(this.value)">
+                        <option value="">اختر القسم...</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.id }}" data-code="{{ dept.code }}">{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">المسمى الوظيفي</label>
+                    <select id="input_position" name="position" class="form-select" required disabled>
+                        <option value="">اختر القسم أولاً...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-outline-secondary px-4 rounded-3" onclick="goToStep(1)"><i class="fa-solid fa-arrow-right me-1"></i> السابق</button>
+                <button type="button" class="btn btn-primary px-4 rounded-3" onclick="validateAndNext(2, 3)">التالي <i class="fa-solid fa-arrow-left ms-1"></i></button>
+            </div>
+        </div>
+
+        <!-- الخطوة 3: عقد التوظيف -->
+        <div class="wizard-step card border-0 shadow-sm rounded-4 p-4 d-none" id="step-3">
+            <h5 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-file-contract me-2"></i>عقد التوظيف</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">نوع العقد</label>
+                    <select id="input_contract_type" name="contract_type" class="form-select" required>
+                        <option value="Full-Time">دوام كامل (Full-Time)</option>
+                        <option value="Part-Time">دوام جزئي (Part-Time)</option>
+                        <option value="Fixed-Term">عقد محدد المدة (Fixed-Term)</option>
+                        <option value="Internship">تدريب (Internship)</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">الراتب الأساسي</label>
+                    <input type="number" id="input_salary" name="salary" class="form-control" required placeholder="5000">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-medium">تاريخ المباشرة</label>
+                    <input type="date" id="input_start_date" name="start_date" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-outline-secondary px-4 rounded-3" onclick="goToStep(2)"><i class="fa-solid fa-arrow-right me-1"></i> السابق</button>
+                <button type="button" class="btn btn-primary px-4 rounded-3" onclick="buildReviewAndNext()">التالي <i class="fa-solid fa-arrow-left ms-1"></i></button>
+            </div>
+        </div>
+
+        <!-- الخطوة 4: التلخيص والتأكيد -->
+        <div class="wizard-step card border-0 shadow-sm rounded-4 p-4 d-none" id="step-4">
+            <h5 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-user-check me-2"></i>مراجعة التفاصيل وبيانات الحساب</h5>
+            
+            <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4">
+                <h6 class="fw-bold mb-2"><i class="fa-solid fa-key me-2"></i>بيانات تسجيل الدخول التي تم توليدها تلقائياً:</h6>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <strong>اسم المستخدم:</strong> <code id="review_username" class="fs-6">--</code>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>البريد الإلكتروني:</strong> <code id="review_email" class="fs-6">--</code>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>كلمة المرور:</strong> <code id="review_password" class="fs-6 fw-bold text-primary">--</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <tbody>
+                        <tr>
+                            <th class="bg-light" style="width: 30%;">الاسم الكامل</th>
+                            <td id="review_full_name">--</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">الرقم الوطني / الهوية</th>
+                            <td id="review_national_id">--</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">رقم الهاتف</th>
+                            <td id="review_phone">--</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">القسم</th>
+                            <td id="review_department">--</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">المسمى الوظيفي</th>
+                            <td id="review_position">--</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">نوع العقد</th>
+                            <td id="review_contract_type">--</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">الراتب الأساسي</th>
+                            <td id="review_salary">--</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">تاريخ المباشرة</th>
+                            <td id="review_start_date">--</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-outline-secondary px-4 rounded-3" onclick="goToStep(3)"><i class="fa-solid fa-arrow-right me-1"></i> تعديل البيانات</button>
+                <button type="submit" class="btn btn-success px-5 rounded-3 fw-bold"><i class="fa-solid fa-check-circle me-1"></i> تأكيد وإنشاء حساب الموظف</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    function goToStep(step) {
+        document.querySelectorAll('.wizard-step').forEach(el => el.classList.add('d-none'));
+        document.getElementById('step-' + step).classList.remove('d-none');
+        
+        const percents = {1: '25%', 2: '50%', 3: '75%', 4: '100%'};
+        document.getElementById('wizard-progress').style.width = percents[step];
+        
+        for (let i = 1; i <= 4; i++) {
+            const tab = document.getElementById('step-tab-' + i);
+            if (i <= step) {
+                tab.classList.add('text-primary');
+                tab.classList.remove('text-muted');
+            } else {
+                tab.classList.remove('text-primary');
+                tab.classList.add('text-muted');
+            }
+        }
+    }
+
+    function validateAndNext(currentStep, nextStep) {
+        const currentStepEl = document.getElementById('step-' + currentStep);
+        const inputs = currentStepEl.querySelectorAll('input, select');
+        let isValid = true;
+
+        inputs.forEach(input => {
+            if (!input.checkValidity()) {
+                input.reportValidity();
+                isValid = false;
+            }
+        });
+
+        if (isValid) {
+            goToStep(nextStep);
+        }
+    }
+
+    function loadPositions(deptId) {
+        const posSelect = document.getElementById('input_position');
+        posSelect.innerHTML = '<option value="">جاري التحميل...</option>';
+        posSelect.disabled = true;
+
+        if (!deptId) {
+            posSelect.innerHTML = '<option value="">اختر القسم أولاً...</option>';
+            return;
+        }
+
+        fetch(`{% url "employees:get_positions_by_department" %}?department_id=${deptId}`)
+            .then(res => res.json())
+            .then(data => {
+                posSelect.innerHTML = '<option value="">اختر المسمى...</option>';
+                if (data.length === 0) {
+                    posSelect.innerHTML = '<option value="">لا توجد مسميات وظيفية متاحة لهذا القسم</option>';
+                } else {
+                    data.forEach(item => {
+                        posSelect.innerHTML += `<option value="${item.id}">${item.title}</option>`;
+                    });
+                    posSelect.disabled = false;
+                }
+            })
+            .catch(() => {
+                posSelect.innerHTML = '<option value="">خطأ في جلب البيانات</option>';
+            });
+    }
+
+    function buildReviewAndNext() {
+        const currentStepEl = document.getElementById('step-3');
+        const inputs = currentStepEl.querySelectorAll('input, select');
+        let isValid = true;
+
+        inputs.forEach(input => {
+            if (!input.checkValidity()) {
+                input.reportValidity();
+                isValid = false;
+            }
+        });
+
+        if (!isValid) return;
+
+        // تجهيز بيانات العرض في صفحة المراجعة (Step 4)
+        const firstName = document.getElementById('input_first_name').value.trim();
+        const lastName = document.getElementById('input_last_name').value.trim();
+        const deptSelect = document.getElementById('input_department');
+        const posSelect = document.getElementById('input_position');
+        const contractSelect = document.getElementById('input_contract_type');
+
+        const deptName = deptSelect.options[deptSelect.selectedIndex]?.text || '';
+        const deptCode = deptSelect.options[deptSelect.selectedIndex]?.getAttribute('data-code') || 'gen';
+        const posName = posSelect.options[posSelect.selectedIndex]?.text || '';
+
+        document.getElementById('review_full_name').innerText = `${firstName} ${lastName}`;
+        document.getElementById('review_national_id').innerText = document.getElementById('input_national_id').value;
+        document.getElementById('review_phone').innerText = document.getElementById('input_phone').value;
+        document.getElementById('review_department').innerText = deptName;
+        document.getElementById('review_position').innerText = posName;
+        document.getElementById('review_contract_type').innerText = contractSelect.options[contractSelect.selectedIndex]?.text;
+        document.getElementById('review_salary').innerText = document.getElementById('input_salary').value;
+        document.getElementById('review_start_date').innerText = document.getElementById('input_start_date').value;
+
+        // توليد البريد الإلكتروني وكلمة المرور واسم المستخدم للمعاينة
+        const cleanFirstName = firstName.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const cleanDeptCode = deptCode.toLowerCase().replace(/[^a-z0-9]/g, '');
+        
+        // Generate username
+        const baseUsername = `${cleanFirstName}_${cleanDeptCode}`;
+        let username = baseUsername;
+        let counter = 1;
+        // Note: In production, this should be checked against existing usernames
+        // For preview purposes, we'll show the base username
+        username = baseUsername;
+        
+        // Generate password
+        const password = `${cleanFirstName.charAt(0).toUpperCase() + cleanFirstName.slice(1)}123`;
+        
+        // Generate email
+        const email = `${cleanFirstName}.${cleanDeptCode}@hrms.co`;
+        
+        // Update review display
+        document.getElementById('review_username').innerText = username;
+        document.getElementById('review_email').innerText = email;
+        document.getElementById('review_password').innerText = password;
+
+        goToStep(4);
+    }
+</script>
+{% endblock %}

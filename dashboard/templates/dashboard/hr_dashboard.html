@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}لوحة تحكم HR Admin | HRMS{% endblock %}
+{% block page_title %}لوحة تحكم المسؤولين (HR Admin){% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted small mb-1">إجمالي الموظفين</h6>
+                        <h3 class="fw-bold mb-0 text-dark">{{ employee_count }}</h3>
+                    </div>
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted small mb-1">الأقسام</h6>
+                        <h3 class="fw-bold mb-0 text-dark">{{ department_count }}</h3>
+                    </div>
+                    <div class="stat-icon bg-success bg-opacity-10 text-success">
+                        <i class="fa-solid fa-sitemap"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted small mb-1">طلبات إجازة معلقة</h6>
+                        <h3 class="fw-bold mb-0 text-warning">{{ pending_leaves }}</h3>
+                    </div>
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted small mb-1">المسميات الوظيفية</h6>
+                        <h3 class="fw-bold mb-0 text-dark">{{ position_count }}</h3>
+                    </div>
+                    <div class="stat-icon bg-info bg-opacity-10 text-info">
+                        <i class="fa-solid fa-briefcase"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="glass-card p-4">
+                <h5 class="fw-bold text-dark mb-4"><i class="fa-solid fa-bolt text-primary me-2"></i>إجراءات سريعة</h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <a href="{% url 'employees:add_employee_wizard' %}" class="btn btn-outline-primary w-100 py-3 rounded-3">
+                            <i class="fa-solid fa-user-plus mb-2 d-block fs-4"></i>
+                            تعيين موظف جديد
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'departments:add_department' %}" class="btn btn-outline-success w-100 py-3 rounded-3">
+                            <i class="fa-solid fa-building mb-2 d-block fs-4"></i>
+                            إضافة قسم
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'departments:department_list' %}" class="btn btn-outline-info w-100 py-3 rounded-3">
+                            <i class="fa-solid fa-sitemap mb-2 d-block fs-4"></i>
+                            إدارة الأقسام
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary w-100 py-3 rounded-3">
+                            <i class="fa-solid fa-users mb-2 d-block fs-4"></i>
+                            إدارة الموظفين
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="glass-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>النشاط الأخير</h5>
+                </div>
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-inbox fs-1 mb-3"></i>
+                    <p class="mb-0">لا يوجد نشاط حديث</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

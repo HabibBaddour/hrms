@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}إضافة قسم جديد | HRMS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="glass-card p-4 p-md-5">
+            <!-- Header with Back Button -->
+            <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                        <i class="fa-solid fa-sitemap"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-0">إضافة قسم جديد</h4>
+                        <p class="text-muted small mb-0">إنشاء قسم إداري جديد في الهيكل التنظيمي</p>
+                    </div>
+                </div>
+                <a href="{% url 'departments:department_list' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                    <i class="fa-solid fa-arrow-left me-1"></i> رجوع
+                </a>
+            </div>
+
+            <form action="{% url 'departments:add_department' %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">اسم القسم</label>
+                    <input type="text" name="name" class="form-control" placeholder="مثال: قسم تقنية المعلومات" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">كود القسم</label>
+                    <input type="text" name="code" class="form-control" placeholder="مثال: IT-001" required>
+                    <div class="form-text text-muted small">
+                        * كود فريد لتمييز القسم في النظام
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">وصف القسم</label>
+                    <textarea name="description" class="form-control" rows="3" placeholder="اكتب وصفاً للقسم ومهامه الأساسية..."></textarea>
+                </div>
+
+                <div class="d-flex gap-2 pt-2">
+                    <button type="submit" class="btn btn-custom-primary flex-grow-1">حفظ القسم</button>
+                    <a href="{% url 'departments:department_list' %}" class="btn btn-outline-secondary">إلغاء</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

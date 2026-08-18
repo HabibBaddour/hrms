@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}التقارير | HRMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">لوحة التقارير</h3>
+            <p class="text-muted mb-0">ملخص أداء الموظفين، الإجازات، والرواتب</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">إجمالي الموظفين</div>
+                    <h4 class="fw-bold mt-2 mb-0">{{ employee_count }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">إجمالي الطلبات</div>
+                    <h4 class="fw-bold mt-2 mb-0">{{ leave_count }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">إجمالي الرواتب</div>
+                    <h4 class="fw-bold mt-2 mb-0">{{ payroll_total|floatformat:2 }} $</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">متوسط الأداء</div>
+                    <h4 class="fw-bold mt-2 mb-0">{{ performance_avg|floatformat:2 }}/5</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="mb-0 fw-bold">توزيع حالات الإجازات</h5>
+        </div>
+        <div class="card-body">
+            {% if leave_status_summary %}
+                <ul class="list-group list-group-flush">
+                    {% for item in leave_status_summary %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ item.status }}</span>
+                        <span class="badge bg-primary rounded-pill">{{ item.total }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted mb-0">لا توجد بيانات للإجازات.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if payrolls %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="mb-0 fw-bold">آخر رواتب</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>الموظف</th>
+                            <th>القسم</th>
+                            <th>صافي الراتب</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payroll in payrolls %}
+                        <tr>
+                            <td>{{ payroll.employee.get_full_name|default:payroll.employee.user.username }}</td>
+                            <td>{{ payroll.employee.department.name|default:'غير محدد' }}</td>
+                            <td>{{ payroll.net_salary|floatformat:2 }} $</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if leaves %}
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="mb-0 fw-bold">آخر طلبات الإجازة</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>الموظف</th>
+                            <th>النوع</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave in leaves %}
+                        <tr>
+                            <td>{{ leave.employee.get_full_name|default:leave.employee.user.username }}</td>
+                            <td>{{ leave.get_leave_type_display }}</td>
+                            <td>{{ leave.get_status_display }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if evaluations %}
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="mb-0 fw-bold">آخر تقييمات الأداء</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>الموظف</th>
+                            <th>الفترة</th>
+                            <th>النتيجة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for evaluation in evaluations %}
+                        <tr>
+                            <td>{{ evaluation.employee.get_full_name|default:evaluation.employee.user.username }}</td>
+                            <td>{{ evaluation.period }}</td>
+                            <td>{{ evaluation.overall_score }}/5</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

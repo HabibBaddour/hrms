@@ -1,0 +1,786 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS</title>
+
+    <!-- Bootstrap 5 RTL CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary-gradient: linear-gradient(135deg, #312e81 0%, #4f46e5 100%);
+            --bg-body: #f8fafc;
+            --sidebar-bg: #1e1b4b;
+            --text-muted: #94a3b8;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            
+            --dark-bg-body: #0f172a;
+            --dark-sidebar-bg: #1e293b;
+            --dark-card-bg: #1e293b;
+            --dark-text-color: #f8fafc;
+            --dark-text-muted: #94a3b8;
+            --dark-border-color: #334155;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body.dark-mode {
+            --bg-body: var(--dark-bg-body);
+            --sidebar-bg: var(--dark-sidebar-bg);
+            --text-muted: var(--dark-text-muted);
+            --card-bg: var(--dark-card-bg);
+            --text-color: var(--dark-text-color);
+            --border-color: var(--dark-border-color);
+        }
+
+        body.dark-mode .card,
+        body.dark-mode .modal-content {
+            background-color: var(--card-bg) !important;
+            color: var(--text-color) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        body.dark-mode .card-header,
+        body.dark-mode .card-footer,
+        body.dark-mode .list-group-item,
+        body.dark-mode .table,
+        body.dark-mode .table th,
+        body.dark-mode .table td {
+            background-color: var(--card-bg) !important;
+            color: var(--text-color) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        body.dark-mode .form-control,
+        body.dark-mode .form-select {
+            background-color: #334155 !important;
+            color: #f8fafc !important;
+            border-color: #475569 !important;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            right: 0;
+            background-color: var(--sidebar-bg);
+            color: #fff;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-brand {
+            padding: 16px 20px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 10px;
+            margin: 0;
+            flex-grow: 1;
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .sidebar-menu::-webkit-scrollbar {
+            display: none;
+        }
+
+        .sidebar-menu .menu-header {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 10px 12px 4px;
+            font-weight: 700;
+        }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: all 0.2s ease;
+            margin-bottom: 2px;
+        }
+
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            transform: translateX(-3px);
+        }
+
+        .sidebar-menu li a i {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+            color: #818cf8;
+        }
+
+        /* Main Wrapper */
+        .main-wrapper {
+            margin-right: var(--sidebar-width);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        /* Topbar */
+        .topbar {
+            height: 65px;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body.dark-mode .topbar {
+            background: #1e293b;
+            border-bottom: 1px solid #334155;
+        }
+
+        /* Navbar Icons */
+        .navbar-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            background: #f1f5f9;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            font-size: 1rem;
+            text-decoration: none;
+        }
+
+        .navbar-icon:hover {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .navbar-icon-danger {
+            color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .navbar-icon-danger:hover {
+            background: #fecaca;
+            color: #dc2626;
+        }
+
+        body.dark-mode .navbar-icon {
+            background: #334155;
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .navbar-icon:hover {
+            background: #475569;
+            color: #f8fafc;
+        }
+
+        body.dark-mode .navbar-icon-danger {
+            background: #451a1a;
+            color: #fca5a5;
+        }
+
+        body.dark-mode .navbar-icon-danger:hover {
+            background: #7f1d1d;
+            color: #fecaca;
+        }
+
+        .navbar-icon .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 9px;
+            height: 9px;
+            background: #ef4444;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+        }
+
+        body.dark-mode .navbar-icon .notification-badge {
+            border-color: #1e293b;
+        }
+
+        /* User Profile Dropdown */
+        .user-profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 12px 6px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .user-profile-trigger:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #312e81 0%, #4f46e5 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.88rem;
+        }
+
+        .user-role-preview {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        body.dark-mode .user-name { color: #f1f5f9; }
+        body.dark-mode .user-role-preview { color: #94a3b8; }
+        body.dark-mode .user-profile-trigger {
+            background: #334155;
+            border-color: #475569;
+        }
+        body.dark-mode .user-profile-trigger:hover { background: #475569; }
+
+        /* Dropdown Menu */
+        .dropdown-menu-custom {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            min-width: 250px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .dropdown-menu-custom.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        body.dark-mode .dropdown-menu-custom {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        .dropdown-header-custom {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+            border-radius: 12px 12px 0 0;
+        }
+
+        body.dark-mode .dropdown-header-custom {
+            background: #334155;
+            border-color: #475569;
+        }
+
+        .dropdown-user-name {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        body.dark-mode .dropdown-user-name { color: #f1f5f9; }
+
+        .role-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .role-badge.superuser { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .role-badge.hr-admin { background: #dbeafe; color: #0284c7; border: 1px solid #bfdbfe; }
+        .role-badge.manager { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
+        .role-badge.employee { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+        .dropdown-item-custom {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            margin: 4px 8px;
+        }
+
+        .dropdown-item-custom:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        body.dark-mode .dropdown-item-custom { color: #94a3b8; }
+        body.dark-mode .dropdown-item-custom:hover {
+            background: #334155;
+            color: #f1f5f9;
+        }
+
+        .dropdown-item-custom i {
+            width: 20px;
+            text-align: center;
+            color: #64748b;
+        }
+
+        body.auth-page .sidebar, 
+        body.auth-page .topbar { display: none !important; }
+        body.auth-page .main-wrapper { margin-right: 0 !important; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% if not user.is_authenticated or request.resolver_match.url_name == 'login' %}auth-page{% endif %}">
+    {% csrf_token %}
+
+    {% with user_role=user_role %}
+    {% if user.is_authenticated and request.resolver_match.url_name != 'login' %}
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="{% url 'dashboard' %}" class="sidebar-brand">
+            <i class="fa-solid fa-users-gear text-warning fs-4"></i>
+            <span>HRMS System</span>
+        </a>
+
+        <ul class="sidebar-menu">
+            <!-- Menu based on user role -->
+            {% if user.is_superuser or user.is_staff or user_role == 'HR Admin' or user_role == 'HR' %}
+                <!-- SuperUser & HR Admin - Full Menu -->
+                <li class="menu-header">الرئيسية</li>
+                <li>
+                    <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <i class="fa-solid fa-chart-pie"></i> لوحة التحكم
+                    </a>
+                </li>
+
+                <li class="menu-header">إدارة الهيكل والخدمات</li>
+                <li>
+                    <a href="{% url 'departments:department_list' %}" class="{% if 'department' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fa-solid fa-sitemap"></i> الأقسام والوظائف
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'employees:employee_list' %}" class="{% if 'employee' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fa-solid fa-user-group"></i> الموظفين
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'leaves:leave_list' %}" class="{% if 'leave' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fa-solid fa-calendar-minus"></i> طلبات الإجازات
+                    </a>
+                </li>
+
+                <li class="menu-header">المالية والأداء</li>
+                <li>
+                    <a href="{% url 'payroll_dashboard' %}" class="{% if request.path == '/payroll/' or 'payroll' in request.path %}active{% endif %}">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> الرواتب والمسيرات
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'performance_dashboard' %}" class="{% if request.path == '/performance/' or 'performance' in request.path %}active{% endif %}">
+                        <i class="fa-solid fa-chart-line"></i> تقييم الأداء
+                    </a>
+                </li>
+
+                <li class="menu-header">الذكاء الاصطناعي والتقارير</li>
+                <li>
+                    <a href="#">
+                        <i class="fa-solid fa-wand-magic-sparkles text-warning"></i> التنبؤ بالإجازات (ML)
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'reports:reports_dashboard' %}" class="{% if 'reports' in request.path %}active{% endif %}">
+                        <i class="fa-solid fa-file-lines"></i> التقارير المتقدمة
+                    </a>
+                </li>
+
+                <li class="menu-header">الملف الشخصي</li>
+                <li>
+                    <a href="{% url 'employees:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                        <i class="fa-solid fa-user-gear"></i> الملف الشخصي
+                    </a>
+                </li>
+            
+            {% elif user_role == 'Manager' or user_role == 'manager' %}
+                <!-- Manager - Limited Menu -->
+                <li class="menu-header">الرئيسية</li>
+                <li>
+                    <a href="{% url 'manager_dashboard' %}" class="{% if request.resolver_match.url_name == 'manager_dashboard' %}active{% endif %}">
+                        <i class="fa-solid fa-chart-pie"></i> لوحة المدير
+                    </a>
+                </li>
+
+                <li class="menu-header">إدارة الفريق</li>
+                <li>
+                    <a href="{% url 'employees:employee_list' %}" class="{% if 'employee' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fa-solid fa-users"></i> فريقي
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'leaves:leave_list' %}" class="{% if 'leave' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fa-solid fa-calendar-check"></i> الموافقات المعلقة
+                    </a>
+                </li>
+
+                <li class="menu-header">التقارير</li>
+                <li>
+                    <a href="#">
+                        <i class="fa-solid fa-chart-line"></i> أداء الفريق
+                    </a>
+                </li>
+
+                <li class="menu-header">الملف الشخصي</li>
+                <li>
+                    <a href="{% url 'employees:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                        <i class="fa-solid fa-user-gear"></i> الملف الشخصي
+                    </a>
+                </li>
+            
+            {% else %}
+                <!-- Employee - Limited Menu -->
+                <li class="menu-header">الرئيسية</li>
+                <li>
+                    <a href="{% url 'employee_dashboard' %}" class="{% if request.resolver_match.url_name == 'employee_dashboard' %}active{% endif %}">
+                        <i class="fa-solid fa-user"></i> بوابة الموظف
+                    </a>
+                </li>
+
+                <li class="menu-header">خدماتي</li>
+                <li>
+                    <a href="{% url 'leaves:leave_list' %}" class="{% if 'leave' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fa-solid fa-calendar-plus"></i> طلبات الإجازات
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> كشف الراتب
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'employees:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                        <i class="fa-solid fa-user-gear"></i> الملف الشخصي
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'user_settings' %}" class="{% if request.resolver_match.url_name == 'user_settings' %}active{% endif %}">
+                        <i class="fa-solid fa-gear"></i> الإعدادات
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+
+        <!-- User Profile Quick View at Bottom -->
+        <div class="p-3 border-top border-secondary border-opacity-25 mt-auto bg-black bg-opacity-10">
+            <div class="d-flex align-items-center gap-2">
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0" style="width: 38px; height: 38px; font-size: 0.95rem;">
+                    {{ user.username|slice:":1"|upper }}
+                </div>
+                <div class="overflow-hidden w-100">
+                    <h6 class="mb-0 text-white text-truncate small fw-bold">{{ user.get_full_name|default:user.username }}</h6>
+                    <div class="mt-1">
+                        {% if user.is_superuser %}
+                            <span class="badge bg-danger text-white border border-danger-subtle px-2 py-1" style="font-size: 0.68rem;">
+                                <i class="fa-solid fa-bolt me-1"></i> SuperUser
+                            </span>
+                        {% elif user_role == 'Manager' or user_role == 'manager' %}
+                            <span class="badge bg-warning text-dark px-2 py-1" style="font-size: 0.68rem;">
+                                <i class="fa-solid fa-user-tie me-1"></i> مدير (Manager)
+                            </span>
+                        {% elif user_role == 'HR' or user_role == 'HR Admin' %}
+                            <span class="badge bg-info text-dark px-2 py-1" style="font-size: 0.68rem;">
+                                <i class="fa-solid fa-id-card me-1"></i> مسؤول HR
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary text-white px-2 py-1" style="font-size: 0.68rem;">
+                                <i class="fa-solid fa-user me-1"></i> موظف
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+    {% endif %}
+
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+        {% if user.is_authenticated and request.resolver_match.url_name != 'login' %}
+        <!-- Topbar Navigation -->
+        <header class="topbar">
+            <!-- Dynamic Header Title -->
+            <div class="d-flex align-items-center gap-3">
+                <h5 class="fw-bold mb-0 text-dark" id="page-main-title">
+                    {% block page_title %}
+                        {% if request.resolver_match.url_name == 'dashboard' %}لوحة التحكم الرئيسية
+                        {% elif 'department' in request.resolver_match.url_name %}إدارة الأقسام والوظائف
+                        {% elif 'employee' in request.resolver_match.url_name %}إدارة الموظفين
+                        {% elif 'leave' in request.resolver_match.url_name %}إدارة طلبات الإجازات
+                        {% elif request.resolver_match.url_name == 'message_list' %}صندوق الرسائل والاتصالات الداخلية
+                        {% elif request.resolver_match.url_name == 'notification_list' %}مركز الإشعارات وتنبيهات النظام
+                        {% elif request.resolver_match.url_name == 'core:notification_list' %}مركز الإشعارات وتنبيهات النظام
+                        {% else %}لوحة التحكم
+                        {% endif %}
+                    {% endblock %}
+                </h5>
+            </div>
+
+            <!-- Header Left Section: Topbar Icons & User Menu -->
+            <div class="d-flex align-items-center gap-2">
+                
+                <!-- 1. الرسائل (Messages) -->
+                <a href="{% url 'message_list' %}" class="navbar-icon {% if request.resolver_match.url_name == 'message_list' %}active{% endif %}" title="صندوق الرسائل">
+                    <i class="fa-solid fa-envelope"></i>
+                </a>
+
+                <!-- 2. الإشعارات والسجلات (Notifications & Logs) -->
+                <a href="{% url 'core:notification_list' %}" class="navbar-icon {% if request.resolver_match.url_name == 'core:notification_list' %}active{% endif %}" title="الإشعارات والأحداث">
+                    <i class="fa-solid fa-bell"></i>
+                    {% if unread_notifications_count > 0 %}
+                    <span class="notification-badge"></span>
+                    {% endif %}
+                </a>
+
+                <!-- 3. أيقونة تسجيل الخروج المباشرة -->
+                <button type="button" class="navbar-icon navbar-icon-danger" data-bs-toggle="modal" data-bs-target="#logoutConfirmModal" title="تسجيل الخروج">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+
+                <div class="vr mx-2 align-self-center" style="height: 24px; opacity: 0.2;"></div>
+
+                <!-- 4. القائمة المنسدلة للمستخدم والملف الشخصي -->
+                <div class="user-profile-dropdown" style="position: relative;">
+                    <div class="user-profile-trigger" id="profile-trigger">
+                        <div class="user-avatar">
+                            {% if user.employee_profile.profile_picture %}
+                                <img src="{{ user.employee_profile.profile_picture.url }}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                            {% else %}
+                                {{ user.username|slice:":1"|upper }}
+                            {% endif %}
+                        </div>
+                        <div class="user-info">
+                            <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+                            <span class="user-role-preview">
+                                {% if user.is_superuser %}SuperUser
+                                {% elif user.is_staff or user_role == 'HR Admin' or user_role == 'HR' %}مسؤول HR
+                                {% elif user_role == 'Manager' or user_role == 'manager' %}مدير
+                                {% else %}موظف
+                                {% endif %}
+                            </span>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-muted" style="font-size: 0.75rem; margin-right: 4px;"></i>
+                    </div>
+
+                    <!-- Dropdown Menu (Without Logout Button) -->
+                    <div class="dropdown-menu-custom" id="dropdown-menu">
+                        <!-- Header -->
+                        <div class="dropdown-header-custom">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="user-avatar" style="width: 48px; height: 48px; font-size: 1.1rem;">
+                                    {% if user.employee_profile.profile_picture %}
+                                        <img src="{{ user.employee_profile.profile_picture.url }}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                                    {% else %}
+                                        {{ user.username|slice:":1"|upper }}
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="dropdown-user-name">{{ user.get_full_name|default:user.username }}</div>
+                                    {% if user.is_superuser %}
+                                        <span class="role-badge superuser"><i class="fa-solid fa-bolt me-1"></i> SuperUser</span>
+                                    {% elif user.is_staff or user_role == 'HR Admin' or user_role == 'HR' %}
+                                        <span class="role-badge hr-admin"><i class="fa-solid fa-id-card me-1"></i> HR Admin</span>
+                                    {% elif user_role == 'Manager' or user_role == 'manager' %}
+                                        <span class="role-badge manager"><i class="fa-solid fa-user-tie me-1"></i> Manager</span>
+                                    {% else %}
+                                        <span class="role-badge employee"><i class="fa-solid fa-user me-1"></i> Employee</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User Profile Link -->
+                        <a href="{% url 'employees:profile' %}" class="dropdown-item-custom">
+                            <i class="fa-solid fa-user-gear text-primary"></i>
+                            الملف الشخصي والبيانات
+                        </a>
+
+                        {% if user.is_superuser %}
+                        <a href="/admin/" class="dropdown-item-custom">
+                            <i class="fa-solid fa-toolbox text-warning"></i>
+                            لوحة تحكم Django
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+        </header>
+        {% endif %}
+
+        <!-- Page Dynamic Content -->
+        <main class="p-4 flex-grow-1">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="text-center py-3 text-muted border-top bg-white mt-auto">
+            <small>© 2026 HRMS - جميع الحقوق محفوظة</small>
+        </footer>
+    </div>
+    {% endwith %}
+
+    <!-- Modal تأكيد تسجيل الخروج -->
+    <div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-labelledby="logoutConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-danger" id="logoutConfirmModalLabel">
+                        <i class="fa-solid fa-circle-exclamation me-2"></i> تأكيد تسجيل الخروج
+                    </h5>
+                    <button type="button" class="btn-close ms-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-3">
+                    هل أنت متأكد من رغبتك في تسجيل الخروج وإغلاق الجلسة الحالية؟
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light px-4 fw-semibold" style="border-radius: 8px;" data-bs-dismiss="modal">إلغاء</button>
+                    <form method="post" action="{% url 'logout' %}" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger px-4 fw-semibold" style="border-radius: 8px;">تأكيد الخروج</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JS Handling for Dropdowns and Theme Toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dropdown Toggle Logic
+            const profileTrigger = document.getElementById('profile-trigger');
+            const dropdownMenu = document.getElementById('dropdown-menu');
+
+            if (profileTrigger && dropdownMenu) {
+                profileTrigger.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('active');
+                });
+
+                document.addEventListener('click', function(e) {
+                    if (!dropdownMenu.contains(e.target) && !profileTrigger.contains(e.target)) {
+                        dropdownMenu.classList.remove('active');
+                    }
+                });
+            }
+
+            // Dark/Light Mode Toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            const body = document.body;
+
+            if (themeToggle && themeIcon) {
+                // Check for saved theme preference
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    body.classList.add('dark-mode');
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                }
+
+                themeToggle.addEventListener('click', function() {
+                    body.classList.toggle('dark-mode');
+                    
+                    if (body.classList.contains('dark-mode')) {
+                        themeIcon.classList.remove('fa-sun');
+                        themeIcon.classList.add('fa-moon');
+                        localStorage.setItem('theme', 'dark');
+                    } else {
+                        themeIcon.classList.remove('fa-moon');
+                        themeIcon.classList.add('fa-sun');
+                        localStorage.setItem('theme', 'light');
+                    }
+                });
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

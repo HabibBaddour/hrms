@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ message.subject }} | HRMS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0 text-dark">
+                        <i class="fa-solid fa-envelope text-primary me-2"></i>{{ message.subject }}
+                    </h4>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'message_list' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fa-solid fa-arrow-right me-1"></i> العودة للقائمة
+                        </a>
+                        <a href="{% url 'message_delete' message.id %}" class="btn btn-outline-danger btn-sm" onclick="return confirm('هل أنت متأكد من حذف هذه الرسالة؟')">
+                            <i class="fa-solid fa-trash me-1"></i> حذف
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Message Info -->
+                    <div class="bg-light rounded-3 p-3 mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <small class="text-muted fw-semibold">من:</small>
+                                    <div class="fw-bold text-dark">{{ message.sender.get_full_name|default:message.sender.username }}</div>
+                                    <small class="text-muted">{{ message.sender.email }}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <small class="text-muted fw-semibold">إلى:</small>
+                                    <div class="fw-bold text-dark">{{ message.recipient.get_full_name|default:message.recipient.username }}</div>
+                                    <small class="text-muted">{{ message.recipient.email }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted fw-semibold">التاريخ:</small>
+                            <span class="text-dark">{{ message.created_at|date:"Y-m-d H:i" }}</span>
+                            {% if message.is_read %}
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle ms-2">مقروءة</span>
+                            {% else %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle ms-2">غير مقروءة</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Message Body -->
+                    <div class="message-body">
+                        <h5 class="fw-bold mb-3">نص الرسالة:</h5>
+                        <div class="bg-white border rounded-3 p-4" style="min-height: 200px;">
+                            {{ message.body|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

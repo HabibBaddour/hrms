@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% block title %}إنشاء رسالة جديدة | HRMS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fa-solid fa-pen me-2"></i>رسالة جديدة
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'message_compose' %}" id="message_form">
+                        {% csrf_token %}
+                        
+                        <!-- Recipient Filter -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">خيار التوجيه:</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="recipient_filter" id="filter_all" value="all_users" checked>
+                                        <label class="form-check-label" for="filter_all">
+                                            <i class="fa-solid fa-users me-2"></i>الجميع / All
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="recipient_filter" id="filter_specific" value="specific_departments_users">
+                                        <label class="form-check-label" for="filter_specific">
+                                            <i class="fa-solid fa-user-tag me-2"></i>أقسام وموظفين محددين / Specific Departments & Users
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Dynamic Department & User Selection Container -->
+                        <div class="mb-4 p-3 bg-light rounded" id="specific_selection_container" style="display: none;">
+                            <div class="row g-3">
+                                <div class="col-md-5">
+                                    <label for="department_select" class="form-label fw-semibold">
+                                        <i class="fa-solid fa-building me-2"></i>اختر الأقسام:
+                                    </label>
+                                    <select class="form-select" name="department_ids" id="department_select" multiple size="4" style="min-height: 120px; max-height: 160px;">
+                                        {% for dept in departments %}
+                                        <option value="{{ dept.id }}">{{ dept.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="text-muted d-block mt-2">اضغط Ctrl+Click لاختيار أقسام متعددة</small>
+                                </div>
+
+                                <div class="col-md-7">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fa-solid fa-user-shield me-1"></i>فلترة حسب الدور:
+                                    </label>
+                                    <div class="d-flex flex-wrap gap-2 mb-3" id="role_filter_group">
+                                        <label class="btn btn-sm btn-outline-primary active role-filter-label">
+                                            <input type="checkbox" class="role-filter-checkbox" name="role_filters" value="Employee" checked> موظف
+                                        </label>
+                                        <label class="btn btn-sm btn-outline-primary active role-filter-label">
+                                            <input type="checkbox" class="role-filter-checkbox" name="role_filters" value="Manager" checked> مدير
+                                        </label>
+                                        <label class="btn btn-sm btn-outline-primary active role-filter-label">
+                                            <input type="checkbox" class="role-filter-checkbox" name="role_filters" value="HR Admin" checked> HR Admin
+                                        </label>
+                                    </div>
+
+                                    <div class="mb-3" id="user_selection_container" style="display: none;">
+                                        <label class="form-label fw-semibold">
+                                            <i class="fa-solid fa-users me-2"></i>اختر المستلمين:
+                                        </label>
+
+                                        <div class="mb-2 d-flex gap-2 flex-wrap">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" id="select_all_users">
+                                                <i class="fa-solid fa-check-double me-1"></i>تحديد الكل
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" id="select_none_users">
+                                                <i class="fa-solid fa-times me-1"></i>إلغاء التحديد
+                                            </button>
+                                        </div>
+
+                                        <div class="border rounded p-2 bg-white" style="max-height: 180px; overflow-y: auto; min-height: 110px;" id="users_list">
+                                            <div class="text-center text-muted py-3">
+                                                <i class="fa-solid fa-spinner fa-spin"></i> جاري التحميل...
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-2">
+                                            <span class="badge bg-primary" id="selected_users_count">0 مستخدم محدد</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Subject -->
+                        <div class="mb-3">
+                            <label for="subject" class="form-label fw-semibold">
+                                <i class="fa-solid fa-heading me-2"></i>الموضوع:
+                            </label>
+                            <input type="text" class="form-control" name="subject" id="subject" required placeholder="أدخل موضوع الرسالة">
+                        </div>
+                        
+                        <!-- Message Body -->
+                        <div class="mb-3">
+                            <label for="body" class="form-label fw-semibold">
+                                <i class="fa-solid fa-align-left me-2"></i>نص الرسالة:
+                            </label>
+                            <textarea class="form-control" name="body" id="body" rows="6" required placeholder="اكتب رسالتك هنا..."></textarea>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'message_list' %}" class="btn btn-secondary">
+                                <i class="fa-solid fa-times me-1"></i>إلغاء
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-paper-plane me-1"></i> إرسال
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const roleFilterCheckboxes = document.querySelectorAll('.role-filter-checkbox');
+
+function getSelectedRoleFilters() {
+    return Array.from(roleFilterCheckboxes)
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.value);
+}
+
+function refreshRoleStyles() {
+    document.querySelectorAll('.role-filter-label').forEach(label => {
+        const checkbox = label.querySelector('input');
+        label.classList.toggle('active', checkbox.checked);
+        label.classList.toggle('btn-primary', checkbox.checked);
+        label.classList.toggle('btn-outline-primary', !checkbox.checked);
+    });
+}
+
+roleFilterCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        refreshRoleStyles();
+        document.getElementById('department_select').dispatchEvent(new Event('change'));
+    });
+});
+
+refreshRoleStyles();
+
+// Show/hide conditional fields based on recipient filter
+document.querySelectorAll('input[name="recipient_filter"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const specificContainer = document.getElementById('specific_selection_container');
+
+        if (this.value === 'specific_departments_users') {
+            specificContainer.style.display = 'block';
+        } else {
+            specificContainer.style.display = 'none';
+        }
+    });
+});
+
+// Department selection change handler
+document.getElementById('department_select').addEventListener('change', function() {
+    const selectedDepartments = Array.from(this.selectedOptions).map(option => option.value);
+    const userContainer = document.getElementById('user_selection_container');
+    const usersList = document.getElementById('users_list');
+    const selectedRoles = getSelectedRoleFilters();
+
+    if (selectedDepartments.length > 0) {
+        userContainer.style.display = 'block';
+        usersList.innerHTML = '<div class="text-center text-muted py-3"><i class="fa-solid fa-spinner fa-spin"></i> جاري تحميل المستخدمين...</div>';
+
+        const url = new URL('/dashboard/messages/api/get-department-users/', window.location.origin);
+        selectedDepartments.forEach(deptId => url.searchParams.append('department_ids', deptId));
+        selectedRoles.forEach(role => url.searchParams.append('roles', role));
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.users && data.users.length > 0) {
+                    displayUsers(data.users);
+                } else {
+                    usersList.innerHTML = '<div class="text-center text-muted py-3">لا يوجد مستخدمين في الأقسام المحددة وفق الدور المختار</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching users:', error);
+                usersList.innerHTML = '<div class="text-center text-danger py-3">حدث خطأ في تحميل المستخدمين</div>';
+            });
+    } else {
+        userContainer.style.display = 'none';
+        usersList.innerHTML = '';
+    }
+});
+
+// Display users in the list
+function displayUsers(users) {
+    const usersList = document.getElementById('users_list');
+    usersList.innerHTML = '';
+
+    users.forEach(user => {
+        const userDiv = document.createElement('div');
+        userDiv.className = 'form-check px-2 py-2 border-bottom';
+        userDiv.innerHTML = `
+            <div class="d-flex align-items-start gap-2">
+                <input class="form-check-input user-checkbox mt-1" type="checkbox" name="selected_users" value="${user.id}" id="user_${user.id}">
+                <label class="form-check-label w-100" for="user_${user.id}" style="cursor: pointer;">
+                    <div class="fw-semibold">${user.full_name}</div>
+                    <div class="small text-muted mt-1">
+                        <i class="fa-solid fa-building me-1"></i>${user.department_name}
+                        <span class="mx-1">|</span>
+                        <i class="fa-solid fa-user-tie me-1"></i>${user.position_title}
+                        <span class="mx-1">(</span>${user.role}<span>)</span>
+                    </div>
+                </label>
+            </div>
+        `;
+        usersList.appendChild(userDiv);
+    });
+
+    updateSelectedCount();
+}
+
+// Update selected users count
+function updateSelectedCount() {
+    const selectedCount = document.querySelectorAll('.user-checkbox:checked').length;
+    document.getElementById('selected_users_count').textContent = `${selectedCount} مستخدم محدد`;
+}
+
+// Select all users
+document.getElementById('select_all_users').addEventListener('click', function() {
+    document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+        checkbox.checked = true;
+    });
+    updateSelectedCount();
+});
+
+// Select none users
+document.getElementById('select_none_users').addEventListener('click', function() {
+    document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    updateSelectedCount();
+});
+
+// Update count when individual checkboxes change
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('user-checkbox')) {
+        updateSelectedCount();
+    }
+});
+</script>
+{% endblock %}
