@@ -3,7 +3,8 @@ from io import BytesIO
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, render, redirect
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
@@ -11,15 +12,22 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 
 from employees.models import Employee
 from payroll.models import Payroll
+from .forms import PayrollForm
 
 
 @login_required(login_url='login')
 def payroll_dashboard(request):
+    month = int(request.GET.get('month', 0) or 0)
+    year = int(request.GET.get('year', 0) or 0)
     payrolls = Payroll.objects.select_related(
         'employee__user',
         'employee__department',
         'employee__position',
-    ).order_by('-created_at')[:10]
+    ).order_by('-year', '-month', '-created_at')
+    if month:
+        payrolls = payrolls.filter(month=month)
+    if year:
+        payrolls = payrolls.filter(year=year)
 
     employees = Employee.objects.select_related('position', 'department', 'user', 'contract').all()
     total_employees = employees.count()
@@ -38,16 +46,8 @@ def payroll_dashboard(request):
         Decimal('0')
     )
 
-    total_deductions = sum(
-        (
-            p.deductions_absence + p.deductions_delay + p.insurance + p.other_deductions
-            for p in Payroll.objects.all()
-        ),
-        Decimal('0')
-    )
-    processed_count = employees.filter(
-        position__isnull=False
-    ).count()
+    total_deductions = sum((p.total_deductions for p in payrolls), Decimal('0'))
+    processed_count = payrolls.count()
 
     context = {
         'payrolls': payrolls,
@@ -55,9 +55,29 @@ def payroll_dashboard(request):
         'total_net_salary': total_net_salary,
         'total_deductions': total_deductions,
         'processed_count': processed_count,
-        'selected_month': 'شهر الحالي',
+        'selected_month': f'{month}/{year}' if month and year else 'كل الفترات',
+        'month': month,
+        'year': year,
     }
     return render(request, 'payroll/payroll_dashboard.html', context)
+
+
+@login_required(login_url='login')
+def create_payroll(request):
+    form = PayrollForm(request.POST or None)
+    if form.is_valid():
+        payroll = form.save()
+        messages.success(request, f'تم إنشاء قسيمة راتب {payroll.employee.get_full_name()} بنجاح.')
+        return redirect('payroll_payslip', pk=payroll.pk)
+    return render(request, 'payroll/payroll_form.html', {'form': form})
+
+
+@login_required(login_url='login')
+def payroll_payslip(request, pk):
+    payroll = get_object_or_404(
+        Payroll.objects.select_related('employee__user', 'employee__department', 'employee__position'), pk=pk
+    )
+    return render(request, 'payroll/payslip.html', {'payroll': payroll})
 
 
 @login_required(login_url='login')
@@ -68,17 +88,14 @@ def export_payroll_pdf(request):
     styles = getSampleStyleSheet()
     story = [Paragraph('تقرير الرواتب', styles['Title']), Spacer(1, 18)]
 
-    rows = [['الموظف', 'القسم', 'الراتب الأساسي', 'البدلات', 'الخصومات', 'صافي الراتب']]
+    rows = [['الموظف', 'القسم', 'الراتب الأساسي', 'البدلات والمكافآت', 'الخصومات', 'صافي الراتب']]
     for payroll in payrolls:
-        total_deductions = (
-            payroll.deductions_absence + payroll.deductions_delay +
-            payroll.insurance + payroll.other_deductions
-        )
+        total_deductions = payroll.total_deductions
         rows.append([
             payroll.employee.get_full_name() if payroll.employee else 'غير محدد',
             payroll.employee.department.name if payroll.employee and payroll.employee.department else 'غير محدد',
             f'{payroll.basic_salary:.2f}',
-            f'{payroll.allowances:.2f}',
+            f'{payroll.allowances + payroll.bonuses:.2f}',
             f'{total_deductions:.2f}',
             f'{payroll.net_salary:.2f}',
         ])

@@ -9,9 +9,10 @@
             <h3 class="fw-bold mb-1">تبويبة الرواتب والمسيرات</h3>
             <p class="text-muted mb-0">مراجعة الرواتب الشهرية، الخصومات، وصافي الرواتب للموظفين</p>
         </div>
+        <div class="d-flex gap-2"><a href="{% url 'create_payroll' %}" class="btn btn-success px-4"><i class="fa-solid fa-plus me-2"></i>إضافة مسير</a>
         <a href="{% url 'payroll_export_pdf' %}" class="btn btn-primary px-4">
             <i class="fa-solid fa-file-export me-2"></i>تصدير التقرير
-        </a>
+        </a></div>
     </div>
 
     <div class="row g-4 mb-4">
@@ -110,11 +111,11 @@
                             </td>
                             <td>{{ payroll.employee.department.name|default:'غير محدد' }}</td>
                             <td>{{ payroll.basic_salary|floatformat:2 }} $</td>
-                            <td>{{ payroll.allowances|floatformat:2 }} $</td>
-                            <td>{{ payroll.deductions_absence|add:payroll.deductions_delay|add:payroll.insurance|add:payroll.other_deductions|floatformat:2 }} $</td>
+                            <td>{{ payroll.allowances|floatformat:2 }} + {{ payroll.bonuses|floatformat:2 }} $</td>
+                            <td>{{ payroll.total_deductions|floatformat:2 }} $</td>
                             <td class="fw-bold text-success">{{ payroll.net_salary|floatformat:2 }} $</td>
                             <td>
-                                <span class="badge bg-success-subtle text-success border border-success-subtle">تم الدفع</span>
+                                <a href="{% url 'payroll_payslip' payroll.pk %}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-receipt me-1"></i>قسيمة</a>
                             </td>
                         </tr>
                         {% empty %}

@@ -10,6 +10,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', CustomLoginView.as_view(), name='home'),  # الصفحة الرئيسية توجيه لتسجيل الدخول
     path('login/', CustomLoginView.as_view(), name='login'),
+    path('accounts/login/', CustomLoginView.as_view(), name='accounts_login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     
     path('dashboard/', include('dashboard.urls')),

@@ -35,6 +35,9 @@ class EmployeeEditForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.setdefault('class', 'form-control')
+        self.fields['contract_type'].widget.attrs['class'] = 'form-select'
         # تعبئة الحقول القادمة من كائن User تلقائياً عند فتح النموذج
         if self.instance and self.instance.user:
             self.fields['first_name'].initial = self.instance.user.first_name
@@ -86,3 +89,37 @@ class EmployeeEditForm(forms.ModelForm):
         if commit:
             employee.save()
         return employee
+
+
+class ContractLifecycleForm(forms.ModelForm):
+    class Meta:
+        model = Contract
+        fields = (
+            'contract_type', 'salary', 'start_date', 'end_date', 'status',
+            'document', 'termination_date', 'termination_reason', 'clearance_status',
+        )
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+            'termination_date': forms.DateInput(attrs={'type': 'date'}),
+            'termination_reason': forms.Textarea(attrs={'rows': 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.setdefault('class', 'form-control')
+        self.fields['contract_type'].widget.attrs['class'] = 'form-select'
+        self.fields['status'].widget.attrs['class'] = 'form-select'
+        self.fields['clearance_status'].widget.attrs['class'] = 'form-select'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        if start_date and end_date and end_date < start_date:
+            self.add_error('end_date', 'يجب أن يكون تاريخ الانتهاء بعد تاريخ البداية.')
+        status = cleaned_data.get('status')
+        if status in {'TERMINATED', 'RESIGNED'} and not cleaned_data.get('termination_date'):
+            self.add_error('termination_date', 'أدخل تاريخ الإنهاء أو الاستقالة.')
+        return cleaned_data

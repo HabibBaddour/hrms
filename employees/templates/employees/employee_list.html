@@ -113,6 +113,9 @@
                                 {% endif %}
                             </td>
                             <td class="text-end pe-4">
+                                <a href="{% url 'employees:contract_detail' emp.id %}" class="btn btn-sm btn-outline-primary rounded-2" title="سجل العقد">
+                                    <i class="fa-solid fa-file-contract"></i>
+                                </a>
                                 <a href="{% url 'employees:edit_employee' emp.id %}" class="btn btn-sm btn-outline-secondary rounded-2">
                                     <i class="fa-solid fa-pen"></i>
                                 </a>

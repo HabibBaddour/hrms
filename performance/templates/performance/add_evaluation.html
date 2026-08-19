@@ -9,38 +9,27 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
                     <h3 class="fw-bold mb-3">إضافة تقييم أداء جديد</h3>
-                    <form method="post">
+                    <form method="post" novalidate>
                         {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="form-label">الموظف</label>
-                            <select name="employee" class="form-select" required>
-                                <option value="">اختر الموظف</option>
-                                {% for employee in employees %}
-                                    <option value="{{ employee.id }}">{{ employee.get_full_name|default:employee.user.username }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">الفترة</label>
-                            <input type="text" name="period" class="form-control" value="Q1 2026" required>
+                        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+                        <div class="mb-3">{{ form.employee.label_tag }}{{ form.employee }}{{ form.employee.errors }}</div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-7">{{ form.period.label_tag }}{{ form.period }}{{ form.period.errors }}</div>
+                            <div class="col-md-5">{{ form.period_type.label_tag }}{{ form.period_type }}{{ form.period_type.errors }}</div>
                         </div>
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label class="form-label">جودة العمل</label>
-                                <input type="number" min="1" max="5" name="work_quality" class="form-control" required>
+                                {{ form.work_quality.label_tag }}{{ form.work_quality }}{{ form.work_quality.errors }}
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">الالتزام</label>
-                                <input type="number" min="1" max="5" name="commitment" class="form-control" required>
+                                {{ form.commitment.label_tag }}{{ form.commitment }}{{ form.commitment.errors }}
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">التعاون</label>
-                                <input type="number" min="1" max="5" name="cooperation" class="form-control" required>
+                                {{ form.cooperation.label_tag }}{{ form.cooperation }}{{ form.cooperation.errors }}
                             </div>
                         </div>
                         <div class="mt-3">
-                            <label class="form-label">ملاحظات المدير</label>
-                            <textarea name="feedback" class="form-control" rows="4" required></textarea>
+                            {{ form.feedback.label_tag }}{{ form.feedback }}{{ form.feedback.errors }}
                         </div>
                         <div class="d-flex gap-2 mt-4">
                             <button type="submit" class="btn btn-primary">حفظ التقييم</button>

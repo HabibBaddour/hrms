@@ -18,6 +18,33 @@
     </div>
 
     <div class="table-responsive">
+        <div class="p-3 border-top border-bottom bg-light">
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <a href="?{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if date_from %}date_from={{ date_from }}&{% endif %}{% if date_to %}date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_folder == 'all' and not active_status %}btn-primary{% else %}btn-outline-primary{% endif %}">الكل <span class="badge bg-white text-primary ms-1">{{ filter_counts.all }}</span></a>
+                <a href="?folder=inbox{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_folder == 'inbox' and not active_status %}btn-primary{% else %}btn-outline-primary{% endif %}">الواردة <span class="badge bg-white text-primary ms-1">{{ filter_counts.inbox }}</span></a>
+                <a href="?folder=sent{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_folder == 'sent' %}btn-primary{% else %}btn-outline-primary{% endif %}">الصادرة <span class="badge bg-white text-primary ms-1">{{ filter_counts.sent }}</span></a>
+                <a href="?status=unread{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_status == 'unread' %}btn-primary{% else %}btn-outline-primary{% endif %}">غير مقروءة <span class="badge bg-white text-primary ms-1">{{ filter_counts.unread }}</span></a>
+                <a href="?status=read{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_status == 'read' %}btn-primary{% else %}btn-outline-primary{% endif %}">مقروءة <span class="badge bg-white text-primary ms-1">{{ filter_counts.read }}</span></a>
+            </div>
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-md-6">
+                    <label for="message_search" class="form-label small fw-semibold mb-1">بحث في الموضوع أو اسم المرسل والمستقبل</label>
+                    <input type="search" class="form-control" id="message_search" name="q" value="{{ search_query }}" placeholder="اكتب كلمة البحث...">
+                </div>
+                <div class="col-md-2">
+                    <label for="date_from" class="form-label small fw-semibold mb-1">من تاريخ</label>
+                    <input type="date" class="form-control" id="date_from" name="date_from" value="{{ date_from }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="date_to" class="form-label small fw-semibold mb-1">إلى تاريخ</label>
+                    <input type="date" class="form-control" id="date_to" name="date_to" value="{{ date_to }}">
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1"><i class="fa-solid fa-magnifying-glass"></i> بحث</button>
+                    <a href="{% url 'message_list' %}" class="btn btn-outline-secondary" title="مسح الفلاتر"><i class="fa-solid fa-rotate-left"></i></a>
+                </div>
+            </form>
+        </div>
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
                 <tr>
@@ -90,31 +117,17 @@
                 <form method="POST" action="{% url 'message_compose' %}" id="compose_form">
                     {% csrf_token %}
                     
-                    <!-- Recipient Filter Selection -->
                     <div class="mb-4">
-                        <label class="form-label fw-semibold">خيار التوجيه:</label>
-                        <div class="row g-2">
-                            <div class="col-md-4">
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="recipient_filter" id="filter_all" value="all_users" checked>
-                                    <label class="form-check-label" for="filter_all">
-                                        <i class="fa-solid fa-users me-1"></i>الجميع
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="recipient_filter" id="filter_specific" value="specific_departments_users">
-                                    <label class="form-check-label" for="filter_specific">
-                                        <i class="fa-solid fa-filter me-1"></i>فلترة متقدمة
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
+                        <label for="target_group" class="form-label fw-semibold">تحديد المستلمين</label>
+                        <select class="form-select" name="target_group" id="target_group">
+                            <option value="all_users">الجميع / كافّة الموظفين</option>
+                            <option value="specific_users">موظف محدد</option>
+                            <option value="specific_departments_users">قسم محدد</option>
+                        </select>
                     </div>
                     
                     <!-- Advanced Filtering Container -->
-                    <div class="mb-4 p-3 bg-light rounded" id="advanced_filter_container" style="display: none;">
+                    <div class="mb-4 p-3 bg-light rounded" id="advanced_filter_container">
                         <div class="row g-3">
                             <div class="col-md-5 mb-3">
                                 <label for="department_multi_select" class="form-label fw-semibold">
@@ -125,7 +138,7 @@
                                     <option value="{{ dept.id }}">{{ dept.name }}</option>
                                     {% endfor %}
                                 </select>
-                                <small class="text-muted d-block mt-2">اضغط Ctrl+Click لاختيار أقسام متعددة</small>
+                                <small class="text-muted d-block mt-2">يستخدم هذا الحقل عند اختيار قسم محدد</small>
 
                                 <div class="mt-2 d-flex gap-2 flex-wrap">
                                     <button type="button" class="btn btn-sm btn-outline-primary" id="select_all_depts">
@@ -156,6 +169,7 @@
                                 <label class="form-label fw-semibold">
                                     <i class="fa-solid fa-users me-1"></i>اختر المستلمين:
                                 </label>
+                                <input type="search" class="form-control mb-2" id="user_search" placeholder="ابحث باسم الموظف...">
                                 <div class="border rounded p-2 bg-white" style="max-height: 180px; overflow-y: auto; min-height: 110px;" id="users_multi_select">
                                     <div class="text-center text-muted py-3">
                                         <i class="fa-solid fa-info-circle me-1"></i>
@@ -233,21 +247,48 @@ roleFilterCheckboxes.forEach(checkbox => {
 
 refreshRoleStyles();
 
-// Show/hide advanced filtering based on recipient filter
-document.querySelectorAll('input[name="recipient_filter"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        const advancedContainer = document.getElementById('advanced_filter_container');
+const targetGroup = document.getElementById('target_group');
+const departmentSelect = document.getElementById('department_multi_select');
+const usersContainer = document.getElementById('users_multi_select');
 
-        if (this.value === 'specific_departments_users') {
-            advancedContainer.style.display = 'block';
-        } else {
-            advancedContainer.style.display = 'none';
-        }
-    });
+function loadRecipients(includeAll = false) {
+    const selectedDepartments = Array.from(departmentSelect.selectedOptions).map(option => option.value);
+    const selectedRoles = getSelectedRoleFilters();
+    if (!includeAll && selectedDepartments.length === 0) {
+        usersContainer.innerHTML = '<div class="text-center text-muted py-3">اختر قسماً لعرض الموظفين</div>';
+        return;
+    }
+
+    usersContainer.innerHTML = '<div class="text-center text-muted py-3"><i class="fa-solid fa-spinner fa-spin"></i> جاري تحميل المستخدمين...</div>';
+    const url = new URL('/dashboard/messages/api/get-department-users/', window.location.origin);
+    selectedDepartments.forEach(deptId => url.searchParams.append('department_ids', deptId));
+    selectedRoles.forEach(role => url.searchParams.append('roles', role));
+    if (includeAll) url.searchParams.set('include_all', '1');
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => displayUsers(data.users || []))
+        .catch(() => {
+            usersContainer.innerHTML = '<div class="text-center text-danger py-3">حدث خطأ في تحميل المستخدمين</div>';
+        });
+}
+
+targetGroup.addEventListener('change', function() {
+    const isAll = this.value === 'all_users';
+    departmentSelect.closest('.col-md-5').style.opacity = this.value === 'specific_departments_users' ? '1' : '0.5';
+    document.getElementById('user_search').disabled = isAll;
+    document.querySelectorAll('.user-checkbox').forEach(checkbox => checkbox.checked = false);
+    updateSelectedCount();
+    if (this.value === 'specific_users') loadRecipients(true);
+    if (this.value === 'specific_departments_users') loadRecipients(false);
+    if (isAll) {
+        usersContainer.innerHTML = '<div class="text-center text-muted py-3">سيتم الإرسال إلى جميع الموظفين النشطين</div>';
+    }
 });
 
 // Department selection change handler
 document.getElementById('department_multi_select').addEventListener('change', function() {
+    if (targetGroup.value !== 'specific_departments_users') return;
     const selectedDepartments = Array.from(this.selectedOptions).map(option => option.value);
     const usersContainer = document.getElementById('users_multi_select');
     const selectAllBtn = document.getElementById('select_all_users');
@@ -288,6 +329,13 @@ document.getElementById('department_multi_select').addEventListener('change', fu
     }
 });
 
+document.getElementById('user_search').addEventListener('input', function() {
+    const search = this.value.toLowerCase().trim();
+    document.querySelectorAll('#users_multi_select .user-check-row').forEach(row => {
+        row.classList.toggle('d-none', !row.dataset.search.includes(search));
+    });
+});
+
 // Display users in the multi-select list
 function displayUsers(users) {
     const usersContainer = document.getElementById('users_multi_select');
@@ -295,7 +343,8 @@ function displayUsers(users) {
 
     users.forEach(user => {
         const userDiv = document.createElement('div');
-        userDiv.className = 'form-check px-2 py-2 border-bottom';
+        userDiv.className = 'form-check px-2 py-2 border-bottom user-check-row';
+        userDiv.dataset.search = `${user.full_name} ${user.department_name} ${user.position_title}`.toLowerCase();
         userDiv.innerHTML = `
             <div class="d-flex align-items-start gap-2">
                 <input class="form-check-input user-checkbox mt-1" type="checkbox" name="selected_users" value="${user.id}" id="user_${user.id}">

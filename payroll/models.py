@@ -8,6 +8,7 @@ class Payroll(models.Model):
     
     basic_salary = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="الراتب الأساسي")
     allowances = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="البدلات")
+    bonuses = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="المكافآت")
     
     # الخصومات
     deductions_absence = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="خصم الغياب")
@@ -27,8 +28,16 @@ class Payroll(models.Model):
         # حساب صافي الراتب تلقائياً عند الحفظ
         total_deductions = (self.deductions_absence + self.deductions_delay + 
                             self.insurance + self.other_deductions)
-        self.net_salary = (self.basic_salary + self.allowances) - total_deductions
+        self.net_salary = (self.basic_salary + self.allowances + self.bonuses) - total_deductions
         super().save(*args, **kwargs)
+
+    @property
+    def total_deductions(self):
+        return self.deductions_absence + self.deductions_delay + self.insurance + self.other_deductions
+
+    @property
+    def gross_salary(self):
+        return self.basic_salary + self.allowances + self.bonuses
 
     def __str__(self):
         return f"قسيمة راتب {self.employee} - {self.month}/{self.year}"

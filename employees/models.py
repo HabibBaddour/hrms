@@ -69,6 +69,12 @@ class EmployeePhone(models.Model):
 
 
 class Contract(models.Model):
+    STATUS_CHOICES = (
+        ('ACTIVE', 'نشط'),
+        ('EXPIRED', 'منتهي'),
+        ('TERMINATED', 'منتهٍ'),
+        ('RESIGNED', 'استقالة'),
+    )
     CONTRACT_TYPES = (
         ('Full-Time', 'دوام كامل'),
         ('Part-Time', 'دوام جزئي'),
@@ -79,6 +85,16 @@ class Contract(models.Model):
     contract_type = models.CharField(max_length=20, choices=CONTRACT_TYPES, default='Full-Time')
     salary = models.DecimalField(max_digits=10, decimal_places=2)
     start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ACTIVE')
+    document = models.FileField(upload_to='contracts/%Y/%m/', null=True, blank=True)
+    termination_date = models.DateField(null=True, blank=True)
+    termination_reason = models.TextField(blank=True)
+    clearance_status = models.CharField(max_length=30, choices=(
+        ('PENDING', 'قيد الإخلاء'),
+        ('IN_PROGRESS', 'قيد التنفيذ'),
+        ('CLEARED', 'مكتمل'),
+    ), default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

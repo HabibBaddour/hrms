@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
@@ -181,19 +182,77 @@ def notification_list_view(request):
 @login_required
 def message_list_view(request):
     """عرض قائمة الرسائل الداخلية"""
-    # جلب الرسائل الخاصة بالمستخدم الحالي
-    received_messages = InternalMessage.objects.filter(recipient=request.user).order_by('-created_at')
-    sent_messages = InternalMessage.objects.filter(sender=request.user).order_by('-created_at')
-    
-    # دمج الرسائل وترتيبها
-    all_messages = (received_messages | sent_messages).distinct().order_by('-created_at')
-    
-    # جلب الأقسام للـ modal
+    received_messages = InternalMessage.objects.filter(recipient=request.user)
+    sent_messages = InternalMessage.objects.filter(sender=request.user)
+    visible_messages = (received_messages | sent_messages).distinct()
+
+    search_query = request.GET.get('q', '').strip()
+    date_from = request.GET.get('date_from', '').strip()
+    date_to = request.GET.get('date_to', '').strip()
+    if search_query:
+        visible_messages = visible_messages.filter(
+            Q(subject__icontains=search_query) |
+            Q(body__icontains=search_query) |
+            Q(sender__first_name__icontains=search_query) |
+            Q(sender__last_name__icontains=search_query) |
+            Q(sender__username__icontains=search_query) |
+            Q(recipient__first_name__icontains=search_query) |
+            Q(recipient__last_name__icontains=search_query) |
+            Q(recipient__username__icontains=search_query)
+        )
+    if date_from:
+        visible_messages = visible_messages.filter(created_at__date__gte=date_from)
+    if date_to:
+        visible_messages = visible_messages.filter(created_at__date__lte=date_to)
+
+    folder = request.GET.get('folder', 'all')
+    status = request.GET.get('status', '')
+    folder_query = {
+        'inbox': Q(recipient=request.user),
+        'sent': Q(sender=request.user),
+    }.get(folder)
+    if folder_query:
+        visible_messages = visible_messages.filter(folder_query)
+    if status == 'unread':
+        visible_messages = visible_messages.filter(recipient=request.user, is_read=False)
+    elif status == 'read':
+        visible_messages = visible_messages.filter(recipient=request.user, is_read=True)
+
+    counter_base = (received_messages | sent_messages).distinct()
+    if search_query:
+        counter_base = counter_base.filter(
+            Q(subject__icontains=search_query) |
+            Q(body__icontains=search_query) |
+            Q(sender__first_name__icontains=search_query) |
+            Q(sender__last_name__icontains=search_query) |
+            Q(sender__username__icontains=search_query) |
+            Q(recipient__first_name__icontains=search_query) |
+            Q(recipient__last_name__icontains=search_query) |
+            Q(recipient__username__icontains=search_query)
+        )
+    if date_from:
+        counter_base = counter_base.filter(created_at__date__gte=date_from)
+    if date_to:
+        counter_base = counter_base.filter(created_at__date__lte=date_to)
+
+    filter_counts = {
+        'all': counter_base.count(),
+        'inbox': counter_base.filter(recipient=request.user).count(),
+        'sent': counter_base.filter(sender=request.user).count(),
+        'unread': counter_base.filter(recipient=request.user, is_read=False).count(),
+        'read': counter_base.filter(recipient=request.user, is_read=True).count(),
+    }
+
     departments = Department.objects.all()
-    
     context = {
-        'messages_list': all_messages,
-        'unread_count': InternalMessage.get_unread_count(request.user),
+        'messages_list': visible_messages.order_by('-created_at'),
+        'unread_count': filter_counts['unread'],
+        'filter_counts': filter_counts,
+        'active_folder': folder,
+        'active_status': status,
+        'search_query': search_query,
+        'date_from': date_from,
+        'date_to': date_to,
         'departments': departments,
     }
     return render(request, 'messages/message_list.html', context)
@@ -203,7 +262,7 @@ def message_list_view(request):
 def message_compose(request):
     """إنشاء رسالة جديدة - Gmail-style compose modal with dynamic department/user filtering"""
     if request.method == 'POST':
-        recipient_filter = request.POST.get('recipient_filter')
+        recipient_filter = request.POST.get('target_group') or request.POST.get('recipient_filter')
         department_ids = split_filter_values(request.POST.getlist('department_ids'))
         role_filters = normalize_role_filters(request.POST.getlist('role_filters'))
         selected_user_ids = request.POST.getlist('selected_users')
@@ -217,16 +276,16 @@ def message_compose(request):
             # جميع المستخدمين النشطين
             recipients = User.objects.filter(is_active=True).exclude(id=request.user.id)
 
-        elif recipient_filter == 'specific_departments_users':
-            # أقسام وموظفين محددين
+        elif recipient_filter in {'specific_users', 'specific_departments_users'}:
             if selected_user_ids:
                 recipients = User.objects.filter(
                     id__in=selected_user_ids,
                     is_active=True
                 ).exclude(id=request.user.id)
-            elif department_ids:
+            elif recipient_filter == 'specific_departments_users' and department_ids:
                 recipients_qs = User.objects.filter(
-                    employee_profile__position__department_id__in=department_ids,
+                    Q(employee_profile__department_id__in=department_ids) |
+                    Q(employee_profile__position__department_id__in=department_ids),
                     is_active=True
                 ).exclude(id=request.user.id)
 
@@ -288,15 +347,20 @@ def get_department_users(request):
     """AJAX endpoint to get users by department IDs and optional role filter."""
     department_ids = split_filter_values(request.GET.getlist('department_ids'))
     role_filters = normalize_role_filters(request.GET.getlist('roles'))
+    include_all = request.GET.get('include_all') == '1'
 
-    if not department_ids:
+    if not department_ids and not include_all:
         return JsonResponse({'users': []})
 
     try:
-        employees = Employee.objects.filter(
-            position__department_id__in=department_ids,
-            user__is_active=True
-        ).select_related('user', 'position', 'department')
+        employees = Employee.objects.filter(user__is_active=True).select_related(
+            'user', 'position', 'department'
+        )
+        if department_ids:
+            employees = employees.filter(
+                Q(department_id__in=department_ids) |
+                Q(position__department_id__in=department_ids)
+            )
 
         if role_filters:
             employees = employees.filter(position__role__in=role_filters)

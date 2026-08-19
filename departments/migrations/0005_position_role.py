@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.AddField(
             model_name='position',
             name='role',
             field=models.CharField(choices=[('Employee', 'موظف'), ('Manager', 'مدير'), ('HR Admin', 'مسؤول موارد بشرية')], default='Employee', max_length=100, verbose_name='الدور'),

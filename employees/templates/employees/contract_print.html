@@ -1,0 +1,54 @@
+{% load static %}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>العقد النهائي - {{ employee.get_full_name }}</title>
+    <style>
+        :root { color: #172033; font-family: Tahoma, Arial, sans-serif; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #eef2f7; color: #172033; }
+        .actions { display: flex; justify-content: center; gap: 10px; padding: 18px; }
+        .actions button, .actions a { border: 0; border-radius: 6px; padding: 10px 18px; font: inherit; text-decoration: none; cursor: pointer; }
+        .actions button { background: #0d6efd; color: #fff; }
+        .actions a { background: #fff; color: #172033; border: 1px solid #d6dce6; }
+        .paper { width: 210mm; min-height: 297mm; margin: 0 auto 24px; padding: 18mm 17mm; background: #fff; box-shadow: 0 4px 18px #17203322; }
+        .brand { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #0d6efd; padding-bottom: 14px; }
+        .brand-mark { width: 54px; height: 54px; display: grid; place-items: center; border-radius: 8px; background: #0d6efd; color: #fff; font-size: 24px; font-weight: bold; }
+        .brand h1 { margin: 0; font-size: 24px; }
+        .brand p { margin: 5px 0 0; color: #5c6678; }
+        .meta { text-align: left; color: #5c6678; font-size: 12px; }
+        h2 { text-align: center; margin: 28px 0 24px; font-size: 22px; }
+        h3 { border-right: 4px solid #0d6efd; padding-right: 10px; margin: 24px 0 12px; font-size: 16px; }
+        p { line-height: 1.9; }
+        .terms { border-collapse: collapse; width: 100%; }
+        .terms th, .terms td { border: 1px solid #d8dee8; padding: 10px; text-align: right; }
+        .terms th { width: 28%; background: #f3f6fa; font-weight: bold; }
+        .parties { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .party { border: 1px solid #d8dee8; padding: 14px; min-height: 110px; }
+        .party strong { display: block; color: #0d6efd; margin-bottom: 8px; }
+        .signature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 35px; margin-top: 55px; page-break-inside: avoid; }
+        .signature { min-height: 110px; border-top: 1px solid #172033; padding-top: 10px; text-align: center; }
+        .footer-note { text-align: center; color: #687386; font-size: 11px; margin-top: 26px; }
+        @media (max-width: 900px) { .paper { width: 100%; min-height: auto; margin: 0; padding: 24px 18px; } .parties, .signature-grid { grid-template-columns: 1fr; } }
+        @media print { @page { size: A4; margin: 0; } body { background: #fff; } .actions { display: none !important; } .paper { width: 210mm; min-height: 297mm; margin: 0; padding: 16mm; box-shadow: none; } .brand, h3, .party, .terms, .signature-grid { page-break-inside: avoid; } .footer-note { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="actions"><button type="button" onclick="window.print()">طباعة / حفظ PDF</button><a href="{% if is_hr %}{% url 'employees:contract_detail' employee.pk %}{% else %}{% url 'employees:profile' %}{% endif %}">عودة</a></div>
+    <main class="paper">
+        <header class="brand"><div class="brand-mark">HR</div><div><h1>HRMS</h1><p>نظام إدارة الموارد البشرية</p></div><div class="meta">العقد النهائي<br>رقم الموظف: EMP-{{ employee.id }}</div></header>
+        <h2>عقد عمل</h2>
+        <div class="parties"><div class="party"><strong>الطرف الأول: جهة العمل</strong><div>شركة HRMS</div><div>إدارة الموارد البشرية</div></div><div class="party"><strong>الطرف الثاني: الموظف</strong><div>{{ employee.get_full_name }}</div><div>{{ employee.user.email|default:'غير محدد' }}</div></div></div>
+        <h3>بيانات وشروط العمل</h3>
+        <table class="terms"><tr><th>المسمى الوظيفي</th><td>{{ employee.position.title|default:'غير محدد' }}</td></tr><tr><th>القسم</th><td>{{ employee.department.name|default:'غير محدد' }}</td></tr><tr><th>نوع العقد</th><td>{{ contract.get_contract_type_display }}</td></tr><tr><th>تاريخ البداية</th><td>{{ contract.start_date|date:'Y-m-d' }}</td></tr><tr><th>تاريخ النهاية</th><td>{{ contract.end_date|date:'Y-m-d'|default:'غير محدد / مفتوح' }}</td></tr><tr><th>حالة العقد</th><td>{{ contract.get_status_display }}</td></tr></table>
+        <h3>الأجر والمزايا</h3>
+        <table class="terms"><tr><th>الراتب الأساسي الشهري</th><td>{{ contract.salary|floatformat:2 }} </td></tr><tr><th>البدلات</th><td>وفق سياسة الشركة والقرارات المعتمدة</td></tr><tr><th>الاستحقاقات الأخرى</th><td>تحدد حسب اللوائح الداخلية ونظام الرواتب</td></tr></table>
+        <h3>الأحكام العامة</h3>
+        <p>يخضع الموظف لفترة تجربة وفقاً للائحة العمل الداخلية والأنظمة المعمول بها. يستحق الموظف الإجازات الرسمية والسنوية وفق سياسة الشركة والنظام المحلي.</p><p>يتعهد الطرف الثاني بالمحافظة على سرية معلومات الشركة وبيانات عملائها وعدم استخدامها خارج نطاق العمل، ويستمر هذا الالتزام بعد انتهاء العلاقة التعاقدية.</p><p>يلتزم الطرفان بالأنظمة الداخلية وإجراءات السلامة والأمن وحماية البيانات، ويكون أي تعديل على هذا العقد كتابياً ومعتمداً من الطرفين.</p>
+        <div class="signature-grid"><div class="signature">توقيع الموظف<br><small>الاسم: {{ employee.get_full_name }}</small></div><div class="signature">توقيع الموارد البشرية والختم<br><small>الاسم والتوقيع والختم</small></div></div>
+        <div class="footer-note">تم إصدار هذا المستند من نظام HRMS · {{ contract.created_at|date:'Y-m-d' }}</div>
+    </main>
+</body>
+</html>

@@ -5,7 +5,9 @@ from django.db import transaction
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
+from django.utils import timezone
 from .models import Employee, Contract
+from .forms import ContractLifecycleForm
 from departments.models import Department, Position
 from core.notification_utils import notify_employee_created
 
@@ -449,3 +451,67 @@ def user_profile(request):
         ],
     }
     return render(request, 'employees/profile.html', context)
+
+
+@login_required(login_url='login')
+def contract_detail(request, pk):
+    if not (request.user.is_superuser or request.user.is_staff or request.user.groups.filter(name__iexact='HR').exists()):
+        messages.error(request, 'ليس لديك صلاحية تعديل سجلات العقود.')
+        return redirect('employees:profile')
+    employee = get_object_or_404(
+        Employee.objects.select_related('user', 'department', 'position'), pk=pk
+    )
+    contract, _ = Contract.objects.get_or_create(
+        employee=employee,
+        defaults={'salary': 0, 'start_date': timezone.localdate()},
+    )
+    if request.method == 'POST':
+        form = ContractLifecycleForm(request.POST, request.FILES, instance=contract)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'تم تحديث سجل العقد بنجاح.')
+            return redirect('employees:contract_detail', pk=employee.pk)
+    else:
+        form = ContractLifecycleForm(instance=contract)
+    return render(request, 'employees/contract_detail.html', {'employee': employee, 'contract': contract, 'form': form})
+
+
+@login_required(login_url='login')
+def contract_print(request, pk):
+    employee = get_object_or_404(
+        Employee.objects.select_related('user', 'department', 'position', 'contract'), pk=pk
+    )
+    is_hr = request.user.is_superuser or request.user.is_staff or request.user.groups.filter(name__iexact='HR').exists()
+    if not is_hr and employee.user_id != request.user.id:
+        messages.error(request, 'لا يمكنك عرض عقد موظف آخر.')
+        return redirect('employees:profile')
+    contract = getattr(employee, 'contract', None)
+    if not contract:
+        messages.error(request, 'لا يوجد عقد مسجل لهذا الموظف.')
+        return redirect('employees:profile' if not is_hr else 'employees:employee_list')
+    return render(request, 'employees/contract_print.html', {
+        'employee': employee,
+        'contract': contract,
+        'is_hr': is_hr,
+    })
+
+
+@login_required(login_url='login')
+def offboard_employee(request, pk):
+    if not (request.user.is_superuser or request.user.is_staff or request.user.groups.filter(name__iexact='HR').exists()):
+        messages.error(request, 'ليس لديك صلاحية تنفيذ إنهاء الخدمة.')
+        return redirect('employees:profile')
+    employee = get_object_or_404(Employee.objects.select_related('contract', 'user'), pk=pk)
+    contract = get_object_or_404(Contract, employee=employee)
+    if request.method == 'POST':
+        contract.status = request.POST.get('status', 'TERMINATED')
+        contract.termination_date = request.POST.get('termination_date') or timezone.localdate()
+        contract.termination_reason = request.POST.get('termination_reason', '').strip()
+        contract.clearance_status = request.POST.get('clearance_status', 'PENDING')
+        contract.save(update_fields=('status', 'termination_date', 'termination_reason', 'clearance_status'))
+        if employee.user:
+            employee.user.is_active = False
+            employee.user.save(update_fields=('is_active',))
+        messages.success(request, 'تم تسجيل إجراء إنهاء الخدمة وتعطيل حساب الموظف.')
+        return redirect('employees:contract_detail', pk=employee.pk)
+    return render(request, 'employees/offboard_employee.html', {'employee': employee, 'contract': contract})
