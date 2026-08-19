@@ -16,7 +16,7 @@
     <style>
         :root {
             --sidebar-width: 260px;
-            --primary-gradient: linear-gradient(135deg, #312e81 0%, #4f46e5 100%);
+            --primary-gradient: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
             --bg-body: #f8fafc;
             --sidebar-bg: #1e1b4b;
             --text-muted: #94a3b8;
@@ -75,6 +75,74 @@
             color: #f8fafc !important;
             border-color: #475569 !important;
         }
+
+        .form-control, .form-select, .form-check-input, .btn, .dropdown-toggle {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .form-control, .form-select {
+            border-color: var(--border-color);
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 0.22rem rgba(37, 99, 235, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+        .btn-primary, .btn-custom-primary {
+            color: #fff;
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+        .btn-primary:hover, .btn-custom-primary:hover {
+            color: #fff;
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+        }
+
+        .modal-backdrop.show { opacity: 0.62; backdrop-filter: blur(5px); }
+        .modal.fade .modal-dialog { transform: scale(0.95) translateY(10px); transition: transform 0.3s ease, opacity 0.3s ease; }
+        .modal.show .modal-dialog { transform: scale(1) translateY(0); }
+        .modal-content { border: 1px solid rgba(226, 232, 240, 0.9); border-radius: 14px; overflow: hidden; }
+
+        .hrms-toast-container {
+            position: fixed;
+            top: 82px;
+            left: 24px;
+            z-index: 1100;
+            display: grid;
+            gap: 10px;
+            width: min(360px, calc(100vw - 48px));
+        }
+
+        .hrms-toast {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 13px 16px;
+            color: #1e293b;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-right: 4px solid #2563eb;
+            border-radius: 10px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.14);
+            animation: toast-in 0.35s ease both;
+        }
+
+        .hrms-toast.success { border-right-color: #16a34a; }
+        .hrms-toast.error, .hrms-toast.warning { border-right-color: #dc2626; }
+        .hrms-toast.is-leaving { animation: toast-out 0.3s ease forwards; }
+
+        @keyframes toast-in { from { opacity: 0; transform: translateX(-18px) scale(0.96); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        @keyframes toast-out { to { opacity: 0; transform: translateX(-18px) scale(0.96); } }
+
+        @media (max-width: 575px) { .hrms-toast-container { left: 16px; width: calc(100vw - 32px); } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 
         /* Sidebar Styling */
         .sidebar {
@@ -695,6 +763,16 @@
 
         <!-- Page Dynamic Content -->
         <main class="p-4 flex-grow-1">
+            {% if messages %}
+            <div class="hrms-toast-container" aria-live="polite" aria-atomic="true">
+                {% for message in messages %}
+                <div class="hrms-toast {{ message.tags|default:'info' }}" role="status">
+                    <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check text-success{% elif message.tags == 'error' %}fa-circle-exclamation text-danger{% else %}fa-circle-info text-primary{% endif %} mt-1"></i>
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
             {% block content %}{% endblock %}
         </main>
 
@@ -750,6 +828,27 @@
                     }
                 });
             }
+
+            document.querySelectorAll('form[method="post"], form[method="POST"]').forEach(function(form) {
+                form.addEventListener('submit', function() {
+                    const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
+                    if (!submitButton || submitButton.disabled) return;
+                    submitButton.disabled = true;
+                    if (submitButton.tagName === 'BUTTON') {
+                        submitButton.dataset.originalContent = submitButton.innerHTML;
+                        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> جاري الحفظ...';
+                    } else {
+                        submitButton.value = 'جاري الحفظ...';
+                    }
+                });
+            });
+
+            document.querySelectorAll('.hrms-toast').forEach(function(toast) {
+                window.setTimeout(function() {
+                    toast.classList.add('is-leaving');
+                    window.setTimeout(function() { toast.remove(); }, 300);
+                }, 4500);
+            });
 
             // Dark/Light Mode Toggle
             const themeToggle = document.getElementById('theme-toggle');

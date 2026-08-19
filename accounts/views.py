@@ -4,6 +4,7 @@ from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.conf import settings
+from django.utils import timezone
 
 class CustomLoginView(LoginView):
     """تخصيص صفحة تسجيل الدخول لدعم اسم المستخدم أو البريد الإلكتروني"""
@@ -33,7 +34,12 @@ class CustomLoginView(LoginView):
             if user.is_active:
                 login(request, user)
                 messages.success(request, f"مرحباً {user.get_full_name() or user.username}!")
-                return self.get_success_url()
+                return render(request, self.template_name, {
+                    'login_success': True,
+                    'username': user.username,
+                    'login_time': timezone.now().isoformat(),
+                    'dashboard_url': self.get_success_url().url,
+                })
             else:
                 messages.error(request, "حسابك غير نشط. يرجى التواصل مع الإدارة.")
         else:

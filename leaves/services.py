@@ -1,10 +1,25 @@
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Max, Q
 from django.urls import reverse
 from django.utils import timezone
 
 from core.models import InternalMessage, SystemNotification
 from employees.models import Employee
+from .models import LeaveRequest
+
+
+def deduplicate_leave_queryset(queryset):
+    """Keep the newest row for each logical employee/date/type request."""
+    latest_ids = queryset.values(
+        'employee_id', 'start_date', 'end_date', 'leave_type'
+    ).annotate(latest_id=Max('id')).values('latest_id')
+    return queryset.filter(id__in=latest_ids).distinct().order_by('-created_at', '-id')
+
+
+def get_pending_leaves_count():
+    """Return the number of distinct pending requests shown to HR."""
+    pending_requests = LeaveRequest.objects.filter(status=LeaveRequest.Status.PENDING)
+    return deduplicate_leave_queryset(pending_requests).count()
 
 
 def _leave_balance(employee):

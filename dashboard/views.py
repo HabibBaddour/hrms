@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from employees.models import Employee
 from departments.models import Department, Position
 from leaves.models import LeaveRequest  # اضبط اسم الموديل بحسب مشروعك
+from leaves.services import get_pending_leaves_count
 from core.models import InternalMessage
 
 
@@ -74,11 +75,7 @@ def hr_dashboard(request):
     total_departments = Department.objects.count()
     total_positions = Position.objects.count()
     
-    # Get pending leaves count
-    try:
-        pending_leaves = LeaveRequest.objects.filter(status='PENDING').count()
-    except Exception:
-        pending_leaves = 0
+    pending_leaves = get_pending_leaves_count()
     
     context = {
         'employee_count': total_employees,
@@ -101,10 +98,7 @@ def manager_dashboard(request):
     except:
         team_employees = 0
     
-    try:
-        pending_leaves = LeaveRequest.objects.filter(status='PENDING').count() if hasattr(LeaveRequest, 'objects') else 0
-    except:
-        pending_leaves = 0
+    pending_leaves = get_pending_leaves_count()
     
     context = {
         'team_count': team_employees,
@@ -149,7 +143,7 @@ def dashboard_index(request):
     
     # الطلبات المعلقة للـ HR/Manager أو طلبات الموظف نفسه
     if request.user.groups.filter(name='HR').exists() or request.user.is_superuser:
-        pending_leaves = LeaveRequest.objects.filter(status='PENDING').count()
+        pending_leaves = get_pending_leaves_count()
         recent_leaves = LeaveRequest.objects.all().order_by('-created_at')[:5]
     else:
         pending_leaves = LeaveRequest.objects.filter(employee__user=request.user, status='PENDING').count()

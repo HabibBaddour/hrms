@@ -5,13 +5,13 @@ from io import StringIO
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Max, Prefetch, Q
+from django.db.models import Prefetch, Q
 from django.http import HttpResponse
 
 from departments.models import Department
 from .models import LeaveRequest
 from employees.models import Employee
-from .services import notify_leave_status_changed, notify_leave_submitted
+from .services import deduplicate_leave_queryset, notify_leave_status_changed, notify_leave_submitted
 
 
 def _employee_search_query(search_query):
@@ -35,14 +35,6 @@ def _employee_search_query(search_query):
         q |= Q(employee__national_id__icontains=search_value)
 
     return q
-
-
-def _deduplicate_leave_queryset(queryset):
-    """Keep the newest row for each logical employee/date/type request."""
-    latest_ids = queryset.values(
-        'employee_id', 'start_date', 'end_date', 'leave_type'
-    ).annotate(latest_id=Max('id')).values('latest_id')
-    return queryset.filter(id__in=latest_ids).distinct().order_by('-created_at', '-id')
 
 
 @login_required
@@ -152,7 +144,7 @@ def leave_list(request):
             else:
                 leaves = leaves.filter(status=status)
 
-    leaves = _deduplicate_leave_queryset(leaves)
+    leaves = deduplicate_leave_queryset(leaves)
 
     if export_excel and can_view_all:
         csv_buffer = StringIO()

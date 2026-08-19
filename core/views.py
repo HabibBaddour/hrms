@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from .models import SystemNotification
 
 
@@ -20,7 +20,7 @@ def notification_list(request):
 
 
 @login_required
-@csrf_exempt
+@require_POST
 def mark_notification_read(request, notification_id):
     """تحديد إشعار كمقروء"""
     notification = SystemNotification.objects.get(id=notification_id, recipient=request.user)
@@ -33,7 +33,7 @@ def mark_notification_read(request, notification_id):
 
 
 @login_required
-@csrf_exempt
+@require_POST
 def mark_all_read(request):
     """تحديد جميع الإشعارات كمقروءة"""
     SystemNotification.mark_all_as_read(request.user)

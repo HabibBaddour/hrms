@@ -14,7 +14,7 @@
         html, body { width: 100%; height: 100%; overflow: hidden; }
         body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'Cairo', sans-serif; }
         .auth-shell { display: flex; width: 100%; height: 100vh; overflow: hidden; }
-        .login-panel { order: 1; width: 50%; display: flex; align-items: center; justify-content: center; padding: 4rem clamp(2rem, 7vw, 7rem); background: #fbfcfa; }
+        .login-panel { order: 1; width: 50%; display: flex; align-items: center; justify-content: center; padding: 4rem clamp(2rem, 7vw, 7rem); background: #fbfcfa; opacity: 1; transition: width .8s cubic-bezier(.4, 0, .2, 1), opacity .4s ease, padding .8s cubic-bezier(.4, 0, .2, 1); }
         .login-content { width: min(100%, 430px); animation: rise .7s ease both; }
         .brand { display: inline-flex; align-items: center; gap: .75rem; color: var(--teal); font-size: 1.35rem; font-weight: 800; letter-spacing: .08em; margin-bottom: 3.5rem; }
         .brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; color: white; background: var(--teal); box-shadow: 5px 5px 0 var(--gold); }
@@ -37,7 +37,7 @@
         .login-button:hover { background: #116864; box-shadow: 0 10px 22px rgba(22, 125, 120, .22); transform: translateY(-2px); }
         .secure { margin: 2rem 0 0; color: #87969a; text-align: center; font-size: .78rem; }
         .secure i { margin-left: .35rem; color: var(--teal); }
-        .slider-panel { order: 2; position: relative; width: 50%; min-height: 100vh; overflow: hidden; color: white; background: #183c43; }
+        .slider-panel { order: 2; position: relative; width: 50%; min-height: 100vh; overflow: hidden; color: white; background: #183c43; transition: width .8s cubic-bezier(.4, 0, .2, 1); }
         .slide { position: absolute; inset: 0; display: flex; align-items: flex-end; padding: clamp(2rem, 6vw, 6rem); opacity: 0; background-position: center; background-size: cover; transition: opacity 1s ease; }
         .slide::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10, 37, 42, .1) 15%, rgba(10, 37, 42, .88) 100%); }
         .slide.active { opacity: 1; }
@@ -45,15 +45,29 @@
         .eyebrow { display: inline-block; margin-bottom: 1rem; color: #f3c26d; font-size: .8rem; font-weight: 700; letter-spacing: .12em; }
         .slide h2 { margin: 0 0 .8rem; font-size: clamp(1.8rem, 4vw, 3.5rem); line-height: 1.25; }
         .slide p { margin: 0; color: rgba(255,255,255,.82); font-size: 1rem; }
+        .welcome-overlay { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; padding: 2rem; text-align: center; background: rgba(15, 23, 42, .65); backdrop-filter: blur(8px); opacity: 0; visibility: hidden; transition: opacity .5s ease, visibility .5s ease; }
+        .welcome-card { width: min(100%, 620px); transform: translateY(20px) scale(.96); opacity: 0; transition: transform .7s .35s cubic-bezier(.2, .8, .2, 1), opacity .7s .35s ease; }
+        .welcome-avatar { display: grid; place-items: center; width: 76px; height: 76px; margin: 0 auto 1.5rem; color: #fff; background: linear-gradient(145deg, #6366f1, #4338ca); border: 1px solid rgba(255,255,255,.35); border-radius: 22px; box-shadow: 0 14px 34px rgba(15,23,42,.42); font-size: 2rem; font-weight: 800; }
+        .welcome-card h2 { margin: 0; color: #fff; font-size: clamp(1.8rem, 4vw, 3.4rem); line-height: 1.2; text-shadow: 0 4px 20px rgba(15,23,42,.35); }
+        .welcome-card p { margin: 1rem 0 0; color: rgba(255,255,255,.78); font-size: 1rem; }
+        .welcome-progress { width: min(100%, 430px); height: 5px; margin: 2rem auto 0; overflow: hidden; background: rgba(255,255,255,.18); border-radius: 99px; }
+        .welcome-progress-bar { width: 0; height: 100%; background: linear-gradient(90deg, #818cf8, #c4b5fd); box-shadow: 0 0 18px rgba(165,180,252,.9); }
+        .login-success .login-panel { width: 0; padding-right: 0; padding-left: 0; opacity: 0; pointer-events: none; }
+        .login-success .slider-panel { width: 100%; }
+        .login-success .slide-copy, .login-success .dots { opacity: 0; transition: opacity .35s ease; }
+        .login-success .welcome-overlay { opacity: 1; visibility: visible; }
+        .login-success .welcome-card { opacity: 1; transform: translateY(0) scale(1); }
+        .login-success .welcome-progress-bar { animation: welcome-progress 3.5s linear forwards; }
         .dots { position: absolute; right: clamp(2rem, 6vw, 6rem); bottom: 2rem; display: flex; gap: .5rem; }
         .dot { width: 28px; height: 4px; border: 0; padding: 0; border-radius: 4px; background: rgba(255,255,255,.4); cursor: pointer; }
         .dot.active { background: var(--gold); }
         @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 991px) { .slider-panel { display: none; } .login-panel { width: 100%; height: 100%; min-height: 0; padding: 1.5rem; } .brand { margin-bottom: 2rem; } }
+        @keyframes welcome-progress { to { width: 100%; } }
+        @media (max-width: 991px) { .slider-panel { display: none; } .login-panel { width: 100%; height: 100%; min-height: 0; padding: 1.5rem; } .brand { margin-bottom: 2rem; } .login-success .slider-panel { display: block; width: 100%; } .login-success .login-panel { display: none; } }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
     </style>
 </head>
-<body>
+<body{% if login_success %} class="login-success"{% endif %}>
     <main class="auth-shell">
         <section class="login-panel" aria-label="نموذج تسجيل الدخول">
             <div class="login-content">
@@ -74,7 +88,7 @@
                         <label for="password">كلمة المرور</label>
                         <div class="control"><i class="fa-solid fa-lock"></i><input id="password" type="password" name="password" placeholder="أدخل كلمة المرور" autocomplete="current-password" required><button class="password-toggle" type="button" onclick="togglePassword()" aria-label="إظهار كلمة المرور"><i class="fa-solid fa-eye" id="toggleIcon"></i></button></div>
                     </div>
-                    <div class="form-options"><label class="remember"><input type="checkbox" name="remember_me"> تذكرني</label><a class="forgot" href="#" aria-disabled="true" onclick="return false;">نسيت كلمة المرور؟</a></div>
+                    <div class="form-options"><label class="remember"><input type="checkbox" name="remember_me"> تذكرني</label></div>
                     <button class="login-button" type="submit"><i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول</button>
                 </form>
                 <p class="secure"><i class="fa-solid fa-shield-halved"></i> دخول آمن ومشفّر</p>
@@ -82,10 +96,20 @@
         </section>
 
         <section class="slider-panel" aria-label="مميزات نظام HRMS">
-            <article class="slide active" style="background-image: url('https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1400&q=85');"><div class="slide-copy"><span class="eyebrow">HRMS / 01</span><h2>إدارة متكاملة للموارد البشرية</h2><p>نظام أوتوماتيكي يدير كافة العمليات بفاعلية</p></div></article>
-            <article class="slide" style="background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=85');"><div class="slide-copy"><span class="eyebrow">HRMS / 02</span><h2>تنبؤات الذكاء الاصطناعي (ML)</h2><p>توصيات ذكية لإدارة طلبات الإجازات والأداء</p></div></article>
-            <article class="slide" style="background-image: url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1400&q=85');"><div class="slide-copy"><span class="eyebrow">HRMS / 03</span><h2>متابعة الحضور والرواتب</h2><p>بيانات دقيقة وتقارير فورية لشؤون الموظفين</p></div></article>
+            <article class="slide active" style="background-image: url('https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1800&q=88');"><div class="slide-copy"><span class="eyebrow">HRMS / 01</span><h2>إدارة متكاملة للموارد البشرية</h2><p>نظام أوتوماتيكي حديث يدير الهيكل التنظيمي وشؤون الموظفين بفاعلية</p></div></article>
+            <article class="slide" style="background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1800&q=88');"><div class="slide-copy"><span class="eyebrow">HRMS / 02</span><h2>تنبؤات الإجازات الذكية (ML)</h2><p>تحليلات متقدمة وتوصيات ذكية لمساعدة الإدارة في اتخاذ القرارات</p></div></article>
+            <article class="slide" style="background-image: url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1800&q=88');"><div class="slide-copy"><span class="eyebrow">HRMS / 03</span><h2>متابعة الحضور والرواتب والتقييم</h2><p>حساب دقيق للرواتب، المكافآت، وتقارير أداء دورية للموظفين</p></div></article>
             <div class="dots" aria-label="اختيار الشريحة"><button class="dot active" type="button" aria-label="الشريحة الأولى"></button><button class="dot" type="button" aria-label="الشريحة الثانية"></button><button class="dot" type="button" aria-label="الشريحة الثالثة"></button></div>
+            {% if login_success %}
+            <div class="welcome-overlay" aria-live="polite">
+                <div class="welcome-card">
+                    <div class="welcome-avatar" aria-hidden="true">{{ username|slice:":1"|upper }}</div>
+                    <h2>مرحباً بك مجدداً، {{ username }} &#128075;</h2>
+                    <p>جاري تجهيز لوحة التحكم الخاصة بك...</p>
+                    <div class="welcome-progress" aria-label="جاري تجهيز لوحة التحكم"><div class="welcome-progress-bar"></div></div>
+                </div>
+            </div>
+            {% endif %}
         </section>
     </main>
     <script>
@@ -96,8 +120,11 @@
         function showSlide(index) { currentSlide = index; slides.forEach((slide, i) => slide.classList.toggle('active', i === index)); dots.forEach((dot, i) => dot.classList.toggle('active', i === index)); }
         function startSlider() { sliderTimer = setInterval(() => showSlide((currentSlide + 1) % slides.length), 6000); }
         dots.forEach((dot, index) => dot.addEventListener('click', () => { clearInterval(sliderTimer); showSlide(index); startSlider(); }));
-        startSlider();
+        {% if not login_success %}startSlider();{% endif %}
         function togglePassword() { const input = document.getElementById('password'); const icon = document.getElementById('toggleIcon'); const visible = input.type === 'password'; input.type = visible ? 'text' : 'password'; icon.classList.toggle('fa-eye', !visible); icon.classList.toggle('fa-eye-slash', visible); }
+        {% if login_success %}
+        window.setTimeout(() => { window.location.assign('{{ dashboard_url }}'); }, 3500);
+        {% endif %}
     </script>
 </body>
 </html>

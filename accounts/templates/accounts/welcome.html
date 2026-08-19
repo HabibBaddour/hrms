@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome back | HRMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #f8fafc;
+            --muted: rgba(226, 232, 240, .72);
+            --indigo: #1e1b4b;
+            --royal: #312e81;
+            --accent: #818cf8;
+            --line: rgba(255, 255, 255, .16);
+        }
+        * { box-sizing: border-box; }
+        html, body { width: 100%; min-height: 100%; overflow: hidden; }
+        body {
+            display: grid;
+            place-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--ink);
+            background:
+                linear-gradient(135deg, rgba(30, 27, 75, .96), rgba(49, 46, 129, .94) 52%, rgba(67, 56, 202, .91)),
+                url('https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=2200&q=80') center / cover;
+            font-family: 'Inter', 'Tajawal', sans-serif;
+        }
+        body::before, body::after { content: ''; position: fixed; inset: 0; pointer-events: none; }
+        body::before {
+            opacity: .23;
+            background-image: linear-gradient(115deg, transparent 0 48%, rgba(255,255,255,.16) 48.2% 48.4%, transparent 48.6%), linear-gradient(25deg, transparent 0 62%, rgba(255,255,255,.11) 62.2% 62.4%, transparent 62.6%);
+            background-size: 460px 460px, 620px 620px;
+            animation: drift 18s linear infinite;
+        }
+        body::after { background: radial-gradient(circle at 50% 45%, transparent 0 18%, rgba(15, 23, 42, .3) 100%); }
+        .welcome {
+            position: relative;
+            z-index: 1;
+            width: min(90vw, 700px);
+            padding: clamp(2rem, 7vw, 5.5rem) clamp(1.5rem, 7vw, 5rem);
+            text-align: center;
+            background: rgba(15, 23, 42, .28);
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            box-shadow: 0 30px 90px rgba(15, 23, 42, .36), inset 0 1px 0 rgba(255,255,255,.16);
+            backdrop-filter: blur(18px);
+            animation: fade-in-up .9s cubic-bezier(.2,.8,.2,1) both;
+        }
+        .welcome.exiting { animation: fade-out-down .4s ease forwards; }
+        .brand-mark { display: grid; place-items: center; width: 78px; height: 78px; margin: 0 auto 1.75rem; color: #fff; background: linear-gradient(145deg, #6366f1, #4338ca); border: 1px solid rgba(255,255,255,.3); border-radius: 22px; box-shadow: 0 14px 30px rgba(30, 27, 75, .45); font-size: 2.1rem; font-weight: 800; animation: mark-in .8s .15s cubic-bezier(.2,.8,.2,1) both; }
+        .badge { display: inline-flex; align-items: center; gap: .5rem; margin-bottom: 1.25rem; padding: .45rem .8rem; color: #c7d2fe; background: rgba(99, 102, 241, .2); border: 1px solid rgba(165, 180, 252, .25); border-radius: 99px; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; animation: fade-up .7s .25s both; }
+        .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #a5b4fc; box-shadow: 0 0 0 5px rgba(165,180,252,.12); }
+        h1 { margin: 0; color: #fff; font-size: clamp(2rem, 6vw, 4rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.1; text-shadow: 0 4px 24px rgba(15, 23, 42, .3); animation: fade-up .7s .38s both; }
+        .subtitle { margin: 1.2rem 0 .65rem; color: var(--muted); font-size: clamp(.95rem, 2vw, 1.1rem); animation: fade-up .7s .5s both; }
+        .login-time { margin: 0; color: rgba(226, 232, 240, .56); font-size: .78rem; animation: fade-up .7s .6s both; }
+        .progress-wrap { margin-top: clamp(2rem, 5vw, 3.25rem); text-align: left; animation: fade-up .7s .7s both; }
+        .progress-label { display: flex; justify-content: space-between; margin-bottom: .65rem; color: rgba(226, 232, 240, .62); font-size: .7rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+        .progress-track { height: 5px; overflow: hidden; background: rgba(255,255,255,.13); border-radius: 99px; }
+        .progress-bar { width: 0; height: 100%; background: linear-gradient(90deg, #818cf8, #c4b5fd); border-radius: inherit; box-shadow: 0 0 18px rgba(165, 180, 252, .8); animation: progress 3.5s linear forwards; }
+        @keyframes fade-in-up { from { opacity: 0; transform: translateY(24px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes fade-out-down { to { opacity: 0; transform: translateY(12px) scale(.97); } }
+        @keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes mark-in { from { opacity: 0; transform: scale(.7) rotate(-8deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+        @keyframes progress { to { width: 100%; } }
+        @keyframes drift { from { background-position: 0 0, 0 0; } to { background-position: 460px 230px, -620px 310px; } }
+        @media (max-width: 520px) { .welcome { border-radius: 22px; } .brand-mark { width: 64px; height: 64px; border-radius: 18px; font-size: 1.7rem; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+    </style>
+</head>
+<body>
+    <main class="welcome" aria-live="polite">
+        <div class="brand-mark" aria-hidden="true">H</div>
+        <div class="badge">HRMS / Secure workspace</div>
+        <h1>Welcome back, {{ username }} &#128075;</h1>
+        <p class="subtitle">Preparing your HR dashboard...</p>
+        <p class="login-time">Logged in at <time id="login-time" datetime="{{ login_time }}">{{ login_time }}</time></p>
+        <div class="progress-wrap" aria-label="Preparing dashboard">
+            <div class="progress-label"><span>Preparing workspace</span><span id="progress-value">0%</span></div>
+            <div class="progress-track"><div class="progress-bar"></div></div>
+        </div>
+    </main>
+    <script>
+        const loginTime = document.getElementById('login-time');
+        const progressValue = document.getElementById('progress-value');
+        const loginDate = new Date(loginTime.dateTime);
+        if (!Number.isNaN(loginDate.getTime())) {
+            loginTime.textContent = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(loginDate);
+        }
+        const progressStartedAt = performance.now();
+        function updateProgress(now) {
+            const progress = Math.min((now - progressStartedAt) / 3500, 1);
+            progressValue.textContent = `${Math.round(progress * 100)}%`;
+            if (progress < 1) window.requestAnimationFrame(updateProgress);
+        }
+        window.requestAnimationFrame(updateProgress);
+        window.setTimeout(() => {
+            document.querySelector('.welcome').classList.add('exiting');
+            window.setTimeout(() => { window.location.assign('{{ dashboard_url }}'); }, 400);
+        }, 3500);
+    </script>
+</body>
+</html>

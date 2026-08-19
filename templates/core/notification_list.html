@@ -68,7 +68,7 @@ function markAsRead(notificationId) {
     fetch(`/core/notifications/${notificationId}/read/`, {
         method: 'POST',
         headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken'),
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
@@ -84,7 +84,7 @@ function markAllRead() {
     fetch('/core/notifications/mark-all-read/', {
         method: 'POST',
         headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken'),
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
