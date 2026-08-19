@@ -16,7 +16,7 @@
                 </div>
             </div>
 
-            <form action="{% url 'leaves:apply_leave' %}" method="post">
+            <form action="{% url 'leaves:apply_leave' %}" method="post" id="apply-leave-form">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label class="form-label fw-semibold">نوع الإجازة</label>
@@ -45,11 +45,21 @@
                 </div>
 
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-custom-primary flex-grow-1">إرسال الطلب</button>
+                    <button type="submit" class="btn btn-custom-primary flex-grow-1" id="apply-leave-submit">إرسال الطلب</button>
                     <a href="{% url 'leaves:leave_list' %}" class="btn btn-outline-secondary">إلغاء</a>
                 </div>
             </form>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('apply-leave-form').addEventListener('submit', function () {
+    const button = document.getElementById('apply-leave-submit');
+    button.disabled = true;
+    button.innerText = 'جاري الإرسال...';
+});
+</script>
 {% endblock %}

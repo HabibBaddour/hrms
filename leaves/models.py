@@ -1,4 +1,6 @@
 from django.db import models
+from django.urls import reverse
+from datetime import date, datetime
 
 class LeaveRequest(models.Model):
     class LeaveType(models.TextChoices):
@@ -32,9 +34,24 @@ class LeaveRequest(models.Model):
 
     @property
     def total_days(self):
-        if self.end_date and self.start_date:
-            return (self.end_date - self.start_date).days + 1
+        if not self.end_date or not self.start_date:
+            return 0
+        start_date = self.start_date
+        end_date = self.end_date
+        if isinstance(start_date, str):
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+        if isinstance(end_date, str):
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+        if isinstance(start_date, datetime):
+            start_date = start_date.date()
+        if isinstance(end_date, datetime):
+            end_date = end_date.date()
+        if isinstance(start_date, date) and isinstance(end_date, date):
+            return (end_date - start_date).days + 1
         return 0
 
     def __str__(self):
         return f"{self.employee} - {self.get_leave_type_display()} ({self.get_status_display()})"
+
+    def get_absolute_url(self):
+        return reverse('leaves:approve_leave', kwargs={'pk': self.pk})

@@ -1,15 +1,17 @@
 import csv
+from datetime import datetime
 from io import StringIO
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Prefetch, Q
+from django.db.models import Max, Prefetch, Q
 from django.http import HttpResponse
 
 from departments.models import Department
 from .models import LeaveRequest
 from employees.models import Employee
+from .services import notify_leave_status_changed, notify_leave_submitted
 
 
 def _employee_search_query(search_query):
@@ -35,6 +37,14 @@ def _employee_search_query(search_query):
     return q
 
 
+def _deduplicate_leave_queryset(queryset):
+    """Keep the newest row for each logical employee/date/type request."""
+    latest_ids = queryset.values(
+        'employee_id', 'start_date', 'end_date', 'leave_type'
+    ).annotate(latest_id=Max('id')).values('latest_id')
+    return queryset.filter(id__in=latest_ids).distinct().order_by('-created_at', '-id')
+
+
 @login_required
 def leave_list(request):
     employee_profile = getattr(request.user, 'employee_profile', None)
@@ -44,6 +54,10 @@ def leave_list(request):
         or request.user.is_staff
         or position_role.lower() == 'hr admin'
         or request.user.groups.filter(name='HR').exists()
+    )
+    is_department_manager = bool(
+        employee_profile and employee_profile.department_id and
+        getattr(employee_profile.position, 'role', '') == 'Manager'
     )
 
     dept_id = request.GET.get('department')
@@ -60,9 +74,13 @@ def leave_list(request):
         ('HR Admin', 'مسؤول موارد بشرية'),
     ]
 
-    if can_view_all:
-        leaves = LeaveRequest.objects.select_related('employee__user', 'employee__position__department').all().order_by('-created_at')
+    if can_view_all or is_department_manager:
+        leaves = LeaveRequest.objects.select_related('employee__user', 'employee__position__department').all()
         employees = Employee.objects.select_related('user', 'department', 'position').all()
+
+        if is_department_manager and not can_view_all:
+            leaves = leaves.filter(employee__department_id=employee_profile.department_id)
+            employees = employees.filter(department_id=employee_profile.department_id)
 
         if dept_id:
             leaves = leaves.filter(employee__department_id=dept_id)
@@ -107,7 +125,7 @@ def leave_list(request):
             )
         )
     else:
-        leaves = LeaveRequest.objects.filter(employee__user=request.user).order_by('-created_at')
+        leaves = LeaveRequest.objects.filter(employee__user=request.user)
         employees = []
 
         if dept_id:
@@ -133,6 +151,8 @@ def leave_list(request):
                 leaves = leaves.filter(ai_prediction__in=['APPROVED', 'REJECTED'])
             else:
                 leaves = leaves.filter(status=status)
+
+    leaves = _deduplicate_leave_queryset(leaves)
 
     if export_excel and can_view_all:
         csv_buffer = StringIO()
@@ -179,9 +199,30 @@ def apply_leave(request):
         end_date = request.POST.get('end_date')
         reason = request.POST.get('reason')
 
+        try:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except (TypeError, ValueError):
+            messages.error(request, 'يرجى إدخال تاريخي بداية ونهاية صالحين.')
+            return render(request, 'leaves/apply_leave.html')
+
+        if end_date < start_date:
+            messages.error(request, 'يجب أن يكون تاريخ النهاية بعد تاريخ البداية.')
+            return render(request, 'leaves/apply_leave.html')
+
         employee = getattr(request.user, 'employee_profile', None)
 
         if employee:
+            overlapping_request = LeaveRequest.objects.filter(
+                employee=employee,
+                status__in=['PENDING', 'APPROVED'],
+                start_date__lte=end_date,
+                end_date__gte=start_date,
+            ).exists()
+            if overlapping_request:
+                messages.error(request, 'يوجد طلب إجازة مسجل بالفعل لهذا الموظف خلال هذه الفترة.')
+                return render(request, 'leaves/apply_leave.html')
+
             leave = LeaveRequest.objects.create(
                 employee=employee,
                 leave_type=leave_type,
@@ -191,6 +232,7 @@ def apply_leave(request):
                 status='PENDING'
             )
             predict_leave_status(leave)
+            notify_leave_submitted(leave, actor=request.user)
             messages.success(request, 'تم تقديم طلب الإجازة بنجاح. سيتم مراجعته من قبل الإدارة.')
             return redirect('leaves:leave_list')
 
@@ -202,6 +244,23 @@ def apply_leave(request):
 @login_required
 def approve_leave(request, pk):
     leave = get_object_or_404(LeaveRequest, pk=pk)
+    employee_profile = getattr(request.user, 'employee_profile', None)
+    is_hr = (
+        request.user.is_superuser or request.user.is_staff or
+        getattr(getattr(employee_profile, 'position', None), 'role', '').lower() == 'hr admin' or
+        request.user.groups.filter(name='HR').exists()
+    )
+    is_department_manager = bool(
+        employee_profile and employee_profile.department_id == leave.employee.department_id and
+        getattr(employee_profile.position, 'role', '') == 'Manager'
+    )
+    if not (is_hr or is_department_manager):
+        messages.error(request, 'ليس لديك صلاحية مراجعة طلب الإجازة هذا.')
+        return redirect('leaves:leave_list')
+
+    balance_total = leave.employee.ANNUAL_LEAVE_DAYS
+    balance_remaining = leave.employee.get_annual_leave_balance()
+    balance_used = max(balance_total - balance_remaining, 0)
 
     if request.method == 'POST':
         decision = request.POST.get('decision')
@@ -213,10 +272,16 @@ def approve_leave(request, pk):
         leave.approved_by = getattr(request.user, 'employee_profile', None)
         leave.manager_notes = request.POST.get('manager_notes', '')
         leave.save(update_fields=['status', 'approved_by', 'manager_notes'])
+        notify_leave_status_changed(leave, actor=request.user)
         messages.success(request, 'تم تحديث حالة طلب الإجازة بنجاح.')
         return redirect('leaves:leave_list')
 
-    return render(request, 'leaves/approve_leave.html', {'leave': leave})
+    return render(request, 'leaves/approve_leave.html', {
+        'leave': leave,
+        'balance_total': balance_total,
+        'balance_used': balance_used,
+        'balance_remaining': balance_remaining,
+    })
 
 
 def predict_leave_status(leave_instance):

@@ -54,7 +54,7 @@
                     <div class="message-body">
                         <h5 class="fw-bold mb-3">نص الرسالة:</h5>
                         <div class="bg-white border rounded-3 p-4" style="min-height: 200px;">
-                            {{ message.body|linebreaks }}
+                            {{ message.body|urlize|linebreaks }}
                         </div>
                     </div>
                 </div>
