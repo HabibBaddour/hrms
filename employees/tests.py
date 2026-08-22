@@ -1,11 +1,12 @@
 from datetime import date
+from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
 from departments.models import Department, Position
-from .models import Employee, EmployeePhone
+from .models import Contract, Employee, EmployeePhone
 
 
 class ProfileUpdateTests(TestCase):
@@ -58,3 +59,43 @@ class ProfileUpdateTests(TestCase):
         self.assertIn('0501111111', phones)
         self.assertIn('0502222222', phones)
         self.assertIn('0503333333', phones)
+
+
+class EmployeeDirectorySortTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username='directory_user', password='TestPass123', first_name='Zaid'
+        )
+        self.department = Department.objects.create(name='Operations', code='OPS')
+        self.position = Position.objects.create(
+            department=self.department, title='Operator', role='Employee'
+        )
+        self.employee = Employee.objects.create(
+            user=self.user, department=self.department, position=self.position,
+            first_name='Zaid',
+        )
+        Contract.objects.create(
+            employee=self.employee, salary=Decimal('3000'),
+            start_date=date(2024, 1, 1),
+        )
+
+    def test_directory_applies_salary_sorting_and_preserves_filters(self):
+        second_user = get_user_model().objects.create_user(
+            username='directory_user_two', password='TestPass123', first_name='Amal'
+        )
+        second_employee = Employee.objects.create(
+            user=second_user, department=self.department, position=self.position,
+            first_name='Amal',
+        )
+        Contract.objects.create(
+            employee=second_employee, salary=Decimal('2000'),
+            start_date=date(2025, 1, 1),
+        )
+        self.client.login(username='directory_user', password='TestPass123')
+
+        response = self.client.get(reverse('employees:employee_list'), {
+            'department': self.department.id, 'sort_by': 'salary', 'order': 'asc',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(list(response.context['employees']), [second_employee, self.employee])

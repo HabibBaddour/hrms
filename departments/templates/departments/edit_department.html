@@ -3,35 +3,72 @@
 {% block title %}تعديل قسم {{ department.name }} | HRMS{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="glass-card p-4">
-            <h4 class="fw-bold mb-3 text-dark">تعديل بيانات القسم</h4>
-            <hr class="mb-4">
-
-            <form action="{% url 'departments:edit_department' department.id %}" method="post">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">اسم القسم</label>
-                    <input type="text" name="name" class="form-control" value="{{ department.name }}" required>
+<div class="department-edit-page">
+    <section class="department-edit-hero">
+        <div class="department-edit-hero-content">
+            <a href="{% url 'departments:department_detail' department.id %}" class="edit-back-link"><i class="fa-solid fa-arrow-right"></i> العودة إلى تفاصيل القسم</a>
+            <div class="edit-title-row">
+                <div class="edit-title-icon"><i class="fa-solid fa-pen-to-square"></i></div>
+                <div>
+                    <div class="edit-eyebrow">إدارة الهيكل التنظيمي</div>
+                    <h1>تعديل بيانات القسم</h1>
+                    {% if department.code %}<span class="edit-code">{{ department.code }}</span>{% endif %}
                 </div>
+            </div>
+        </div>
+        <div class="edit-hero-name"><i class="fa-solid fa-sitemap"></i><span>{{ department.name }}</span></div>
+    </section>
 
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">رمز القسم (Code)</label>
-                    <input type="text" name="code" class="form-control" value="{{ department.code }}" required>
-                </div>
+    <div class="row g-4 align-items-stretch">
+        <div class="col-lg-7">
+            <section class="edit-form-card">
+                <div class="edit-card-heading"><div><h2>بيانات القسم</h2><p>حدّث المعلومات الأساسية واحفظ التغييرات.</p></div><i class="fa-regular fa-pen-to-square"></i></div>
+                <form action="{% url 'departments:edit_department' department.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="edit-field">
+                        <label for="department-name">اسم القسم</label>
+                        <div class="edit-input-wrap"><i class="fa-regular fa-building"></i><input id="department-name" type="text" name="name" class="edit-input" value="{{ department.name }}" required autocomplete="organization"></div>
+                    </div>
+                    <div class="edit-field">
+                        <label for="department-code">رمز القسم</label>
+                        <div class="edit-input-wrap"><i class="fa-solid fa-hashtag"></i><input id="department-code" type="text" name="code" class="edit-input" value="{{ department.code }}" maxlength="10" required></div>
+                        <small><i class="fa-solid fa-circle-info"></i> الرمز المميز المستخدم داخل النظام.</small>
+                    </div>
+                    <div class="edit-field edit-field-description">
+                        <label for="department-description">وصف القسم <span>(اختياري)</span></label>
+                        <textarea id="department-description" name="description" class="edit-input edit-textarea" rows="5" placeholder="اكتب وصفًا مختصرًا للقسم ومهامه الأساسية...">{{ department.description|default:"" }}</textarea>
+                    </div>
+                    <div class="edit-actions"><a href="{% url 'departments:department_detail' department.id %}" class="edit-cancel-btn">إلغاء</a><button type="submit" class="edit-save-btn"><i class="fa-solid fa-check"></i> حفظ التغييرات</button></div>
+                </form>
+            </section>
+        </div>
 
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">وصف القسم</label>
-                    <textarea name="description" class="form-control" rows="4" placeholder="اكتب وصفاً للقسم ومهامه الأساسية...">{{ department.description|default:"" }}</textarea>
+        <div class="col-lg-5">
+            <aside class="edit-side-card">
+                <div class="edit-side-icon"><i class="fa-solid fa-sitemap"></i></div>
+                <h2>حافظ على بيانات القسم محدثة</h2>
+                <p>تظهر التغييرات مباشرة في الهيكل التنظيمي وصفحة تفاصيل القسم بعد الحفظ.</p>
+                <div class="edit-side-notes">
+                    <div><i class="fa-solid fa-shield-halved"></i><span><strong>بيانات منظمة</strong><small>استخدم اسمًا ورمزًا واضحين وسهلَي التعرّف.</small></span></div>
+                    <div><i class="fa-solid fa-clock-rotate-left"></i><span><strong>مراجعة قبل الحفظ</strong><small>تأكد من صحة الرمز قبل اعتماد التعديل.</small></span></div>
+                    <div><i class="fa-solid fa-circle-check"></i><span><strong>تحديث فوري</strong><small>ستعود تلقائيًا إلى تفاصيل القسم بعد الإرسال.</small></span></div>
                 </div>
-
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    <a href="{% url 'departments:department_detail' department.id %}" class="btn btn-light border fw-semibold">إلغاء</a>
-                    <button type="submit" class="btn btn-custom-primary">حفظ التغييرات</button>
-                </div>
-            </form>
+            </aside>
         </div>
     </div>
 </div>
+
+<style>
+    .department-edit-page { max-width: 1100px; margin: 0 auto; color: #dbe8eb; }
+    .department-edit-hero { position: relative; display: flex; align-items: flex-end; justify-content: space-between; gap: 25px; overflow: hidden; margin-bottom: 26px; padding: 27px 32px; border: 1px solid rgba(71, 98, 112, .72); border-radius: 18px; background: linear-gradient(135deg, #0f1f2e 0%, #16404a 52%, #073b3c 100%); box-shadow: 0 18px 36px rgba(7, 28, 39, .18); }
+    .department-edit-hero::after { content: ""; position: absolute; width: 210px; height: 210px; left: -70px; bottom: -135px; border: 1px solid rgba(94, 234, 212, .18); border-radius: 50%; box-shadow: 0 0 0 27px rgba(94, 234, 212, .04), 0 0 0 54px rgba(94, 234, 212, .025); }
+    .department-edit-hero-content, .edit-hero-name { position: relative; z-index: 1; }
+    .edit-back-link { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; color: #9fbac1; text-decoration: none; font-size: .8rem; transition: color .2s ease; }.edit-back-link:hover { color: #8be9dc; }
+    .edit-title-row { display: flex; align-items: center; gap: 15px; }.edit-title-icon { display: grid; place-items: center; width: 52px; height: 52px; border: 1px solid rgba(94, 234, 212, .3); border-radius: 14px; color: #8be9dc; background: rgba(14, 165, 233, .14); }.edit-eyebrow { margin-bottom: 3px; color: #75d9cd; font-size: .75rem; font-weight: 700; }.department-edit-hero h1 { margin: 0 0 8px; color: #f8fafc; font-size: clamp(1.45rem, 3vw, 2rem); font-weight: 800; }.edit-code { padding: 4px 12px; border: 1px solid rgba(45, 212, 191, .3); border-radius: 999px; color: #8be9dc; background: rgba(20, 184, 166, .14); font-size: .76rem; font-weight: 800; }.edit-hero-name { display: flex; align-items: center; gap: 9px; color: #c4dadd; font-size: .9rem; font-weight: 700; }.edit-hero-name i { color: #67e8d8; }
+    .edit-form-card, .edit-side-card { height: 100%; border: 1px solid rgba(71, 98, 112, .65); border-radius: 17px; background: rgba(15, 29, 42, .93); box-shadow: 0 15px 30px rgba(8, 26, 38, .15); }.edit-form-card { padding: 28px 30px; }.edit-card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; margin-bottom: 27px; }.edit-card-heading h2, .edit-side-card h2 { margin: 0 0 6px; color: #f1f7f8; font-size: 1.1rem; font-weight: 800; }.edit-card-heading p { margin: 0; color: #829da5; font-size: .8rem; }.edit-card-heading > i { color: #59cfc1; font-size: 1.2rem; }
+    .edit-field { margin-bottom: 21px; }.edit-field label { display: block; margin-bottom: 8px; color: #c8d8db; font-size: .84rem; font-weight: 700; }.edit-field label::after { content: " *"; color: #e67d6d; }.edit-field-description label::after { content: ""; }.edit-field label span { color: #7e989f; font-weight: 400; }.edit-input-wrap { position: relative; }.edit-input-wrap > i { position: absolute; top: 50%; right: 15px; color: #6f9198; transform: translateY(-50%); pointer-events: none; }.edit-input { width: 100%; border: 1px solid #3b5963; border-radius: 11px; outline: none; color: #f4fbfb; background: rgba(30, 41, 59, .8); font: inherit; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }.edit-input-wrap .edit-input { padding: 12px 43px 12px 15px; }.edit-input:focus { border-color: #14b8a6; background: rgba(30, 55, 66, .85); box-shadow: 0 0 0 3px rgba(20, 184, 166, .14); }.edit-input::placeholder { color: #728b92; }.edit-field small { display: block; margin-top: 7px; color: #8099a0; font-size: .72rem; }.edit-field small i { margin-left: 4px; color: #59cfc1; }.edit-textarea { display: block; min-height: 126px; padding: 12px 15px; resize: vertical; line-height: 1.8; }.edit-actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 20px; border-top: 1px solid rgba(71, 98, 112, .35); }.edit-actions a, .edit-actions button { min-height: 44px; padding: 10px 22px; border-radius: 11px; font: inherit; font-size: .82rem; font-weight: 700; text-decoration: none; transition: transform .2s ease, background .2s ease, box-shadow .2s ease; }.edit-actions a:hover, .edit-actions button:hover { transform: translateY(-2px); }.edit-cancel-btn { color: #c2d0d3; background: rgba(30, 41, 59, .86); border: 1px solid #3b5963; }.edit-cancel-btn:hover { color: #f1f7f8; background: #263e49; }.edit-save-btn { border: 1px solid #0f9387; color: #fff; background: #0f9387; box-shadow: 0 7px 15px rgba(15, 147, 135, .2); cursor: pointer; }.edit-save-btn:hover { background: #14b8a6; border-color: #14b8a6; box-shadow: 0 10px 22px rgba(20, 184, 166, .23); }
+    .edit-side-card { position: relative; overflow: hidden; padding: 29px; background: linear-gradient(150deg, #102a38 0%, #0d3d42 100%); }.edit-side-card::after { content: ""; position: absolute; left: -70px; bottom: -80px; width: 190px; height: 190px; border: 1px solid rgba(94, 234, 212, .16); border-radius: 50%; box-shadow: 0 0 0 23px rgba(94, 234, 212, .035); }.edit-side-icon { position: relative; z-index: 1; display: grid; place-items: center; width: 55px; height: 55px; margin-bottom: 25px; border: 1px solid rgba(94, 234, 212, .28); border-radius: 15px; color: #8be9dc; background: rgba(20, 184, 166, .13); font-size: 1.25rem; }.edit-side-card h2, .edit-side-card > p, .edit-side-notes { position: relative; z-index: 1; }.edit-side-card h2 { max-width: 270px; line-height: 1.6; }.edit-side-card > p { max-width: 330px; margin: 0; color: #a9c0c6; font-size: .82rem; line-height: 1.9; }.edit-side-notes { display: grid; gap: 17px; margin-top: 30px; padding-top: 23px; border-top: 1px solid rgba(148, 211, 204, .17); }.edit-side-notes > div { display: flex; align-items: flex-start; gap: 12px; }.edit-side-notes > div > i { margin-top: 3px; color: #67e8d8; }.edit-side-notes span { display: grid; gap: 3px; }.edit-side-notes strong { color: #e0f3f2; font-size: .78rem; }.edit-side-notes small { color: #91adb2; font-size: .72rem; line-height: 1.65; }
+    @media (max-width: 767px) { .department-edit-hero { align-items: flex-start; flex-direction: column; padding: 23px 20px; }.edit-hero-name { padding-right: 67px; }.edit-form-card, .edit-side-card { padding: 23px 20px; }.edit-actions { flex-direction: column-reverse; }.edit-actions a, .edit-actions button { width: 100%; text-align: center; } }
+    @media (prefers-reduced-motion: reduce) { .edit-back-link, .edit-input, .edit-actions a, .edit-actions button { transition: none; } }
+</style>
 {% endblock %}

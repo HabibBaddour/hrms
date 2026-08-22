@@ -25,8 +25,11 @@ class Position(models.Model):
     title = models.CharField(max_length=100, verbose_name="المسمى الوظيفي")
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='positions', verbose_name="القسم")
     base_salary = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="الراتب التقديري")
+    salary_min = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="الحد الأدنى للراتب")
+    salary_max = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="الحد الأقصى للراتب")
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="الدور والصلاحية")
     role = models.CharField(max_length=100, choices=ROLE_CHOICES, default='Employee', verbose_name="الدور")
+    is_head = models.BooleanField(default=False, verbose_name="رئيس القسم")
 
     class Meta:
         verbose_name = "وظيفة"

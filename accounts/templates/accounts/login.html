@@ -45,25 +45,48 @@
         .eyebrow { display: inline-block; margin-bottom: 1rem; color: #f3c26d; font-size: .8rem; font-weight: 700; letter-spacing: .12em; }
         .slide h2 { margin: 0 0 .8rem; font-size: clamp(1.8rem, 4vw, 3.5rem); line-height: 1.25; }
         .slide p { margin: 0; color: rgba(255,255,255,.82); font-size: 1rem; }
-        .welcome-overlay { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; padding: 2rem; text-align: center; background: rgba(15, 23, 42, .65); backdrop-filter: blur(8px); opacity: 0; visibility: hidden; transition: opacity .5s ease, visibility .5s ease; }
+        .welcome-overlay { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; padding: 2rem; text-align: center; background: rgba(15, 23, 42, .85); backdrop-filter: blur(12px); opacity: 0; visibility: hidden; transition: opacity .5s ease, visibility .5s ease, background-color 1s ease, backdrop-filter 1s ease; }
         .welcome-card { width: min(100%, 620px); transform: translateY(20px) scale(.96); opacity: 0; transition: transform .7s .35s cubic-bezier(.2, .8, .2, 1), opacity .7s .35s ease; }
-        .welcome-avatar { display: grid; place-items: center; width: 76px; height: 76px; margin: 0 auto 1.5rem; color: #fff; background: linear-gradient(145deg, #6366f1, #4338ca); border: 1px solid rgba(255,255,255,.35); border-radius: 22px; box-shadow: 0 14px 34px rgba(15,23,42,.42); font-size: 2rem; font-weight: 800; }
-        .welcome-card h2 { margin: 0; color: #fff; font-size: clamp(1.8rem, 4vw, 3.4rem); line-height: 1.2; text-shadow: 0 4px 20px rgba(15,23,42,.35); }
+        .welcome-loader { position: relative; display: flex; align-items: center; justify-content: center; width: 160px; height: 160px; margin: 0 auto 1.5rem; }
+        .loader-bar { position: absolute; top: 5px; left: 77px; width: 6px; height: 30px; border-radius: 6px; opacity: .85; transform-origin: 3px 75px; }
+        .loader-bar:nth-child(1) { --rotation: 0deg; --bar-color: #818cf8; }
+        .loader-bar:nth-child(2) { --rotation: 22.5deg; --bar-color: #a78bfa; }
+        .loader-bar:nth-child(3) { --rotation: 45deg; --bar-color: #c084fc; }
+        .loader-bar:nth-child(4) { --rotation: 67.5deg; --bar-color: #e879f9; }
+        .loader-bar:nth-child(5) { --rotation: 90deg; --bar-color: #f472b6; }
+        .loader-bar:nth-child(6) { --rotation: 112.5deg; --bar-color: #fb7185; }
+        .loader-bar:nth-child(7) { --rotation: 135deg; --bar-color: #fb923c; }
+        .loader-bar:nth-child(8) { --rotation: 157.5deg; --bar-color: #fbbf24; }
+        .loader-bar:nth-child(9) { --rotation: 180deg; --bar-color: #facc15; }
+        .loader-bar:nth-child(10) { --rotation: 202.5deg; --bar-color: #a3e635; }
+        .loader-bar:nth-child(11) { --rotation: 225deg; --bar-color: #4ade80; }
+        .loader-bar:nth-child(12) { --rotation: 247.5deg; --bar-color: #2dd4bf; }
+        .loader-bar:nth-child(13) { --rotation: 270deg; --bar-color: #22d3ee; }
+        .loader-bar:nth-child(14) { --rotation: 292.5deg; --bar-color: #38bdf8; }
+        .loader-bar:nth-child(15) { --rotation: 315deg; --bar-color: #60a5fa; }
+        .loader-bar:nth-child(16) { --rotation: 337.5deg; --bar-color: #818cf8; }
+        .loader-bar { background: transparent; box-shadow: none; transform: rotate(var(--rotation)); transition: background-color .25s ease, box-shadow .25s ease; }
+        .loader-bar.colored { background: var(--bar-color); box-shadow: 0 0 12px var(--bar-color); }
+        .loader-countdown { position: relative; z-index: 1; color: #fff; font-size: 2.25rem; font-weight: 800; text-shadow: 0 2px 12px rgba(15,23,42,.5); }
+        .welcome-card h2 { margin: 0 0 .5rem; color: #fff; font-size: 1.875rem; font-weight: 700; line-height: 1.2; text-shadow: 0 4px 20px rgba(15,23,42,.35); }
+        .welcome-card h1 { margin: 0 0 1rem; color: transparent; font-size: 2.25rem; font-weight: 800; line-height: 1.2; background: linear-gradient(90deg, #bfdbfe, #fff, #dbeafe); background-clip: text; -webkit-background-clip: text; }
         .welcome-card p { margin: 1rem 0 0; color: rgba(255,255,255,.78); font-size: 1rem; }
-        .welcome-progress { width: min(100%, 430px); height: 5px; margin: 2rem auto 0; overflow: hidden; background: rgba(255,255,255,.18); border-radius: 99px; }
-        .welcome-progress-bar { width: 0; height: 100%; background: linear-gradient(90deg, #818cf8, #c4b5fd); box-shadow: 0 0 18px rgba(165,180,252,.9); }
+        .welcome-info { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; padding: 1rem 2rem; color: #fff; background: rgba(15,23,42,.6); border: 1px solid rgba(255,255,255,.2); border-radius: 1.5rem; box-shadow: 0 25px 50px rgba(15,23,42,.35); backdrop-filter: blur(16px); }
+        .welcome-info span:first-child time { color: #fbbf24; font: 700 1.5rem/1.2 monospace; letter-spacing: .08em; }
+        .welcome-info span:last-child { padding-right: 1.5rem; border-right: 1px solid rgba(255,255,255,.2); font-size: 1.125rem; font-weight: 500; color: #e2e8f0; }
+        .welcome-info span { display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap; }
+        .welcome-info i { color: #fbbf24; }
         .login-success .login-panel { width: 0; padding-right: 0; padding-left: 0; opacity: 0; pointer-events: none; }
         .login-success .slider-panel { width: 100%; }
         .login-success .slide-copy, .login-success .dots { opacity: 0; transition: opacity .35s ease; }
         .login-success .welcome-overlay { opacity: 1; visibility: visible; }
         .login-success .welcome-card { opacity: 1; transform: translateY(0) scale(1); }
-        .login-success .welcome-progress-bar { animation: welcome-progress 3.5s linear forwards; }
         .dots { position: absolute; right: clamp(2rem, 6vw, 6rem); bottom: 2rem; display: flex; gap: .5rem; }
         .dot { width: 28px; height: 4px; border: 0; padding: 0; border-radius: 4px; background: rgba(255,255,255,.4); cursor: pointer; }
         .dot.active { background: var(--gold); }
         @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes welcome-progress { to { width: 100%; } }
         @media (max-width: 991px) { .slider-panel { display: none; } .login-panel { width: 100%; height: 100%; min-height: 0; padding: 1.5rem; } .brand { margin-bottom: 2rem; } .login-success .slider-panel { display: block; width: 100%; } .login-success .login-panel { display: none; } }
+        @media (max-width: 520px) { .welcome-info { gap: .6rem; padding: .5rem .8rem; font-size: .7rem; } }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
     </style>
 </head>
@@ -103,10 +126,17 @@
             {% if login_success %}
             <div class="welcome-overlay" aria-live="polite">
                 <div class="welcome-card">
-                    <div class="welcome-avatar" aria-hidden="true">{{ username|slice:":1"|upper }}</div>
-                    <h2>مرحباً بك مجدداً، {{ username }} &#128075;</h2>
+                    <div class="welcome-loader" role="status" aria-label="جاري تجهيز لوحة التحكم">
+                        {% for bar in "1234567890123456" %}<div class="loader-bar" style="--index: {{ forloop.counter0 }}" aria-hidden="true"></div>{% endfor %}
+                        <span class="loader-countdown" id="welcome-countdown">5</span>
+                    </div>
+                    <h2 dir="rtl">مرحباً بك مجدداً 👋</h2>
+                    <h1 dir="ltr">{{ request.user.get_full_name|default:request.user.username }}</h1>
                     <p>جاري تجهيز لوحة التحكم الخاصة بك...</p>
-                    <div class="welcome-progress" aria-label="جاري تجهيز لوحة التحكم"><div class="welcome-progress-bar"></div></div>
+                    <div class="welcome-info">
+                        <span><i class="fa-regular fa-clock"></i><time id="digital-clock" aria-label="الوقت الحالي"></time></span>
+                        <span><i class="fa-regular fa-calendar"></i><time id="login-date" datetime="{{ login_time }}">{{ login_time }}</time></span>
+                    </div>
                 </div>
             </div>
             {% endif %}
@@ -123,7 +153,37 @@
         {% if not login_success %}startSlider();{% endif %}
         function togglePassword() { const input = document.getElementById('password'); const icon = document.getElementById('toggleIcon'); const visible = input.type === 'password'; input.type = visible ? 'text' : 'password'; icon.classList.toggle('fa-eye', !visible); icon.classList.toggle('fa-eye-slash', visible); }
         {% if login_success %}
-        window.setTimeout(() => { window.location.assign('{{ dashboard_url }}'); }, 3500);
+        const countdown = document.getElementById('welcome-countdown');
+        const loaderBars = document.querySelectorAll('.loader-bar');
+        const digitalClock = document.getElementById('digital-clock');
+        const loginDate = document.getElementById('login-date');
+        const welcomeOverlay = document.querySelector('.welcome-overlay');
+        const loginDateValue = new Date(loginDate.dateTime);
+        const arabicDateFormatter = new Intl.DateTimeFormat('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        loginDate.textContent = `📅 ${arabicDateFormatter.format(loginDateValue)}`;
+        function updateDigitalClock() {
+            digitalClock.textContent = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }).format(new Date());
+        }
+        updateDigitalClock();
+        window.setInterval(updateDigitalClock, 1000);
+        let coloredBarIndex = 0;
+        const barColorTimer = window.setInterval(() => {
+            if (coloredBarIndex >= loaderBars.length) {
+                window.clearInterval(barColorTimer);
+                return;
+            }
+            loaderBars[coloredBarIndex].classList.add('colored');
+            coloredBarIndex += 1;
+        }, 300);
+        let secondsRemaining = 5;
+        window.setInterval(() => {
+            secondsRemaining -= 1;
+            countdown.textContent = secondsRemaining;
+            const progress = 1 - (secondsRemaining / 5);
+            welcomeOverlay.style.backgroundColor = `rgba(15, 23, 42, ${Math.max(.35, .85 - (progress * .5))})`;
+            welcomeOverlay.style.backdropFilter = `blur(${Math.max(0, 12 - (progress * 12))}px)`;
+            if (secondsRemaining <= 0) window.location.href = '/dashboard/';
+        }, 1000);
         {% endif %}
     </script>
 </body>

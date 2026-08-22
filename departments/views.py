@@ -1,6 +1,10 @@
+from decimal import Decimal, InvalidOperation
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
+from django.contrib import messages
+from django.db.models import Case, When, Value, IntegerField
 from .models import Department, Position
 from core.notification_utils import (
     notify_department_created, 
@@ -50,7 +54,15 @@ def department_detail(request, dept_id):
             notify_position_created(position, actor=request.user)
             return redirect('departments:department_detail', dept_id=department.id)
 
-    positions = department.positions.all()
+    positions = department.positions.annotate(
+        is_manager=Case(
+            When(is_head=True, then=Value(0)),
+            When(role__icontains='Manager', then=Value(0)),
+            When(role__icontains='مدير', then=Value(0)),
+            default=Value(1),
+            output_field=IntegerField(),
+        )
+    ).order_by('is_manager', 'id')
     
     return render(request, 'departments/department_detail.html', {
         'department': department,
@@ -65,12 +77,34 @@ def add_position(request):
         title = request.POST.get('title')
         department_id = request.POST.get('department')
         group_id = request.POST.get('group')
+        salary_min = request.POST.get('salary_min')
+        salary_max = request.POST.get('salary_max')
 
-        if title and department_id:
+        if title and department_id and salary_min and salary_max:
+            try:
+                salary_min_value = Decimal(salary_min)
+                salary_max_value = Decimal(salary_max)
+            except InvalidOperation:
+                messages.error(request, 'يرجى إدخال قيم رقمية صحيحة لنطاق الراتب.')
+                return render(request, 'departments/add_position.html', {
+                    'departments': Department.objects.all(),
+                    'groups': Group.objects.all()
+                })
+
+            if salary_min_value < 0 or salary_max_value < salary_min_value:
+                messages.error(request, 'يجب أن يكون الحد الأقصى أكبر من أو يساوي الحد الأدنى للراتب.')
+                return render(request, 'departments/add_position.html', {
+                    'departments': Department.objects.all(),
+                    'groups': Group.objects.all()
+                })
+
             department = get_object_or_404(Department, id=department_id)
             position = Position.objects.create(
                 title=title,
                 department=department,
+                base_salary=salary_min_value,
+                salary_min=salary_min_value,
+                salary_max=salary_max_value,
                 group_id=group_id if group_id else None
             )
             notify_position_created(position, actor=request.user)
@@ -81,6 +115,50 @@ def add_position(request):
     return render(request, 'departments/add_position.html', {
         'departments': departments,
         'groups': groups
+    })
+
+
+@login_required
+def position_detail(request, position_id):
+    position = get_object_or_404(
+        Position.objects.select_related('department', 'group'),
+        pk=position_id,
+    )
+    employees = Employee.objects.filter(position=position).select_related('user')
+
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        salary_min = request.POST.get('salary_min', '').strip()
+        salary_max = request.POST.get('salary_max', '').strip()
+        base_salary = request.POST.get('base_salary', '').strip()
+
+        try:
+            salary_min_value = Decimal(salary_min)
+            salary_max_value = Decimal(salary_max)
+            base_salary_value = Decimal(base_salary or salary_min)
+        except (InvalidOperation, TypeError):
+            messages.error(request, 'يرجى إدخال قيم رقمية صحيحة لنطاق الراتب.')
+        else:
+            if not title:
+                messages.error(request, 'يرجى إدخال المسمى الوظيفي.')
+            elif min(salary_min_value, salary_max_value, base_salary_value) < 0 or salary_max_value < salary_min_value:
+                messages.error(request, 'يجب أن يكون الحد الأقصى أكبر من أو يساوي الحد الأدنى للراتب.')
+            else:
+                position.title = title
+                position.role = request.POST.get('role', position.role)
+                position.group_id = request.POST.get('group') or None
+                position.salary_min = salary_min_value
+                position.salary_max = salary_max_value
+                position.base_salary = base_salary_value
+                position.is_head = request.POST.get('is_head') == 'on'
+                position.save()
+                messages.success(request, 'تم تحديث بيانات المسمى الوظيفي بنجاح.')
+                return redirect('departments:position_detail', position_id=position.id)
+
+    return render(request, 'departments/position_detail.html', {
+        'position': position,
+        'employees': employees,
+        'groups': Group.objects.all(),
     })
 
 @login_required

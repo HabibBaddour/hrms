@@ -17,6 +17,6 @@ class DepartmentAdmin(admin.ModelAdmin):
 
 @admin.register(Position)
 class PositionAdmin(admin.ModelAdmin):
-    list_display = ('title', 'department', 'base_salary', 'group') # <-- أضفنا base_salary هنا
+    list_display = ('title', 'department', 'salary_min', 'salary_max', 'base_salary', 'group')
     list_filter = ('department', 'group')
     search_fields = ('title',)

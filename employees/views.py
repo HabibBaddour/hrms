@@ -19,6 +19,8 @@ def employee_list(request):
     contract_type = request.GET.get('contract_type')
     role = request.GET.get('role')
     search = request.GET.get('search')
+    sort_by = request.GET.get('sort_by', 'id')
+    order = request.GET.get('order', 'asc')
     
     # Build base queryset
     try:
@@ -44,6 +46,17 @@ def employee_list(request):
             Q(user__username__icontains=search) |
             Q(user__email__icontains=search)
         )
+
+    sort_mapping = {
+        'id': 'id',
+        'name': 'user__first_name',
+        'salary': 'contract__salary',
+        'date': 'contract__start_date',
+    }
+    if order not in ('asc', 'desc'):
+        order = 'asc'
+    sort_field = sort_mapping.get(sort_by, 'id')
+    employees = employees.order_by(f"{'-' if order == 'desc' else ''}{sort_field}", 'id')
     
     # Get filter options for the template
     departments = Department.objects.all()
@@ -69,6 +82,8 @@ def employee_list(request):
         'departments': departments,
         'contract_types': contract_types,
         'roles': roles,
+        'sort_by': sort_by if sort_by in sort_mapping else 'id',
+        'order': order,
     }
     
     return render(request, 'employees/employee_list.html', context)

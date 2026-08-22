@@ -3,164 +3,102 @@
 {% block title %}تفاصيل {{ department.name }} | HRMS{% endblock %}
 
 {% block content %}
-<!-- Header Nav & Actions -->
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-    <div class="d-flex align-items-center gap-3">
-        <a href="{% url 'departments:department_list' %}" class="btn btn-outline-secondary rounded-3 px-3">
-            <i class="fa-solid fa-arrow-right me-1"></i> رجوع
-        </a>
-        <div>
-            <h3 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
-                <span>{{ department.name }}</span>
-                {% if department.code %}
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill fs-7 px-3 py-1">
-                    {{ department.code }}
-                </span>
-                {% endif %}
-            </h3>
-            <p class="text-muted small mb-0">عرض كافة البيانات الوظيفية والإحصاءات الخاصة بالقسم.</p>
-        </div>
-    </div>
-
-    <!-- Admin Actions -->
-    <div class="d-flex gap-2">
-        <a href="{% url 'departments:add_position' %}" class="btn btn-outline-primary fw-semibold rounded-3">
-            <i class="fa-solid fa-plus me-1"></i> إضافة مسمى وظيفي
-        </a>
-        <a href="{% url 'departments:edit_department' department.id %}" class="btn btn-primary fw-semibold rounded-3">
-            <i class="fa-solid fa-pen-to-square me-1"></i> تعديل بيانت القسم
-        </a>
-    </div>
-</div>
-
-<div class="row g-4">
-    <!-- Left Column: Department Stats & Info -->
-    <div class="col-lg-4">
-        <!-- Quick Stats Cards -->
-        <div class="row g-3 mb-4">
-            <div class="col-6">
-                <div class="card border-0 shadow-sm rounded-4 bg-white p-3 text-center">
-                    <div class="stat-icon bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center">
-                        <i class="fa-solid fa-users fs-5"></i>
-                    </div>
-                    <h4 class="fw-bold text-dark mb-0">{{ department.employee_set.count|default:0 }}</h4>
-                    <span class="text-muted fs-7">إجمالي الموظفين</span>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="card border-0 shadow-sm rounded-4 bg-white p-3 text-center">
-                    <div class="stat-icon bg-success bg-opacity-10 text-success rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center">
-                        <i class="fa-solid fa-briefcase fs-5"></i>
-                    </div>
-                    <h4 class="fw-bold text-dark mb-0">{{ department.positions.count|default:0 }}</h4>
-                    <span class="text-muted fs-7">المسميات الوظيفية</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Department Details Card -->
-        <div class="card border-0 shadow-sm rounded-4 bg-white mb-4">
-            <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold text-dark mb-0">معلومات القسم</h5>
-                <a href="{% url 'departments:edit_department' department.id %}" class="text-primary text-decoration-none fs-7 fw-semibold">
-                    <i class="fa-solid fa-pen me-1"></i>تعديل
-                </a>
-            </div>
-            <div class="card-body px-4 py-3">
-                <div class="mb-3">
-                    <span class="text-muted fs-7 d-block mb-1">تاريخ الإنشاء:</span>
-                    <span class="fw-semibold text-dark">
-                        <i class="fa-regular fa-calendar text-secondary me-1"></i>
-                        {{ department.created_at|date:"Y-m-d" }}
-                    </span>
-                </div>
-                <hr class="my-3 opacity-10">
+<div class="detail-page">
+    <section class="detail-hero">
+        <div class="detail-hero-content">
+            <a href="{% url 'departments:department_list' %}" class="detail-back-link"><i class="fa-solid fa-arrow-right"></i> الأقسام والوظائف</a>
+            <div class="detail-title-row">
+                <div class="detail-department-icon"><i class="fa-solid fa-sitemap"></i></div>
                 <div>
-                    <span class="text-muted fs-7 d-block mb-1">وصف القسم:</span>
-                    <p class="text-dark fs-7 lh-base mb-0">
-                        {% if department.description %}
-                            {{ department.description }}
-                        {% else %}
-                            <span class="text-muted fst-italic">لا يوجد وصف مضاف لهذا القسم حالياً. يمكنك إضافته عبر زر التعديل.</span>
-                        {% endif %}
-                    </p>
+                    <div class="detail-eyebrow">تفاصيل القسم</div>
+                    <h1>{{ department.name }}</h1>
+                    {% if department.code %}<span class="detail-code">{{ department.code }}</span>{% endif %}
                 </div>
             </div>
+            <p class="detail-hero-description">عرض البيانات الوظيفية والإحصاءات الخاصة بهذا القسم.</p>
         </div>
-    </div>
+        <div class="detail-hero-actions">
+            <a href="{% url 'departments:add_position' %}" class="detail-btn detail-btn-primary"><i class="fa-solid fa-plus"></i> إضافة مسمى وظيفي</a>
+            <a href="{% url 'departments:edit_department' department.id %}" class="detail-btn detail-btn-light"><i class="fa-solid fa-pen-to-square"></i> تعديل بيانات القسم</a>
+        </div>
+    </section>
 
-    <!-- Right Column: Positions List -->
-    <div class="col-lg-8">
-        <div class="card border-0 shadow-sm rounded-4 bg-white">
-            <div class="card-header bg-transparent border-0 pt-4 px-4 pb-3 d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="fw-bold text-dark mb-1">المسميات الوظيفية التابعة للقسم</h5>
-                    <p class="text-muted fs-7 mb-0">قائمة الوظائف المعرفة ضمن هذا القسم الأدري وتوزيع الصلاحيات.</p>
-                </div>
+    <div class="row g-4 detail-content-row">
+        <div class="col-lg-4">
+            <div class="row g-3 mb-4">
+                <div class="col-6"><div class="detail-kpi"><div class="detail-kpi-icon cyan"><i class="fa-solid fa-users"></i></div><strong>{{ department.employee_set.count|default:0 }}</strong><span>إجمالي الموظفين</span></div></div>
+                <div class="col-6"><div class="detail-kpi"><div class="detail-kpi-icon amber"><i class="fa-solid fa-briefcase"></i></div><strong>{{ department.positions.count|default:0 }}</strong><span>المسميات الوظيفية</span></div></div>
             </div>
-            <div class="card-body p-0">
+            <article class="detail-panel detail-info-panel">
+                <div class="detail-panel-heading"><h2>معلومات القسم</h2><a href="{% url 'departments:edit_department' department.id %}" title="تعديل معلومات القسم"><i class="fa-solid fa-pen"></i></a></div>
+                <div class="detail-meta"><span><i class="fa-regular fa-calendar"></i> تاريخ الإنشاء</span><strong>{{ department.created_at|date:"Y-m-d" }}</strong></div>
+                <div class="detail-meta"><span><i class="fa-solid fa-sitemap"></i> القسم الرئيسي</span><strong>الهيكل التنظيمي</strong></div>
+                <div class="detail-description"><span>الوصف</span><p>{% if department.description %}{{ department.description }}{% else %}<em>لا يوجد وصف مضاف لهذا القسم حاليًا.</em>{% endif %}</p></div>
+            </article>
+        </div>
+
+        <div class="col-lg-8">
+            <article class="detail-panel positions-panel">
+                <div class="detail-panel-heading positions-heading"><div><h2>المسميات الوظيفية</h2><p>الوظائف والصلاحيات المرتبطة بهذا القسم.</p></div><i class="fa-solid fa-briefcase panel-heading-icon"></i></div>
                 <div class="table-responsive">
-                    <table class="table align-middle table-hover mb-0">
-                        <thead class="bg-light text-secondary border-top fs-7">
+                    <table class="detail-table">
+                        <thead><tr><th>المسمى الوظيفي</th><th>الدور / الصلاحية</th><th>سلم الراتب</th><th class="text-center">الموظفون</th><th class="text-end">الإجراء</th></tr></thead>
+                        <tbody>
+                            {% for position in positions %}
                             <tr>
-                                <th class="ps-4 py-3">المسمى الوظيفي</th>
-                                <th class="py-3">الدور / الصلاحية</th>
-                                <th class="text-center py-3">عدد الموظفين</th>
-                                <th class="pe-4 text-end py-3">الإجراءات</th>
+                                <td><strong class="position-title">{{ position.title }}</strong></td>
+                                <td>{% if position.group %}<span class="status-pill manager"><i class="fa-solid fa-shield-halved"></i>{{ position.group.name }}</span>{% else %}<span class="status-pill neutral">بدون دور</span>{% endif %}</td>
+                                <td class="salary-cell">{{ position.salary_min|floatformat:2 }} <span>-</span> {{ position.salary_max|floatformat:2 }}</td>
+                                <td class="employee-count text-center">{{ position.employee_set.count|default:0 }}</td>
+                                <td class="text-end"><a href="{% url 'departments:position_detail' position.id %}" class="table-action" title="عرض التفاصيل"><i class="fa-solid fa-eye"></i></a></td>
                             </tr>
-                        </thead>
-                        <tbody class="border-0 fs-7">
-                            {% for position in department.positions.all %}
-                            <tr>
-                                <td class="ps-4 py-3">
-                                    <div class="fw-bold text-dark">{{ position.title }}</div>
-                                </td>
-                                <td>
-                                    {% if position.group %}
-                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3 py-1 fw-semibold">
-                                        {{ position.group.name }}
-                                    </span>
-                                    {% else %}
-                                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-3 py-1 fw-semibold">
-                                        بدون دور
-                                    </span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center fw-bold text-dark">
-                                    {{ position.employee_set.count|default:0 }}
-                                </td>
-                                <td class="pe-4 text-end">
-                                    <button class="btn btn-sm btn-light border text-secondary rounded-2" title="عرض التفاصيل">
-                                        <i class="fa-solid fa-eye"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center py-5 text-muted">
-                                    <i class="fa-solid fa-briefcase fs-2 mb-2 d-block opacity-50"></i>
-                                    <span>لا توجد مسميات وظيفية مضافة لهذا القسم حتى الآن.</span>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                            {% empty %}<tr><td colspan="5" class="empty-positions"><i class="fa-solid fa-briefcase"></i><span>لا توجد مسميات وظيفية مضافة لهذا القسم حتى الآن.</span></td></tr>{% endfor %}
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </article>
         </div>
     </div>
 </div>
 
 <style>
-    .stat-icon {
-        width: 45px;
-        height: 45px;
-    }
-    .fs-7 {
-        font-size: 0.875rem;
-    }
-    .fs-8 {
-        font-size: 0.78rem;
-    }
+    .detail-page { color: #dbe8eb; }
+    .detail-hero { position: relative; display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; overflow: hidden; margin-bottom: 26px; padding: 28px 32px; border: 1px solid rgba(71, 98, 112, .72); border-radius: 18px; background: linear-gradient(135deg, #102536 0%, #173643 57%, #075050 100%); box-shadow: 0 18px 36px rgba(7, 28, 39, .18); }
+    .detail-hero::after { content: ""; position: absolute; width: 220px; height: 220px; left: -70px; bottom: -145px; border: 1px solid rgba(94, 234, 212, .18); border-radius: 50%; box-shadow: 0 0 0 28px rgba(94, 234, 212, .04), 0 0 0 56px rgba(94, 234, 212, .025); }
+    .detail-hero-content, .detail-hero-actions { position: relative; z-index: 1; }
+    .detail-back-link { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 22px; color: #9fbac1; text-decoration: none; font-size: .8rem; transition: color .2s ease; }
+    .detail-back-link:hover { color: #8be9dc; }
+    .detail-title-row { display: flex; align-items: center; gap: 15px; }
+    .detail-department-icon { display: grid; place-items: center; width: 54px; height: 54px; flex: 0 0 54px; border: 1px solid rgba(94, 234, 212, .3); border-radius: 15px; color: #8be9dc; background: rgba(14, 165, 233, .14); box-shadow: inset 0 0 16px rgba(45, 212, 191, .08); }
+    .detail-eyebrow { margin-bottom: 3px; color: #75d9cd; font-size: .75rem; font-weight: 700; }
+    .detail-hero h1 { margin: 0 0 8px; color: #f8fafc; font-size: clamp(1.5rem, 3vw, 2.15rem); font-weight: 800; }
+    .detail-code { padding: 4px 12px; border: 1px solid rgba(45, 212, 191, .3); border-radius: 999px; color: #8be9dc; background: rgba(20, 184, 166, .14); font-size: .76rem; font-weight: 800; }
+    .detail-hero-description { margin: 18px 0 0; color: #a9c0c6; font-size: .85rem; }
+    .detail-hero-actions { display: flex; flex-wrap: wrap; gap: 9px; }
+    .detail-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 9px 15px; border: 1px solid transparent; border-radius: 9px; text-decoration: none; font-size: .8rem; font-weight: 700; transition: transform .2s ease, background .2s ease, border-color .2s ease; }
+    .detail-btn:hover { transform: translateY(-2px); }
+    .detail-btn-primary { color: #fff; background: #0f9387; border-color: #0f9387; }
+    .detail-btn-primary:hover { color: #fff; background: #14b8a6; }
+    .detail-btn-light { color: #d9eeee; background: rgba(255,255,255,.09); border-color: rgba(186, 230, 223, .22); }
+    .detail-btn-light:hover { color: #fff; background: rgba(255,255,255,.16); }
+    .detail-kpi, .detail-panel { border: 1px solid rgba(71, 98, 112, .65); border-radius: 16px; background: rgba(15, 29, 42, .9); box-shadow: 0 14px 28px rgba(8, 26, 38, .14); }
+    .detail-kpi { display: flex; flex-direction: column; align-items: center; min-height: 148px; padding: 19px 10px; text-align: center; }
+    .detail-kpi-icon { display: grid; place-items: center; width: 40px; height: 40px; margin-bottom: 11px; border-radius: 12px; }
+    .detail-kpi-icon.cyan { color: #67e8f9; background: rgba(6, 182, 212, .15); box-shadow: 0 0 17px rgba(6, 182, 212, .12); }
+    .detail-kpi-icon.amber { color: #fcd34d; background: rgba(245, 158, 11, .15); box-shadow: 0 0 17px rgba(245, 158, 11, .1); }
+    .detail-kpi strong { color: #67e8f9; font-size: 1.65rem; line-height: 1.2; }
+    .detail-kpi span { margin-top: 7px; color: #9db0bc; font-size: .76rem; }
+    .detail-panel { overflow: hidden; }
+    .detail-info-panel { padding: 22px; }
+    .detail-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 20px; }
+    .detail-panel-heading h2 { margin: 0; color: #f1f7f8; font-size: 1rem; font-weight: 800; }
+    .detail-panel-heading a { color: #75d9cd; }
+    .detail-meta { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 14px 0; border-bottom: 1px solid rgba(71, 98, 112, .35); font-size: .8rem; }
+    .detail-meta span { color: #8ea6ae; }.detail-meta span i { width: 19px; color: #59cfc1; }.detail-meta strong { color: #e3f1f2; font-weight: 700; }
+    .detail-description { padding-top: 19px; }.detail-description > span { color: #8ea6ae; font-size: .78rem; }.detail-description p { margin: 9px 0 0; color: #c2d4d7; font-size: .82rem; line-height: 1.9; }.detail-description em { color: #7e989f; }
+    .positions-panel { min-height: 100%; }.positions-heading { padding: 23px 24px 18px; margin: 0; }.positions-heading p { margin: 5px 0 0; color: #829da5; font-size: .76rem; }.panel-heading-icon { color: #59cfc1; font-size: 1.15rem; }
+    .detail-table { width: 100%; border-collapse: collapse; color: #dbe8eb; font-size: .78rem; }.detail-table thead { color: #9db5bc; background: rgba(15, 23, 42, .85); }.detail-table th { padding: 14px 13px; border-bottom: 1px solid rgba(71, 98, 112, .5); font-weight: 700; white-space: nowrap; }.detail-table th:first-child, .detail-table td:first-child { padding-right: 24px; }.detail-table th:last-child, .detail-table td:last-child { padding-left: 24px; }.detail-table tbody tr { background: rgba(15, 29, 42, .45); border-bottom: 1px solid rgba(71, 98, 112, .3); transition: background .2s ease; }.detail-table tbody tr:hover { background: rgba(30, 55, 66, .75); }.detail-table td { padding: 16px 13px; }.position-title { color: #f1f7f8; }.status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid; border-radius: 999px; font-size: .72rem; font-weight: 700; white-space: nowrap; }.status-pill.manager { color: #fcd68a; background: rgba(245, 158, 11, .14); border-color: rgba(245, 158, 11, .3); }.status-pill.neutral { color: #99e6ec; background: rgba(6, 182, 212, .12); border-color: rgba(6, 182, 212, .25); }.salary-cell { color: #a9ece3; white-space: nowrap; }.salary-cell span { color: #69858d; padding: 0 3px; }.employee-count { color: #67e8f9; font-weight: 800; }.table-action { width: 32px; height: 32px; border: 1px solid rgba(148, 163, 184, .25); border-radius: 8px; color: #9db5bc; background: rgba(255,255,255,.05); transition: all .2s ease; }.table-action:hover { color: #8be9dc; border-color: rgba(45, 212, 191, .5); background: rgba(20, 184, 166, .14); }.empty-positions { padding: 55px 20px !important; color: #7e989f; text-align: center; }.empty-positions i { display: block; margin-bottom: 10px; color: #4f737c; font-size: 1.8rem; }
+    @media (max-width: 767px) { .detail-hero { align-items: flex-start; flex-direction: column; padding: 23px 20px; }.detail-hero-actions { width: 100%; }.detail-btn { flex: 1; justify-content: center; }.detail-info-panel { padding: 19px; }.positions-heading { padding: 20px 19px 16px; }.detail-table { min-width: 650px; }.detail-table th:first-child, .detail-table td:first-child { padding-right: 19px; }.detail-table th:last-child, .detail-table td:last-child { padding-left: 19px; } }
+    @media (prefers-reduced-motion: reduce) { .detail-btn, .detail-table tbody tr { transition: none; } }
 </style>
 {% endblock %}

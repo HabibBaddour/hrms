@@ -3,50 +3,208 @@
 {% block title %}إضافة قسم جديد | HRMS{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-7 col-lg-6">
-        <div class="glass-card p-4 p-md-5">
-            <!-- Header with Back Button -->
-            <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
-                        <i class="fa-solid fa-sitemap"></i>
-                    </div>
+<style>
+    .department-form-shell {
+        max-width: 980px;
+        margin: 0 auto;
+        animation: department-form-in 0.45s ease both;
+    }
+
+    .department-form-card {
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    }
+
+    .department-form-aside {
+        position: relative;
+        min-height: 100%;
+        padding: 34px 30px;
+        color: #fff;
+        background: linear-gradient(145deg, #123b63 0%, #176b78 100%);
+        isolation: isolate;
+    }
+
+    .department-form-aside::after {
+        content: "";
+        position: absolute;
+        width: 190px;
+        height: 190px;
+        left: -70px;
+        bottom: -90px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 50%;
+        box-shadow: 0 0 0 22px rgba(255, 255, 255, 0.04), 0 0 0 44px rgba(255, 255, 255, 0.03);
+        z-index: -1;
+    }
+
+    .department-form-icon {
+        width: 54px;
+        height: 54px;
+        display: grid;
+        place-items: center;
+        margin-bottom: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 15px;
+        color: #b9f3e5;
+        background: rgba(255, 255, 255, 0.12);
+        font-size: 1.25rem;
+    }
+
+    .department-form-aside h1 {
+        font-size: clamp(1.45rem, 2vw, 1.85rem);
+        line-height: 1.5;
+        margin-bottom: 12px;
+    }
+
+    .department-form-aside p {
+        color: rgba(255, 255, 255, 0.76);
+        line-height: 1.9;
+    }
+
+    .department-form-checklist {
+        display: grid;
+        gap: 14px;
+        margin-top: 34px;
+        padding-top: 22px;
+        border-top: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .department-form-checklist span {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: rgba(255, 255, 255, 0.88);
+        font-size: 0.88rem;
+    }
+
+    .department-form-checklist i { color: #8fe4d2; }
+
+    .department-form-fields { padding: 34px 36px; }
+
+    .department-form-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .department-form-header h2 { color: #172b4d; font-size: 1.2rem; }
+    .department-form-header p { color: #64748b; font-size: 0.84rem; }
+    .department-form-header a { white-space: nowrap; }
+
+    .department-field { margin-bottom: 22px; }
+    .department-field label { color: #334155; font-size: 0.88rem; }
+    .department-field label::after { content: " *"; color: #e05d44; }
+    .department-field.optional label::after { content: ""; }
+
+    .department-input-wrap { position: relative; }
+    .department-input-wrap i {
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        color: #94a3b8;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .department-input-wrap .form-control { padding-right: 42px; }
+    .department-field textarea.form-control { min-height: 118px; resize: vertical; }
+    .department-field .form-control { border-radius: 10px; padding-top: 11px; padding-bottom: 11px; }
+    .department-field .form-control:focus { border-color: #159a8c; box-shadow: 0 0 0 0.22rem rgba(21, 154, 140, 0.14); }
+    .department-field .form-text { color: #64748b !important; font-size: 0.76rem; }
+
+    .department-form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding-top: 8px;
+        border-top: 1px solid #eef2f6;
+    }
+
+    .department-form-actions .btn { min-height: 43px; padding-inline: 22px; border-radius: 9px; font-weight: 700; }
+    .department-form-actions .btn-custom-primary { background: #147d78; border-color: #147d78; }
+    .department-form-actions .btn-custom-primary:hover { background: #0f6561; border-color: #0f6561; }
+
+    @keyframes department-form-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 767px) {
+        .department-form-aside, .department-form-fields { padding: 25px 22px; }
+        .department-form-aside { min-height: auto; }
+        .department-form-icon { margin-bottom: 18px; }
+        .department-form-checklist { margin-top: 22px; }
+        .department-form-header { flex-direction: column; }
+        .department-form-header a { align-self: flex-start; }
+        .department-form-actions { flex-direction: column-reverse; }
+        .department-form-actions .btn { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .department-form-shell { animation: none; }
+    }
+</style>
+
+<div class="container-fluid py-2 py-md-3">
+    <div class="department-form-shell">
+        <div class="department-form-card row g-0">
+            <aside class="department-form-aside col-md-5">
+                <div class="department-form-icon"><i class="fa-solid fa-sitemap"></i></div>
+                <h1>أضف قسمًا جديدًا إلى مؤسستك</h1>
+                <p class="mb-0">نظّم الهيكل الإداري وامنح فريقك مساحة واضحة للعمل والتعاون.</p>
+                <div class="department-form-checklist">
+                    <span><i class="fa-solid fa-circle-check"></i> اسم واضح وسهل التعرّف</span>
+                    <span><i class="fa-solid fa-circle-check"></i> رمز فريد داخل النظام</span>
+                    <span><i class="fa-solid fa-circle-check"></i> وصف يساعد على فهم المهام</span>
+                </div>
+            </aside>
+
+            <section class="department-form-fields col-md-7">
+                <div class="department-form-header">
                     <div>
-                        <h4 class="fw-bold mb-0">إضافة قسم جديد</h4>
-                        <p class="text-muted small mb-0">إنشاء قسم إداري جديد في الهيكل التنظيمي</p>
+                        <h2 class="fw-bold mb-1">بيانات القسم</h2>
+                        <p class="mb-0">أدخل المعلومات الأساسية لإنشاء القسم.</p>
                     </div>
-                </div>
-                <a href="{% url 'departments:department_list' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
-                    <i class="fa-solid fa-arrow-left me-1"></i> رجوع
-                </a>
-            </div>
-
-            <form action="{% url 'departments:add_department' %}" method="post">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">اسم القسم</label>
-                    <input type="text" name="name" class="form-control" placeholder="مثال: قسم تقنية المعلومات" required>
+                    <a href="{% url 'departments:department_list' %}" class="btn btn-sm btn-light border">
+                        <i class="fa-solid fa-arrow-right ms-1"></i> رجوع
+                    </a>
                 </div>
 
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">كود القسم</label>
-                    <input type="text" name="code" class="form-control" placeholder="مثال: IT-001" required>
-                    <div class="form-text text-muted small">
-                        * كود فريد لتمييز القسم في النظام
+                <form action="{% url 'departments:add_department' %}" method="post">
+                    {% csrf_token %}
+                    <div class="department-field">
+                        <label for="department-name" class="form-label fw-semibold">اسم القسم</label>
+                        <div class="department-input-wrap">
+                            <i class="fa-regular fa-building"></i>
+                            <input id="department-name" type="text" name="name" class="form-control" placeholder="مثال: قسم تقنية المعلومات" autocomplete="organization" required>
+                        </div>
                     </div>
-                </div>
 
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">وصف القسم</label>
-                    <textarea name="description" class="form-control" rows="3" placeholder="اكتب وصفاً للقسم ومهامه الأساسية..."></textarea>
-                </div>
+                    <div class="department-field">
+                        <label for="department-code" class="form-label fw-semibold">رمز القسم</label>
+                        <div class="department-input-wrap">
+                            <i class="fa-solid fa-hashtag"></i>
+                            <input id="department-code" type="text" name="code" class="form-control" placeholder="مثال: IT-001" maxlength="10" required>
+                        </div>
+                        <div class="form-text mt-2"><i class="fa-solid fa-circle-info ms-1"></i> استخدم رمزًا مختصرًا وفريدًا للقسم.</div>
+                    </div>
 
-                <div class="d-flex gap-2 pt-2">
-                    <button type="submit" class="btn btn-custom-primary flex-grow-1">حفظ القسم</button>
-                    <a href="{% url 'departments:department_list' %}" class="btn btn-outline-secondary">إلغاء</a>
-                </div>
-            </form>
+                    <div class="department-field optional">
+                        <label for="department-description" class="form-label fw-semibold">وصف القسم <span class="text-muted fw-normal">(اختياري)</span></label>
+                        <textarea id="department-description" name="description" class="form-control" rows="4" placeholder="اكتب وصفًا مختصرًا للقسم ومهامه الأساسية..."></textarea>
+                    </div>
+
+                    <div class="department-form-actions">
+                        <a href="{% url 'departments:department_list' %}" class="btn btn-light border">إلغاء</a>
+                        <button type="submit" class="btn btn-custom-primary"><i class="fa-solid fa-check ms-1"></i> حفظ القسم</button>
+                    </div>
+                </form>
+            </section>
         </div>
     </div>
 </div>

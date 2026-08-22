@@ -3,54 +3,97 @@
 {% block title %}إضافة مسمى وظيفي | HRMS{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="glass-card p-4 p-md-5">
-            <div class="d-flex align-items-center gap-3 mb-4">
-                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
-                    <i class="fa-solid fa-briefcase"></i>
-                </div>
-                <div>
-                    <h4 class="fw-bold mb-0">إضافة مسمى وظيفي جديد</h4>
-                    <p class="text-muted small mb-0">ربط المسمى الوظيفي بالقسم التابع له</p>
-                </div>
-            </div>
+<style>
+    .position-form-shell { max-width: 980px; margin: 0 auto; animation: position-form-in 0.45s ease both; }
+    .position-form-card { overflow: hidden; border: 1px solid #e2e8f0; border-radius: 18px; background: #fff; box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08); }
+    .position-form-aside { position: relative; min-height: 100%; padding: 34px 30px; color: #fff; background: linear-gradient(145deg, #123b63 0%, #176b78 100%); isolation: isolate; }
+    .position-form-aside::after { content: ""; position: absolute; width: 190px; height: 190px; left: -70px; bottom: -90px; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 50%; box-shadow: 0 0 0 22px rgba(255, 255, 255, 0.04), 0 0 0 44px rgba(255, 255, 255, 0.03); z-index: -1; }
+    .position-form-icon { width: 54px; height: 54px; display: grid; place-items: center; margin-bottom: 30px; border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 15px; color: #b9f3e5; background: rgba(255, 255, 255, 0.12); font-size: 1.25rem; }
+    .position-form-aside h1 { font-size: clamp(1.45rem, 2vw, 1.85rem); line-height: 1.5; margin-bottom: 12px; }
+    .position-form-aside p { color: rgba(255, 255, 255, 0.76); line-height: 1.9; }
+    .position-form-checklist { display: grid; gap: 14px; margin-top: 34px; padding-top: 22px; border-top: 1px solid rgba(255, 255, 255, 0.16); }
+    .position-form-checklist span { display: flex; align-items: center; gap: 10px; color: rgba(255, 255, 255, 0.88); font-size: 0.88rem; }
+    .position-form-checklist i { color: #8fe4d2; }
+    .position-form-fields { padding: 34px 36px; }
+    .position-form-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+    .position-form-header h2 { color: #172b4d; font-size: 1.2rem; }
+    .position-form-header p { color: #64748b; font-size: 0.84rem; }
+    .position-form-header a { white-space: nowrap; }
+    .position-field { margin-bottom: 22px; }
+    .position-field label { color: #334155; font-size: 0.88rem; }
+    .position-field.required label::after { content: " *"; color: #e05d44; }
+    .position-input-wrap { position: relative; }
+    .position-input-wrap i { position: absolute; top: 50%; right: 15px; color: #94a3b8; transform: translateY(-50%); pointer-events: none; }
+    .position-input-wrap .form-control, .position-input-wrap .form-select { padding-right: 42px; }
+    .position-field .form-control, .position-field .form-select { border-radius: 10px; padding-top: 11px; padding-bottom: 11px; }
+    .position-field .form-control:focus, .position-field .form-select:focus { border-color: #159a8c; box-shadow: 0 0 0 0.22rem rgba(21, 154, 140, 0.14); }
+    .position-field .form-text { color: #64748b !important; font-size: 0.76rem; }
+    .salary-range-box { padding: 16px; border: 1px solid #d8eee9; border-radius: 12px; background: #f4fbf9; }
+    .salary-range-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; color: #176b78; font-size: 0.9rem; font-weight: 700; }
+    .salary-range-heading i { color: #159a8c; }
+    .salary-range-box .position-field { margin-bottom: 0; }
+    .position-form-actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 8px; border-top: 1px solid #eef2f6; }
+    .position-form-actions .btn { min-height: 43px; padding-inline: 22px; border-radius: 9px; font-weight: 700; }
+    .position-form-actions .btn-custom-primary { background: #147d78; border-color: #147d78; }
+    .position-form-actions .btn-custom-primary:hover { background: #0f6561; border-color: #0f6561; }
+    @keyframes position-form-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 767px) { .position-form-aside, .position-form-fields { padding: 25px 22px; } .position-form-icon { margin-bottom: 18px; } .position-form-checklist { margin-top: 22px; } .position-form-header { flex-direction: column; } .position-form-header a { align-self: flex-start; } .position-form-actions { flex-direction: column-reverse; } .position-form-actions .btn { width: 100%; } }
+    @media (prefers-reduced-motion: reduce) { .position-form-shell { animation: none; } }
+</style>
 
-            <form action="{% url 'departments:add_position' %}" method="post">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">اسم الوظيفة / المسمى الوظيفي</label>
-                    <input type="text" name="title" class="form-control" placeholder="مثال: مهندس ذكاء اصطناعي" required>
+<div class="container-fluid py-2 py-md-3">
+    <div class="position-form-shell">
+        <div class="position-form-card row g-0">
+            <aside class="position-form-aside col-md-5">
+                <div class="position-form-icon"><i class="fa-solid fa-briefcase"></i></div>
+                <h1>أضف مسمى وظيفيًا واضحًا لفريقك</h1>
+                <p class="mb-0">عرّف الدور والمسؤوليات ونطاق الراتب لتسهيل إدارة الموظفين والمسيرات.</p>
+                <div class="position-form-checklist">
+                    <span><i class="fa-solid fa-circle-check"></i> ربط المسمى بالقسم المناسب</span>
+                    <span><i class="fa-solid fa-circle-check"></i> تحديد نطاق راتب مرن</span>
+                    <span><i class="fa-solid fa-circle-check"></i> ضبط الدور والصلاحيات</span>
                 </div>
+            </aside>
 
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">القسم التابع له</label>
-                    <select name="department" class="form-select" required>
-                        <option value="" disabled selected>اختر القسم...</option>
-                        {% for dept in departments %}
-                            <option value="{{ dept.id }}">{{ dept.name }} ({{ dept.code }})</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">الدور والصلاحية الممنوحة (Role/Permission)</label>
-                    <select name="group" class="form-select">
-                        <option value="" selected>بدون دور محدد</option>
-                        {% for group in groups %}
-                            <option value="{{ group.id }}">دور: {{ group.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <div class="form-text text-muted small">
-                        * يتحدد بناءً على هذا الدور مستوى صلاحيات الوصول للموظف المعين بهذه الوظيفة.
+            <section class="position-form-fields col-md-7">
+                <div class="position-form-header">
+                    <div>
+                        <h2 class="fw-bold mb-1">بيانات المسمى الوظيفي</h2>
+                        <p class="mb-0">أدخل تفاصيل الوظيفة الأساسية قبل حفظها.</p>
                     </div>
+                    <a href="{% url 'departments:department_list' %}" class="btn btn-sm btn-light border"><i class="fa-solid fa-arrow-right ms-1"></i> رجوع</a>
                 </div>
 
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-custom-primary flex-grow-1">حفظ الوظيفة</button>
-                    <a href="{% url 'departments:department_list' %}" class="btn btn-outline-secondary">إلغاء</a>
-                </div>
-            </form>
+                <form action="{% url 'departments:add_position' %}" method="post">
+                    {% csrf_token %}
+                    <div class="position-field required">
+                        <label for="position-title" class="form-label fw-semibold">اسم الوظيفة / المسمى الوظيفي</label>
+                        <div class="position-input-wrap"><i class="fa-solid fa-briefcase"></i><input id="position-title" type="text" name="title" class="form-control" placeholder="مثال: مهندس ذكاء اصطناعي" required></div>
+                    </div>
+
+                    <div class="position-field required">
+                        <label for="position-department" class="form-label fw-semibold">القسم التابع له</label>
+                        <div class="position-input-wrap"><i class="fa-regular fa-building"></i><select id="position-department" name="department" class="form-select" required><option value="" disabled selected>اختر القسم...</option>{% for dept in departments %}<option value="{{ dept.id }}">{{ dept.name }} ({{ dept.code }})</option>{% endfor %}</select></div>
+                    </div>
+
+                    <div class="salary-range-box mb-4">
+                        <div class="salary-range-heading"><i class="fa-solid fa-money-bill-trend-up"></i> سلم الراتب المتوقع</div>
+                        <div class="row g-3">
+                            <div class="position-field required col-sm-6"><label for="salary-min" class="form-label fw-semibold">الحد الأدنى</label><div class="position-input-wrap"><i class="fa-solid fa-arrow-down-1-9"></i><input id="salary-min" type="number" name="salary_min" class="form-control" min="0" step="0.01" placeholder="مثال: 5000" required></div></div>
+                            <div class="position-field required col-sm-6"><label for="salary-max" class="form-label fw-semibold">الحد الأقصى</label><div class="position-input-wrap"><i class="fa-solid fa-arrow-up-1-9"></i><input id="salary-max" type="number" name="salary_max" class="form-control" min="0" step="0.01" placeholder="مثال: 9000" required></div></div>
+                        </div>
+                        <div class="form-text mt-2"><i class="fa-solid fa-circle-info ms-1"></i> يُستخدم النطاق كمرجع للراتب، ويُسجّل الحد الأدنى كراتب أساسي ابتدائي للمسيرات.</div>
+                    </div>
+
+                    <div class="position-field">
+                        <label for="position-group" class="form-label fw-semibold">الدور والصلاحية الممنوحة <span class="text-muted fw-normal">(اختياري)</span></label>
+                        <div class="position-input-wrap"><i class="fa-solid fa-shield-halved"></i><select id="position-group" name="group" class="form-select"><option value="" selected>بدون دور محدد</option>{% for group in groups %}<option value="{{ group.id }}">دور: {{ group.name }}</option>{% endfor %}</select></div>
+                        <div class="form-text mt-2">يتحدد بناءً على هذا الدور مستوى صلاحيات الوصول للموظف المعين بهذه الوظيفة.</div>
+                    </div>
+
+                    <div class="position-form-actions"><a href="{% url 'departments:department_list' %}" class="btn btn-light border">إلغاء</a><button type="submit" class="btn btn-custom-primary"><i class="fa-solid fa-check ms-1"></i> حفظ الوظيفة</button></div>
+                </form>
+            </section>
         </div>
     </div>
 </div>

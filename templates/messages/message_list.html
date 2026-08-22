@@ -3,6 +3,44 @@
 {% block title %}صندوق الرسائل | HRMS{% endblock %}
 {% block page_title %}صندوق الرسائل والاتصالات الداخلية{% endblock %}
 
+{% block extra_css %}
+<style>
+    .message-filters { padding: 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+    .message-filters label { display: block; margin-bottom: 5px; color: #475569; font-size: .72rem; font-weight: 700; }
+    .message-filters .form-control, .message-filters .form-select { min-height: 40px; border-radius: 9px; }
+    .message-subject { max-width: 320px; color: #172033; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .message-body-preview { display: none; }
+    .message-reader-body { min-height: 210px; padding: 18px; color: #334155; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; line-height: 1.9; white-space: pre-wrap; }
+    .message-reader-meta { color: #64748b; font-size: .78rem; }
+    .recipient-status-list { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .recipient-status-row { display: inline-flex; align-items: center; gap: 7px; max-width: 100%; padding: 7px 10px; border: 1px solid; border-radius: 999px; font-size: .78rem; transition: background-color .15s ease, transform .15s ease; }
+    .recipient-status-row:hover { transform: translateY(-1px); }
+    .recipient-status-name { min-width: 0; overflow-wrap: anywhere; }.recipient-status-name small { color: currentColor; opacity: .72; }
+    .department-code { flex: 0 0 auto; padding: 2px 6px; color: currentColor; background: rgba(255, 255, 255, .65); border: 1px solid currentColor; border-radius: 999px; font-size: .62rem; font-weight: 800; letter-spacing: .02em; }
+    .recipient-status-badge { flex: 0 0 auto; font-size: .7rem; font-weight: 700; }
+    .recipient-status-badge i { font-size: .58rem; }
+    .recipient-is-unread { color: #b91c1c; background: #fff1f2; border-color: #fecdd3; }.recipient-is-unread:hover { background: #ffe4e6; }
+    .recipient-is-read { color: #047857; background: #ecfdf5; border-color: #a7f3d0; }.recipient-is-read:hover { background: #d1fae5; }
+    .reader-analytics { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+    .reader-kpi { padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 999px; color: #334155; background: #f8fafc; font-size: .74rem; font-weight: 700; }
+    .reader-kpi.read { color: #047857; background: #ecfdf5; border-color: #a7f3d0; }
+    .reader-kpi.unread { color: #b91c1c; background: #fff1f2; border-color: #fecdd3; }
+    .reader-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+    .reader-filters label { display: block; margin-bottom: 4px; color: #64748b; font-size: .7rem; font-weight: 700; }
+    .reader-filters select { min-height: 36px; border-radius: 8px; font-size: .78rem; }
+    .message-reader-modal .modal-dialog { width: calc(100% - 1.5rem); max-width: 1140px; height: 90vh; margin: 5vh auto; }
+    .message-reader-modal .modal-content { display: flex; flex-direction: column; max-height: 90vh; height: 90vh; overflow: hidden; }
+    .message-reader-modal .modal-header { flex-shrink: 0; }
+    .message-reader-modal .modal-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+    .message-reader-modal .modal-footer { flex-shrink: 0; }
+    @media (max-width: 575px) { .reader-filters { grid-template-columns: 1fr; } }
+    @media (max-width: 767px) { .message-subject { max-width: 180px; } }
+    body.dark-mode .message-filters, body.dark-mode .message-reader-body { background: #172033; border-color: #334155; }
+    body.dark-mode .message-subject { color: #f8fafc; } body.dark-mode .recipient-is-unread { background: #450a0a; border-color: #7f1d1d; } body.dark-mode .recipient-is-read { background: #064e3b; border-color: #047857; }
+    body.dark-mode .reader-kpi { color: #e2e8f0; background: #172033; border-color: #334155; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="card border-0 shadow-sm" style="border-radius: 12px;">
     <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
@@ -12,13 +50,13 @@
             <span class="badge bg-danger rounded-pill ms-2">{{ unread_count }}</span>
             {% endif %}
         </h6>
-        <button type="button" class="btn btn-primary btn-sm px-3 fw-bold" style="border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#composeModal">
+        <a href="{% url 'message_compose' %}" class="btn btn-primary btn-sm px-3 fw-bold" style="border-radius: 8px;">
             <i class="fa-solid fa-plus me-1"></i> رسالة جديدة
-        </button>
+        </a>
     </div>
 
     <div class="table-responsive">
-        <div class="p-3 border-top border-bottom bg-light">
+        <div class="message-filters">
             <div class="d-flex flex-wrap gap-2 mb-3">
                 <a href="?{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if date_from %}date_from={{ date_from }}&{% endif %}{% if date_to %}date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_folder == 'all' and not active_status %}btn-primary{% else %}btn-outline-primary{% endif %}">الكل <span class="badge bg-white text-primary ms-1">{{ filter_counts.all }}</span></a>
                 <a href="?folder=inbox{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_folder == 'inbox' and not active_status %}btn-primary{% else %}btn-outline-primary{% endif %}">الواردة <span class="badge bg-white text-primary ms-1">{{ filter_counts.inbox }}</span></a>
@@ -27,7 +65,7 @@
                 <a href="?status=read{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_status == 'read' %}btn-primary{% else %}btn-outline-primary{% endif %}">مقروءة <span class="badge bg-white text-primary ms-1">{{ filter_counts.read }}</span></a>
             </div>
             <form method="get" class="row g-2 align-items-end">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="message_search" class="form-label small fw-semibold mb-1">بحث في الموضوع أو اسم المرسل والمستقبل</label>
                     <input type="search" class="form-control" id="message_search" name="q" value="{{ search_query }}" placeholder="اكتب كلمة البحث...">
                 </div>
@@ -39,6 +77,20 @@
                     <label for="date_to" class="form-label small fw-semibold mb-1">إلى تاريخ</label>
                     <input type="date" class="form-control" id="date_to" name="date_to" value="{{ date_to }}">
                 </div>
+                <div class="col-md-2">
+                    <label for="department_filter">القسم</label>
+                    <select class="form-select" id="department_filter" name="department">
+                        <option value="">كل الأقسام</option>
+                        {% for department in departments %}<option value="{{ department.id }}" {% if active_department == department.id|stringformat:"s" %}selected{% endif %}>{{ department.name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="role_filter">الدور</label>
+                    <select class="form-select" id="role_filter" name="role">
+                        <option value="">كل الأدوار</option>
+                        {% for role in role_options %}<option value="{{ role }}" {% if active_role == role %}selected{% endif %}>{{ role }}</option>{% endfor %}
+                    </select>
+                </div>
                 <div class="col-md-2 d-flex gap-2">
                     <button type="submit" class="btn btn-primary flex-grow-1"><i class="fa-solid fa-magnifying-glass"></i> بحث</button>
                     <a href="{% url 'message_list' %}" class="btn btn-outline-secondary" title="مسح الفلاتر"><i class="fa-solid fa-rotate-left"></i></a>
@@ -49,7 +101,6 @@
             <thead class="table-light">
                 <tr>
                     <th scope="col" class="ps-3">#</th>
-                    <th scope="col">المرسل / المستقبل</th>
                     <th scope="col">الموضوع</th>
                     <th scope="col">التاريخ والوقت</th>
                     <th scope="col">الحالة</th>
@@ -61,17 +112,11 @@
                 <tr class="{% if not message.is_read and message.recipient == request.user %}table-primary{% endif %}">
                     <td class="ps-3 fw-bold">{{ forloop.counter }}</td>
                     <td>
-                        {% if message.sender == request.user %}
-                        <div class="fw-bold text-dark">إلى: {{ message.recipient.get_full_name|default:message.recipient.username }}</div>
-                        <small class="text-muted">{{ message.recipient.email }}</small>
-                        {% else %}
-                        <div class="fw-bold text-dark">من: {{ message.sender.get_full_name|default:message.sender.username }}</div>
-                        <small class="text-muted">{{ message.sender.email }}</small>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <div class="fw-semibold text-dark">{{ message.subject }}</div>
-                        <small class="text-muted d-block text-truncate" style="max-width: 280px;">{{ message.body }}</small>
+                        <div class="message-subject fw-semibold">{{ message.subject|striptags|truncatechars:80 }}</div>
+                        <div id="message-body-{{ message.id }}" class="message-body-preview">{{ message.body|safe }}</div>
+                        <div id="message-recipients-{{ message.id }}" class="message-body-preview">
+                            {% for recipient in message.group_recipients %}<div class="recipient-status-row {% if recipient.is_read %}recipient-is-read{% else %}recipient-is-unread{% endif %}" data-department="{{ recipient.department_id }}" data-role="{{ recipient.role }}" data-status="{% if recipient.is_read %}read{% else %}unread{% endif %}" title="{% if recipient.is_read and recipient.read_at %}تمت القراءة: {{ recipient.read_at|date:'Y-m-d H:i:s' }}{% else %}لم تتم القراءة بعد{% endif %}"><span class="recipient-status-badge" aria-hidden="true"><i class="fa-solid {% if recipient.is_read %}fa-check{% else %}fa-circle{% endif %}"></i></span><span class="recipient-status-name">{{ recipient.name }}</span>{% if recipient.department_code %}<small class="department-code">{{ recipient.department_code }}</small>{% endif %}</div>{% endfor %}
+                        </div>
                     </td>
                     <td class="small text-muted">{{ message.created_at|date:"Y-m-d H:i" }}</td>
                     <td>
@@ -82,9 +127,9 @@
                         {% endif %}
                     </td>
                     <td class="text-center">
-                        <a href="{% url 'message_detail' message.id %}" class="btn btn-sm btn-light border" title="عرض التفاصيل">
+                        <button type="button" class="btn btn-sm btn-light border read-message-button" title="عرض التفاصيل" data-bs-toggle="modal" data-bs-target="#messageReaderModal" data-message-id="{{ message.id }}" data-subject="{{ message.subject|striptags }}" data-sender="{{ message.sender.get_full_name|default:message.sender.username }}" data-recipient="{{ message.recipient.get_full_name|default:message.recipient.username }}" data-date="{{ message.created_at|date:'Y-m-d H:i' }}" data-read="{% if message.is_read %}مقروءة{% else %}غير مقروءة{% endif %}">
                             <i class="fa-solid fa-eye text-primary"></i>
-                        </a>
+                        </button>
                         <a href="{% url 'message_delete' message.id %}" class="btn btn-sm btn-light border" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذه الرسالة؟')">
                             <i class="fa-solid fa-trash text-danger"></i>
                         </a>
@@ -92,7 +137,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center py-5 text-muted">
+                    <td colspan="5" class="text-center py-5 text-muted">
                         <i class="fa-solid fa-inbox fs-1 d-block mb-2 opacity-50"></i>
                         لا يوجد أي رسائل واردة أو صادرة حتى الآن.
                     </td>
@@ -102,6 +147,106 @@
         </table>
     </div>
 </div>
+
+<div class="modal fade message-reader-modal" id="messageReaderModal" tabindex="-1" aria-labelledby="messageReaderTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 flex-shrink-0">
+                <h5 class="modal-title fw-bold" id="messageReaderTitle">تفاصيل الرسالة</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+            </div>
+            <div class="modal-body pt-0 flex-grow-1">
+                <h4 id="readerSubject" class="fw-bold mb-3"></h4>
+                <div class="message-reader-meta d-flex flex-wrap gap-3 mb-3">
+                    <span><i class="fa-solid fa-user ms-1"></i><span id="readerSender"></span></span>
+                    <span><i class="fa-solid fa-user-check ms-1"></i><span id="readerRecipient"></span></span>
+                    <span><i class="fa-regular fa-clock ms-1"></i><span id="readerDate"></span></span>
+                    <span id="readerStatus" class="badge bg-secondary-subtle text-secondary"></span>
+                </div>
+                <div id="readerBody" class="message-reader-body"></div>
+                <div class="mt-4">
+                    <h6 class="fw-bold mb-2"><i class="fa-solid fa-users ms-1 text-primary"></i>قائمة المستلمين وحالة الاستلام</h6>
+                    <div class="reader-analytics" aria-live="polite">
+                        <span id="readerTotal" class="reader-kpi">إجمالي المستلمين: 0</span>
+                        <span id="readerRead" class="reader-kpi read">تمت القراءة: 0 (0%)</span>
+                        <span id="readerUnread" class="reader-kpi unread">غير مقروءة: 0 (0%)</span>
+                    </div>
+                    <div class="reader-filters">
+                        <div><label for="readerDepartmentFilter">القسم</label><select id="readerDepartmentFilter" class="form-select"><option value="">كل الأقسام</option>{% for department in departments %}<option value="{{ department.id }}">{{ department.name }}</option>{% endfor %}</select></div>
+                        <div><label for="readerRoleFilter">الدور</label><select id="readerRoleFilter" class="form-select"><option value="">كل الأدوار</option>{% for role in role_options %}<option value="{{ role }}">{{ role }}</option>{% endfor %}</select></div>
+                        <div><label for="readerStatusFilter">الحالة</label><select id="readerStatusFilter" class="form-select"><option value="">كل الحالات</option><option value="read">مقروءة</option><option value="unread">غير مقروءة</option></select></div>
+                    </div>
+                    <div id="readerRecipients" class="recipient-status-list"></div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 flex-shrink-0 d-flex flex-wrap gap-2">
+                <button type="button" id="readerMarkRead" class="btn btn-outline-primary"><i class="fa-solid fa-check ms-1"></i>تحديد كمقروء</button>
+                <a id="readerDelete" class="btn btn-outline-danger" href="#" onclick="return confirm('هل أنت متأكد من حذف هذه الرسالة؟')"><i class="fa-solid fa-trash ms-1"></i>حذف</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const readerFilters = ['readerDepartmentFilter', 'readerRoleFilter', 'readerStatusFilter'];
+
+function updateReaderAnalytics() {
+    const recipients = Array.from(document.querySelectorAll('#readerRecipients .recipient-status-row'));
+    const department = document.getElementById('readerDepartmentFilter').value;
+    const role = document.getElementById('readerRoleFilter').value;
+    const status = document.getElementById('readerStatusFilter').value;
+    let visible = 0;
+    let read = 0;
+
+    recipients.forEach(recipient => {
+        const matches = (!department || recipient.dataset.department === department)
+            && (!role || recipient.dataset.role === role)
+            && (!status || recipient.dataset.status === status);
+        recipient.hidden = !matches;
+        if (matches) {
+            visible += 1;
+            read += recipient.dataset.status === 'read' ? 1 : 0;
+        }
+    });
+
+    const unread = visible - read;
+    const readPercent = visible ? Math.round((read / visible) * 100) : 0;
+    const unreadPercent = visible ? Math.round((unread / visible) * 100) : 0;
+    document.getElementById('readerTotal').textContent = `إجمالي المستلمين: ${visible}`;
+    document.getElementById('readerRead').textContent = `تمت القراءة: ${read} (${readPercent}%)`;
+    document.getElementById('readerUnread').textContent = `غير مقروءة: ${unread} (${unreadPercent}%)`;
+    document.getElementById('readerRecipient').textContent = `عدد المستلمين: ${visible}`;
+}
+
+readerFilters.forEach(filterId => {
+    document.getElementById(filterId).addEventListener('change', updateReaderAnalytics);
+});
+
+document.querySelectorAll('.read-message-button').forEach(button => {
+    button.addEventListener('click', function() {
+        const messageId = this.dataset.messageId;
+        const body = document.getElementById(`message-body-${messageId}`);
+        const recipients = document.getElementById(`message-recipients-${messageId}`);
+        document.getElementById('readerSubject').textContent = this.dataset.subject;
+        document.getElementById('readerSender').textContent = `من: ${this.dataset.sender}`;
+        document.getElementById('readerRecipient').textContent = `عدد المستلمين: ${recipients ? recipients.children.length : 0}`;
+        document.getElementById('readerDate').textContent = this.dataset.date;
+        document.getElementById('readerStatus').textContent = this.dataset.read;
+        document.getElementById('readerBody').innerHTML = body ? body.innerHTML : '';
+        document.getElementById('readerRecipients').innerHTML = recipients ? recipients.innerHTML : '';
+        readerFilters.forEach(filterId => { document.getElementById(filterId).value = ''; });
+        updateReaderAnalytics();
+        document.getElementById('readerDelete').href = `/dashboard/messages/${messageId}/delete/`;
+        const markReadButton = document.getElementById('readerMarkRead');
+        markReadButton.hidden = this.dataset.read === 'مقروءة';
+        markReadButton.onclick = () => {
+            fetch(`/dashboard/messages/${messageId}/`, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+                .then(() => window.location.reload());
+        };
+    });
+});
+</script>
 
 <!-- Advanced Compose Modal with Dynamic Filtering -->
 <div class="modal fade" id="composeModal" tabindex="-1" aria-labelledby="composeModalLabel" aria-hidden="true">

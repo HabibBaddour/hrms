@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ position.title }} | HRMS{% endblock %}
+
+{% block content %}
+<div class="position-page" dir="rtl">
+    <div class="position-topbar">
+        <a href="{% url 'departments:department_detail' position.department.id %}" class="back-link"><i class="fa-solid fa-arrow-right"></i> العودة إلى {{ position.department.name }}</a>
+        <span class="position-id">#{{ position.id }}</span>
+    </div>
+
+    <section class="position-hero">
+        <div class="hero-icon"><i class="fa-solid fa-briefcase"></i></div>
+        <div>
+            <p class="eyebrow">تفاصيل المسمى الوظيفي</p>
+            <h1>{{ position.title }}</h1>
+            <p class="hero-subtitle">{{ position.department.name }}{% if position.is_head %} <span class="head-badge">رئيس القسم</span>{% endif %}</p>
+        </div>
+    </section>
+
+    <div class="position-grid">
+        <section class="panel edit-panel">
+            <div class="panel-heading"><div><p class="eyebrow">الإعدادات</p><h2>تعديل بيانات الوظيفة</h2></div><i class="fa-solid fa-sliders"></i></div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="field full-width"><label for="title">المسمى الوظيفي</label><input id="title" name="title" value="{{ position.title }}" required></div>
+                <div class="form-row">
+                    <div class="field"><label for="role">الدور</label><select id="role" name="role">{% for value, label in position.ROLE_CHOICES %}<option value="{{ value }}"{% if position.role == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+                    <div class="field"><label for="group">الصلاحية</label><select id="group" name="group"><option value="">بدون دور</option>{% for group in groups %}<option value="{{ group.id }}"{% if position.group_id == group.id %} selected{% endif %}>{{ group.name }}</option>{% endfor %}</select></div>
+                </div>
+                <div class="form-row salary-row">
+                    <div class="field"><label for="salary_min">الحد الأدنى للراتب</label><input id="salary_min" name="salary_min" type="number" min="0" step="0.01" value="{{ position.salary_min }}" required></div>
+                    <div class="field"><label for="salary_max">الحد الأقصى للراتب</label><input id="salary_max" name="salary_max" type="number" min="0" step="0.01" value="{{ position.salary_max }}" required></div>
+                </div>
+                <div class="field"><label for="base_salary">الراتب التقديري</label><input id="base_salary" name="base_salary" type="number" min="0" step="0.01" value="{{ position.base_salary }}"></div>
+                <label class="check-field"><input type="checkbox" name="is_head"{% if position.is_head %} checked{% endif %}><span>اعتبار الوظيفة رئيسية في القسم</span></label>
+                <button type="submit" class="save-button"><i class="fa-solid fa-check"></i> حفظ التعديلات</button>
+            </form>
+        </section>
+
+        <section class="panel detail-panel">
+            <div class="panel-heading"><div><p class="eyebrow">ملخص</p><h2>بيانات الوظيفة</h2></div><i class="fa-solid fa-circle-info"></i></div>
+            <div class="detail-list">
+                <div><span>القسم</span><strong>{{ position.department.name }}</strong></div>
+                <div><span>الدور</span><strong>{{ position.get_role_display }}</strong></div>
+                <div><span>الحد الأدنى</span><strong class="money">{{ position.salary_min|floatformat:2 }}</strong></div>
+                <div><span>الحد الأقصى</span><strong class="money">{{ position.salary_max|floatformat:2 }}</strong></div>
+                <div><span>الراتب التقديري</span><strong class="money">{{ position.base_salary|floatformat:2 }}</strong></div>
+                <div><span>الموظفون المعينون</span><strong>{{ employees|length }}</strong></div>
+            </div>
+        </section>
+    </div>
+
+    <section class="panel employees-panel">
+        <div class="panel-heading"><div><p class="eyebrow">فريق العمل</p><h2>الموظفون المعينون على الوظيفة</h2></div><i class="fa-solid fa-users"></i></div>
+        <div class="employee-grid">
+            {% for employee in employees %}
+            <article class="employee-card">
+                {% if employee.profile_picture %}<img src="{{ employee.profile_picture.url }}" alt="{{ employee.get_full_name }}">{% else %}<div class="avatar-placeholder"><i class="fa-solid fa-user"></i></div>{% endif %}
+                <div><h3>{{ employee.get_full_name }}</h3><p>{{ employee.user.email|default:employee.phone|default:'لا توجد بيانات اتصال' }}</p>{% if employee.national_id %}<small>الهوية: {{ employee.national_id }}</small>{% endif %}</div>
+            </article>
+            {% empty %}<div class="empty-state"><i class="fa-solid fa-user-slash"></i><span>لا يوجد موظفون معينون على هذه الوظيفة حاليًا.</span></div>{% endfor %}
+        </div>
+    </section>
+</div>
+
+<style>
+.position-page { max-width: 1180px; margin: 0 auto; color: #dce8eb; }
+.position-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.back-link { color: #91b1b8; text-decoration: none; font-size: .82rem; }.back-link:hover { color: #67e8d3; }.back-link i { margin-left: 7px; }.position-id { color: #67848b; font-size: .78rem; }
+.position-hero { display: flex; align-items: center; gap: 18px; margin-bottom: 22px; padding: 28px; border: 1px solid #31505b; border-radius: 16px; background: linear-gradient(135deg, #102633, #124541); box-shadow: 0 18px 35px rgba(5, 24, 34, .2); }.hero-icon { display: grid; place-items: center; width: 62px; height: 62px; border: 1px solid #438c86; border-radius: 14px; color: #75e3d2; background: rgba(45, 212, 191, .12); font-size: 1.35rem; }.eyebrow { margin: 0 0 5px; color: #72d4c7; font-size: .73rem; font-weight: 800; letter-spacing: .03em; }.position-hero h1 { margin: 0; color: #f3faf9; font-size: clamp(1.45rem, 3vw, 2rem); }.hero-subtitle { margin: 7px 0 0; color: #a5bec1; font-size: .84rem; }.head-badge { display: inline-block; margin-right: 8px; padding: 4px 9px; border: 1px solid rgba(251, 191, 36, .35); border-radius: 999px; color: #fcd68a; background: rgba(245, 158, 11, .12); font-size: .7rem; }
+.position-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, .85fr); gap: 22px; }.panel { border: 1px solid rgba(71, 98, 112, .65); border-radius: 15px; background: rgba(15, 29, 42, .93); box-shadow: 0 14px 28px rgba(8, 26, 38, .14); }.edit-panel, .detail-panel { padding: 23px; }.panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; margin-bottom: 20px; }.panel-heading h2 { margin: 0; color: #f0f7f7; font-size: 1rem; }.panel-heading > i { color: #59cfc1; font-size: 1.1rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }.field { margin-bottom: 15px; }.field label { display: block; margin-bottom: 7px; color: #9bb3b8; font-size: .77rem; }.field input, .field select { width: 100%; min-height: 42px; padding: 9px 11px; border: 1px solid #35515b; border-radius: 8px; outline: 0; color: #e4f0f0; background: #102531; font: inherit; font-size: .82rem; }.field input:focus, .field select:focus { border-color: #55cabc; box-shadow: 0 0 0 3px rgba(45, 212, 191, .12); }.check-field { display: flex; align-items: center; gap: 9px; margin: 4px 0 20px; color: #b5c9ca; font-size: .8rem; }.check-field input { accent-color: #16a394; }.save-button { min-height: 42px; padding: 9px 16px; border: 0; border-radius: 8px; color: #fff; background: #0e9185; font: inherit; font-size: .8rem; font-weight: 800; cursor: pointer; }.save-button:hover { background: #13b5a5; }.save-button i { margin-left: 6px; }
+.detail-list > div { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 14px 0; border-bottom: 1px solid rgba(71, 98, 112, .32); font-size: .8rem; }.detail-list > div:last-child { border-bottom: 0; }.detail-list span { color: #89a5aa; }.detail-list strong { color: #e2eeee; text-align: left; }.detail-list .money { color: #84e2d4; }
+.employees-panel { margin-top: 22px; padding: 23px; }.employee-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }.employee-card { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 14px; border: 1px solid #2b4853; border-radius: 10px; background: rgba(20, 40, 51, .72); }.employee-card img, .avatar-placeholder { width: 46px; height: 46px; flex: 0 0 46px; border-radius: 50%; object-fit: cover; }.avatar-placeholder { display: grid; place-items: center; color: #76d8cb; background: rgba(45, 212, 191, .14); }.employee-card h3 { margin: 0 0 4px; color: #eaf5f4; font-size: .85rem; }.employee-card p, .employee-card small { display: block; overflow: hidden; margin: 0; color: #8da9ae; font-size: .73rem; text-overflow: ellipsis; white-space: nowrap; }.employee-card small { margin-top: 4px; color: #6f8d94; }.empty-state { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 90px; grid-column: 1 / -1; color: #78969c; font-size: .8rem; }.empty-state i { color: #4f747d; }
+@media (max-width: 720px) { .position-page { padding: 0 4px; }.position-hero { align-items: flex-start; padding: 21px; }.position-grid { grid-template-columns: 1fr; }.edit-panel, .detail-panel, .employees-panel { padding: 19px; }.form-row { grid-template-columns: 1fr; gap: 0; } }
+</style>
+{% endblock %}

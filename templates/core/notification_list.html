@@ -3,65 +3,70 @@
 {% block title %}مركز الإشعارات | HRMS{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold text-dark mb-0">مركز الإشعارات</h3>
-        <div class="d-flex gap-2">
-            {% if notifications %}
-                <button onclick="markAllRead()" class="btn btn-sm btn-outline-primary rounded-3">
-                    <i class="fa-solid fa-check-double me-1"></i> تحديد الكل كمقروء
-                </button>
-            {% endif %}
+<div class="notification-center container-fluid py-4 px-3 px-lg-4">
+    <div class="notification-heading d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+        <div>
+            <span class="section-kicker"><i class="fa-solid fa-sparkles"></i> متابعة النظام</span>
+            <h1 class="notification-title mb-1">مركز الإشعارات</h1>
+            <p class="text-muted mb-0">كل التنبيهات التي تحتاج انتباهك في مكان واحد.</p>
         </div>
+        {% if unread_count %}
+        <button onclick="markAllRead()" class="btn btn-primary rounded-3 px-3">
+            <i class="fa-solid fa-check-double ms-1"></i> تحديد الكل كمقروء
+        </button>
+        {% endif %}
     </div>
 
-    <div class="card border-0 shadow-sm rounded-4">
-        <div class="card-body p-0">
-            {% if notifications %}
-                <div class="list-group list-group-flush">
-                    {% for notification in notifications %}
-                    <div class="list-group-item {% if not notification.is_read %}bg-light border-start border-4 border-primary{% endif %} py-3 {% if not notification.is_read %}unread{% endif %}">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div class="flex-grow-1">
-                                <div class="d-flex align-items-center mb-2">
-                                    {% if notification.actor %}
-                                        <span class="badge bg-soft-primary text-primary me-2">
-                                            {{ notification.actor.get_full_name }}
-                                        </span>
-                                    {% endif %}
-                                    <span class="badge bg-secondary text-white">
-                                        {{ notification.get_notification_type_display }}
-                                    </span>
-                                    {% if not notification.is_read %}
-                                        <span class="badge bg-primary ms-2">جديد</span>
-                                    {% endif %}
-                                </div>
-                                <p class="mb-2">{{ notification.message }}</p>
-                                <small class="text-muted">
-                                    <i class="fa-regular fa-clock me-1"></i>
-                                    {{ notification.created_at|date:"Y-m-d H:i" }}
-                                </small>
-                            </div>
-                            <div class="d-flex flex-column align-items-end gap-2">
-                                {% if not notification.is_read %}
-                                <button onclick="markAsRead({{ notification.id }})" class="btn btn-sm btn-outline-secondary rounded-2">
-                                    <i class="fa-solid fa-check"></i>
-                                </button>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="text-center py-5 text-muted">
-                    <i class="fa-solid fa-bell-slash fs-1 mb-3"></i>
-                    <p class="mb-0">لا توجد إشعارات حالياً</p>
-                </div>
-            {% endif %}
+    <div class="notification-stats row g-3 mb-4">
+        <div class="col-6 col-xl-3"><div class="stat-tile"><span class="stat-icon all"><i class="fa-solid fa-inbox"></i></span><div><small>إجمالي الإشعارات</small><strong>{{ total_count }}</strong></div></div></div>
+        <div class="col-6 col-xl-3"><div class="stat-tile"><span class="stat-icon unread"><i class="fa-solid fa-bell"></i></span><div><small>غير مقروءة</small><strong>{{ unread_count }}</strong></div></div></div>
+        <div class="col-6 col-xl-3"><div class="stat-tile"><span class="stat-icon filtered"><i class="fa-solid fa-filter"></i></span><div><small>نتائج العرض</small><strong>{{ filtered_count }}</strong></div></div></div>
+        <div class="col-6 col-xl-3"><div class="stat-tile stat-note"><span class="stat-icon secure"><i class="fa-solid fa-shield-halved"></i></span><div><small>الحساب الحالي</small><strong>{{ request.user.get_full_name|default:request.user.username }}</strong></div></div></div>
+    </div>
+
+    <form method="get" class="filter-panel mb-4">
+        <div class="filter-header"><div><h2>تصفية الإشعارات</h2><span>استخدم أكثر من خيار للوصول للنتيجة المطلوبة.</span></div><i class="fa-solid fa-sliders"></i></div>
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-lg-4"><label for="notification-search">بحث</label><div class="input-with-icon"><i class="fa-solid fa-magnifying-glass"></i><input id="notification-search" name="q" type="search" value="{{ filter_values.q }}" class="form-control" placeholder="ابحث في نص الإشعار أو المرسل"></div></div>
+            <div class="col-6 col-lg-2"><label for="notification-type">القسم</label><select id="notification-type" name="type" class="form-select"><option value="">كل الأقسام</option><option value="SYSTEM" {% if filter_values.type == 'SYSTEM' %}selected{% endif %}>نظام</option><option value="EMPLOYEE" {% if filter_values.type == 'EMPLOYEE' %}selected{% endif %}>موظفون</option><option value="DEPARTMENT" {% if filter_values.type == 'DEPARTMENT' %}selected{% endif %}>أقسام</option><option value="LEAVE" {% if filter_values.type == 'LEAVE' %}selected{% endif %}>إجازات</option><option value="PAYROLL" {% if filter_values.type == 'PAYROLL' %}selected{% endif %}>رواتب</option></select></div>
+            <div class="col-6 col-lg-2"><label for="notification-importance">الأهمية</label><select id="notification-importance" name="importance" class="form-select"><option value="">كل المستويات</option><option value="high" {% if filter_values.importance == 'high' %}selected{% endif %}>مهمة</option><option value="normal" {% if filter_values.importance == 'normal' %}selected{% endif %}>عادية</option><option value="low" {% if filter_values.importance == 'low' %}selected{% endif %}>منخفضة</option></select></div>
+            <div class="col-6 col-lg-2"><label for="notification-read">الحالة</label><select id="notification-read" name="read" class="form-select"><option value="">كل الحالات</option><option value="unread" {% if filter_values.read == 'unread' %}selected{% endif %}>غير مقروءة</option><option value="read" {% if filter_values.read == 'read' %}selected{% endif %}>مقروءة</option></select></div>
+            <div class="col-6 col-lg-2"><label for="notification-period">الفترة</label><select id="notification-period" name="period" class="form-select"><option value="">كل الفترات</option><option value="today" {% if filter_values.period == 'today' %}selected{% endif %}>اليوم</option><option value="week" {% if filter_values.period == 'week' %}selected{% endif %}>آخر 7 أيام</option><option value="month" {% if filter_values.period == 'month' %}selected{% endif %}>آخر 30 يوماً</option></select></div>
         </div>
+        <div class="filter-actions"><a href="{% url 'core:notification_list' %}" class="btn btn-link text-muted">مسح الفلاتر</a><button class="btn btn-dark rounded-3 px-4" type="submit"><i class="fa-solid fa-filter ms-1"></i> تطبيق الفلاتر</button></div>
+    </form>
+
+    <div class="notification-list-shell">
+        <div class="list-toolbar"><h2>آخر التنبيهات</h2><span>{{ filtered_count }} نتيجة</span></div>
+        {% if notifications %}
+            <div class="notification-list">
+                {% for notification in notifications %}
+                <article class="notification-item {% if not notification.is_read %}is-unread{% endif %}">
+                    <span class="notification-type type-{{ notification.notification_type|lower }}"><i class="fa-solid {% if notification.notification_type == 'LEAVE' %}fa-calendar-days{% elif notification.notification_type == 'PAYROLL' %}fa-coins{% elif notification.notification_type == 'EMPLOYEE' %}fa-user-tie{% elif notification.notification_type == 'DEPARTMENT' %}fa-building{% else %}fa-gear{% endif %}"></i></span>
+                    <div class="notification-body"><div class="notification-meta"><span>{{ notification.get_notification_type_display }}</span><span class="importance importance-{{ notification.importance_level }}">{{ notification.importance_label }}</span>{% if not notification.is_read %}<span class="new-label">جديد</span>{% endif %}</div><p>{{ notification.message }}</p><small><i class="fa-regular fa-clock ms-1"></i>{{ notification.created_at|date:"Y-m-d H:i" }}{% if notification.actor %}<span class="meta-divider">بواسطة {{ notification.actor.get_full_name|default:notification.actor.username }}</span>{% endif %}</small></div>
+                    {% if not notification.is_read %}<button onclick="markAsRead({{ notification.id }})" class="read-button" title="تحديد كمقروء" aria-label="تحديد كمقروء"><i class="fa-solid fa-check"></i></button>{% else %}<span class="read-state" title="مقروء"><i class="fa-solid fa-check-double"></i></span>{% endif %}
+                </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-notifications"><span><i class="fa-regular fa-bell-slash"></i></span><h3>{% if total_count %}لا توجد نتائج مطابقة{% else %}لا توجد إشعارات حالياً{% endif %}</h3><p>{% if total_count %}جرّب تغيير خيارات الفلترة أو مسحها.{% else %}ستظهر التنبيهات الجديدة هنا عند وصولها.{% endif %}</p></div>
+        {% endif %}
     </div>
 </div>
+
+<style>
+    .notification-center { max-width: 1440px; }
+    .notification-title { color: #172033; font-size: clamp(1.55rem, 2.4vw, 2.15rem); font-weight: 800; }
+    .section-kicker { color: #2563eb; font-size: .76rem; font-weight: 800; letter-spacing: .04em; }
+    .section-kicker i { margin-left: 5px; }
+    .stat-tile { display: flex; align-items: center; gap: 12px; min-height: 88px; padding: 16px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; box-shadow: 0 5px 18px rgba(15, 23, 42, .04); }
+    .stat-tile small { display: block; color: var(--text-muted); font-size: .72rem; margin-bottom: 3px; }.stat-tile strong { display: block; color: var(--text-color); font-size: 1.3rem; font-weight: 800; }.stat-note strong { font-size: .88rem; }
+    .stat-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 11px; font-size: 1rem; }.stat-icon.all { color: #2563eb; background: #dbeafe; }.stat-icon.unread { color: #dc2626; background: #fee2e2; }.stat-icon.filtered { color: #ca8a04; background: #fef3c7; }.stat-icon.secure { color: #15803d; background: #dcfce7; }
+    .filter-panel, .notification-list-shell { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; box-shadow: 0 6px 22px rgba(15, 23, 42, .045); }.filter-panel { padding: 20px; }.filter-header, .list-toolbar { display: flex; justify-content: space-between; align-items: center; }.filter-header { padding-bottom: 17px; margin-bottom: 17px; border-bottom: 1px solid var(--border-color); }.filter-header h2, .list-toolbar h2 { color: var(--text-color); font-size: 1rem; font-weight: 800; margin: 0; }.filter-header span, .list-toolbar span { color: var(--text-muted); font-size: .75rem; }.filter-header > i { color: #2563eb; font-size: 1.15rem; } .filter-panel label { display: block; color: var(--text-color); font-size: .76rem; font-weight: 700; margin-bottom: 6px; }.input-with-icon { position: relative; }.input-with-icon i { position: absolute; top: 12px; right: 13px; color: #94a3b8; }.input-with-icon input { padding-right: 36px; }.filter-actions { display: flex; justify-content: flex-end; gap: 10px; align-items: center; margin-top: 17px; }
+    .list-toolbar { padding: 18px 20px; border-bottom: 1px solid var(--border-color); }.notification-list { padding: 0 20px; }.notification-item { display: flex; align-items: flex-start; gap: 13px; padding: 18px 0; border-bottom: 1px solid var(--border-color); }.notification-item:last-child { border-bottom: 0; }.notification-item.is-unread { border-right: 3px solid #2563eb; padding-right: 13px; }.notification-type { flex: 0 0 42px; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; font-size: 1rem; }.type-system { color: #64748b; background: #f1f5f9; }.type-employee { color: #15803d; background: #dcfce7; }.type-department { color: #0369a1; background: #e0f2fe; }.type-leave { color: #b45309; background: #fef3c7; }.type-payroll { color: #be123c; background: #ffe4e6; }.notification-body { flex: 1; min-width: 0; }.notification-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: var(--text-color); font-size: .75rem; font-weight: 800; }.notification-body p { color: var(--text-color); line-height: 1.8; margin: 5px 0 4px; }.notification-body small { color: var(--text-muted); font-size: .72rem; }.meta-divider { margin-right: 10px; padding-right: 10px; border-right: 1px solid var(--border-color); }.importance, .new-label { border-radius: 20px; padding: 2px 8px; font-size: .65rem; }.importance-high { color: #b91c1c; background: #fee2e2; }.importance-normal { color: #a16207; background: #fef3c7; }.importance-low { color: #475569; background: #f1f5f9; }.new-label { color: #1d4ed8; background: #dbeafe; }.read-button, .read-state { flex: 0 0 34px; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px; }.read-button { color: #2563eb; background: transparent; border: 1px solid #bfdbfe; }.read-button:hover { color: #fff; background: #2563eb; }.read-state { color: #16a34a; font-size: .8rem; }.empty-notifications { padding: 58px 20px; text-align: center; color: var(--text-muted); }.empty-notifications > span { display: grid; place-items: center; width: 58px; height: 58px; margin: 0 auto 14px; color: #64748b; background: #f1f5f9; border-radius: 16px; font-size: 1.35rem; }.empty-notifications h3 { color: var(--text-color); font-size: 1rem; font-weight: 800; }.empty-notifications p { font-size: .82rem; }
+    body.dark-mode .notification-title { color: var(--dark-text-color); } body.dark-mode .type-system, body.dark-mode .importance-low, body.dark-mode .empty-notifications > span { background: #334155; } body.dark-mode .stat-icon.all { background: #1e3a8a; } body.dark-mode .stat-icon.unread { background: #7f1d1d; } body.dark-mode .stat-icon.filtered { background: #713f12; } body.dark-mode .stat-icon.secure { background: #14532d; }
+    @media (max-width: 575px) { .filter-panel { padding: 15px; }.filter-actions { justify-content: space-between; }.notification-list { padding: 0 14px; }.notification-item { gap: 9px; }.notification-type { flex-basis: 36px; width: 36px; height: 36px; }.notification-body p { font-size: .83rem; }.read-button, .read-state { flex-basis: 30px; width: 30px; } }
+</style>
 
 <script>
 function markAsRead(notificationId) {
