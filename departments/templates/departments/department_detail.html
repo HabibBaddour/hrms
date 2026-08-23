@@ -42,21 +42,48 @@
                 <div class="detail-panel-heading positions-heading"><div><h2>المسميات الوظيفية</h2><p>الوظائف والصلاحيات المرتبطة بهذا القسم.</p></div><i class="fa-solid fa-briefcase panel-heading-icon"></i></div>
                 <div class="table-responsive">
                     <table class="detail-table">
-                        <thead><tr><th>المسمى الوظيفي</th><th>الدور / الصلاحية</th><th>سلم الراتب</th><th class="text-center">الموظفون</th><th class="text-end">الإجراء</th></tr></thead>
+                        <thead><tr><th>المسمى الوظيفي</th><th>الدور / الصلاحية</th><th class="text-center">الراتب</th><th class="text-center">الموظفون</th><th class="text-end">الإجراء</th></tr></thead>
                         <tbody>
                             {% for position in positions %}
                             <tr>
                                 <td><strong class="position-title">{{ position.title }}</strong></td>
                                 <td>{% if position.group %}<span class="status-pill manager"><i class="fa-solid fa-shield-halved"></i>{{ position.group.name }}</span>{% else %}<span class="status-pill neutral">بدون دور</span>{% endif %}</td>
-                                <td class="salary-cell">{{ position.salary_min|floatformat:2 }} <span>-</span> {{ position.salary_max|floatformat:2 }}</td>
+                                <td class="est-salary text-center">${{ position.estimated_salary|floatformat:2 }}</td>
                                 <td class="employee-count text-center">{{ position.employee_set.count|default:0 }}</td>
-                                <td class="text-end"><a href="{% url 'departments:position_detail' position.id %}" class="table-action" title="عرض التفاصيل"><i class="fa-solid fa-eye"></i></a></td>
+                                <td class="text-end">
+                                    <div class="table-actions">
+                                        <a href="{% url 'departments:position_detail' position.id %}" class="table-view" title="عرض التفاصيل">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        </a>
+                                        <a href="{% url 'departments:edit_position' position.id %}" class="table-edit" title="تعديل المسمى">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                        </a>
+                                        <button type="button" onclick="confirmDeletePosition('{{ position.id }}', '{{ position.title }}')" class="table-delete" title="حذف المسمى">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                             {% empty %}<tr><td colspan="5" class="empty-positions"><i class="fa-solid fa-briefcase"></i><span>لا توجد مسميات وظيفية مضافة لهذا القسم حتى الآن.</span></td></tr>{% endfor %}
                         </tbody>
                     </table>
                 </div>
             </article>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="deletePositionModal" hidden>
+        <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="deletePositionTitle">
+            <div class="modal-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h3 id="deletePositionTitle">تأكيد الحذف</h3>
+            <p id="deletePositionMessage">هل أنت متأكد من رغبتك في حذف هذا المسمى الوظيفي؟</p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn-cancel" onclick="closeDeletePositionModal()">إلغاء</button>
+                <form id="deletePositionForm" method="POST" action="">
+                    {% csrf_token %}
+                    <button type="submit" class="modal-btn-danger">تأكيد الحذف</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -97,8 +124,41 @@
     .detail-meta span { color: #8ea6ae; }.detail-meta span i { width: 19px; color: #59cfc1; }.detail-meta strong { color: #e3f1f2; font-weight: 700; }
     .detail-description { padding-top: 19px; }.detail-description > span { color: #8ea6ae; font-size: .78rem; }.detail-description p { margin: 9px 0 0; color: #c2d4d7; font-size: .82rem; line-height: 1.9; }.detail-description em { color: #7e989f; }
     .positions-panel { min-height: 100%; }.positions-heading { padding: 23px 24px 18px; margin: 0; }.positions-heading p { margin: 5px 0 0; color: #829da5; font-size: .76rem; }.panel-heading-icon { color: #59cfc1; font-size: 1.15rem; }
-    .detail-table { width: 100%; border-collapse: collapse; color: #dbe8eb; font-size: .78rem; }.detail-table thead { color: #9db5bc; background: rgba(15, 23, 42, .85); }.detail-table th { padding: 14px 13px; border-bottom: 1px solid rgba(71, 98, 112, .5); font-weight: 700; white-space: nowrap; }.detail-table th:first-child, .detail-table td:first-child { padding-right: 24px; }.detail-table th:last-child, .detail-table td:last-child { padding-left: 24px; }.detail-table tbody tr { background: rgba(15, 29, 42, .45); border-bottom: 1px solid rgba(71, 98, 112, .3); transition: background .2s ease; }.detail-table tbody tr:hover { background: rgba(30, 55, 66, .75); }.detail-table td { padding: 16px 13px; }.position-title { color: #f1f7f8; }.status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid; border-radius: 999px; font-size: .72rem; font-weight: 700; white-space: nowrap; }.status-pill.manager { color: #fcd68a; background: rgba(245, 158, 11, .14); border-color: rgba(245, 158, 11, .3); }.status-pill.neutral { color: #99e6ec; background: rgba(6, 182, 212, .12); border-color: rgba(6, 182, 212, .25); }.salary-cell { color: #a9ece3; white-space: nowrap; }.salary-cell span { color: #69858d; padding: 0 3px; }.employee-count { color: #67e8f9; font-weight: 800; }.table-action { width: 32px; height: 32px; border: 1px solid rgba(148, 163, 184, .25); border-radius: 8px; color: #9db5bc; background: rgba(255,255,255,.05); transition: all .2s ease; }.table-action:hover { color: #8be9dc; border-color: rgba(45, 212, 191, .5); background: rgba(20, 184, 166, .14); }.empty-positions { padding: 55px 20px !important; color: #7e989f; text-align: center; }.empty-positions i { display: block; margin-bottom: 10px; color: #4f737c; font-size: 1.8rem; }
+    .detail-table { width: 100%; border-collapse: collapse; color: #dbe8eb; font-size: .78rem; }.detail-table thead { color: #9db5bc; background: rgba(15, 23, 42, .85); }.detail-table th { padding: 14px 13px; border-bottom: 1px solid rgba(71, 98, 112, .5); font-weight: 700; white-space: nowrap; }.detail-table th:first-child, .detail-table td:first-child { padding-right: 24px; }.detail-table th:last-child, .detail-table td:last-child { padding-left: 24px; }.detail-table tbody tr { background: rgba(15, 29, 42, .45); border-bottom: 1px solid rgba(71, 98, 112, .3); transition: background .2s ease; }.detail-table tbody tr:hover { background: rgba(30, 55, 66, .75); }.detail-table td { padding: 16px 13px; }.position-title { color: #f1f7f8; }.status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid; border-radius: 999px; font-size: .72rem; font-weight: 700; white-space: nowrap; }.status-pill.manager { color: #fcd68a; background: rgba(245, 158, 11, .14); border-color: rgba(245, 158, 11, .3); }.status-pill.neutral { color: #99e6ec; background: rgba(6, 182, 212, .12); border-color: rgba(6, 182, 212, .25); }.est-salary { color: #34d399; font-family: 'Courier New', monospace; font-weight: 800; white-space: nowrap; }.employee-count { color: #67e8f9; font-weight: 800; }.empty-positions { padding: 55px 20px !important; color: #7e989f; text-align: center; }.empty-positions i { display: block; margin-bottom: 10px; color: #4f737c; font-size: 1.8rem; }.table-actions { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }.table-actions a, .table-actions button { display: grid; place-items: center; width: 38px; height: 38px; padding: 0; border: 1px solid rgba(51, 65, 85, .6); border-radius: 12px; background: rgba(30, 41, 59, .9); color: #94a3b8; cursor: pointer; transition: all .2s ease; box-shadow: 0 4px 12px rgba(2, 6, 23, .25); }.table-actions svg { width: 16px; height: 16px; transition: transform .2s ease; }.table-actions a:hover svg, .table-actions button:hover svg { transform: scale(1.1); }.table-actions .table-view { color: #2dd4bf; }.table-actions .table-view:hover { background: #0d9488; color: #fff; border-color: #0d9488; }.table-actions .table-edit { color: #fbbf24; }.table-actions .table-edit:hover { background: #d97706; color: #fff; border-color: #d97706; }.table-actions .table-delete { color: #fb7185; }.table-actions .table-delete:hover { background: #e11d48; color: #fff; border-color: #e11d48; }
+    .modal-overlay { position: fixed; inset: 0; z-index: 1200; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(2, 6, 23, .72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: modalFade .2s ease both; }
+    .modal-overlay[hidden] { display: none; }
+    .modal-box { width: min(440px, 100%); padding: 28px 26px 24px; text-align: center; border: 1px solid rgba(244, 63, 94, .35); border-radius: 18px; background: linear-gradient(160deg, rgba(15, 23, 42, .98), rgba(20, 30, 48, .98)); box-shadow: 0 30px 70px rgba(2, 6, 23, .6); animation: modalPop .25s ease both; }
+    .modal-icon { display: grid; place-items: center; width: 58px; height: 58px; margin: 0 auto 16px; border-radius: 50%; color: #fca5a5; background: rgba(244, 63, 94, .15); border: 1px solid rgba(244, 63, 94, .35); font-size: 1.35rem; }
+    .modal-box h3 { margin: 0 0 10px; color: #f8fafc; font-size: 1.15rem; font-weight: 800; }
+    .modal-box p { margin: 0 0 22px; color: #c2d4d7; font-size: .85rem; line-height: 1.8; }
+    .modal-actions { display: flex; align-items: center; gap: 12px; }
+    .modal-actions form { flex: 1; margin: 0; }
+    .modal-btn-cancel, .modal-btn-danger { width: 100%; min-height: 44px; padding: 10px 16px; border-radius: 10px; font-size: .82rem; font-weight: 700; cursor: pointer; transition: all .2s ease; }
+    .modal-btn-cancel { color: #cbd5e1; background: rgba(255, 255, 255, .06); border: 1px solid rgba(148, 163, 184, .25); }
+    .modal-btn-cancel:hover { color: #f1f5f9; background: rgba(255, 255, 255, .12); }
+    .modal-btn-danger { color: #fff; background: linear-gradient(90deg, #e11d48, #f43f5e); border: 1px solid transparent; box-shadow: 0 8px 20px rgba(225, 29, 72, .3); }
+    .modal-btn-danger:hover { background: linear-gradient(90deg, #f43f5e, #fb7185); box-shadow: 0 10px 26px rgba(244, 63, 94, .4); }
+    @keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes modalPop { from { opacity: 0; transform: translateY(12px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
     @media (max-width: 767px) { .detail-hero { align-items: flex-start; flex-direction: column; padding: 23px 20px; }.detail-hero-actions { width: 100%; }.detail-btn { flex: 1; justify-content: center; }.detail-info-panel { padding: 19px; }.positions-heading { padding: 20px 19px 16px; }.detail-table { min-width: 650px; }.detail-table th:first-child, .detail-table td:first-child { padding-right: 19px; }.detail-table th:last-child, .detail-table td:last-child { padding-left: 19px; } }
     @media (prefers-reduced-motion: reduce) { .detail-btn, .detail-table tbody tr { transition: none; } }
 </style>
+
+<script>
+    function confirmDeletePosition(id, title) {
+        document.getElementById('deletePositionMessage').textContent = `هل أنت متأكد من رغبتك في حذف المسمى الوظيفي (${title})؟`;
+        const base = '{% url "departments:delete_position" 0 %}';
+        document.getElementById('deletePositionForm').action = base.replace('/0/', '/' + id + '/');
+        document.getElementById('deletePositionModal').hidden = false;
+    }
+    function closeDeletePositionModal() {
+        document.getElementById('deletePositionModal').hidden = true;
+    }
+    document.getElementById('deletePositionModal').addEventListener('click', function (e) {
+        if (e.target === this) closeDeletePositionModal();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeDeletePositionModal();
+    });
+</script>
 {% endblock %}

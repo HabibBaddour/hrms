@@ -4,6 +4,31 @@ from .models import Employee, Contract
 from django.contrib.auth.models import User
 from departments.models import Department, Position
 
+
+class EmployeeOnboardingForm(forms.ModelForm):
+    email = forms.EmailField(label="البريد الإلكتروني", required=False)
+    contract_type = forms.ChoiceField(label="نوع العقد", choices=Contract.CONTRACT_TYPES, required=True)
+    salary = forms.DecimalField(label="الراتب الأساسي", max_digits=10, decimal_places=2, required=True)
+    hire_date = forms.DateField(label="تاريخ البدء", widget=forms.DateInput(attrs={'type': 'date'}), required=True)
+
+    class Meta:
+        model = Employee
+        fields = [
+            'first_name', 'last_name', 'gender', 'national_id', 'birth_date',
+            'phone', 'email', 'department', 'position', 'contract_type',
+            'hire_date', 'salary', 'iban', 'emergency_contact',
+            'emergency_contact_phone',
+        ]
+        widgets = {
+            'birth_date': forms.DateInput(attrs={'type': 'date'}),
+            'gender': forms.Select,
+        }
+
+
+    def clean_national_id(self):
+        value = self.cleaned_data.get('national_id')
+        return value or None
+
 class EmployeeEditForm(forms.ModelForm):
     first_name = forms.CharField(label="الاسم الأول", max_length=100, required=True)
     last_name = forms.CharField(label="الاسم الأخير", max_length=100, required=True)

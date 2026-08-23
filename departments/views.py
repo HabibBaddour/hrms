@@ -71,6 +71,49 @@ def department_detail(request, dept_id):
     })
 
 @login_required
+def edit_position(request, pk):
+    """تعديل بيانات المسمى الوظيفي"""
+    position = get_object_or_404(Position.objects.select_related('department', 'group'), pk=pk)
+    departments = Department.objects.all()
+    groups = Group.objects.all()
+
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        salary_min = request.POST.get('salary_min', '').strip()
+        salary_max = request.POST.get('salary_max', '').strip()
+        base_salary = request.POST.get('base_salary', '').strip()
+
+        try:
+            salary_min_value = Decimal(salary_min)
+            salary_max_value = Decimal(salary_max)
+            base_salary_value = Decimal(base_salary or salary_min)
+        except (InvalidOperation, TypeError):
+            messages.error(request, 'يرجى إدخال قيم رقمية صحيحة لنطاق الراتب.')
+        else:
+            if not title:
+                messages.error(request, 'يرجى إدخال المسمى الوظيفي.')
+            elif min(salary_min_value, salary_max_value, base_salary_value) < 0 or salary_max_value < salary_min_value:
+                messages.error(request, 'يجب أن يكون الحد الأقصى أكبر من أو يساوي الحد الأدنى للراتب.')
+            else:
+                position.title = title
+                position.role = request.POST.get('role', position.role)
+                position.group_id = request.POST.get('group') or None
+                position.salary_min = salary_min_value
+                position.salary_max = salary_max_value
+                position.base_salary = base_salary_value
+                position.is_head = request.POST.get('is_head') == 'on'
+                position.save()
+                messages.success(request, 'تم تحديث بيانات المسمى الوظيفي بنجاح.')
+                return redirect('departments:position_detail', position_id=position.id)
+
+    return render(request, 'departments/edit_position.html', {
+        'position': position,
+        'departments': departments,
+        'groups': groups,
+    })
+
+
+@login_required
 def add_position(request):
     """الدالة التي يطلبها urls.py لتجنب AttributeError"""
     if request.method == 'POST':
@@ -160,6 +203,25 @@ def position_detail(request, position_id):
         'employees': employees,
         'groups': Group.objects.all(),
     })
+
+@login_required
+def delete_position(request, pk):
+    """حذف المسمى الوظيفي بعد التحقق من عدم ارتباطه بموظفين حاليين"""
+    position = get_object_or_404(Position, pk=pk)
+    dept_id = position.department_id
+    title = position.title
+
+    if request.method == 'POST':
+        if position.employee_set.count() > 0:
+            messages.error(request, 'لا يمكن حذف المسمى الوظيفي لأنه مرتبط بموظفين حاليين')
+            return redirect('departments:department_detail', dept_id=dept_id)
+
+        position.delete()
+        messages.success(request, f'تم حذف المسمى الوظيفي "{title}" بنجاح.')
+        return redirect('departments:department_detail', dept_id=dept_id)
+
+    return redirect('departments:department_detail', dept_id=dept_id)
+
 
 @login_required
 def edit_department(request, dept_id):

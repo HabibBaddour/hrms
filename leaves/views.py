@@ -156,7 +156,7 @@ def leave_list(request):
             role_name = employee.position.role if employee.position else '-'
             balance = employee.get_annual_leave_balance()
             writer.writerow([
-                employee.id,
+                employee.employee_number,
                 employee.get_full_name(),
                 department_name,
                 role_name,

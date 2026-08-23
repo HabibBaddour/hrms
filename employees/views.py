@@ -117,7 +117,25 @@ def get_positions_by_department(request):
         else:
             positions = Position.objects.all()
 
-    data = [{'id': pos.id, 'title': getattr(pos, 'title', str(pos))} for pos in positions]
+    data = []
+    for pos in positions:
+        role = getattr(pos, 'role', 'Employee')
+        if role == 'Manager':
+            role_code = 'man'
+        elif role == 'HR Admin':
+            role_code = 'hr'
+        else:
+            role_code = 'emp'
+        data.append({
+            'id': pos.id,
+            'title': getattr(pos, 'title', str(pos)),
+            'salary_min': float(pos.salary_min) if pos.salary_min is not None else 0,
+            'salary_max': float(pos.salary_max) if pos.salary_max is not None else 0,
+            'role': role,
+            'role_code': role_code,
+            'dept_code': (getattr(pos.department, 'code', None) or 'gen').lower(),
+            'dept_id': pos.department_id,
+        })
     return JsonResponse(data, safe=False)
 
 
@@ -180,6 +198,7 @@ def edit_employee(request, pk):
                     employee.national_id = national_id.strip()
                 # دائماً قم بتحديث حقل phone
                 employee.phone = phone.strip()
+                employee.salary = salary if salary else None
 
                 if department_id:
                     employee.department = get_object_or_404(Department, id=department_id)
@@ -267,15 +286,20 @@ def create_employee_wizard(request):
     if request.method == 'POST':
         first_name = request.POST.get('first_name', '').strip()
         last_name = request.POST.get('last_name', '').strip()
+        gender = request.POST.get('gender', 'male')
+        birth_date = request.POST.get('birth_date') or None
         national_id = request.POST.get('national_id', '').strip() or request.POST.get('national_number', '').strip()
         phone = request.POST.get('phone', '').strip() or request.POST.get('phone_number', '').strip()
+        iban = request.POST.get('iban', '').strip()
         
         department_id = request.POST.get('department')
         position_id = request.POST.get('position')
         
         salary = request.POST.get('salary') or request.POST.get('basic_salary')
         contract_type = request.POST.get('contract_type')
-        start_date = request.POST.get('start_date') or request.POST.get('hire_date')
+        start_date = request.POST.get('start_date') or request.POST.get('hire_date') or request.POST.get('contract_start_date')
+        end_date = request.POST.get('contract_end_date') or request.POST.get('end_date')
+        requested_email = request.POST.get('email', '').strip()
 
         department = get_object_or_404(Department, id=department_id)
         position = get_object_or_404(Position, id=position_id)
@@ -294,7 +318,7 @@ def create_employee_wizard(request):
             role_code = 'emp'
 
         dept_code = (getattr(department, 'code', None) or 'gen').lower()
-        email = f"{first_name.lower()}.{dept_code}.{role_code}@hrms.co"
+        email = requested_email or f"{first_name.lower()}.{dept_code}-{department.id}.{role_code}@hrms.co"
         
         # Check for duplicate email
         if User.objects.filter(email=email).exists():
@@ -315,7 +339,7 @@ def create_employee_wizard(request):
             messages.error(request, f"الموظف {first_name} {last_name} يشغل هذا المنصب بالفعل.")
             return render(request, 'employees/create_employee_wizard.html', {'departments': departments})
         
-        base_username = f"{first_name.lower()}_{dept_code}"
+        base_username = f"{first_name}_{last_name}"
         username = base_username
         counter = 1
         while User.objects.filter(username=username).exists():
@@ -363,8 +387,12 @@ def create_employee_wizard(request):
                     position=position,
                     first_name=first_name,
                     last_name=last_name,
+                    gender=gender,
+                    birth_date=birth_date,
                     national_id=national_id,
                     phone=phone,
+                    iban=iban,
+                    salary=salary if salary else None,
                     temporary_password=password
                 )
                 
@@ -377,7 +405,8 @@ def create_employee_wizard(request):
                         employee=employee,
                         salary=salary,
                         contract_type=contract_type,
-                        start_date=start_date
+                        start_date=start_date,
+                        end_date=end_date or None
                     )
 
             messages.success(request, f"تم إنشاء حساب الموظف {first_name} {last_name} بنجاح! اسم المستخدم: {username} - كلمة المرور: {password}")

@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import Group
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class Department(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name="اسم القسم")
@@ -35,5 +37,18 @@ class Position(models.Model):
         verbose_name = "وظيفة"
         verbose_name_plural = "الوظائف"
 
+    @property
+    def estimated_salary(self):
+        return round(float(self.base_salary or 0), 2)
+
     def __str__(self):
         return f"{self.title} - ({self.department.name})"
+
+
+@receiver(post_save, sender=Position)
+def sync_position_employees_salary(sender, instance, **kwargs):
+    """When a position's salary is changed, automatically update all of its employees."""
+    from employees.models import Employee, Contract
+    estimated = instance.estimated_salary
+    Employee.objects.filter(position=instance).update(salary=estimated)
+    Contract.objects.filter(employee__position=instance).update(salary=estimated)

@@ -6,6 +6,7 @@ app_name = 'employees'
 urlpatterns = [
     path('', views.employee_list, name='employee_list'),
     path('add-wizard/', views.create_employee_wizard, name='add_employee_wizard'),
+    path('add_wizard/', views.create_employee_wizard, name='add_employee_wizard_underscore'),
     path('<int:pk>/edit/', views.edit_employee, name='edit_employee'),
     path('<int:pk>/contract/', views.contract_detail, name='contract_detail'),
     path('<int:pk>/contract/print/', views.contract_print, name='contract_print'),

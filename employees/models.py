@@ -2,23 +2,60 @@ from django.db import models
 from django.contrib.auth.models import User
 from departments.models import Department, Position
 from django.utils import timezone
+from django.core.validators import MinLengthValidator, MaxLengthValidator, RegexValidator
 
 class Employee(models.Model):
     ANNUAL_LEAVE_DAYS = 15
+    GENDER_CHOICES = (
+        ('male', 'ذكر'),
+        ('female', 'أنثى'),
+    )
 
+    employee_number = models.PositiveIntegerField(unique=True, null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_profile', null=True, blank=True)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     position = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True, blank=True)
     first_name = models.CharField(max_length=100, null=True, blank=True)
     last_name = models.CharField(max_length=100, null=True, blank=True)
-    national_id = models.CharField(max_length=50, null=True, blank=True)
-    phone = models.CharField(max_length=20, null=True, blank=True)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='male')
+    national_id = models.CharField(
+        max_length=20, 
+        unique=True, 
+        null=True, 
+        blank=True,
+        validators=[
+            MinLengthValidator(11),
+            MaxLengthValidator(11),
+            RegexValidator(r'^\d{11}$', 'يجب أن يتكون الرقم الوطني من 11 رقم بالضبط')
+        ]
+    )
+    birth_date = models.DateField(null=True, blank=True)
+    phone = models.CharField(
+        max_length=20, 
+        null=True, 
+        blank=True,
+        validators=[
+            MinLengthValidator(10),
+            MaxLengthValidator(10),
+            RegexValidator(r'^\d{10}$', 'يجب أن يتكون رقم الهاتف من 10 أرقام بالضبط')
+        ]
+    )
+    iban = models.CharField(max_length=34, null=True, blank=True)
+    salary = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="الراتب")
+
     temporary_password = models.CharField(max_length=100, null=True, blank=True, help_text="كلمة المرور المؤقتة للاستخدام الداخلي فقط")
     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True, verbose_name="صورة الملف الشخصي")
     date_of_birth = models.DateField(null=True, blank=True, verbose_name="تاريخ الميلاد")
     address = models.TextField(null=True, blank=True, verbose_name="العنوان")
     emergency_contact = models.CharField(max_length=100, null=True, blank=True, verbose_name="جهة الاتصال الطارئة")
+    emergency_contact_phone = models.CharField(max_length=20, null=True, blank=True)
     emergency_phone = models.CharField(max_length=20, null=True, blank=True, verbose_name="رقم هاتف الطوارئ")
+
+    def save(self, *args, **kwargs):
+        if self.employee_number is None:
+            last_number = Employee.objects.order_by('-employee_number').values_list('employee_number', flat=True).first()
+            self.employee_number = (last_number or 0) + 1
+        super().save(*args, **kwargs)
 
     def __str__(self):
         if self.first_name and self.last_name:

@@ -38,7 +38,7 @@
 <body>
     <div class="actions"><button type="button" onclick="window.print()">طباعة / حفظ PDF</button><a href="{% if is_hr %}{% url 'employees:contract_detail' employee.pk %}{% else %}{% url 'employees:profile' %}{% endif %}">عودة</a></div>
     <main class="paper">
-        <header class="brand"><div class="brand-mark">HR</div><div><h1>HRMS</h1><p>نظام إدارة الموارد البشرية</p></div><div class="meta">العقد النهائي<br>رقم الموظف: EMP-{{ employee.id }}</div></header>
+        <header class="brand"><div class="brand-mark">HR</div><div><h1>HRMS</h1><p>نظام إدارة الموارد البشرية</p></div><div class="meta">العقد النهائي<br>رقم الموظف: EMP-{{ employee.employee_number }}</div></header>
         <h2>عقد عمل</h2>
         <div class="parties"><div class="party"><strong>الطرف الأول: جهة العمل</strong><div>شركة HRMS</div><div>إدارة الموارد البشرية</div></div><div class="party"><strong>الطرف الثاني: الموظف</strong><div>{{ employee.get_full_name }}</div><div>{{ employee.user.email|default:'غير محدد' }}</div></div></div>
         <h3>بيانات وشروط العمل</h3>
