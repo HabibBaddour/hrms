@@ -5,7 +5,11 @@ from django.utils import timezone
 from django.core.validators import MinLengthValidator, MaxLengthValidator, RegexValidator
 
 class Employee(models.Model):
-    ANNUAL_LEAVE_DAYS = 15
+    DEFAULT_ANNUAL_LEAVE = 11
+    DEFAULT_SICK_LEAVE = 11
+    DEFAULT_EMERGENCY_LEAVE = 11
+    TOTAL_LEAVE_ALLOWANCE = 33
+    ANNUAL_LEAVE_DAYS = DEFAULT_ANNUAL_LEAVE  # للتوافق مع الشيفرة القديمة
     GENDER_CHOICES = (
         ('male', 'ذكر'),
         ('female', 'أنثى'),
@@ -74,15 +78,52 @@ class Employee(models.Model):
 
     def get_annual_leave_balance(self, year=None):
         year = year or timezone.localdate().year
-        approved_days = sum(
+        approved_days = self._approved_leave_days('ANNUAL', year)
+        return max(self.ANNUAL_LEAVE_DAYS - approved_days, 0)
+
+    def _approved_leave_days(self, leave_type, year=None):
+        from leaves.models import LeaveRequest
+        year = year or timezone.localdate().year
+        return sum(
             leave.total_days
-            for leave in self.leave_requests.filter(
-                leave_type='ANNUAL',
+            for leave in LeaveRequest.objects.filter(
+                employee=self,
+                leave_type=leave_type,
                 status='APPROVED',
                 start_date__year=year,
             )
         )
-        return max(self.ANNUAL_LEAVE_DAYS - approved_days, 0)
+
+    @property
+    def annual_remaining(self):
+        return max(self.DEFAULT_ANNUAL_LEAVE - self._approved_leave_days('ANNUAL'), 0)
+
+    @property
+    def sick_remaining(self):
+        return max(self.DEFAULT_SICK_LEAVE - self._approved_leave_days('SICK'), 0)
+
+    @property
+    def emergency_remaining(self):
+        return max(self.DEFAULT_EMERGENCY_LEAVE - self._approved_leave_days('EMERGENCY'), 0)
+
+    @property
+    def total_leave_remaining(self):
+        used = sum(
+            self._approved_leave_days(leave_type)
+            for leave_type in ('ANNUAL', 'SICK', 'EMERGENCY')
+        )
+        return max(self.TOTAL_LEAVE_ALLOWANCE - used, 0)
+
+    def leave_quota(self, leave_type):
+        quotas = {
+            'ANNUAL': self.DEFAULT_ANNUAL_LEAVE,
+            'SICK': self.DEFAULT_SICK_LEAVE,
+            'EMERGENCY': self.DEFAULT_EMERGENCY_LEAVE,
+        }
+        return quotas.get(leave_type, 0)
+
+    def leave_remaining(self, leave_type, year=None):
+        return max(self.leave_quota(leave_type) - self._approved_leave_days(leave_type, year), 0)
     
     def get_profile_picture_url(self):
         """Get profile picture URL or return default avatar"""

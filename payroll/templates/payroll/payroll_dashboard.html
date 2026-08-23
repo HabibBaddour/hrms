@@ -9,83 +9,121 @@
             <h3 class="fw-bold mb-1">تبويبة الرواتب والمسيرات</h3>
             <p class="text-muted mb-0">مراجعة الرواتب الشهرية، الخصومات، وصافي الرواتب للموظفين</p>
         </div>
-        <div class="d-flex gap-2"><a href="{% url 'create_payroll' %}" class="btn btn-success px-4"><i class="fa-solid fa-plus me-2"></i>إضافة مسير</a>
-        <a href="{% url 'payroll_export_pdf' %}" class="btn btn-primary px-4">
-            <i class="fa-solid fa-file-export me-2"></i>تصدير التقرير
-        </a></div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'create_payroll' %}" class="btn btn-success px-4"><i class="fa-solid fa-plus me-2"></i>إضافة مسير</a>
+            <a href="{% url 'payroll_export_pdf' %}" class="btn btn-primary px-4"><i class="fa-solid fa-file-export me-2"></i>تصدير التقرير</a>
+        </div>
     </div>
 
+    <!-- Filter Bar -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label small text-muted mb-1">القسم</label>
+                    <select name="department" class="form-select rounded-3">
+                        <option value="">كل الأقسام</option>
+                        {% for d in departments %}
+                            <option value="{{ d.id }}" {% if selected_department == d.id|stringformat:'s' %}selected{% endif %}>{{ d.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label small text-muted mb-1">الشهر</label>
+                    <select name="month" class="form-select rounded-3">
+                        <option value="">كل الشهور</option>
+                        {% for m_val, m_label in months %}
+                            <option value="{{ m_val }}" {% if selected_month == m_val|stringformat:'s' %}selected{% endif %}>{{ m_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label small text-muted mb-1">السنة</label>
+                    <select name="year" class="form-select rounded-3">
+                        <option value="">كل السنوات</option>
+                        {% for y in years %}
+                            <option value="{{ y }}" {% if selected_year == y|stringformat:'s' %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label small text-muted mb-1">حالة الصرف</label>
+                    <select name="status" class="form-select rounded-3">
+                        <option value="">كل الحالات</option>
+                        <option value="PAID" {% if selected_status == 'PAID' %}selected{% endif %}>مدفوع</option>
+                        <option value="PENDING" {% if selected_status == 'PENDING' %}selected{% endif %}>معلق</option>
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-12 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary rounded-3 flex-fill"><i class="fa-solid fa-filter me-1"></i> تطبيق الفلترة</button>
+                    <a href="{% url 'payroll_dashboard' %}" class="btn btn-outline-secondary rounded-3">إعادة ضبط</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dynamic Summary KPI Cards -->
     <div class="row g-4 mb-4">
         <div class="col-xl-3 col-md-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <div class="text-muted small">إجمالي الموظفين</div>
-                            <h4 class="fw-bold mt-2 mb-0">{{ total_employees }}</h4>
+                            <div class="text-muted small">إجمالي صافي الرواتب</div>
+                            <h4 class="fw-bold mt-2 mb-0">{{ total_net|floatformat:2 }} $</h4>
                         </div>
-                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 text-primary">
-                            <i class="fa-solid fa-user-group fa-lg"></i>
-                        </div>
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success"><i class="fa-solid fa-money-bill-wave fa-lg"></i></div>
                     </div>
                 </div>
             </div>
         </div>
-
         <div class="col-xl-3 col-md-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <div class="text-muted small">إجمالي الرواتب</div>
-                            <h4 class="fw-bold mt-2 mb-0">{{ total_net_salary|floatformat:2 }} $</h4>
+                            <div class="text-muted small">إجمالي البدلات</div>
+                            <h4 class="fw-bold mt-2 mb-0">{{ total_allowances|floatformat:2 }} $</h4>
                         </div>
-                        <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success">
-                            <i class="fa-solid fa-money-bill-wave fa-lg"></i>
-                        </div>
+                        <div class="rounded-circle bg-info bg-opacity-10 p-3 text-info"><i class="fa-solid fa-gift fa-lg"></i></div>
                     </div>
                 </div>
             </div>
         </div>
-
         <div class="col-xl-3 col-md-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <div class="text-muted small">الخصومات</div>
+                            <div class="text-muted small">إجمالي الخصومات</div>
                             <h4 class="fw-bold mt-2 mb-0">{{ total_deductions|floatformat:2 }} $</h4>
                         </div>
-                        <div class="rounded-circle bg-warning bg-opacity-10 p-3 text-warning">
-                            <i class="fa-solid fa-wallet fa-lg"></i>
-                        </div>
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-3 text-warning"><i class="fa-solid fa-wallet fa-lg"></i></div>
                     </div>
                 </div>
             </div>
         </div>
-
         <div class="col-xl-3 col-md-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <div class="text-muted small">الموظفون المودعين</div>
-                            <h4 class="fw-bold mt-2 mb-0">{{ processed_count }}</h4>
+                            <div class="text-muted small">عدد الموظفين في الفلتر</div>
+                            <h4 class="fw-bold mt-2 mb-0">{{ filtered_count }}</h4>
                         </div>
-                        <div class="rounded-circle bg-info bg-opacity-10 p-3 text-info">
-                            <i class="fa-solid fa-circle-check fa-lg"></i>
-                        </div>
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 text-primary"><i class="fa-solid fa-user-group fa-lg"></i></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Payroll Table -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-white border-0 py-3">
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-bold">ملخص الرواتب الشهرية</h5>
-                <span class="badge bg-primary-subtle text-primary px-3 py-2">{{ selected_month }}</span>
+                <h5 class="mb-0 fw-bold">ملخص الرواتب</h5>
+                <span class="badge bg-primary-subtle text-primary px-3 py-2">{{ filtered_count }} سجل</span>
             </div>
         </div>
         <div class="card-body p-0">
@@ -115,12 +153,19 @@
                             <td>{{ payroll.total_deductions|floatformat:2 }} $</td>
                             <td class="fw-bold text-success">{{ payroll.net_salary|floatformat:2 }} $</td>
                             <td>
-                                <a href="{% url 'payroll_payslip' payroll.pk %}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-receipt me-1"></i>قسيمة</a>
+                                {% if payroll.status == 'PAID' %}
+                                    <span class="badge bg-success-subtle text-success border border-success px-3 py-1 rounded-pill">مدفوع</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark px-3 py-1 rounded-pill">معلق</span>
+                                {% endif %}
+                                <div class="mt-1">
+                                    <a href="{% url 'payroll_payslip' payroll.pk %}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-receipt me-1"></i>قسيمة</a>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="7" class="text-center text-muted py-4">لا توجد سجلات رواتب لهذا الشهر حتى الآن.</td>
+                            <td colspan="7" class="text-center text-muted py-4">لا توجد سجلات رواتب مطابقة لمعايير الفلترة.</td>
                         </tr>
                         {% endfor %}
                     </tbody>

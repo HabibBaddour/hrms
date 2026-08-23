@@ -128,7 +128,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
         <div>
             <h5 class="fw-bold text-dark mb-1">أرصدة الموظفين</h5>
-            <p class="text-muted small mb-0">الرصيد السنوي المتبقي محسوب من الإجازات السنوية المقبولة خلال {{ now|date:"Y" }}.</p>
+            <p class="text-muted small mb-0">الرصيد الإجمالي 33 يوم موزّع على 3 فئات (سنوية/مرضية/طارئة) ويُخصم تلقائياً حسب نوع الإجازة المقبولة.</p>
         </div>
         <div class="d-flex align-items-center gap-2">
             <a href="{% url 'leaves:leave_list' %}?{{ request.GET.urlencode }}&export=excel" class="btn btn-outline-success rounded-pill btn-sm">
@@ -143,12 +143,12 @@
                 <tr>
                     <th>الموظف</th>
                     <th>القسم</th>
-                    <th>الرصيد السنوي</th>
+                    <th>الرصيد الإجمالي</th>
                 </tr>
             </thead>
             <tbody>
                 {% for employee in employees %}
-                {% with remaining=employee.get_annual_leave_balance total=employee.ANNUAL_LEAVE_DAYS %}
+                {% with remaining=employee.total_leave_remaining total=employee.TOTAL_LEAVE_ALLOWANCE %}
                 <tr>
                     <td class="fw-bold">{{ employee.get_full_name }}</td>
                     <td>{{ employee.department|default:"-" }}</td>
@@ -158,10 +158,13 @@
                                 {{ remaining }} / {{ total }} يوم
                             </span>
                             <div class="progress flex-grow-1" style="height: 10px; min-width: 120px;">
-                                {% with progress=remaining|floatformat:0 %}
                                 <div class="progress-bar {% if remaining <= 5 %}bg-danger{% else %}bg-success{% endif %}" role="progressbar" style="width: {% widthratio remaining total 100 %}%" aria-valuenow="{{ remaining }}" aria-valuemin="0" aria-valuemax="{{ total }}"></div>
-                                {% endwith %}
                             </div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 mt-2" style="font-size:.72rem;">
+                            <span style="color:#34d399;">سنوية: {{ employee.annual_remaining }}/11</span>
+                            <span style="color:#fbbf24;">مرضية: {{ employee.sick_remaining }}/11</span>
+                            <span style="color:#fb7185;">طارئة: {{ employee.emergency_remaining }}/11</span>
                         </div>
                     </td>
                 </tr>

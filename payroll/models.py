@@ -17,6 +17,11 @@ class Payroll(models.Model):
     other_deductions = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="خصومات أخرى")
     
     net_salary = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="صافي الراتب")
+    STATUS_CHOICES = (
+        ('PAID', 'مدفوع'),
+        ('PENDING', 'معلق'),
+    )
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING', verbose_name="حالة الصرف")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

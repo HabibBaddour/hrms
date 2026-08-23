@@ -1,0 +1,28 @@
+flowchart TD
+    Start([User initiates login]) --> InputCredentials[Enter username/email and password]
+    InputCredentials --> Validate{Validate credentials}
+    Validate -->|Invalid| ErrorMsg[Display error message]
+    ErrorMsg --> LoginAgain[Redirect to login]
+    Validate -->|Valid| CheckActive{Check account status}
+    CheckActive -->|Inactive| InactiveMsg[Display account inactive message]
+    InactiveMsg --> LoginAgain
+    CheckActive -->|Active| CreateSession[Create authenticated session]
+    CreateSession --> DetermineRole{Determine user role}
+    DetermineRole -->|SuperUser/Staff/HR Admin| HRDashboard[Route to HR Dashboard]
+    DetermineRole -->|Manager| ManagerDashboard[Route to Manager Dashboard]
+    DetermineRole -->|Employee| EmployeeDashboard[Route to Employee Dashboard]
+    HRDashboard --> SuccessMsg[Display success message]
+    ManagerDashboard --> SuccessMsg
+    EmployeeDashboard --> SuccessMsg
+    SuccessMsg --> End([Redirect to dashboard])
+
+    classDef userAction fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef systemAction fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef decision fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    classDef error fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef success fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+
+    class Start,End userAction
+    class InputCredentials,CreateSession,HRDashboard,ManagerDashboard,EmployeeDashboard,SuccessMsg,LoginAgain systemAction
+    class Validate,CheckActive,DetermineRole decision
+    class ErrorMsg,InactiveMsg error

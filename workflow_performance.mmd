@@ -1,0 +1,51 @@
+flowchart TD
+    Start([Manager/HR Admin initiates evaluation]) --> ShowForm[Display evaluation form]
+    ShowForm --> SelectEmployee[Select employee and period]
+    SelectEmployee --> EnterScores[Enter scores 1-5]
+    EnterScores --> EnterQuality[Enter work quality score]
+    EnterQuality --> EnterCommitment[Enter commitment score]
+    EnterCommitment --> EnterCooperation[Enter cooperation score]
+    EnterCooperation --> ValidateScores{Validate scores range}
+    ValidateScores -->|Invalid| ScoreError[Display validation error]
+    ScoreError --> EnterScores
+    ValidateScores -->|Valid| CalculateOverall[Calculate overall_score]
+    CalculateOverall --> ProvideFeedback[Provide feedback comments]
+    ProvideFeedback --> CreateEvaluation[Create PerformanceEvaluation record]
+    CreateEvaluation --> NotifyEmployee[Send notification to employee]
+    NotifyEmployee --> Success([Display success message])
+
+    FeedbackStart([Employee views evaluation]) --> ViewEvaluation[View evaluation details]
+    ViewEvaluation --> AddFeedback{Add employee feedback?}
+    AddFeedback -->|Yes| EnterEmployeeFeedback[Enter employee feedback]
+    AddFeedback -->|No| FeedbackEnd
+    EnterEmployeeFeedback --> UpdateRecord[Update evaluation with feedback]
+    UpdateRecord --> FeedbackEnd([End])
+
+    DashboardStart([Manager/HR Admin accesses dashboard]) --> DisplayEvaluations[Display all evaluations]
+    DisplayEvaluations --> FilterPeriod{Filter by period type?}
+    FilterPeriod -->|Yes| ApplyPeriodFilter[Apply period type filter]
+    FilterPeriod -->|No| FilterEmployee
+    ApplyPeriodFilter --> FilterEmployee{Filter by employee?}
+    FilterEmployee -->|Yes| ApplyEmployeeFilter[Apply employee filter]
+    FilterEmployee -->|No| CalculateStats
+    ApplyEmployeeFilter --> CalculateStats[Calculate statistics]
+    CalculateStats --> CountTotal[Count total evaluations]
+    CountTotal --> CalculateAverage[Calculate average overall score]
+    CalculateAverage --> FindTopScore[Find top score]
+    FindTopScore --> GetLatestPeriod[Get latest evaluation period]
+    GetLatestPeriod --> DisplayDashboard[Display dashboard with stats]
+    DisplayDashboard --> DashboardEnd([End])
+
+    classDef userAction fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef systemAction fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef decision fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    classDef calculation fill:#e0f2f1,stroke:#00695c,stroke-width:2px
+    classDef error fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef success fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+
+    class Start,FeedbackStart,DashboardStart userAction
+    class ShowForm,CreateEvaluation,NotifyEmployee,ViewEvaluation,UpdateRecord,DisplayEvaluations,ApplyPeriodFilter,ApplyEmployeeFilter,DisplayDashboard systemAction
+    class ValidateScores,AddFeedback,FilterPeriod,FilterEmployee decision
+    class CalculateOverall,CalculateStats,CountTotal,CalculateAverage,FindTopScore,GetLatestPeriod calculation
+    class ScoreError error
+    class Success,FeedbackEnd,DashboardEnd success

@@ -5,7 +5,7 @@ from io import StringIO
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Prefetch, Q
+from django.db.models import Q
 from django.http import HttpResponse
 
 from departments.models import Department
@@ -108,14 +108,7 @@ def leave_list(request):
             else:
                 leaves = leaves.filter(status=status)
 
-        employees = employees.prefetch_related(
-            Prefetch(
-                'leave_requests',
-                queryset=LeaveRequest.objects.filter(
-                    leave_type='ANNUAL', status='APPROVED'
-                ),
-            )
-        )
+        employees = employees.prefetch_related('leave_requests')
     else:
         leaves = LeaveRequest.objects.filter(employee__user=request.user)
         employees = []
@@ -250,8 +243,8 @@ def approve_leave(request, pk):
         messages.error(request, 'ليس لديك صلاحية مراجعة طلب الإجازة هذا.')
         return redirect('leaves:leave_list')
 
-    balance_total = leave.employee.ANNUAL_LEAVE_DAYS
-    balance_remaining = leave.employee.get_annual_leave_balance()
+    balance_total = leave.employee.leave_quota(leave.leave_type)
+    balance_remaining = leave.employee.leave_remaining(leave.leave_type)
     balance_used = max(balance_total - balance_remaining, 0)
 
     if request.method == 'POST':

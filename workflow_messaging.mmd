@@ -1,0 +1,75 @@
+flowchart TD
+    Start([User initiates message composition]) --> ShowModal[Display compose modal]
+    ShowModal --> SelectRecipients[Select recipient filter]
+    SelectRecipients --> FilterType{Select filter type}
+    FilterType -->|All users| LoadAllUsers[Load all active users]
+    FilterType -->|Specific users| LoadSpecific[Load specific users]
+    FilterType -->|Department users| LoadDeptUsers[Load department users]
+    LoadAllUsers --> ApplyFilters
+    LoadSpecific --> ApplyFilters
+    LoadDeptUsers --> ApplyDeptFilters{Apply department filters}
+    ApplyDeptFilters -->|Role filter| ApplyRoleFilter[Apply role filter]
+    ApplyDeptFilters -->|No role filter| DynamicLoad
+    ApplyRoleFilter --> DynamicLoad[Dynamic load via AJAX]
+    DynamicLoad --> ApplyFilters[Apply additional filters]
+    ApplyFilters --> EnterSubject[Enter subject]
+    EnterSubject --> EnterBody[Enter message body with rich text]
+    EnterBody --> SanitizeHTML[Sanitize HTML content]
+    SanitizeHTML --> SelectFinalRecipients[Select final recipients]
+    SelectFinalRecipients --> ValidateRecipients{Validate recipients}
+    ValidateRecipients -->|Invalid| RecipientError[Display recipient error]
+    RecipientError --> SelectRecipients
+    ValidateRecipients -->|Valid| CreateMessages[Bulk create messages]
+    CreateMessages --> CreateNotifications[Bulk create notifications]
+    CreateNotifications --> DisplaySuccess([Display success with count])
+
+    ListStart([User accesses message list]) --> DisplayMessages[Display messages]
+    DisplayMessages --> ApplyListFilters[Apply filtering options]
+    ApplyListFilters --> FilterFolder{Filter by folder?}
+    FilterFolder -->|Inbox| ApplyInbox[Apply inbox filter]
+    FilterFolder -->|Sent| ApplySent[Apply sent filter]
+    FilterFolder -->|All| NoFolderFilter
+    ApplyInbox --> FilterStatus
+    ApplySent --> FilterStatus
+    NoFolderFilter --> FilterStatus
+    FilterStatus -->|Read/Unread| ApplyStatusFilter[Apply status filter]
+    FilterStatus -->|No status| SearchFilter
+    ApplyStatusFilter --> SearchFilter{Apply search query?}
+    SearchFilter -->|Yes| ApplySearch[Apply search filter]
+    SearchFilter -->|No| DateFilter
+    ApplySearch --> DateFilter{Apply date range?}
+    DateFilter -->|Yes| ApplyDateFilter[Apply date range filter]
+    DateFilter -->|No| DeptFilter
+    ApplyDateFilter --> DeptFilter{Filter by department?}
+    DeptFilter -->|Yes| ApplyDeptFilterList[Apply department filter]
+    DeptFilter -->|No| RoleFilterList
+    ApplyDeptFilterList --> RoleFilterList{Filter by role?}
+    RoleFilterList -->|Yes| ApplyRoleFilterList[Apply role filter]
+    RoleFilterList -->|No| GroupMessages
+    ApplyRoleFilterList --> GroupMessages[Group broadcast messages]
+    GroupMessages --> DisplayResults[Display filtered results]
+    DisplayResults --> ViewMessage{User clicks message?}
+    ViewMessage -->|Yes| LoadDetails[Load message details]
+    ViewMessage -->|No| ListEnd
+    LoadDetails --> CheckRecipient{User is recipient?}
+    CheckRecipient -->|Yes| MarkAsRead[Mark as read]
+    CheckRecipient -->|No| ShowDetails
+    MarkAsRead --> ShowDetails[Show all recipients with status]
+    ShowDetails --> DeleteOption{Delete message?}
+    DeleteOption -->|Yes| DeleteMessage[Delete message]
+    DeleteOption -->|No| ListEnd
+    DeleteMessage --> ListEnd([End])
+
+    classDef userAction fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef systemAction fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef decision fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    classDef security fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef error fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef success fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+
+    class Start,ListStart userAction
+    class ShowModal,LoadAllUsers,LoadSpecific,LoadDeptUsers,DynamicLoad,CreateMessages,CreateNotifications,DisplayMessages,ApplyInbox,ApplySent,ApplyStatusFilter,ApplySearch,ApplyDateFilter,ApplyDeptFilterList,ApplyRoleFilterList,GroupMessages,DisplayResults,LoadDetails,MarkAsRead,ShowDetails,DeleteMessage systemAction
+    class FilterType,ApplyDeptFilters,ValidateRecipients,FilterFolder,FilterStatus,SearchFilter,DateFilter,DeptFilter,RoleFilterList,ViewMessage,CheckRecipient,DeleteOption decision
+    class SanitizeHTML security
+    class RecipientError error
+    class DisplaySuccess,ListEnd success

@@ -1,0 +1,46 @@
+flowchart TD
+    Start([Employee initiates leave request]) --> ShowForm[Display leave application form]
+    ShowForm --> SelectType[Select leave type]
+    SelectType --> SelectDates[Select start and end dates]
+    SelectDates --> ValidateDates{Validate date range}
+    ValidateDates -->|Invalid| DateError[Display date error]
+    DateError --> SelectDates
+    ValidateDates -->|Valid| EnterReason[Enter reason for leave]
+    EnterReason --> CheckOverlap{Check overlapping requests}
+    CheckOverlap -->|Overlap found| OverlapError[Display overlap error]
+    OverlapError --> SelectDates
+    CheckOverlap -->|No overlap| CalculateDays[Calculate total days]
+    CalculateDays --> ValidateBalance{Validate against leave balance}
+    ValidateBalance -->|Insufficient| BalanceError[Display balance error]
+    BalanceError --> SelectDates
+    ValidateBalance -->|Sufficient| CreateRequest[Create LeaveRequest status PENDING]
+    CreateRequest --> TriggerAI[Trigger AI prediction analysis]
+    TriggerAI --> CalculateConfidence[Calculate AI confidence score]
+    CalculateConfidence --> NotifyManagers[Send notifications to managers]
+    NotifyManagers --> NotifyHR[Send notifications to HR]
+    NotifyHR --> DisplaySuccess([Display success message])
+
+    ApprovalStart([Manager/HR accesses pending requests]) --> DisplayRequests[Display requests with AI predictions]
+    DisplayRequests --> ReviewRequest[Manager reviews request]
+    ReviewRequest --> MakeDecision{Manager makes decision}
+    MakeDecision -->|APPROVE| UpdateApprove[Update status to APPROVED]
+    MakeDecision -->|REJECT| UpdateReject[Update status to REJECTED]
+    UpdateApprove --> SetApprover[Set approved_by and notes]
+    UpdateReject --> SetApprover
+    SetApprover --> UpdateBalance[Update employee leave balance]
+    UpdateBalance --> NotifyEmployee[Send notification to employee]
+    NotifyEmployee --> ApprovalSuccess([Display confirmation])
+
+    classDef userAction fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef systemAction fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef decision fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    classDef aiAction fill:#e0f2f1,stroke:#00695c,stroke-width:2px
+    classDef error fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef success fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+
+    class Start,ApprovalStart userAction
+    class ShowForm,CalculateDays,CreateRequest,NotifyManagers,NotifyHR,DisplayRequests,UpdateBalance,NotifyEmployee systemAction
+    class ValidateDates,CheckOverlap,ValidateBalance,MakeDecision decision
+    class TriggerAI,CalculateConfidence aiAction
+    class DateError,OverlapError,BalanceError error
+    class DisplaySuccess,ApprovalSuccess success

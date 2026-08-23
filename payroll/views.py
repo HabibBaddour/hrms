@@ -5,59 +5,84 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
+from django.db.models import Sum
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from employees.models import Employee
+from departments.models import Department
 from payroll.models import Payroll
 from .forms import PayrollForm
 
 
+ARABIC_MONTHS = [
+    (1, 'يناير'), (2, 'فبراير'), (3, 'مارس'), (4, 'أبريل'),
+    (5, 'مايو'), (6, 'يونيو'), (7, 'يوليو'), (8, 'أغسطس'),
+    (9, 'سبتمبر'), (10, 'أكتوبر'), (11, 'نوفمبر'), (12, 'ديسمبر'),
+]
+
+
 @login_required(login_url='login')
 def payroll_dashboard(request):
-    month = int(request.GET.get('month', 0) or 0)
-    year = int(request.GET.get('year', 0) or 0)
+    department_id = request.GET.get('department')
+    month = request.GET.get('month')
+    year = request.GET.get('year')
+    status = request.GET.get('status')
+
     payrolls = Payroll.objects.select_related(
         'employee__user',
         'employee__department',
         'employee__position',
     ).order_by('-year', '-month', '-created_at')
-    if month:
+
+    if department_id and department_id != 'None':
+        payrolls = payrolls.filter(employee__department_id=department_id)
+    if month and month != 'None':
         payrolls = payrolls.filter(month=month)
-    if year:
+    if year and year != 'None':
         payrolls = payrolls.filter(year=year)
+    if status and status != 'None':
+        payrolls = payrolls.filter(status=status)
 
-    employees = Employee.objects.select_related('position', 'department', 'user', 'contract').all()
-    total_employees = employees.count()
-
-    total_net_salary = sum(
-        (
-            (
-                employee.contract.salary
-                if getattr(employee, 'contract', None) and employee.contract.salary is not None
-                else employee.position.base_salary
-                if employee.position and employee.position.base_salary is not None
-                else Decimal('0')
-            )
-            for employee in employees
-        ),
-        Decimal('0')
+    agg = payrolls.aggregate(
+        base=Sum('basic_salary'),
+        allowances=Sum('allowances'),
+        bonuses=Sum('bonuses'),
+        da=Sum('deductions_absence'),
+        dd=Sum('deductions_delay'),
+        ins=Sum('insurance'),
+        od=Sum('other_deductions'),
+        net=Sum('net_salary'),
     )
+    total_base = agg['base'] or Decimal('0')
+    total_allowances = (agg['allowances'] or Decimal('0')) + (agg['bonuses'] or Decimal('0'))
+    total_deductions = (
+        (agg['da'] or Decimal('0')) + (agg['dd'] or Decimal('0')) +
+        (agg['ins'] or Decimal('0')) + (agg['od'] or Decimal('0'))
+    )
+    total_net = agg['net'] or Decimal('0')
+    filtered_count = payrolls.count()
 
-    total_deductions = sum((p.total_deductions for p in payrolls), Decimal('0'))
-    processed_count = payrolls.count()
+    years = list(
+        Payroll.objects.values_list('year', flat=True).distinct().order_by('-year')
+    )
 
     context = {
         'payrolls': payrolls,
-        'total_employees': total_employees,
-        'total_net_salary': total_net_salary,
+        'departments': Department.objects.all(),
+        'months': ARABIC_MONTHS,
+        'years': years,
+        'total_base': total_base,
+        'total_allowances': total_allowances,
         'total_deductions': total_deductions,
-        'processed_count': processed_count,
-        'selected_month': f'{month}/{year}' if month and year else 'كل الفترات',
-        'month': month,
-        'year': year,
+        'total_net': total_net,
+        'filtered_count': filtered_count,
+        'selected_department': department_id,
+        'selected_month': month,
+        'selected_year': year,
+        'selected_status': status,
     }
     return render(request, 'payroll/payroll_dashboard.html', context)
 
