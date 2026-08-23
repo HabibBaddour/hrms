@@ -10,6 +10,7 @@ class PerformanceEvaluation(models.Model):
         ('COMPLETED', 'مكتمل'),
     )
     # تم استبدال الاستيراد المباشر بالمرجع النصي 'employees.Employee'
+    title = models.CharField(max_length=255, default='تقييم أداء', verbose_name="عنوان التقييم")
     employee = models.ForeignKey('employees.Employee', on_delete=models.CASCADE, related_name='evaluations', verbose_name="الموظف")
     evaluator = models.ForeignKey('employees.Employee', on_delete=models.SET_NULL, null=True, related_name='given_evaluations', verbose_name="المقيِّم (المدير)")
     evaluation_date = models.DateField(auto_now_add=True, verbose_name="تاريخ التقييم")
@@ -17,13 +18,18 @@ class PerformanceEvaluation(models.Model):
     period_type = models.CharField(max_length=20, choices=PERIOD_TYPES, default='ANNUAL', verbose_name='نوع الفترة')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='COMPLETED', verbose_name='الحالة')
     
-    # التقييمات من 1 إلى 5
+    # التقييمات من 1 إلى 5، وتستخدم القيم الصفرية للمسودات غير المكتملة.
     work_quality = models.PositiveIntegerField(verbose_name="جودة العمل (1-5)")
     commitment = models.PositiveIntegerField(verbose_name="الالتزام والانضباط (1-5)")
     cooperation = models.PositiveIntegerField(verbose_name="التعاون والعمل الجماعي (1-5)")
     overall_score = models.FloatField(verbose_name="النتيجة الإجمالية", editable=False)
-    
-    feedback = models.TextField(verbose_name="ملاحظات المدير")
+    question_schema = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name="أسئلة التقييم",
+    )
+
+    feedback = models.TextField(blank=True, verbose_name="ملاحظات المدير")
     employee_feedback = models.TextField(blank=True, verbose_name='رد الموظف')
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -32,13 +38,30 @@ class PerformanceEvaluation(models.Model):
         verbose_name_plural = "تقييمات الأداء"
 
     def save(self, *args, **kwargs):
-        self.overall_score = round((self.work_quality + self.commitment + self.cooperation) / 3, 2)
+        scores = (self.work_quality, self.commitment, self.cooperation)
+        dynamic_scores = [
+            question.get('rating')
+            for question in (self.question_schema or [])
+            if question.get('rating') is not None
+        ]
+        if dynamic_scores:
+            self.overall_score = round(sum(dynamic_scores) / len(dynamic_scores), 2)
+            legacy_scores = (dynamic_scores + [0, 0, 0])[:3]
+            self.work_quality, self.commitment, self.cooperation = legacy_scores
+        else:
+            self.overall_score = 0 if all(score == 0 for score in scores) else round(sum(scores) / 3, 2)
         super().save(*args, **kwargs)
 
     def clean(self):
         from django.core.exceptions import ValidationError
         for field in ('work_quality', 'commitment', 'cooperation'):
             score = getattr(self, field)
+            if self.question_schema and any(
+                question.get('rating') is not None for question in self.question_schema
+            ):
+                continue
+            if self.status == 'DRAFT' and score == 0:
+                continue
             if score < 1 or score > 5:
                 raise ValidationError({field: 'يجب أن تكون الدرجة بين 1 و5.'})
 

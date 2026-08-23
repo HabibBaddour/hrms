@@ -70,7 +70,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <div class="text-muted small">إجمالي صافي الرواتب</div>
-                            <h4 class="fw-bold mt-2 mb-0">{{ total_net|floatformat:2 }} $</h4>
+                            <h4 class="fw-bold mt-2 mb-0">{{ total_net_salary|floatformat:2 }} $</h4>
                         </div>
                         <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success"><i class="fa-solid fa-money-bill-wave fa-lg"></i></div>
                     </div>
@@ -109,7 +109,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <div class="text-muted small">عدد الموظفين في الفلتر</div>
-                            <h4 class="fw-bold mt-2 mb-0">{{ filtered_count }}</h4>
+                            <h4 class="fw-bold mt-2 mb-0">{{ employee_count }}</h4>
                         </div>
                         <div class="rounded-circle bg-primary bg-opacity-10 p-3 text-primary"><i class="fa-solid fa-user-group fa-lg"></i></div>
                     </div>
@@ -158,9 +158,11 @@
                                 {% else %}
                                     <span class="badge bg-warning text-dark px-3 py-1 rounded-pill">معلق</span>
                                 {% endif %}
+                                {% if payroll.pk %}
                                 <div class="mt-1">
                                     <a href="{% url 'payroll_payslip' payroll.pk %}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-receipt me-1"></i>قسيمة</a>
                                 </div>
+                                {% endif %}
                             </td>
                         </tr>
                         {% empty %}

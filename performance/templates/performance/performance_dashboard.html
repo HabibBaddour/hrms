@@ -7,126 +7,76 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h3 class="fw-bold mb-1">تبويبة تقييم الأداء</h3>
-            <p class="text-muted mb-0">مراجعة النتائج، متوسط الأداء، وملاحظات المديرين لكل موظف</p>
+            <p class="text-muted mb-0">مراجعة حملات التقييم ونسبة إنجازها لكل قسم</p>
         </div>
-        <a href="{% url 'add_evaluation' %}" class="btn btn-primary px-4">
-            <i class="fa-solid fa-plus me-2"></i>إضافة تقييم
+        <a href="{% url 'evaluation_create' %}" class="btn btn-primary px-4">
+            <i class="fa-solid fa-plus me-2" aria-hidden="true"></i>إضافة تقييم
         </a>
     </div>
 
-    <div class="row g-4 mb-4">
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="text-muted small">إجمالي التقييمات</div>
-                            <h4 class="fw-bold mt-2 mb-0">{{ total_evaluations }}</h4>
-                        </div>
-                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 text-primary">
-                            <i class="fa-solid fa-clipboard-check fa-lg"></i>
-                        </div>
-                    </div>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <form method="get" action="{% url 'performance_list' %}" class="row g-3 align-items-end">
+                <div class="col-lg-4 col-md-6">
+                    <label for="evaluation-title" class="form-label fw-semibold">اسم التقييم</label>
+                    <input id="evaluation-title" type="text" name="title" value="{{ selected_title }}" class="form-control" placeholder="ابحث باسم التقييم">
                 </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="text-muted small">متوسط الأداء</div>
-                            <h4 class="fw-bold mt-2 mb-0">{{ average_score|floatformat:2 }}/5</h4>
-                        </div>
-                        <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success">
-                            <i class="fa-solid fa-chart-line fa-lg"></i>
-                        </div>
-                    </div>
+                <div class="col-lg-3 col-md-6">
+                    <label for="target-department" class="form-label fw-semibold">القسم المستهدف</label>
+                    <select id="target-department" name="department" class="form-select">
+                        <option value="">كل الأقسام</option>
+                        {% for department in departments %}
+                        <option value="{{ department.pk }}" {% if selected_department == department.pk|stringformat:'s' %}selected{% endif %}>{{ department.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="text-muted small">أعلى تقييم</div>
-                            <h4 class="fw-bold mt-2 mb-0">{{ top_score|floatformat:2 }}</h4>
-                        </div>
-                        <div class="rounded-circle bg-warning bg-opacity-10 p-3 text-warning">
-                            <i class="fa-solid fa-trophy fa-lg"></i>
-                        </div>
-                    </div>
+                <div class="col-lg-3 col-md-6">
+                    <label for="created-at" class="form-label fw-semibold">تاريخ الإنشاء</label>
+                    <input id="created-at" type="date" name="created_at" value="{{ selected_created_at }}" class="form-control">
                 </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="text-muted small">في المراجعة الأخيرة</div>
-                            <h4 class="fw-bold mt-2 mb-0">{{ latest_period }}</h4>
-                        </div>
-                        <div class="rounded-circle bg-info bg-opacity-10 p-3 text-info">
-                            <i class="fa-solid fa-calendar-days fa-lg"></i>
-                        </div>
-                    </div>
+                <div class="col-lg-2 col-md-6 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">تطبيق التصفية</button>
+                    <a href="{% url 'performance_list' %}" class="btn btn-outline-secondary" aria-label="إعادة ضبط الفلاتر">إعادة ضبط</a>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-white border-0 py-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-bold">قائمة تقييمات الأداء</h5>
-                <form method="get" class="d-flex gap-2">
-                    <select name="period_type" class="form-select form-select-sm"><option value="">كل الفترات</option><option value="ANNUAL" {% if selected_period_type == 'ANNUAL' %}selected{% endif %}>سنوي</option><option value="SEMI_ANNUAL" {% if selected_period_type == 'SEMI_ANNUAL' %}selected{% endif %}>نصف سنوي</option></select>
-                    <button class="btn btn-sm btn-outline-primary">تصفية</button>
-                </form>
-            </div>
+            <h5 class="mb-0 fw-bold">حملات تقييم الأداء</h5>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
+                    <caption class="visually-hidden">قائمة حملات تقييم الأداء</caption>
                     <thead class="table-light">
                         <tr>
-                            <th>الموظف</th>
-                            <th>المقيّم</th>
-                            <th>الفترة</th>
-                            <th>الجودة</th>
-                            <th>الالتزام</th>
-                            <th>التعاون</th>
-                            <th>النتيجة</th>
-                            <th>التعليقات</th>
+                            <th scope="col">اسم التقييم</th>
+                            <th scope="col">القسم المستهدف</th>
+                            <th scope="col">اسم المقيّم (المدير)</th>
+                            <th scope="col">تاريخ الإنشاء</th>
+                            <th scope="col">نسبة الإنجاز</th>
+                            <th scope="col">التفاصيل</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for evaluation in evaluations %}
+                        {% for campaign in campaigns %}
                         <tr>
+                            <td class="fw-semibold">{{ campaign.title|default:'تقييم أداء' }}</td>
+                            <td>{{ campaign.department_name }}</td>
+                            <td>{{ campaign.evaluator_name }}</td>
+                            <td>{{ campaign.created_date|date:'Y-m-d' }}</td>
+                            <td><span class="badge bg-primary-subtle text-primary">{{ campaign.completion_display }}</span></td>
                             <td>
-                                <div class="fw-bold">{{ evaluation.employee.get_full_name|default:evaluation.employee.user.username }}</div>
-                                <small class="text-muted">{{ evaluation.employee.position.title|default:'غير محدد' }}</small>
+                                <a href="{% url 'campaign_detail' campaign.campaign_id %}" class="btn btn-sm btn-outline-primary" aria-label="عرض تفاصيل {{ campaign.title }}">
+                                    <i class="fa-solid fa-eye me-1" aria-hidden="true"></i>عرض التفاصيل
+                                </a>
                             </td>
-                            <td>{{ evaluation.evaluator.get_full_name|default:evaluation.evaluator.user.username|default:'غير محدد' }}</td>
-                            <td>{{ evaluation.period }}</td>
-                            <td>{{ evaluation.work_quality }}/5</td>
-                            <td>{{ evaluation.commitment }}/5</td>
-                            <td>{{ evaluation.cooperation }}/5</td>
-                            <td>
-                                <span class="badge {% if evaluation.overall_score >= 4 %}bg-success-subtle text-success{% elif evaluation.overall_score >= 3 %}bg-warning-subtle text-warning{% else %}bg-danger-subtle text-danger{% endif %} px-2 py-2">
-                                    {{ evaluation.overall_score }}/5
-                                </span>
-                            </td>
-                            <td><a href="{% url 'evaluation_detail' evaluation.pk %}" class="btn btn-sm btn-outline-primary" title="التفاصيل"><i class="fa-solid fa-eye"></i></a></td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-4">لا توجد تقييمات أداء مسجلة حتى الآن.</td>
+                            <td colspan="6" class="text-center text-muted py-4">لا توجد حملات تقييم أداء مطابقة للفلاتر.</td>
                         </tr>
                         {% endfor %}
                     </tbody>

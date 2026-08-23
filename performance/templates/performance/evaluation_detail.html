@@ -3,24 +3,60 @@
 {% block content %}
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div><h3 class="fw-bold mb-1">تفاصيل تقييم الأداء</h3><p class="text-muted mb-0">{{ evaluation.employee.get_full_name }} · {{ evaluation.period }}</p></div>
-        <a href="{% url 'performance_dashboard' %}" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-right me-1"></i>عودة</a>
+        <div><h3 class="fw-bold mb-1">تفاصيل تقييم الأداء</h3><p class="text-muted mb-0">{{ evaluation.employee.get_full_name }} · {{ evaluation.title|default:evaluation.period }}</p></div>
+        <div class="d-flex gap-2">
+            <a href="{{ back_url }}" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-right me-1" aria-hidden="true"></i>رجوع للقائمة</a>
+            <a href="{{ dashboard_url }}" class="btn btn-outline-primary"><i class="fa-solid fa-gauge-high me-1" aria-hidden="true"></i>عودة للوحة التحكم</a>
+        </div>
     </div>
     <div class="row g-4">
         <div class="col-lg-7">
             <div class="card border-0 shadow-sm"><div class="card-body p-4">
-                <div class="row g-3 mb-4">
-                    <div class="col-4"><div class="text-muted small">جودة العمل</div><div class="fs-3 fw-bold">{{ evaluation.work_quality }}/5</div></div>
-                    <div class="col-4"><div class="text-muted small">الالتزام</div><div class="fs-3 fw-bold">{{ evaluation.commitment }}/5</div></div>
-                    <div class="col-4"><div class="text-muted small">النتيجة</div><div class="fs-3 fw-bold text-primary">{{ evaluation.overall_score }}/5</div></div>
+                {% if can_fill %}
+                <div class="alert alert-info py-2 small">أكمل تقييم الموظف لكل سؤال ثم احفظ التقييم.</div>
+                {% if form_error %}<div class="alert alert-danger py-2" role="alert">{{ form_error }}</div>{% endif %}
+                <form method="post">
+                    {% csrf_token %}
+                    <fieldset>
+                        <legend class="h6 fw-bold mb-3">أسئلة التقييم</legend>
+                        {% for question in evaluation.question_schema %}
+                        <div class="mb-3">
+                            <label for="rating-{{ forloop.counter }}" class="form-label fw-semibold">{{ forloop.counter }}. {{ question.text }} <span class="text-muted">/5</span></label>
+                            <select id="rating-{{ forloop.counter }}" name="rating" class="form-select" required>
+                                <option value="">اختر التقييم</option>
+                                {% for score in '12345' %}
+                                <option value="{{ score }}" {% if question.rating|stringformat:'s' == score %}selected{% endif %}>{{ score }} / 5</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endfor %}
+                    </fieldset>
+                    <div class="mb-3">
+                        <label for="feedback" class="form-label fw-semibold">ملاحظات المدير</label>
+                        <textarea id="feedback" name="feedback" class="form-control" rows="4" placeholder="أضف ملاحظاتك على التقييم..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check me-1"></i>حفظ وإكمال التقييم</button>
+                </form>
+                {% else %}
+                <div class="mb-4">
+                    <div class="text-muted small">المتوسط العام للتقييم الديناميكي</div>
+                    <div class="fs-3 fw-bold text-primary">{{ dynamic_overall_score|default:'—' }}/5</div>
                 </div>
-                <h6 class="fw-bold">ملاحظات المدير</h6><p class="bg-light rounded p-3">{{ evaluation.feedback }}</p>
-                <h6 class="fw-bold">رد الموظف</h6>
-                <form method="post">{% csrf_token %}<textarea name="employee_feedback" class="form-control mb-3" rows="4" placeholder="أضف ملاحظتك على التقييم...">{{ evaluation.employee_feedback }}</textarea><button class="btn btn-primary">حفظ الملاحظات</button></form>
+                {% if evaluation.question_schema %}
+                <h6 class="fw-bold">أسئلة التقييم</h6>
+                <div class="list-group mb-4">
+                    {% for question in evaluation.question_schema %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center gap-3"><span>{{ forloop.counter }}. {{ question.text }}</span><span class="text-muted small">{{ question.rating|default:'—' }}/{{ question.max_rating|default:5 }}</span></div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <h6 class="fw-bold">ملاحظات المدير</h6><p class="bg-light rounded p-3">{{ evaluation.feedback|default:'لا توجد ملاحظات.' }}</p>
+                {% endif %}
+
             </div></div>
         </div>
         <div class="col-lg-5"><div class="card border-0 shadow-sm"><div class="card-header bg-white fw-bold">سجل التقييمات السابقة</div><div class="list-group list-group-flush">
-            {% for item in history %}<a href="{% url 'evaluation_detail' item.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between"><span>{{ item.period }}</span><span class="badge bg-primary-subtle text-primary">{{ item.overall_score }}/5</span></a>{% empty %}<div class="p-4 text-muted">لا توجد تقييمات سابقة.</div>{% endfor %}
+            {% for item in history %}<a href="{% url 'evaluation_detail' item.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between"><span>{{ item.title|default:item.period }}</span><span class="badge bg-primary-subtle text-primary">{{ item.overall_score }}/5</span></a>{% empty %}<div class="p-4 text-muted">لا توجد تقييمات سابقة.</div>{% endfor %}
         </div></div></div>
     </div>
 </div>

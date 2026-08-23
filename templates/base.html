@@ -562,14 +562,14 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'leaves:leave_list' %}" class="{% if 'leave' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fa-solid fa-calendar-check"></i> الموافقات المعلقة
+                    <a href="{% url 'team_performance' %}" class="{% if request.resolver_match.url_name == 'team_performance' %}active{% endif %}">
+                        <i class="fa-solid fa-clipboard-check"></i> التقييمات المطلوبة
                     </a>
                 </li>
-
+ 
                 <li class="menu-header">التقارير</li>
                 <li>
-                    <a href="#">
+                    <a href="{% url 'team_performance' %}" class="{% if request.resolver_match.url_name == 'team_performance' %}active{% endif %}">
                         <i class="fa-solid fa-chart-line"></i> أداء الفريق
                     </a>
                 </li>

@@ -5,6 +5,7 @@ from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
 from accounts.views import CustomLoginView
+from performance import views as performance_views
 # ملاحظة: استبدل 'dashboard' باسم التطبيق الذي تحتوي فيه هذه الدوال إن كان مختلفاً
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -19,6 +20,9 @@ urlpatterns = [
     path('leaves/', include('leaves.urls')),
     path('payroll/', include('payroll.urls')),
     path('performance/', include('performance.urls')),
+    path('evaluations/', performance_views.performance_dashboard, name='evaluations_dashboard'),
+    path('evaluations/create/', performance_views.add_evaluation, name='evaluation_create'),
+    path('evaluations/<int:pk>/', performance_views.evaluation_detail, name='evaluation_detail_alias'),
     path('reports/', include('reports.urls')),
     path('core/', include('core.urls')),
     

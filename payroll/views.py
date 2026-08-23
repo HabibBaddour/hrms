@@ -1,5 +1,6 @@
 from decimal import Decimal
 from io import BytesIO
+from types import SimpleNamespace
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -24,12 +25,35 @@ ARABIC_MONTHS = [
 ]
 
 
+def _filter_value(value):
+    """Normalize empty query-string values before applying ORM filters."""
+    return value if value and value != 'None' else ''
+
+
+def _fallback_payroll_row(employee, month, year, status):
+    """Build a payroll-shaped row from an active employee's assigned salary."""
+    base_salary = employee.salary or Decimal('0')
+    return SimpleNamespace(
+        pk=None,
+        employee=employee,
+        month=int(month) if month else None,
+        year=int(year) if year else None,
+        basic_salary=base_salary,
+        allowances=Decimal('0'),
+        bonuses=Decimal('0'),
+        total_deductions=Decimal('0'),
+        net_salary=base_salary,
+        status=status or 'PENDING',
+        is_fallback=True,
+    )
+
+
 @login_required(login_url='login')
 def payroll_dashboard(request):
-    department_id = request.GET.get('department')
-    month = request.GET.get('month')
-    year = request.GET.get('year')
-    status = request.GET.get('status')
+    department_id = _filter_value(request.GET.get('department'))
+    month = _filter_value(request.GET.get('month'))
+    year = _filter_value(request.GET.get('year'))
+    status = _filter_value(request.GET.get('status'))
 
     payrolls = Payroll.objects.select_related(
         'employee__user',
@@ -37,48 +61,89 @@ def payroll_dashboard(request):
         'employee__position',
     ).order_by('-year', '-month', '-created_at')
 
-    if department_id and department_id != 'None':
+    if department_id:
         payrolls = payrolls.filter(employee__department_id=department_id)
-    if month and month != 'None':
+    if month:
         payrolls = payrolls.filter(month=month)
-    if year and year != 'None':
+    if year:
         payrolls = payrolls.filter(year=year)
-    if status and status != 'None':
+
+    # Check monthly records before applying status. A status filter can
+    # legitimately return zero rows even when the selected month exists.
+    has_monthly_payrolls = payrolls.exists() if department_id else True
+    if status:
         payrolls = payrolls.filter(status=status)
 
-    agg = payrolls.aggregate(
-        base=Sum('basic_salary'),
-        allowances=Sum('allowances'),
-        bonuses=Sum('bonuses'),
-        da=Sum('deductions_absence'),
-        dd=Sum('deductions_delay'),
-        ins=Sum('insurance'),
-        od=Sum('other_deductions'),
-        net=Sum('net_salary'),
-    )
-    total_base = agg['base'] or Decimal('0')
-    total_allowances = (agg['allowances'] or Decimal('0')) + (agg['bonuses'] or Decimal('0'))
-    total_deductions = (
-        (agg['da'] or Decimal('0')) + (agg['dd'] or Decimal('0')) +
-        (agg['ins'] or Decimal('0')) + (agg['od'] or Decimal('0'))
-    )
-    total_net = agg['net'] or Decimal('0')
-    filtered_count = payrolls.count()
+    # A department can have active employees before its first monthly payroll is
+    # created. Use their assigned salaries rather than showing an empty report.
+    if department_id and not has_monthly_payrolls and status in ('', 'PENDING'):
+        fallback_employees = Employee.objects.select_related(
+            'user', 'department', 'position'
+        ).filter(
+            department_id=department_id,
+            user__is_active=True,
+        ).order_by('user__first_name', 'user__last_name')
+        payrolls = [
+            _fallback_payroll_row(employee, month, year, status)
+            for employee in fallback_employees
+        ]
+
+    if isinstance(payrolls, list):
+        total_base = sum((row.basic_salary for row in payrolls), Decimal('0'))
+        total_allowances = sum(
+            (row.allowances + row.bonuses for row in payrolls), Decimal('0')
+        )
+        total_deductions = sum(
+            (row.total_deductions for row in payrolls), Decimal('0')
+        )
+        total_net_salary = sum(
+            (row.net_salary for row in payrolls), Decimal('0')
+        )
+        filtered_count = len(payrolls)
+        employee_count = len({row.employee.pk for row in payrolls})
+    else:
+        agg = payrolls.aggregate(
+            base=Sum('basic_salary'),
+            allowances=Sum('allowances'),
+            bonuses=Sum('bonuses'),
+            da=Sum('deductions_absence'),
+            dd=Sum('deductions_delay'),
+            ins=Sum('insurance'),
+            od=Sum('other_deductions'),
+            net=Sum('net_salary'),
+        )
+        total_base = agg['base'] or Decimal('0')
+        total_allowances = (agg['allowances'] or Decimal('0')) + (agg['bonuses'] or Decimal('0'))
+        total_deductions = (
+            (agg['da'] or Decimal('0')) + (agg['dd'] or Decimal('0')) +
+            (agg['ins'] or Decimal('0')) + (agg['od'] or Decimal('0'))
+        )
+        total_net_salary = agg['net'] or Decimal('0')
+        filtered_count = payrolls.count()
+        employee_count = payrolls.values('employee_id').distinct().count()
 
     years = list(
         Payroll.objects.values_list('year', flat=True).distinct().order_by('-year')
     )
+    if year and year.isdigit() and int(year) not in years:
+        years.append(int(year))
+        years.sort(reverse=True)
 
     context = {
         'payrolls': payrolls,
-        'departments': Department.objects.all(),
+        'departments': Department.objects.all().order_by('name'),
         'months': ARABIC_MONTHS,
         'years': years,
         'total_base': total_base,
         'total_allowances': total_allowances,
         'total_deductions': total_deductions,
-        'total_net': total_net,
+        'total_net_salary': total_net_salary,
+        # Keep the old names available to any consumers outside this template.
+        'total_net': total_net_salary,
         'filtered_count': filtered_count,
+        'filtered_record_count': filtered_count,
+        'processed_count': filtered_count,
+        'employee_count': employee_count,
         'selected_department': department_id,
         'selected_month': month,
         'selected_year': year,

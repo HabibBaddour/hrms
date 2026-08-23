@@ -56,3 +56,48 @@ class PayrollDashboardTotalTest(TestCase):
 
         self.assertEqual(response.context['total_net_salary'], expected_total)
         self.assertEqual(response.context['processed_count'], Payroll.objects.count())
+
+
+class PayrollDashboardFallbackTest(TestCase):
+    def test_department_filter_uses_active_employee_salaries_without_payrolls(self):
+        user = get_user_model().objects.create_user(username='admin', password='admin123')
+        department = Department.objects.create(name='Information Technology', code='IT')
+        position = Position.objects.create(
+            title='Engineer',
+            department=department,
+            base_salary=Decimal('2000.00'),
+        )
+        active_employee = Employee.objects.create(
+            user=get_user_model().objects.create_user(
+                username='active_employee',
+                password='pass123',
+                is_active=True,
+            ),
+            department=department,
+            position=position,
+            salary=Decimal('2500.00'),
+        )
+        Employee.objects.create(
+            user=get_user_model().objects.create_user(
+                username='inactive_employee',
+                password='pass123',
+                is_active=False,
+            ),
+            department=department,
+            position=position,
+            salary=Decimal('3500.00'),
+        )
+
+        self.client.force_login(user)
+        response = self.client.get(
+            reverse('payroll_dashboard'),
+            {'department': department.pk, 'month': '3', 'year': '2026'},
+        )
+
+        self.assertEqual(response.context['employee_count'], 1)
+        self.assertEqual(response.context['filtered_count'], 1)
+        self.assertEqual(response.context['total_base'], Decimal('2500.00'))
+        self.assertEqual(response.context['total_net_salary'], Decimal('2500.00'))
+        self.assertContains(response, active_employee.get_full_name())
+        self.assertContains(response, '2500.00')
+        self.assertNotContains(response, 'inactive_employee')
