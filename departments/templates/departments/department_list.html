@@ -3,168 +3,188 @@
 {% block title %}إدارة الأقسام والوظائف | HRMS{% endblock %}
 
 {% block content %}
-<div class="departments-page-head">
-    <div>
-        <div class="departments-eyebrow"><i class="fa-solid fa-layer-group"></i> الهيكل التنظيمي</div>
-        <h1>الأقسام والوظائف</h1>
-        <p>نظّم أقسام المؤسسة وتابع المسميات الوظيفية والصلاحيات المرتبطة بها.</p>
-    </div>
-    <div class="departments-page-actions">
-        <a href="{% url 'departments:add_position' %}" class="btn btn-outline-primary fw-semibold"><i class="fa-solid fa-briefcase ms-1"></i> إضافة مسمى وظيفي</a>
-        <a href="{% url 'departments:add_department' %}" class="btn btn-custom-primary fw-semibold"><i class="fa-solid fa-plus ms-1"></i> إضافة قسم جديد</a>
-    </div>
-</div>
+<div class="container-fluid py-4 depts-page">
 
-<div class="departments-section-heading">
-    <div>
-        <h2>الأقسام المسجلة</h2>
-        <span>{{ departments|length }} قسم</span>
+    <div class="depts-hero">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <span class="depts-eyebrow"><i class="fa-solid fa-layer-group"></i> الهيكل التنظيمي</span>
+                <h1>الأقسام والوظائف</h1>
+                <p>نظّم أقسام المؤسسة وتابع المسميات الوظيفية والصلاحيات المرتبطة بها.</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'departments:add_position' %}" class="btn-dept-ghost"><i class="fa-solid fa-briefcase"></i> إضافة مسمى وظيفي</a>
+                <a href="{% url 'departments:add_department' %}" class="btn-dept-solid"><i class="fa-solid fa-plus"></i> إضافة قسم جديد</a>
+            </div>
+        </div>
+        <div class="depts-hero-chips">
+            <span><i class="fa-solid fa-sitemap"></i> {{ departments|length }} قسم</span>
+            <span><i class="fa-solid fa-briefcase"></i> {{ total_positions }} مسمى وظيفي</span>
+            <span><i class="fa-solid fa-users"></i> {{ total_employees }} موظف</span>
+        </div>
     </div>
-</div>
 
-<!-- Departments Equal Height Grid -->
-<div class="departments-view row g-4">
-    {% for dept in departments %}
-    <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
-        <div class="department-flip-wrapper w-100">
-        <div class="department-flip-inner">
-        <div class="department-card w-100 d-flex flex-column justify-content-between">
-            <div class="department-card-glow"></div>
-            <div class="card-body p-4 d-flex flex-column justify-content-between">
-                <div>
-                    <!-- Header Badges and Icons -->
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="departments-view row g-4">
+        {% for dept in departments %}
+        <div class="col-md-6 col-xl-4 d-flex align-items-stretch">
+            <div class="department-flip-wrapper w-100">
+            <div class="department-flip-inner">
+            <article class="dept-card dc-{% cycle '1' '2' '3' '4' '5' %} w-100">
+                <div class="dept-accent"></div>
+                <div class="dept-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
                         {% if dept.code %}
-                        <span class="department-code px-3 py-2 rounded-pill fw-bold fs-7">
-                            {{ dept.code }}
-                        </span>
-                        {% else %}
-                        <div></div>
-                        {% endif %}
-                        <div class="avatar-icon rounded-3 d-flex align-items-center justify-content-center p-2">
-                            <i class="fa-solid fa-sitemap fs-5"></i>
-                        </div>
+                        <span class="dept-code">{{ dept.code }}</span>
+                        {% else %}<span></span>{% endif %}
+                        <span class="dept-tile"><i class="fa-solid fa-sitemap"></i></span>
                     </div>
 
-                    <!-- Department Name (Full text display) -->
-                    <h5 class="department-title fw-bold lh-base mb-2 text-break">
-                        {{ dept.name }}
-                    </h5>
-                    
-                    <p class="department-date small mb-3 d-flex align-items-center gap-1">
-                        <i class="fa-regular fa-calendar-alt text-secondary me-1"></i>
-                        <span>تاريخ الإنشاء: {{ dept.created_at|date:"Y-m-d" }}</span>
+                    <h5 class="dept-name">{{ dept.name }}</h5>
+
+                    <p class="dept-desc">
+                        {% if dept.description %}{{ dept.description|striptags|truncatechars:95 }}{% else %}<em>لا يوجد وصف لهذا القسم</em>{% endif %}
                     </p>
-                </div>
 
-                <!-- Stats and Actions -->
-                <div class="border-top pt-3 mt-2">
-                        <div class="department-stats rounded-3 p-3 mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="metric-label small fw-semibold">عدد الموظفين:</span>
-                            <span class="metric-value employees-count px-3 py-1 rounded-pill fs-7">
-                                {{ dept.employee_count|default:0 }}
-                            </span>
+                    <div class="dept-meta"><i class="fa-regular fa-calendar-alt"></i> أُنشئ في {{ dept.created_at|date:"j/n/Y" }}</div>
+
+                    <div class="dept-stats">
+                        <div class="dept-stat">
+                            <b>{{ dept.employee_count|default:0 }}</b>
+                            <small><i class="fa-solid fa-user-group"></i> موظف</small>
                         </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="metric-label small fw-semibold">المسميات الوظيفية:</span>
-                            <span class="metric-value positions-count px-3 py-1 rounded-pill fs-7">
-                                {{ dept.positions.count|default:0 }}
-                            </span>
+                        <div class="dept-sep"></div>
+                        <div class="dept-stat">
+                            <b>{{ dept.positions.count|default:0 }}</b>
+                            <small><i class="fa-solid fa-briefcase"></i> مسمى وظيفي</small>
                         </div>
                     </div>
 
-                    <div class="department-actions d-flex gap-2">
-                        <a href="{% url 'departments:department_detail' dept.id %}" class="department-details-btn flex-grow-1 rounded-3 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2">
-                            <i class="fa-solid fa-eye"></i>
-                            <span>عرض التفاصيل</span>
+                    {% if max_headcount > 0 %}
+                    <div class="dept-share-track" title="الحصة من أكبر قسم">
+                        <div class="dept-share-fill" data-width="{% widthratio dept.employee_count max_headcount 100 %}"></div>
+                    </div>
+                    {% endif %}
+
+                    <div class="dept-actions d-flex gap-2">
+                        <a href="{% url 'departments:department_detail' dept.id %}" class="department-details-btn flex-grow-1">
+                            <i class="fa-solid fa-eye"></i> عرض التفاصيل
                         </a>
-                        <button 
+                        <button
                             data-dept-id="{{ dept.id }}"
                             data-dept-name="{{ dept.name|escapejs }}"
                             data-employee-count="{{ dept.employee_count|default:0 }}"
                             data-position-count="{{ dept.positions.count|default:0 }}"
-                            class="department-delete-btn rounded-3 py-2 px-3 fw-semibold delete-dept-btn" 
+                            class="department-delete-btn delete-dept-btn"
                             title="حذف القسم">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
                 </div>
+            </article>
+            </div>
             </div>
         </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="depts-empty">
+                <i class="fa-solid fa-folder-open"></i>
+                <h5>لا توجد أقسام مسجلة حالياً</h5>
+                <p>ابدأ ببناء الهيكل التنظيمي بإضافة أول قسم للمؤسسة.</p>
+                <a href="{% url 'departments:add_department' %}" class="btn-dept-solid mt-2"><i class="fa-solid fa-plus"></i> إضافة قسم جديد</a>
+            </div>
         </div>
-        </div>
+        {% endfor %}
     </div>
-    {% empty %}
-    <div class="col-12 text-center py-5">
-        <div class="text-muted">
-            <i class="fa-solid fa-folder-open fs-1 mb-3 d-block"></i>
-            <h5>لا توجد أقسام مسجلة حالياً</h5>
-            <p class="small">قم بالضغط على "إضافة قسم جديد" للبدء بإنشاء الهيكل التنظيمي.</p>
-        </div>
-    </div>
-    {% endfor %}
 </div>
 
 <style>
-    .departments-page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 28px; padding: 4px 2px 24px; border-bottom: 1px solid #dbe5e8; }
-    .departments-eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: #147d78; font-size: 0.78rem; font-weight: 800; }
-    .departments-page-head h1 { margin: 0 0 5px; color: #172b4d; font-size: clamp(1.45rem, 2.2vw, 2rem); font-weight: 800; }
-    .departments-page-head p { margin: 0; color: #64748b; font-size: 0.88rem; }
-    .departments-page-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-    .departments-page-actions .btn { border-radius: 9px; min-height: 42px; }
-    .departments-page-actions .btn-custom-primary { background: #167d72; border-color: #167d72; color: #fff; }
-    .departments-page-actions .btn-custom-primary:hover { background: #10635b; border-color: #10635b; color: #fff; }
-    .departments-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
-    .departments-section-heading h2 { margin: 0 0 3px; color: #172b4d; font-size: 1.1rem; font-weight: 800; }
-    .departments-section-heading span { color: #64748b; font-size: 0.78rem; }
+    .depts-page { --night: var(--brand-night); }
+
+    .depts-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 22px;
+        padding: 26px 30px 22px;
+        color: #fff;
+        margin-bottom: 28px;
+        background:
+            radial-gradient(520px 260px at 90% -10%, rgba(23, 176, 167, 0.35), transparent 65%),
+            radial-gradient(420px 240px at 5% 110%, rgba(242, 180, 76, 0.22), transparent 60%),
+            linear-gradient(120deg, #1B1442 0%, #4A3AB8 55%, #6153E4 100%);
+        box-shadow: 0 20px 44px rgba(21, 17, 48, 0.35);
+    }
+    .depts-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.2); font-size: 0.75rem; font-weight: 700; }
+    .depts-hero h1 { margin: 0 0 6px; font-size: clamp(1.45rem, 2.2vw, 1.9rem); font-weight: 800; }
+    .depts-hero p { margin: 0; color: rgba(255,255,255,.78); font-size: 0.88rem; }
+    .depts-hero-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .depts-hero-chips span { display: inline-flex; align-items: center; gap: 7px; padding: 6px 15px; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); font-size: 0.8rem; font-weight: 700; backdrop-filter: blur(6px); }
+
+    .btn-dept-solid { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 20px; border-radius: 12px; background: linear-gradient(135deg, #F2B44C, #E89A5D); color: #241A05; font-weight: 800; font-size: 0.86rem; text-decoration: none; box-shadow: 0 10px 24px rgba(232, 154, 93, 0.35); transition: transform .22s ease, box-shadow .22s ease, filter .22s ease; border: 0; }
+    .btn-dept-solid:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 14px 30px rgba(232, 154, 93, 0.45); color: #241A05; }
+    .btn-dept-ghost { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 20px; border-radius: 12px; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.28); color: #fff; font-weight: 700; font-size: 0.86rem; text-decoration: none; transition: transform .22s ease, background .22s ease; }
+    .btn-dept-ghost:hover { background: rgba(255,255,255,.22); color: #fff; transform: translateY(-2px); }
+
+    .dept-card { position: relative; overflow: hidden; display: flex; flex-direction: column; height: 100%; border-radius: 18px; background: #fff; border: 1px solid #ECEAF6; box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; backface-visibility: hidden; }
+    .dept-card:hover { transform: translateY(-6px); border-color: var(--tone); box-shadow: 0 22px 44px rgba(15, 23, 42, 0.14); }
+    .dc-1 { --grad: linear-gradient(135deg, #6153E4, #8B7FF2); --tone: rgba(97, 83, 228, .55); --tint: rgba(97, 83, 228, .11); --solid: #6153E4; }
+    .dc-2 { --grad: linear-gradient(135deg, #0B6B70, #17B0A7); --tone: rgba(23, 176, 167, .55); --tint: rgba(23, 176, 167, .12); --solid: #0E8F88; }
+    .dc-3 { --grad: linear-gradient(135deg, #E89A5D, #F2B44C); --tone: rgba(217, 154, 43, .55); --tint: rgba(242, 180, 76, .16); --solid: #C08A25; }
+    .dc-4 { --grad: linear-gradient(135deg, #8E3D74, #C96D8A); --tone: rgba(142, 61, 116, .55); --tint: rgba(142, 61, 116, .11); --solid: #8E3D74; }
+    .dc-5 { --grad: linear-gradient(135deg, #4A3AB8, #6153E4); --tone: rgba(74, 58, 184, .55); --tint: rgba(74, 58, 184, .11); --solid: #4A3AB8; }
+
+    .dept-accent { position: absolute; top: 0; right: 0; left: 0; height: 4px; background: var(--grad); }
+    .dept-body { display: flex; flex-direction: column; flex-grow: 1; padding: 22px; }
+
+    .dept-code { align-self: flex-start; padding: 5px 14px; border-radius: 999px; font-size: 0.74rem; font-weight: 800; letter-spacing: .04em; color: var(--solid); background: var(--tint); border: 1px solid var(--tone); }
+    .dept-tile { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; color: #fff; font-size: 1.05rem; background: var(--grad); box-shadow: 0 8px 18px var(--tone); transition: transform .25s ease; }
+    .dept-card:hover .dept-tile { transform: scale(1.08) rotate(-5deg); }
+
+    .dept-name { margin: 14px 0 6px; color: var(--brand-night); font-size: 1.08rem; font-weight: 800; line-height: 1.4; word-break: break-word; }
+    .dept-desc { margin: 0 0 10px; color: #6E6A86; font-size: 0.82rem; line-height: 1.65; min-height: 40px; }
+    .dept-desc em { color: #ABA6C4; }
+    .dept-meta { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 14px; color: #9B95B5; font-size: 0.75rem; font-weight: 600; }
+    .dept-meta i { color: var(--solid); }
+
+    .dept-stats { display: flex; align-items: center; gap: 14px; padding: 13px 16px; border-radius: 14px; background: #FAF9FE; border: 1px solid #F0EDFA; margin-bottom: 12px; }
+    .dept-stat { flex: 1; text-align: center; }
+    .dept-stat b { display: block; font-size: 1.3rem; font-weight: 800; color: var(--brand-night); line-height: 1.2; }
+    .dept-stat small { display: block; margin-top: 2px; color: #6E6A86; font-size: 0.72rem; font-weight: 700; }
+    .dept-stat small i { color: var(--solid); margin-inline-end: 3px; }
+    .dept-sep { width: 1px; align-self: stretch; background: #ECEAF6; }
+
+    .dept-share-track { height: 6px; border-radius: 999px; background: #F1EEFA; overflow: hidden; margin-bottom: 16px; }
+    .dept-share-fill { height: 100%; width: 0; border-radius: 999px; background: var(--grad); transition: width 1s ease; }
+
+    .dept-actions { margin-top: auto; }
+    .department-details-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: 11px; color: #fff; font-size: 0.84rem; font-weight: 700; text-decoration: none; background: var(--grad); box-shadow: 0 8px 18px var(--tone); transition: transform .22s ease, filter .22s ease, box-shadow .22s ease; }
+    .department-details-btn:hover { color: #fff; transform: translateY(-2px); filter: brightness(1.07); box-shadow: 0 12px 24px var(--tone); }
+    .department-delete-btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 14px; border-radius: 11px; color: #DC2626; background: rgba(220, 38, 38, 0.08); border: 1px solid rgba(220, 38, 38, 0.22); transition: all .22s ease; }
+    .department-delete-btn:hover { color: #fff; background: #DC2626; border-color: #DC2626; box-shadow: 0 8px 18px rgba(220, 38, 38, 0.3); }
+
+    .depts-empty { text-align: center; padding: 60px 20px; border-radius: 20px; background: #fff; border: 1px dashed #DDD8F0; }
+    .depts-empty i { font-size: 2.2rem; color: #C9C3E3; margin-bottom: 14px; }
+    .depts-empty h5 { color: var(--brand-night); font-weight: 800; }
+    .depts-empty p { color: #6E6A86; font-size: 0.87rem; }
+
     .department-flip-wrapper { perspective: 1000px; }
     .department-flip-inner { height: 100%; transform-style: preserve-3d; transition: transform 0.5s ease; }
     .department-flip-inner.is-flipping { transform: rotateY(180deg); }
-    .department-card { position: relative; min-height: 100%; overflow: hidden; backface-visibility: hidden; border: 1px solid rgba(71, 98, 112, 0.72); border-radius: 18px; color: #f8fafc; background: linear-gradient(145deg, #0f1d2a 0%, #172b38 55%, #073b3c 100%); box-shadow: 0 16px 30px rgba(9, 25, 37, 0.18); transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
-    .department-card:hover { transform: translateY(-8px) scale(1.01); border-color: rgba(45, 212, 191, 0.7); box-shadow: 0 24px 42px rgba(6, 45, 51, 0.34), 0 0 24px rgba(20, 184, 166, 0.12); }
-    .department-card .card-body { position: relative; z-index: 1; }
-    .department-card-glow { position: absolute; left: -40px; bottom: -40px; width: 128px; height: 128px; border-radius: 50%; background: rgba(20, 184, 166, 0.08); filter: blur(24px); transition: background 0.5s ease, transform 0.5s ease; }
-    .department-card:hover .department-card-glow { background: rgba(20, 184, 166, 0.24); transform: scale(1.2); }
-    .department-code { color: #8be9dc; background: rgba(20, 184, 166, 0.14); border: 1px solid rgba(45, 212, 191, 0.3); }
-    .department-card .avatar-icon { color: #8be9dc; background: rgba(14, 165, 233, 0.16); border: 1px solid rgba(56, 189, 248, 0.26); box-shadow: inset 0 0 14px rgba(45, 212, 191, 0.08); }
-    .department-card .department-title { color: #f8fafc; }
-    .department-card .department-date { color: #9db0bc; }
-    .department-card .department-date i { color: #62c8bd !important; }
-    .department-card .border-top { border-color: rgba(148, 163, 184, 0.2) !important; }
-    .department-stats { background: rgba(30, 41, 59, 0.72) !important; border: 1px solid rgba(71, 85, 105, 0.7); }
-    .metric-label { color: #a9b9c4 !important; }
-    .metric-value { color: #f0fdfa; background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(71, 85, 105, 0.72); box-shadow: 0 0 12px rgba(20, 184, 166, 0.08); }
-    .positions-count { color: #8be9dc; }
-    .department-details-btn { color: #fff; background: #0f9387; border: 1px solid #0f9387; box-shadow: 0 5px 13px rgba(15, 147, 135, 0.22); transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease; }
-    .department-details-btn:hover { color: #fff; background: #14b8a6; border-color: #14b8a6; box-shadow: 0 8px 18px rgba(20, 184, 166, 0.22); transform: translateY(-1px); }
-    .department-delete-btn { color: #fca5a5; background: rgba(127, 29, 29, 0.18); border: 1px solid rgba(248, 113, 113, 0.32); transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
-    .department-delete-btn:hover { color: #fecaca; background: rgba(239, 68, 68, 0.2); border-color: rgba(248, 113, 113, 0.55); }
-    .fs-7 {
-        font-size: 0.85rem;
-    }
-    .avatar-icon {
-        width: 42px;
-        height: 42px;
-    }
+
     @media (max-width: 767px) {
-        .departments-page-head { align-items: flex-start; flex-direction: column; margin-bottom: 22px; }
-        .departments-page-actions { width: 100%; }
-        .departments-page-actions .btn { flex: 1; }
-        .department-card:hover { transform: translateY(-4px); }
+        .depts-hero { padding: 22px 20px; }
+        .dept-card:hover { transform: translateY(-4px); }
     }
 </style>
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
+        <div class="modal-content" style="border-radius: 18px; border: 0;">
+            <div class="modal-header text-white" style="background: linear-gradient(120deg, #B91C1C, #DC2626); border: 0;">
                 <h5 class="modal-title" id="deleteModalLabel">
                     <i class="fa-solid fa-exclamation-triangle me-2"></i>تأكيد الحذف
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white ms-0" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div id="deleteModalContent">
@@ -175,11 +195,11 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light fw-semibold px-4" data-bs-dismiss="modal">إلغاء</button>
                 <form id="deleteForm" method="POST" style="display: inline;">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">حذف</button>
+                    <button type="submit" class="btn btn-danger fw-semibold px-4">حذف</button>
                 </form>
             </div>
         </div>
@@ -187,7 +207,6 @@
 </div>
 
 <script>
-// Delete confirmation modal functionality
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.department-details-btn').forEach(button => {
         button.addEventListener('click', function(event) {
@@ -199,15 +218,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Add event listeners to all delete buttons
     document.querySelectorAll('.delete-dept-btn').forEach(button => {
         button.addEventListener('click', function() {
             const deptId = this.getAttribute('data-dept-id');
             const deptName = this.getAttribute('data-dept-name');
             const employeeCount = parseInt(this.getAttribute('data-employee-count'));
             const positionCount = parseInt(this.getAttribute('data-position-count'));
-            
             showDeleteModal(deptId, deptName, employeeCount, positionCount);
+        });
+    });
+
+    document.querySelectorAll('.dept-share-fill').forEach(function(bar) {
+        window.requestAnimationFrame(function() {
+            bar.style.width = Math.min(bar.dataset.width || 0, 100) + '%';
         });
     });
 });
@@ -215,13 +238,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function showDeleteModal(deptId, deptName, employeeCount, positionCount) {
     const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
     const deleteForm = document.getElementById('deleteForm');
-    const deptNameSpan = document.getElementById('deptName');
+    document.getElementById('deptName').textContent = deptName;
     const warningMessage = document.getElementById('warningMessage');
     const warningText = document.getElementById('warningText');
-    
-    deptNameSpan.textContent = deptName;
+
     deleteForm.action = `/departments/${deptId}/delete/`;
-    
+
     if (employeeCount > 0 || positionCount > 0) {
         warningMessage.classList.remove('d-none');
         let warnings = [];
@@ -239,7 +261,7 @@ function showDeleteModal(deptId, deptName, employeeCount, positionCount) {
         deleteForm.querySelector('button[type="submit"]').disabled = false;
         deleteForm.querySelector('button[type="submit"]').classList.remove('disabled');
     }
-    
+
     modal.show();
 }
 </script>

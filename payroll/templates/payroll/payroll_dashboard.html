@@ -1,178 +1,233 @@
 {% extends 'base.html' %}
 
 {% block title %}تبويبة الرواتب | HRMS{% endblock %}
+{% block page_title %}الرواتب والمسيرات{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pay-hero { position: relative; overflow: hidden; border-radius: 22px; padding: 26px 30px 22px; color: #fff; margin-bottom: 26px;
+        background:
+            radial-gradient(520px 260px at 90% -10%, rgba(23, 176, 167, 0.35), transparent 65%),
+            radial-gradient(420px 240px at 5% 110%, rgba(242, 180, 76, 0.22), transparent 60%),
+            linear-gradient(120deg, #1B1442 0%, #4A3AB8 55%, #6153E4 100%);
+        box-shadow: 0 20px 44px rgba(21, 17, 48, 0.35); }
+    .pay-hero h1 { margin: 0 0 6px; font-size: clamp(1.45rem, 2.2vw, 1.9rem); font-weight: 800; }
+    .pay-hero p { margin: 0; color: rgba(255,255,255,.78); font-size: .88rem; }
+    .pay-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.2); font-size: .75rem; font-weight: 700; }
+    .btn-gold-solid { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 20px; border-radius: 12px; background: linear-gradient(135deg, #F2B44C, #E89A5D); color: #241A05 !important; font-weight: 800; font-size: .86rem; border: 0; text-decoration: none; box-shadow: 0 10px 24px rgba(232,154,93,.35); transition: transform .22s ease, filter .22s ease; }
+    .btn-gold-solid:hover { transform: translateY(-2px); filter: brightness(1.05); }
+    .btn-glass-soft { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 20px; border-radius: 12px; color: #fff !important; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.25); font-weight: 800; font-size: .84rem; text-decoration: none; backdrop-filter: blur(6px); transition: transform .22s ease, background .22s ease; }
+    .btn-glass-soft:hover { transform: translateY(-2px); background: rgba(255,255,255,.22); color: #fff; }
+
+    .pay-panel { padding: 20px 22px; border-radius: 18px; background: #fff; border: 1px solid #ECEAF6; box-shadow: 0 10px 26px rgba(15,23,42,.05); margin-bottom: 22px; }
+    .pay-panel label { color: #6E6A86; font-size: .74rem; font-weight: 700; margin-bottom: 5px; }
+    .pay-panel .form-control, .pay-panel .form-select { min-height: 40px; border-radius: 10px; border-color: #E7E3F5; }
+    .pay-panel .form-control:focus, .pay-panel .form-select:focus { border-color: #8B7FF2; box-shadow: 0 0 0 3px rgba(97,83,228,.14); }
+    .btn-violet-solid { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 40px; border: 0; border-radius: 10px; color: #fff; background: linear-gradient(135deg, #6153E4, #8B7FF2); font-size: .84rem; font-weight: 800; box-shadow: 0 8px 18px rgba(97,83,228,.28); transition: transform .2s ease, filter .2s ease; }
+    .btn-violet-solid:hover { transform: translateY(-2px); filter: brightness(1.07); color: #fff; }
+    .reset-chip { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; padding: 0 18px; border-radius: 10px; color: #6E6A86 !important; background: #F6F4FB; border: 1px solid #E4E1FB; font-size: .78rem; font-weight: 800; text-decoration: none; transition: all .2s ease; }
+    .reset-chip:hover { color: #4A4560 !important; border-color: #C9C3E3; }
+
+    .kpi-card { position: relative; overflow: hidden; height: 100%; padding: 20px 22px; border-radius: 16px; background: #fff; border: 1px solid #ECEAF6; box-shadow: 0 10px 26px rgba(15,23,42,.05); transition: transform .22s ease, box-shadow .22s ease; }
+    .kpi-card::before { content: ''; position: absolute; inset: 0 0 auto; height: 4px; }
+    .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 18px 36px rgba(21,17,48,.1); }
+    .kpi-icon { flex: 0 0 46px; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 13px; font-size: 1.05rem; }
+    .kpi-label { color: #9B95B5; font-size: .74rem; font-weight: 700; }
+    .kpi-value { color: var(--brand-night); font-size: 1.45rem; font-weight: 800; margin-top: 6px; }
+    .kc-net::before { background: linear-gradient(90deg, #17B0A7, #0E8F88); }
+    .kc-net .kpi-icon { color: #0E8F88; background: rgba(23,176,167,.11); }
+    .kc-allow::before { background: linear-gradient(90deg, #6153E4, #8B7FF2); }
+    .kc-allow .kpi-icon { color: #6153E4; background: rgba(97,83,228,.11); }
+    .kc-deduct::before { background: linear-gradient(90deg, #F2B44C, #E89A5D); }
+    .kc-deduct .kpi-icon { color: #C08A25; background: rgba(242,180,76,.15); }
+    .kc-count::before { background: linear-gradient(90deg, #8E3D74, #B4589A); }
+    .kc-count .kpi-icon { color: #8E3D74; background: rgba(142,61,116,.1); }
+
+    .lv-card { overflow: hidden; border: 1px solid #ECEAF6; border-radius: 18px; background: #fff; box-shadow: 0 14px 34px rgba(21,17,48,.06); }
+    .lv-card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 18px 20px 14px; border-bottom: 1px solid #F0EDFA; }
+    .lv-card-head h5 { display: flex; align-items: center; gap: 10px; margin: 0; color: var(--brand-night); font-size: .98rem; font-weight: 800; }
+    .lv-card-head h5 i { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: rgba(97,83,228,.11); color: #6153E4; font-size: .85rem; }
+    .count-chip { display: inline-flex; align-items: center; gap: 7px; padding: 7px 16px; border-radius: 999px; color: #6153E4; background: rgba(97,83,228,.09); border: 1px solid rgba(97,83,228,.28); font-size: .74rem; font-weight: 800; }
+
+    .emp-cell { display: flex; align-items: center; gap: 10px; }
+    .emp-bubble { flex: 0 0 36px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px; color: #fff; font-weight: 800; font-size: .9rem; box-shadow: 0 6px 14px rgba(21,17,48,.16); }
+    .av-violet { background: linear-gradient(135deg,#6153E4,#8B7FF2); }
+    .av-teal { background: linear-gradient(135deg,#17B0A7,#0E8F88); }
+    .av-gold { background: linear-gradient(135deg,#F2B44C,#E89A5D); color:#241A05; }
+    .av-plum { background: linear-gradient(135deg,#8E3D74,#B4589A); }
+    .emp-name { color: var(--brand-night); font-weight: 700; font-size: .82rem; }
+    .emp-sub { display: block; color: #9B95B5; font-size: .7rem; margin-top: 2px; }
+
+    .payslip-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+    .payslip-table thead th { background: #FAF9FE; color: #6E6A86; font-size: .72rem; font-weight: 800; letter-spacing: .02em; padding: 13px 14px; border-bottom: 1px solid #ECEAF6; white-space: nowrap; }
+    .payslip-table td { padding: 13px 14px; border-bottom: 1px dashed #F3F1FA; vertical-align: middle; }
+    .payslip-table tbody tr:last-child td { border-bottom: 0; }
+    .payslip-table tbody tr { transition: background .18s ease; }
+    .payslip-table tbody tr:hover td { background: #FBFAFE; }
+    .money { font-family: 'Courier New', monospace; font-weight: 700; color: #4A4560; white-space: nowrap; }
+    .money-net { font-family: 'Courier New', monospace; font-weight: 800; color: #0E8F88; white-space: nowrap; font-size: .86rem; }
+    .dept-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 13px; border-radius: 999px; color: #4A4560; background: #F6F4FB; border: 1px solid #E4E1FB; font-size: .72rem; font-weight: 700; }
+    .dept-chip i { color: #8B7FF2; }
+
+    .status-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 999px; font-size: .72rem; font-weight: 800; border: 1px solid transparent; }
+    .st-paid { color: #0E8F88; background: rgba(23,176,167,.11); border-color: rgba(23,176,167,.3); }
+    .st-pending { color: #B4540A; background: rgba(242,180,76,.16); border-color: rgba(242,180,76,.45); }
+    .st-pending i { animation: pulse-dot 1.6s ease infinite; }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+    .slip-btn { display: inline-flex; align-items: center; gap: 7px; margin-top: 8px; padding: 6px 16px; border-radius: 999px; color: #6153E4; background: #fff; border: 1px solid rgba(97,83,228,.35); font-size: .72rem; font-weight: 800; text-decoration: none; transition: all .2s ease; }
+    .slip-btn:hover { color: #fff; background: linear-gradient(135deg, #6153E4, #8B7FF2); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(97,83,228,.3); }
+
+    .empty-row { padding: 54px 20px !important; color: #9B95B5; text-align: center; font-size: .86rem; }
+    .empty-row i { display: block; margin-bottom: 10px; font-size: 1.5rem; color: #C9C3E3; }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold mb-1">تبويبة الرواتب والمسيرات</h3>
-            <p class="text-muted mb-0">مراجعة الرواتب الشهرية، الخصومات، وصافي الرواتب للموظفين</p>
+
+    <div class="pay-hero">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="pay-eyebrow"><i class="fa-solid fa-money-check-dollar"></i> الشؤون المالية</span>
+                <h1>تبويبة الرواتب والمسيرات</h1>
+                <p>مراجعة الرواتب الشهرية، الخصومات، وصافي الرواتب للموظفين.</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{% url 'create_payroll' %}" class="btn-gold-solid"><i class="fa-solid fa-plus"></i> إضافة مسير</a>
+                <a href="{% url 'payroll_export_pdf' %}" class="btn-glass-soft"><i class="fa-solid fa-file-export"></i> تصدير التقرير</a>
+            </div>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{% url 'create_payroll' %}" class="btn btn-success px-4"><i class="fa-solid fa-plus me-2"></i>إضافة مسير</a>
-            <a href="{% url 'payroll_export_pdf' %}" class="btn btn-primary px-4"><i class="fa-solid fa-file-export me-2"></i>تصدير التقرير</a>
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <span class="btn-glass-soft" style="cursor:default;"><i class="fa-solid fa-layer-group"></i> {{ filtered_count }} سجل</span>
+            {% if selected_month %}<span class="btn-glass-soft" style="cursor:default;"><i class="fa-regular fa-calendar"></i> {{ selected_month }}{% if selected_year %} / {{ selected_year }}{% endif %}</span>{% endif %}
         </div>
     </div>
 
-    <!-- Filter Bar -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3 align-items-end">
-                <div class="col-lg-3 col-md-6">
-                    <label class="form-label small text-muted mb-1">القسم</label>
-                    <select name="department" class="form-select rounded-3">
-                        <option value="">كل الأقسام</option>
-                        {% for d in departments %}
-                            <option value="{{ d.id }}" {% if selected_department == d.id|stringformat:'s' %}selected{% endif %}>{{ d.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-lg-2 col-md-6">
-                    <label class="form-label small text-muted mb-1">الشهر</label>
-                    <select name="month" class="form-select rounded-3">
-                        <option value="">كل الشهور</option>
-                        {% for m_val, m_label in months %}
-                            <option value="{{ m_val }}" {% if selected_month == m_val|stringformat:'s' %}selected{% endif %}>{{ m_label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-lg-2 col-md-6">
-                    <label class="form-label small text-muted mb-1">السنة</label>
-                    <select name="year" class="form-select rounded-3">
-                        <option value="">كل السنوات</option>
-                        {% for y in years %}
-                            <option value="{{ y }}" {% if selected_year == y|stringformat:'s' %}selected{% endif %}>{{ y }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-lg-2 col-md-6">
-                    <label class="form-label small text-muted mb-1">حالة الصرف</label>
-                    <select name="status" class="form-select rounded-3">
-                        <option value="">كل الحالات</option>
-                        <option value="PAID" {% if selected_status == 'PAID' %}selected{% endif %}>مدفوع</option>
-                        <option value="PENDING" {% if selected_status == 'PENDING' %}selected{% endif %}>معلق</option>
-                    </select>
-                </div>
-                <div class="col-lg-3 col-md-12 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary rounded-3 flex-fill"><i class="fa-solid fa-filter me-1"></i> تطبيق الفلترة</button>
-                    <a href="{% url 'payroll_dashboard' %}" class="btn btn-outline-secondary rounded-3">إعادة ضبط</a>
-                </div>
-            </form>
+    <form method="get" class="pay-panel">
+        <div class="row g-3 align-items-end">
+            <div class="col-lg-3 col-md-6">
+                <label for="pay_department">القسم</label>
+                <select name="department" id="pay_department" class="form-select">
+                    <option value="">كل الأقسام</option>
+                    {% for d in departments %}<option value="{{ d.id }}" {% if selected_department == d.id|stringformat:'s' %}selected{% endif %}>{{ d.name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <label for="pay_month">الشهر</label>
+                <select name="month" id="pay_month" class="form-select">
+                    <option value="">كل الشهور</option>
+                    {% for m_val, m_label in months %}<option value="{{ m_val }}" {% if selected_month == m_val|stringformat:'s' %}selected{% endif %}>{{ m_label }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <label for="pay_year">السنة</label>
+                <select name="year" id="pay_year" class="form-select">
+                    <option value="">كل السنوات</option>
+                    {% for y in years %}<option value="{{ y }}" {% if selected_year == y|stringformat:'s' %}selected{% endif %}>{{ y }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <label for="pay_status">حالة الصرف</label>
+                <select name="status" id="pay_status" class="form-select">
+                    <option value="">كل الحالات</option>
+                    <option value="PAID" {% if selected_status == 'PAID' %}selected{% endif %}>مدفوع</option>
+                    <option value="PENDING" {% if selected_status == 'PENDING' %}selected{% endif %}>معلق</option>
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-12 d-flex gap-2">
+                <button type="submit" class="btn-violet-solid"><i class="fa-solid fa-sliders"></i> تطبيق الفلترة</button>
+                <a href="{% url 'payroll_dashboard' %}" class="reset-chip"><i class="fa-solid fa-rotate-left"></i> إعادة ضبط</a>
+            </div>
         </div>
-    </div>
+    </form>
 
-    <!-- Dynamic Summary KPI Cards -->
-    <div class="row g-4 mb-4">
+    <div class="row g-3 mb-4">
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="text-muted small">إجمالي صافي الرواتب</div>
-                            <h4 class="fw-bold mt-2 mb-0">{{ total_net_salary|floatformat:2 }} $</h4>
-                        </div>
-                        <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success"><i class="fa-solid fa-money-bill-wave fa-lg"></i></div>
-                    </div>
+            <div class="kpi-card kc-net">
+                <div class="d-flex justify-content-between align-items-center gap-2">
+                    <div><div class="kpi-label">إجمالي صافي الرواتب</div><div class="kpi-value">{{ total_net_salary|floatformat:2 }} $</div></div>
+                    <span class="kpi-icon"><i class="fa-solid fa-money-bill-wave"></i></span>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="text-muted small">إجمالي البدلات</div>
-                            <h4 class="fw-bold mt-2 mb-0">{{ total_allowances|floatformat:2 }} $</h4>
-                        </div>
-                        <div class="rounded-circle bg-info bg-opacity-10 p-3 text-info"><i class="fa-solid fa-gift fa-lg"></i></div>
-                    </div>
+            <div class="kpi-card kc-allow">
+                <div class="d-flex justify-content-between align-items-center gap-2">
+                    <div><div class="kpi-label">إجمالي البدلات</div><div class="kpi-value">{{ total_allowances|floatformat:2 }} $</div></div>
+                    <span class="kpi-icon"><i class="fa-solid fa-gift"></i></span>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="text-muted small">إجمالي الخصومات</div>
-                            <h4 class="fw-bold mt-2 mb-0">{{ total_deductions|floatformat:2 }} $</h4>
-                        </div>
-                        <div class="rounded-circle bg-warning bg-opacity-10 p-3 text-warning"><i class="fa-solid fa-wallet fa-lg"></i></div>
-                    </div>
+            <div class="kpi-card kc-deduct">
+                <div class="d-flex justify-content-between align-items-center gap-2">
+                    <div><div class="kpi-label">إجمالي الخصومات</div><div class="kpi-value">{{ total_deductions|floatformat:2 }} $</div></div>
+                    <span class="kpi-icon"><i class="fa-solid fa-wallet"></i></span>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="text-muted small">عدد الموظفين في الفلتر</div>
-                            <h4 class="fw-bold mt-2 mb-0">{{ employee_count }}</h4>
-                        </div>
-                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 text-primary"><i class="fa-solid fa-user-group fa-lg"></i></div>
-                    </div>
+            <div class="kpi-card kc-count">
+                <div class="d-flex justify-content-between align-items-center gap-2">
+                    <div><div class="kpi-label">عدد الموظفين في الفلتر</div><div class="kpi-value">{{ employee_count }}</div></div>
+                    <span class="kpi-icon"><i class="fa-solid fa-user-group"></i></span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Payroll Table -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white border-0 py-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-bold">ملخص الرواتب</h5>
-                <span class="badge bg-primary-subtle text-primary px-3 py-2">{{ filtered_count }} سجل</span>
-            </div>
+    <div class="lv-card">
+        <div class="lv-card-head">
+            <h5><i class="fa-solid fa-file-invoice-dollar"></i> ملخص الرواتب</h5>
+            <span class="count-chip"><i class="fa-solid fa-layer-group"></i> {{ filtered_count }} سجل</span>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>الموظف</th>
-                            <th>القسم</th>
-                            <th>الراتب الأساسي</th>
-                            <th>البدلات</th>
-                            <th>الخصومات</th>
-                            <th>صافي الراتب</th>
-                            <th>الحالة</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for payroll in payrolls %}
-                        <tr>
-                            <td>
-                                <div class="fw-bold">{{ payroll.employee.get_full_name|default:payroll.employee.user.username }}</div>
-                                <small class="text-muted">{{ payroll.employee.position.title|default:'غير محدد' }}</small>
-                            </td>
-                            <td>{{ payroll.employee.department.name|default:'غير محدد' }}</td>
-                            <td>{{ payroll.basic_salary|floatformat:2 }} $</td>
-                            <td>{{ payroll.allowances|floatformat:2 }} + {{ payroll.bonuses|floatformat:2 }} $</td>
-                            <td>{{ payroll.total_deductions|floatformat:2 }} $</td>
-                            <td class="fw-bold text-success">{{ payroll.net_salary|floatformat:2 }} $</td>
-                            <td>
-                                {% if payroll.status == 'PAID' %}
-                                    <span class="badge bg-success-subtle text-success border border-success px-3 py-1 rounded-pill">مدفوع</span>
-                                {% else %}
-                                    <span class="badge bg-warning text-dark px-3 py-1 rounded-pill">معلق</span>
-                                {% endif %}
-                                {% if payroll.pk %}
-                                <div class="mt-1">
-                                    <a href="{% url 'payroll_payslip' payroll.pk %}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-receipt me-1"></i>قسيمة</a>
+        <div class="table-responsive">
+            <table class="payslip-table">
+                <thead>
+                    <tr>
+                        <th>الموظف</th>
+                        <th>القسم</th>
+                        <th>الراتب الأساسي</th>
+                        <th>البدلات</th>
+                        <th>الخصومات</th>
+                        <th>صافي الراتب</th>
+                        <th>الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payroll in payrolls %}
+                    <tr>
+                        <td>
+                            <div class="emp-cell">
+                                <span class="emp-bubble {% cycle 'av-violet' 'av-teal' 'av-gold' 'av-plum' %}">{{ payroll.employee.get_full_name|default:payroll.employee.user.username|slice:":1" }}</span>
+                                <div>
+                                    <span class="emp-name">{{ payroll.employee.get_full_name|default:payroll.employee.user.username }}</span>
+                                    <span class="emp-sub">{{ payroll.employee.position.title|default:'غير محدد' }}</span>
                                 </div>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="text-center text-muted py-4">لا توجد سجلات رواتب مطابقة لمعايير الفلترة.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </td>
+                        <td><span class="dept-chip"><i class="fa-solid fa-building"></i> {{ payroll.employee.department.name|default:'غير محدد' }}</span></td>
+                        <td class="money">{{ payroll.basic_salary|floatformat:2 }} $</td>
+                        <td class="money">{{ payroll.allowances|floatformat:2 }} + {{ payroll.bonuses|floatformat:2 }} $</td>
+                        <td class="money" style="color:#C08A25;">{{ payroll.total_deductions|floatformat:2 }} $</td>
+                        <td class="money-net">{{ payroll.net_salary|floatformat:2 }} $</td>
+                        <td>
+                            {% if payroll.status == 'PAID' %}
+                                <span class="status-chip st-paid"><i class="fa-solid fa-circle-check"></i> مدفوع</span>
+                            {% else %}
+                                <span class="status-chip st-pending"><i class="fa-solid fa-hourglass-half"></i> معلق</span>
+                            {% endif %}
+                            {% if payroll.pk %}
+                            <div><a href="{% url 'payroll_payslip' payroll.pk %}" class="slip-btn"><i class="fa-solid fa-receipt"></i> قسيمة الراتب</a></div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="empty-row"><i class="fa-regular fa-folder-open"></i> لا توجد سجلات رواتب مطابقة لمعايير الفلترة.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

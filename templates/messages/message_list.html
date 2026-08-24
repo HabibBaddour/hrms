@@ -5,13 +5,85 @@
 
 {% block extra_css %}
 <style>
-    .message-filters { padding: 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
-    .message-filters label { display: block; margin-bottom: 5px; color: #475569; font-size: .72rem; font-weight: 700; }
-    .message-filters .form-control, .message-filters .form-select { min-height: 40px; border-radius: 9px; }
-    .message-subject { max-width: 320px; color: #172033; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .message-body-preview { display: none; }
-    .message-reader-body { min-height: 210px; padding: 18px; color: #334155; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; line-height: 1.9; white-space: pre-wrap; }
-    .message-reader-meta { color: #64748b; font-size: .78rem; }
+    :root { --brand-night:#151130; --brand-primary:#6153E4; --brand-primary-soft:#8B7FF2; --brand-teal:#17B0A7; --brand-teal-deep:#0E8F88; --brand-gold:#F2B44C; --brand-surface:#F6F4FB; }
+
+    .msg-hero { position:relative; overflow:hidden; border-radius:22px; padding:26px 30px 22px; color:#fff; margin-bottom:26px; background: radial-gradient(520px 260px at 90% -10%, rgba(23,176,167,.35), transparent 65%), radial-gradient(420px 240px at 5% 110%, rgba(242,180,76,.22), transparent 60%), linear-gradient(120deg,#1B1442 0%,#4A3AB8 55%,#6153E4 100%); box-shadow:0 20px 44px rgba(21,17,48,.35); }
+    .msg-hero h1 { margin:0 0 6px; font-size:clamp(1.45rem,2.2vw,1.9rem); font-weight:800; }
+    .msg-hero p { margin:0; color:rgba(255,255,255,.78); font-size:.88rem; }
+    .msg-eyebrow { display:inline-flex; align-items:center; gap:8px; margin-bottom:8px; padding:5px 14px; border-radius:999px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.2); font-size:.75rem; font-weight:700; }
+    .btn-gold-solid { display:inline-flex; align-items:center; gap:8px; min-height:42px; padding:0 20px; border-radius:12px; background:linear-gradient(135deg,#F2B44C,#E89A5D); color:#241A05; font-weight:800; font-size:.86rem; border:0; box-shadow:0 10px 24px rgba(232,154,93,.35); transition:transform .22s ease, filter .22s ease; }
+    .btn-gold-solid:hover { transform:translateY(-2px); filter:brightness(1.05); color:#241A05; }
+    .msg-chips { display:flex; flex-wrap:wrap; gap:10px; }
+    .msg-chips .chip { display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:999px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); font-size:.82rem; font-weight:700; backdrop-filter:blur(6px); }
+    .chip-unread { background:rgba(242,180,76,.28) !important; border-color:rgba(242,180,76,.5) !important; }
+
+    .msg-card { border-radius:18px; overflow:hidden; border:1px solid #ECEAF6; box-shadow:0 14px 34px rgba(21,17,48,.06) !important; }
+
+    .message-filters { padding:18px 20px 16px; background:#fff; border-top:0; border-bottom:1px solid #F0EDFA; }
+    .message-filters label { display:block; margin-bottom:5px; color:#6E6A86; font-size:.74rem; font-weight:700; }
+    .message-filters .form-control, .message-filters .form-select { min-height:40px; border-radius:10px; border-color:#E7E3F5; }
+    .message-filters .form-control:focus, .message-filters .form-select:focus { border-color:#8B7FF2; box-shadow:0 0 0 3px rgba(97,83,228,.15); }
+    .folder-pills .btn { border-radius:999px; font-weight:700; font-size:.8rem; padding-inline:16px; transition:transform .2s ease, box-shadow .2s ease; }
+    .folder-pills .btn:hover { transform:translateY(-2px); }
+    .folder-pills .btn-primary { background:linear-gradient(135deg,#6153E4,#8B7FF2); border-color:transparent; box-shadow:0 6px 14px rgba(97,83,228,.28); }
+    .folder-pills .btn-outline-primary { color:#6153E4; border-color:#DDD8F0; background:#fff; }
+    .folder-pills .btn-outline-primary:hover { background:#F6F4FB; color:#4A3AB8; border-color:#C9C3E3; }
+    .folder-pills .badge { background:#F1EEFA !important; color:#4A3AB8 !important; font-weight:800; }
+    .folder-pills .btn-primary .badge { background:rgba(255,255,255,.92) !important; color:#4A3AB8 !important; }
+    .message-filters form .btn-primary { background:linear-gradient(135deg,#6153E4,#8B7FF2); border:0; box-shadow:0 6px 14px rgba(97,83,228,.25); }
+    .message-filters form .btn-primary:hover { filter:brightness(1.07); }
+    .message-filters .btn-outline-secondary { border-color:#E7E3F5; color:#6E6A86; }
+
+    .messages-table thead th { background:#FAF9FE; color:#6E6A86; font-size:.72rem; font-weight:800; letter-spacing:.02em; border-bottom:1px solid #ECEAF6; padding-block:13px; }
+    .messages-table td { border-color:#F3F1FA; }
+    .messages-table tbody tr { transition:background .18s ease; }
+    .messages-table tbody tr:hover td { background:#FBFAFE; }
+    .messages-table tbody tr.table-primary td { background:#FAF9FE !important; }
+    .messages-table tbody tr.table-primary td:first-child { box-shadow:inset -3px 0 0 #6153E4; }
+
+    .msg-avatar { flex:0 0 38px; width:38px; height:38px; display:grid; place-items:center; border-radius:12px; color:#fff; font-weight:800; font-size:.95rem; box-shadow:0 6px 14px rgba(21,17,48,.16); }
+    .av-violet { background:linear-gradient(135deg,#6153E4,#8B7FF2); }
+    .av-teal { background:linear-gradient(135deg,#17B0A7,#0E8F88); }
+    .av-gold { background:linear-gradient(135deg,#F2B44C,#E89A5D); color:#241A05; }
+    .av-plum { background:linear-gradient(135deg,#8E3D74,#B4589A); }
+    .message-subject { max-width:320px; color:var(--brand-night); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    tr.table-primary .message-subject { font-weight:800; }
+    .msg-sender-line { color:#6E6A86; font-size:.76rem; font-weight:600; margin-top:2px; }
+    .msg-snippet { color:#9B95B5; font-size:.75rem; margin-top:3px; max-width:340px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .message-body-preview { display:none; }
+
+    .status-chip { display:inline-flex; align-items:center; gap:6px; padding:5px 13px; border-radius:999px; font-size:.72rem; font-weight:800; border:1px solid transparent; }
+    .st-read { color:#0E8F88; background:rgba(23,176,167,.11); border-color:rgba(23,176,167,.3); }
+    .st-unread { color:#B4540A; background:rgba(242,180,76,.16); border-color:rgba(242,180,76,.45); }
+    .st-unread i { animation:pulse-dot 1.6s ease infinite; }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+    .row-actions .btn { border-radius:10px; transition:all .18s ease; }
+    .row-actions .btn:hover { transform:translateY(-2px); box-shadow:0 6px 12px rgba(21,17,48,.12); }
+
+    .message-reader-modal .modal-content { border-radius:18px; overflow:hidden; }
+    .message-reader-modal .modal-header { background:radial-gradient(420px 200px at 85% -30%, rgba(23,176,167,.4), transparent 60%), linear-gradient(120deg,#1B1442,#4A3AB8 55%,#6153E4); color:#fff; }
+    .message-reader-modal .modal-title { color:#fff; font-weight:800; }
+    .message-reader-body { min-height:210px; padding:18px; color:#3A3552; background:#FAF9FE; border:1px solid #ECEAF6; border-radius:14px; line-height:1.9; white-space:pre-wrap; }
+    .message-reader-meta { color:#6E6A86; font-size:.78rem; }
+    .message-reader-meta span[id] { font-weight:700; color:#2B2545; }
+    .reader-kpi { padding:6px 12px; border:1px solid #ECEAF6; border-radius:999px; color:#4A4560; background:#F6F4FB; font-size:.74rem; font-weight:800; }
+    .reader-kpi.read { color:#0E8F88; background:rgba(23,176,167,.11); border-color:rgba(23,176,167,.3); }
+    .reader-kpi.unread { color:#B91C1C; background:rgba(220,38,38,.08); border-color:rgba(220,38,38,.25); }
+    .reader-filters label { color:#6E6A86; font-size:.7rem; font-weight:700; }
+    .message-reader-modal .modal-footer .btn-outline-primary { background:linear-gradient(135deg,#6153E4,#8B7FF2); color:#fff; border:0; box-shadow:0 6px 14px rgba(97,83,228,.28); }
+    .message-reader-modal .modal-footer .btn-outline-primary:hover { filter:brightness(1.07); color:#fff; }
+
+    .compose-gradient-header { background:radial-gradient(420px 200px at 85% -30%, rgba(23,176,167,.45), transparent 60%), linear-gradient(120deg,#1B1442,#4A3AB8 55%,#6153E4); }
+    .compose-gradient-header .modal-title { color:#fff; font-weight:800; }
+    .role-filter-label.btn-primary { background:linear-gradient(135deg,#6153E4,#8B7FF2) !important; border-color:transparent !important; color:#fff !important; box-shadow:0 5px 12px rgba(97,83,228,.3); }
+    .role-filter-label.btn-outline-primary { color:#6153E4 !important; border-color:#DDD8F0 !important; background:#fff !important; }
+    #selected_users_count { background:linear-gradient(135deg,#6153E4,#8B7FF2) !important; font-weight:700; }
+    #advanced_filter_container { background:#FAF9FE !important; border:1px dashed #DDD8F0; }
+    #compose_form .form-control:focus, #compose_form .form-select:focus { border-color:#8B7FF2; box-shadow:0 0 0 3px rgba(97,83,228,.15); }
+    #compose_form button[type="submit"].btn-primary { background:linear-gradient(135deg,#6153E4,#8B7FF2); border:0; box-shadow:0 6px 14px rgba(97,83,228,.28); }
+    #compose_form button[type="submit"].btn-primary:hover { filter:brightness(1.07); }
+
     .recipient-status-list { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .recipient-status-row { display: inline-flex; align-items: center; gap: 7px; max-width: 100%; padding: 7px 10px; border: 1px solid; border-radius: 999px; font-size: .78rem; transition: background-color .15s ease, transform .15s ease; }
     .recipient-status-row:hover { transform: translateY(-1px); }
@@ -22,11 +94,7 @@
     .recipient-is-unread { color: #b91c1c; background: #fff1f2; border-color: #fecdd3; }.recipient-is-unread:hover { background: #ffe4e6; }
     .recipient-is-read { color: #047857; background: #ecfdf5; border-color: #a7f3d0; }.recipient-is-read:hover { background: #d1fae5; }
     .reader-analytics { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
-    .reader-kpi { padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 999px; color: #334155; background: #f8fafc; font-size: .74rem; font-weight: 700; }
-    .reader-kpi.read { color: #047857; background: #ecfdf5; border-color: #a7f3d0; }
-    .reader-kpi.unread { color: #b91c1c; background: #fff1f2; border-color: #fecdd3; }
     .reader-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
-    .reader-filters label { display: block; margin-bottom: 4px; color: #64748b; font-size: .7rem; font-weight: 700; }
     .reader-filters select { min-height: 36px; border-radius: 8px; font-size: .78rem; }
     .message-reader-modal .modal-dialog { width: calc(100% - 1.5rem); max-width: 1140px; height: 90vh; margin: 5vh auto; }
     .message-reader-modal .modal-content { display: flex; flex-direction: column; max-height: 90vh; height: 90vh; overflow: hidden; }
@@ -42,22 +110,29 @@
 {% endblock %}
 
 {% block content %}
-<div class="card border-0 shadow-sm" style="border-radius: 12px;">
-    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
-        <h6 class="fw-bold mb-0 text-dark">
-            <i class="fa-solid fa-envelope text-primary me-2"></i> قائمة الرسائل
-            {% if unread_count > 0 %}
-            <span class="badge bg-danger rounded-pill ms-2">{{ unread_count }}</span>
-            {% endif %}
-        </h6>
-        <a href="{% url 'message_compose' %}" class="btn btn-primary btn-sm px-3 fw-bold" style="border-radius: 8px;">
-            <i class="fa-solid fa-plus me-1"></i> رسالة جديدة
-        </a>
+<div class="container-fluid py-4">
+
+    <div class="msg-hero">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="msg-eyebrow"><i class="fa-solid fa-paper-plane"></i> الاتصالات الداخلية</span>
+                <h1>صندوق الرسائل</h1>
+                <p>أرسل الإعلانات وتابع من قرأ رسائلك، كل ذلك من مكان واحد.</p>
+            </div>
+            <a href="{% url 'message_compose' %}" class="btn-gold-solid text-decoration-none"><i class="fa-solid fa-plus"></i> رسالة جديدة</a>
+        </div>
+        <div class="msg-chips mt-4">
+            <span class="chip"><i class="fa-solid fa-inbox"></i> {{ filter_counts.all }} رسالة</span>
+            {% if unread_count > 0 %}<span class="chip chip-unread"><i class="fa-solid fa-envelope"></i> {{ unread_count }} غير مقروءة</span>{% endif %}
+            <span class="chip"><i class="fa-solid fa-paper-plane"></i> {{ filter_counts.sent }} صادرة</span>
+        </div>
     </div>
+
+    <div class="card msg-card">
 
     <div class="table-responsive">
         <div class="message-filters">
-            <div class="d-flex flex-wrap gap-2 mb-3">
+            <div class="d-flex flex-wrap gap-2 mb-3 folder-pills">
                 <a href="?{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if date_from %}date_from={{ date_from }}&{% endif %}{% if date_to %}date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_folder == 'all' and not active_status %}btn-primary{% else %}btn-outline-primary{% endif %}">الكل <span class="badge bg-white text-primary ms-1">{{ filter_counts.all }}</span></a>
                 <a href="?folder=inbox{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_folder == 'inbox' and not active_status %}btn-primary{% else %}btn-outline-primary{% endif %}">الواردة <span class="badge bg-white text-primary ms-1">{{ filter_counts.inbox }}</span></a>
                 <a href="?folder=sent{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_folder == 'sent' %}btn-primary{% else %}btn-outline-primary{% endif %}">الصادرة <span class="badge bg-white text-primary ms-1">{{ filter_counts.sent }}</span></a>
@@ -97,11 +172,11 @@
                 </div>
             </form>
         </div>
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0 messages-table">
             <thead class="table-light">
                 <tr>
                     <th scope="col" class="ps-3">#</th>
-                    <th scope="col">الموضوع</th>
+                    <th scope="col">الموضوع والمرسل</th>
                     <th scope="col">التاريخ والوقت</th>
                     <th scope="col">الحالة</th>
                     <th scope="col" class="text-center">الإجراءات</th>
@@ -110,25 +185,35 @@
             <tbody>
                 {% for message in messages_list %}
                 <tr class="{% if not message.is_read and message.recipient == request.user %}table-primary{% endif %}">
-                    <td class="ps-3 fw-bold">{{ forloop.counter }}</td>
+                    <td class="ps-3 fw-bold text-muted">{{ forloop.counter }}</td>
                     <td>
-                        <div class="message-subject fw-semibold">{{ message.subject|striptags|truncatechars:80 }}</div>
+                        <div class="d-flex align-items-start gap-2">
+                            <span class="msg-avatar {% cycle 'av-violet' 'av-teal' 'av-gold' 'av-plum' %}">{{ message.sender.get_full_name|default:message.sender.username|slice:":1" }}</span>
+                            <div style="min-width:0;">
+                                <div class="message-subject fw-semibold">{{ message.subject|striptags|truncatechars:80 }}</div>
+                                <div class="msg-sender-line"><i class="fa-solid fa-user-pen me-1"></i>{{ message.sender.get_full_name|default:message.sender.username }}</div>
+                                <div class="msg-snippet">{{ message.body|striptags|truncatechars:90 }}</div>
+                            </div>
+                        </div>
                         <div id="message-body-{{ message.id }}" class="message-body-preview">{{ message.body|safe }}</div>
                         <div id="message-recipients-{{ message.id }}" class="message-body-preview">
                             {% for recipient in message.group_recipients %}<div class="recipient-status-row {% if recipient.is_read %}recipient-is-read{% else %}recipient-is-unread{% endif %}" data-department="{{ recipient.department_id }}" data-role="{{ recipient.role }}" data-status="{% if recipient.is_read %}read{% else %}unread{% endif %}" title="{% if recipient.is_read and recipient.read_at %}تمت القراءة: {{ recipient.read_at|date:'Y-m-d H:i:s' }}{% else %}لم تتم القراءة بعد{% endif %}"><span class="recipient-status-badge" aria-hidden="true"><i class="fa-solid {% if recipient.is_read %}fa-check{% else %}fa-circle{% endif %}"></i></span><span class="recipient-status-name">{{ recipient.name }}</span>{% if recipient.department_code %}<small class="department-code">{{ recipient.department_code }}</small>{% endif %}</div>{% endfor %}
                         </div>
                     </td>
-                    <td class="small text-muted">{{ message.created_at|date:"Y-m-d H:i" }}</td>
+                    <td class="small">
+                        <div class="fw-semibold" style="color:#4A4560;">{{ message.created_at|date:"Y-m-d H:i" }}</div>
+                        <div class="text-muted" style="font-size:.72rem;"><i class="fa-regular fa-clock me-1"></i>منذ {{ message.created_at|timesince }}</div>
+                    </td>
                     <td>
                         {% if message.is_read %}
-                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">مقروءة</span>
+                        <span class="status-chip st-read"><i class="fa-solid fa-check-double"></i> مقروءة</span>
                         {% else %}
-                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">غير مقروءة</span>
+                        <span class="status-chip st-unread"><i class="fa-solid fa-envelope"></i> غير مقروءة</span>
                         {% endif %}
                     </td>
-                    <td class="text-center">
+                    <td class="text-center row-actions">
                         <button type="button" class="btn btn-sm btn-light border read-message-button" title="عرض التفاصيل" data-bs-toggle="modal" data-bs-target="#messageReaderModal" data-message-id="{{ message.id }}" data-subject="{{ message.subject|striptags }}" data-sender="{{ message.sender.get_full_name|default:message.sender.username }}" data-recipient="{{ message.recipient.get_full_name|default:message.recipient.username }}" data-date="{{ message.created_at|date:'Y-m-d H:i' }}" data-read="{% if message.is_read %}مقروءة{% else %}غير مقروءة{% endif %}">
-                            <i class="fa-solid fa-eye text-primary"></i>
+                            <i class="fa-solid fa-eye" style="color:#6153E4;"></i>
                         </button>
                         <a href="{% url 'message_delete' message.id %}" class="btn btn-sm btn-light border" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذه الرسالة؟')">
                             <i class="fa-solid fa-trash text-danger"></i>
@@ -137,8 +222,8 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="text-center py-5 text-muted">
-                        <i class="fa-solid fa-inbox fs-1 d-block mb-2 opacity-50"></i>
+                    <td colspan="5" class="text-center py-5" style="color:#9B95B5;">
+                        <span style="display:grid; place-items:center; width:72px; height:72px; margin:0 auto 14px; border-radius:20px; background:#F6F4FB; font-size:1.6rem; color:#C9C3E3;"><i class="fa-regular fa-envelope-open"></i></span>
                         لا يوجد أي رسائل واردة أو صادرة حتى الآن.
                     </td>
                 </tr>
@@ -246,13 +331,22 @@ document.querySelectorAll('.read-message-button').forEach(button => {
         };
     });
 });
+
+document.querySelectorAll('.messages-table tbody tr').forEach(row => {
+    if (!row.querySelector('.read-message-button')) return;
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', function(e) {
+        if (e.target.closest('button, a, input')) return;
+        this.querySelector('.read-message-button').click();
+    });
+});
 </script>
 
 <!-- Advanced Compose Modal with Dynamic Filtering -->
 <div class="modal fade" id="composeModal" tabindex="-1" aria-labelledby="composeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header text-white compose-gradient-header">
                 <h5 class="modal-title" id="composeModalLabel">
                     <i class="fa-solid fa-pen me-2"></i>رسالة جديدة
                 </h5>
@@ -553,4 +647,5 @@ document.addEventListener('change', function(e) {
     }
 });
 </script>
+</div>
 {% endblock %}

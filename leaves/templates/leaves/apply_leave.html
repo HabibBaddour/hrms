@@ -1,54 +1,403 @@
 {% extends 'base.html' %}
 
 {% block title %}تقديم طلب إجازة | HRMS{% endblock %}
+{% block page_title %}تقديم طلب إجازة{% endblock %}
+
+{% block extra_css %}
+<style>
+    .apply-page { --line:#ECEAF6; --muted:#6E6A86; }
+
+    /* ===== Theme: HR Admin / Superuser (Violet) ===== */
+    .pf-violet {
+        --tone:#6153E4; --tone-deep:#4A3AB8; --strong:#4433C9;
+        --ring:rgba(97,83,228,.16);
+        --tile-bg:rgba(97,83,228,.11); --tile-fg:#4A3AB8;
+        --line-soft:#DCD6F5; --track:#EFEDFA; --head:#1A1338;
+        --grad-1:linear-gradient(90deg,#4A3AB8,#8B7FF2);
+        --grad-2:linear-gradient(90deg,#0B6B70,#17B0A7);
+        --grad-3:linear-gradient(90deg,#E89A5D,#F2B44C);
+        --hero-bg:
+            radial-gradient(520px 260px at 88% 0%, rgba(23,176,167,.35), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
+            linear-gradient(120deg,#1B1442 0%,#4A3AB8 55%,#6153E4 100%);
+        --hero-shadow:0 20px 44px rgba(27,20,66,.35);
+    }
+
+    /* ===== Theme: Manager (Green) ===== */
+    .pf-green {
+        --tone:#14A374; --tone-deep:#0E5C43; --strong:#0F8A60;
+        --ring:rgba(20,163,116,.16);
+        --tile-bg:rgba(20,163,116,.12); --tile-fg:#0F8A60;
+        --line-soft:#CBE7DA; --track:#EAF5EF; --head:#12271E;
+        --grad-1:linear-gradient(90deg,#0E8A5F,#3FC98F);
+        --grad-2:linear-gradient(90deg,#0B6B70,#17B0A7);
+        --grad-3:linear-gradient(90deg,#E89A5D,#F2B44C);
+        --hero-bg:
+            radial-gradient(520px 260px at 88% 0%, rgba(56,224,160,.30), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
+            linear-gradient(120deg,#0B1F17 0%,#0E5C43 55%,#14A374 100%);
+        --hero-shadow:0 20px 44px rgba(11,31,23,.35);
+    }
+
+    /* ===== Theme: Employee (Blue) ===== */
+    .pf-blue {
+        --tone:#3B82F6; --tone-deep:#1E40AF; --strong:#1D4ED8;
+        --ring:rgba(59,130,246,.16);
+        --tile-bg:rgba(59,130,246,.12); --tile-fg:#1D4ED8;
+        --line-soft:#C9DAF8; --track:#EAF1FC; --head:#101A38;
+        --grad-1:linear-gradient(90deg,#1D4ED8,#60A5FA);
+        --grad-2:linear-gradient(90deg,#0284C7,#38BDF8);
+        --grad-3:linear-gradient(90deg,#E89A5D,#F2B44C);
+        --hero-bg:
+            radial-gradient(520px 260px at 88% 0%, rgba(56,189,248,.30), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
+            linear-gradient(120deg,#0A1128 0%,#1E40AF 55%,#3B82F6 100%);
+        --hero-shadow:0 20px 44px rgba(10,17,40,.35);
+    }
+
+    /* ===== Hero ===== */
+    .apply-hero {
+        position:relative; overflow:hidden;
+        border-radius:22px; padding:28px 30px; color:#fff;
+        background:var(--hero-bg); box-shadow:var(--hero-shadow);
+        margin-bottom:26px;
+    }
+    .apply-hero h4 { margin:0 0 6px; font-weight:800; }
+    .apply-hero p { margin:0; color:rgba(255,255,255,.75); font-size:.92rem; }
+    .eyebrow-pill {
+        display:inline-flex; align-items:center; gap:7px;
+        padding:6px 14px; border-radius:999px;
+        background:rgba(255,255,255,.14);
+        border:1px solid rgba(255,255,255,.22);
+        font-size:.74rem; font-weight:700; margin-bottom:10px;
+    }
+    .hero-chip {
+        display:inline-flex; align-items:center; gap:8px;
+        padding:7px 15px; border-radius:999px;
+        background:rgba(255,255,255,.14);
+        border:1px solid rgba(255,255,255,.22);
+        backdrop-filter:blur(8px);
+        font-size:.8rem; font-weight:600;
+    }
+    .ai-chip {
+        display:inline-flex; align-items:center; gap:8px;
+        padding:7px 16px; border-radius:999px;
+        background:linear-gradient(135deg, rgba(242,180,76,.95), rgba(232,154,93,.95));
+        color:#3D2A05; font-size:.8rem; font-weight:800;
+        box-shadow:0 8px 20px rgba(232,154,93,.35);
+    }
+
+    /* ===== Panels ===== */
+    .panel {
+        padding:22px; border-radius:18px; background:#fff;
+        border:1px solid var(--line);
+        box-shadow:0 10px 26px rgba(15,23,42,.05);
+        height:100%;
+    }
+    .panel-title {
+        display:flex; align-items:center; gap:10px;
+        font-weight:800; color:var(--head); font-size:1rem; margin-bottom:18px;
+    }
+    .panel-title i {
+        width:36px; height:36px; border-radius:11px;
+        display:grid; place-items:center; font-size:.9rem;
+        background:var(--tile-bg); color:var(--tile-fg);
+    }
+
+    /* ===== Leave Type Cards ===== */
+    .type-card { position:relative; height:100%; }
+    .type-card input { position:absolute; opacity:0; pointer-events:none; }
+    .type-card label {
+        display:flex; flex-direction:column; align-items:center; gap:8px;
+        padding:16px 10px 13px; cursor:pointer; text-align:center;
+        border:1.8px solid #E7E4F3; border-radius:16px; background:#fff;
+        transition:border-color .22s ease, background .22s ease, transform .22s ease, box-shadow .22s ease;
+        height:100%;
+    }
+    .type-card label:hover { transform:translateY(-3px); border-color:var(--tone); box-shadow:0 12px 26px rgba(15,23,42,.09); }
+    .type-card input:checked + label {
+        border-color:var(--tone);
+        background:linear-gradient(180deg, var(--tile-bg), rgba(255,255,255,0));
+        box-shadow:0 12px 26px rgba(15,23,42,.1);
+    }
+    .type-card input:checked + label .tc-icon { background:var(--tone); color:#fff; }
+    .type-card input:checked + label::after {
+        content:'\f00c'; font-family:'Font Awesome 6 Free'; font-weight:900;
+        position:absolute; top:-9px; inset-inline-start:-9px;
+        width:26px; height:26px; border-radius:50%;
+        display:grid; place-items:center; font-size:.68rem;
+        background:var(--tone); color:#fff;
+        box-shadow:0 4px 10px rgba(15,23,42,.25);
+    }
+    .tc-icon {
+        width:44px; height:44px; border-radius:13px;
+        display:grid; place-items:center; font-size:1.1rem;
+        background:var(--tile-bg); color:var(--tile-fg);
+        transition:background .22s ease, color .22s ease;
+    }
+    .type-card b { font-size:.88rem; color:var(--head); }
+    .type-card small { font-size:.72rem; font-weight:700; color:var(--muted); }
+    .type-card small b { color:var(--strong); font-size:.76rem; }
+
+    /* ===== Fields ===== */
+    .f-label { font-size:.78rem; font-weight:700; color:#7A7690; margin-bottom:6px; }
+    .apply-page .form-control, .apply-page .form-select {
+        border-radius:12px; border-color:#E3E0F0; padding:.62rem .9rem; font-size:.9rem;
+    }
+    .apply-page .form-control:focus {
+        border-color:var(--tone); box-shadow:0 0 0 4px var(--ring);
+    }
+
+    /* ===== Buttons ===== */
+    .btn-tone {
+        background:linear-gradient(135deg,var(--tone-deep),var(--tone));
+        color:#fff; border:none; border-radius:12px;
+        padding:.65rem 1.3rem; font-weight:700; font-size:.9rem;
+        transition:transform .22s ease, box-shadow .22s ease;
+    }
+    .btn-tone:hover { color:#fff; transform:translateY(-2px); box-shadow:0 12px 26px rgba(15,23,42,.2); }
+    .btn-tone:disabled { opacity:.65; transform:none; box-shadow:none; }
+    .btn-outline-soft {
+        background:#fff; border:1.5px solid #E3E0F0; color:#5D5878;
+        border-radius:12px; padding:.6rem 1.2rem; font-weight:700; font-size:.9rem;
+        text-decoration:none;
+    }
+    .btn-outline-soft:hover { border-color:var(--tone); color:var(--strong); background:var(--tile-bg); }
+
+    /* ===== Summary Panel ===== */
+    .sum-row {
+        display:flex; align-items:center; justify-content:space-between; gap:10px;
+        padding:10px 0; border-bottom:1px dashed var(--line); font-size:.86rem;
+    }
+    .sum-row:last-child { border-bottom:0; }
+    .sum-row .sk { color:var(--muted); font-weight:600; }
+    .sum-row .sv { font-weight:800; color:var(--head); }
+    .days-big {
+        display:flex; flex-direction:column; align-items:center; gap:2px;
+        padding:14px; border-radius:16px; margin-top:6px;
+        background:linear-gradient(135deg,var(--tile-bg),rgba(255,255,255,0));
+        border:1.5px dashed var(--line-soft);
+    }
+    .days-big b { font-size:2rem; line-height:1; color:var(--head); font-weight:800; }
+    .days-big span { font-size:.75rem; font-weight:700; color:var(--muted); }
+
+    /* ===== Balance Bars ===== */
+    .bal-row { margin-bottom:13px; }
+    .bal-row:last-child { margin-bottom:0; }
+    .bal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:.82rem; font-weight:700; color:#45516B; }
+    .bal-head .bv { font-weight:800; color:var(--head); font-size:.8rem; padding:2px 10px; border-radius:999px; background:var(--track); }
+    .bal-track { height:8px; border-radius:999px; background:var(--track); overflow:hidden; }
+    .bal-fill { height:100%; border-radius:999px; width:0; transition:width 1s ease; }
+    .bf-1 { background:var(--grad-1); } .bf-2 { background:var(--grad-2); } .bf-3 { background:var(--grad-3); }
+
+    /* ===== Rules ===== */
+    .rule-item { display:flex; gap:11px; padding:9px 0; font-size:.83rem; color:#45516B; }
+    .rule-item i {
+        width:28px; height:28px; border-radius:9px; flex-shrink:0;
+        display:grid; place-items:center; font-size:.72rem;
+        background:var(--tile-bg); color:var(--tile-fg); margin-top:1px;
+    }
+    .rule-item b { color:var(--head); }
+
+    /* ===== Recent Leaves ===== */
+    .side-row {
+        display:flex; align-items:center; gap:12px;
+        padding:11px 4px; border-bottom:1px dashed var(--line);
+    }
+    .side-row:last-child { border-bottom:0; }
+    .status-mini { padding:4px 12px; border-radius:999px; font-size:.72rem; font-weight:800; white-space:nowrap; margin-inline-start:auto; }
+    .sm-pending { background:rgba(242,180,76,.16); color:#C08A25; }
+    .sm-approved { background:rgba(20,163,116,.13); color:#0F8A60; }
+    .sm-rejected { background:rgba(220,53,69,.11); color:#C0392B; }
+    .empty-mini { text-align:center; padding:16px 10px; color:#94A0B8; font-size:.84rem; }
+    .empty-mini i { display:block; font-size:1.5rem; margin-bottom:6px; opacity:.6; }
+
+    @media (max-width:767px) { .apply-hero { padding:22px 20px; } }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-7">
-        <div class="glass-card p-4 p-md-5">
-            <div class="d-flex align-items-center gap-3 mb-4">
-                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
-                    <i class="fa-solid fa-calendar-plus"></i>
-                </div>
-                <div>
-                    <h4 class="fw-bold mb-0">تقديم طلب إجازة جديد</h4>
-                    <p class="text-muted small mb-0">سيتم تحليل الطلب بواسطة النموذج الذكي وتوجيهه للإدارة</p>
+<div class="container-fluid py-4 apply-page {% if user_role == 'Manager' %}pf-green{% elif user_role == 'Employee' %}pf-blue{% else %}pf-violet{% endif %}">
+
+    <!-- ===== Hero ===== -->
+    <div class="apply-hero">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <span class="eyebrow-pill"><i class="fa-solid fa-calendar-plus"></i> طلبات الإجازات</span>
+                <h4>تقديم طلب إجازة جديد</h4>
+                <p>اختر نوع الإجازة وحدد الفترة — سيتم تحليل طلبك بواسطة النموذج الذكي وتوجيهه للإدارة فوراً</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="ai-chip"><i class="fa-solid fa-wand-magic-sparkles"></i> تحليل ذكي للطلب</span>
+                {% if employee %}
+                <span class="hero-chip"><i class="fa-solid fa-calendar-check"></i> رصيدك المتبقي {{ employee.total_leave_remaining|default_if_none:0 }} يوم</span>
+                {% endif %}
+                <span class="hero-chip"><i class="fa-solid fa-clock"></i> اليوم {{ today|date:"j/n/Y" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- ===== Form ===== -->
+        <div class="col-lg-8">
+            <div class="panel">
+                <div class="panel-title"><i class="fa-solid fa-file-signature"></i> تفاصيل الطلب</div>
+
+                <form action="{% url 'leaves:apply_leave' %}" method="post" id="apply-leave-form">
+                    {% csrf_token %}
+
+                    <label class="f-label">نوع الإجازة</label>
+                    <div class="row g-2 g-md-3 mb-4">
+                        <div class="col-6 col-md-3">
+                            <div class="type-card">
+                                <input type="radio" name="leave_type" value="ANNUAL" id="lt-annual" checked>
+                                <label for="lt-annual">
+                                    <span class="tc-icon"><i class="fa-solid fa-umbrella-beach"></i></span>
+                                    <b>إجازة سنوية</b>
+                                    {% if employee %}<small>المتبقي <b>{{ annual_left }}</b> يوم</small>{% endif %}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="type-card">
+                                <input type="radio" name="leave_type" value="SICK" id="lt-sick">
+                                <label for="lt-sick">
+                                    <span class="tc-icon"><i class="fa-solid fa-notes-medical"></i></span>
+                                    <b>إجازة مرضية</b>
+                                    {% if employee %}<small>المتبقي <b>{{ sick_left }}</b> يوم</small>{% endif %}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="type-card">
+                                <input type="radio" name="leave_type" value="EMERGENCY" id="lt-emergency">
+                                <label for="lt-emergency">
+                                    <span class="tc-icon"><i class="fa-solid fa-bolt"></i></span>
+                                    <b>إجازة طارئة</b>
+                                    {% if employee %}<small>المتبقي <b>{{ emergency_left }}</b> يوم</small>{% endif %}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="type-card">
+                                <input type="radio" name="leave_type" value="UNPAID" id="lt-unpaid">
+                                <label for="lt-unpaid">
+                                    <span class="tc-icon"><i class="fa-solid fa-hand-holding-dollar"></i></span>
+                                    <b>بدون راتب</b>
+                                    <small>لا تخصم من الرصيد</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="f-label">تاريخ البداية</label>
+                            <input type="date" name="start_date" id="start-date" class="form-control"
+                                   min="{% if today %}{{ today|date:'Y-m-d' }}{% endif %}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="f-label">تاريخ النهاية</label>
+                            <input type="date" name="end_date" id="end-date" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="f-label d-flex justify-content-between">
+                            <span>سبب الإجازة</span>
+                            <span id="reason-count" style="font-weight:600;">0 حرف</span>
+                        </label>
+                        <textarea name="reason" id="reason-input" class="form-control" rows="4"
+                                  placeholder="اكتب سبب الإجازة بوضوح لمساعدة المسؤول على اتخاذ القرار..." required></textarea>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 pt-3" style="border-top:1px dashed var(--line);">
+                        <button type="submit" class="btn-tone flex-grow-1 flex-md-grow-0 px-4" id="apply-leave-submit">
+                            <i class="fa-solid fa-paper-plane me-2"></i>إرسال الطلب
+                        </button>
+                        <a href="{% url 'leaves:leave_list' %}" class="btn-outline-soft d-inline-flex align-items-center gap-2">
+                            <i class="fa-solid fa-xmark"></i> إلغاء
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ===== Side Column ===== -->
+        <div class="col-lg-4">
+            <!-- Live Summary -->
+            <div class="panel mb-3">
+                <div class="panel-title"><i class="fa-solid fa-clipboard-list"></i> ملخص طلبك</div>
+                <div class="sum-row"><span class="sk"><i class="fa-solid fa-tag me-2" style="color:var(--tile-fg);"></i>النوع</span><span class="sv" id="sum-type">إجازة سنوية</span></div>
+                <div class="sum-row"><span class="sk"><i class="fa-solid fa-play me-2" style="color:var(--tile-fg);"></i>من</span><span class="sv" id="sum-from">—</span></div>
+                <div class="sum-row"><span class="sk"><i class="fa-solid fa-stop me-2" style="color:var(--tile-fg);"></i>إلى</span><span class="sv" id="sum-to">—</span></div>
+                <div class="days-big">
+                    <b id="sum-days">0</b>
+                    <span>عدد الأيام المطلوبة</span>
                 </div>
             </div>
 
-            <form action="{% url 'leaves:apply_leave' %}" method="post" id="apply-leave-form">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">نوع الإجازة</label>
-                    <select name="leave_type" class="form-select" required>
-                        <option value="ANNUAL">إجازة سنوية</option>
-                        <option value="SICK">إجازة مرضية</option>
-                        <option value="UNPAID">إجازة بدون راتب</option>
-                        <option value="EMERGENCY">إجازة طارئة</option>
-                    </select>
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">تاريخ البداية</label>
-                        <input type="date" name="start_date" class="form-control" required>
+            <!-- Balances -->
+            <div class="panel mb-3">
+                <div class="panel-title"><i class="fa-solid fa-wallet"></i> أرصدتك الحالية</div>
+                <div class="row g-2 mb-3">
+                    <div class="col-4">
+                        <div class="text-center p-2" style="border:1.5px dashed var(--line-soft); border-radius:13px;">
+                            <div style="font-size:1.25rem; font-weight:800; color:var(--head);">{{ employee.total_leave_remaining|default_if_none:0 }}</div>
+                            <div style="font-size:.68rem; font-weight:700; color:var(--muted);">الإجمالي المتبقي</div>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">تاريخ النهاية</label>
-                        <input type="date" name="end_date" class="form-control" required>
+                    <div class="col-4">
+                        <div class="text-center p-2" style="border:1.5px dashed var(--line-soft); border-radius:13px;">
+                            <div style="font-size:1.25rem; font-weight:800; color:var(--head);">{{ employee.annual_remaining|default_if_none:0 }}</div>
+                            <div style="font-size:.68rem; font-weight:700; color:var(--muted);">سنوية</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-center p-2" style="border:1.5px dashed var(--line-soft); border-radius:13px;">
+                            <div style="font-size:1.25rem; font-weight:800; color:var(--head);">{{ employee.sick_remaining|default_if_none:0 }}</div>
+                            <div style="font-size:.68rem; font-weight:700; color:var(--muted);">مرضية</div>
+                        </div>
                     </div>
                 </div>
+                {% if type_balances %}
+                    {% for tb in type_balances %}
+                    <div class="bal-row">
+                        <div class="bal-head">
+                            <span><i class="fa-solid {{ tb.icon }} me-2" style="color:var(--tile-fg);"></i>{{ tb.label }}</span>
+                            <span class="bv">{{ tb.remaining }}/{{ tb.total }}</span>
+                        </div>
+                        <div class="bal-track"><div class="bal-fill bf-{% cycle '1' '2' '3' %}" data-width="{% if tb.total %}{% widthratio tb.remaining tb.total 100 %}{% else %}0{% endif %}"></div></div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
 
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">سبب الإجازة</label>
-                    <textarea name="reason" class="form-control" rows="3" placeholder="أدخل أسباب طلب الإجازة..." required></textarea>
-                </div>
+            <!-- Rules -->
+            <div class="panel mb-3">
+                <div class="panel-title"><i class="fa-solid fa-circle-info"></i> قبل الإرسال</div>
+                <div class="rule-item"><i class="fa-solid fa-calendar-xmark"></i><span><b>لا تكرار:</b> يُرفض الطلب تلقائياً إذا تعارض مع طلب معلق أو معتمد لنفس الفترة.</span></div>
+                <div class="rule-item"><i class="fa-solid fa-wand-magic-sparkles"></i><span><b>تحليل ذكي:</b> بعد الإرسال يحلل النموذج طلبك ويعرض تنبؤاً مبدئياً بالقرار.</span></div>
+                <div class="rule-item"><i class="fa-solid fa-bell"></i><span><b>إشعار فوري:</b> سيصلك إشعار بمجرد مراجعة الإدارة لطلبك واتخاذ القرار.</span></div>
+                <div class="rule-item"><i class="fa-solid fa-hourglass-half"></i><span><b>قدّم مبكراً:</b> كلما قدّمت طلبك مبكراً ارتفعت فرصة الموافقة.</span></div>
+            </div>
 
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-custom-primary flex-grow-1" id="apply-leave-submit">إرسال الطلب</button>
-                    <a href="{% url 'leaves:leave_list' %}" class="btn btn-outline-secondary">إلغاء</a>
+            <!-- Recent Requests -->
+            <div class="panel">
+                <div class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> آخر طلباتك</div>
+                {% for leave in recent_leaves %}
+                <div class="side-row">
+                    <span class="tc-icon" style="width:36px;height:36px;font-size:.85rem;border-radius:11px;"><i class="fa-solid fa-calendar-day"></i></span>
+                    <span>
+                        <b style="font-size:.84rem; color:var(--head);">{{ leave.get_leave_type_display }}</b>
+                        <small class="d-block" style="font-size:.73rem; color:var(--muted);">{{ leave.start_date|date:"j/n/Y" }} ← {{ leave.end_date|date:"j/n/Y" }}</small>
+                    </span>
+                    <span class="status-mini {% if leave.status == 'PENDING' %}sm-pending{% elif leave.status == 'APPROVED' %}sm-approved{% else %}sm-rejected{% endif %}">{{ leave.get_status_display }}</span>
                 </div>
-            </form>
+                {% empty %}
+                <div class="empty-mini"><i class="fa-regular fa-calendar-xmark"></i>لم تقدم أي طلبات بعد — هذا سيكون أول طلب لك</div>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>
@@ -56,10 +405,60 @@
 
 {% block extra_js %}
 <script>
-document.getElementById('apply-leave-form').addEventListener('submit', function () {
-    const button = document.getElementById('apply-leave-submit');
-    button.disabled = true;
-    button.innerText = 'جاري الإرسال...';
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('apply-leave-form');
+    const submitBtn = document.getElementById('apply-leave-submit');
+    const startInput = document.getElementById('start-date');
+    const endInput = document.getElementById('end-date');
+    const reasonInput = document.getElementById('reason-input');
+    const reasonCount = document.getElementById('reason-count');
+
+    const TYPE_LABELS = { ANNUAL: 'إجازة سنوية', SICK: 'إجازة مرضية', EMERGENCY: 'إجازة طارئة', UNPAID: 'إجازة بدون راتب' };
+
+    function fmt(dateStr) {
+        if (!dateStr) return '—';
+        const parts = dateStr.split('-');
+        return parts.length === 3 ? parseInt(parts[2], 10) + '/' + parseInt(parts[1], 10) + '/' + parts[0] : dateStr;
+    }
+
+    function updateSummary() {
+        const selected = document.querySelector('input[name="leave_type"]:checked');
+        document.getElementById('sum-type').textContent = selected ? TYPE_LABELS[selected.value] : '—';
+        document.getElementById('sum-from').textContent = fmt(startInput.value);
+        document.getElementById('sum-to').textContent = fmt(endInput.value);
+
+        let days = 0;
+        if (startInput.value && endInput.value) {
+            const s = new Date(startInput.value), e = new Date(endInput.value);
+            const diff = Math.floor((e - s) / 86400000) + 1;
+            days = diff > 0 ? diff : 0;
+        }
+        document.getElementById('sum-days').textContent = days;
+    }
+
+    [startInput, endInput].forEach(function (el) {
+        el.addEventListener('change', function () {
+            if (startInput.value && !endInput.value) {
+                endInput.min = startInput.value;
+            }
+            updateSummary();
+        });
+    });
+
+    document.querySelectorAll('input[name="leave_type"]').forEach(function (r) {
+        r.addEventListener('change', updateSummary);
+    });
+
+    reasonInput.addEventListener('input', function () {
+        reasonCount.textContent = reasonInput.value.length + ' حرف';
+    });
+
+    updateSummary();
+
+    form.addEventListener('submit', function () {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>جاري الإرسال...';
+    });
 });
 </script>
 {% endblock %}

@@ -167,7 +167,61 @@ def payroll_payslip(request, pk):
     payroll = get_object_or_404(
         Payroll.objects.select_related('employee__user', 'employee__department', 'employee__position'), pk=pk
     )
-    return render(request, 'payroll/payslip.html', {'payroll': payroll})
+
+    ar_months = ['كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران',
+                 'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول']
+    month_name = ar_months[payroll.month - 1] if 1 <= payroll.month <= 12 else str(payroll.month)
+
+    gross = float(payroll.gross_salary)
+    deductions = float(payroll.total_deductions)
+    net = float(payroll.net_salary)
+    safe_gross = gross if gross > 0 else 1.0
+
+    earnings = [
+        {'label': 'الراتب الأساسي', 'icon': 'fa-sack-dollar', 'value': float(payroll.basic_salary)},
+        {'label': 'البدلات', 'icon': 'fa-hand-holding-dollar', 'value': float(payroll.allowances)},
+        {'label': 'المكافآت', 'icon': 'fa-gift', 'value': float(payroll.bonuses)},
+    ]
+    for item in earnings:
+        item['pct'] = round(item['value'] / safe_gross * 100)
+        item['tone'] = ['emerald', 'teal', 'gold'][earnings.index(item)]
+
+    deduction_items = [
+        {'label': 'خصم الغياب', 'icon': 'fa-user-slash', 'value': float(payroll.deductions_absence)},
+        {'label': 'خصم التأخير', 'icon': 'fa-clock', 'value': float(payroll.deductions_delay)},
+        {'label': 'التأمينات', 'icon': 'fa-shield-halved', 'value': float(payroll.insurance)},
+        {'label': 'خصومات أخرى', 'icon': 'fa-ellipsis', 'value': float(payroll.other_deductions)},
+    ]
+
+    prev_month = payroll.month - 1 or 12
+    prev_year = payroll.year if payroll.month > 1 else payroll.year - 1
+    previous = Payroll.objects.filter(
+        employee=payroll.employee, month=prev_month, year=prev_year,
+    ).first()
+    comparison = None
+    if previous:
+        diff = net - float(previous.net_salary)
+        prev_net = float(previous.net_salary)
+        pct = round(abs(diff) / prev_net * 100) if prev_net > 0 else 0
+        comparison = {
+            'month_name': ar_months[prev_month - 1],
+            'net': prev_net,
+            'diff': diff,
+            'pct': pct,
+            'direction': 'up' if diff > 0 else ('down' if diff < 0 else 'same'),
+        }
+
+    context = {
+        'payroll': payroll,
+        'month_name': month_name,
+        'gross': gross,
+        'deductions_total': deductions,
+        'net': net,
+        'earnings': earnings,
+        'deduction_items': deduction_items,
+        'comparison': comparison,
+    }
+    return render(request, 'payroll/payslip.html', context)
 
 
 @login_required(login_url='login')

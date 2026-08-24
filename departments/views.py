@@ -17,8 +17,14 @@ from employees.models import Employee
 @login_required
 def department_list(request):
     from django.db.models import Count
-    departments = Department.objects.annotate(employee_count=Count('employee'))
-    return render(request, 'departments/department_list.html', {'departments': departments})
+    departments = Department.objects.annotate(employee_count=Count('employee')).order_by('-employee_count', 'name')
+    max_headcount = max((dept.employee_count for dept in departments), default=0)
+    return render(request, 'departments/department_list.html', {
+        'departments': departments,
+        'max_headcount': max_headcount,
+        'total_positions': Position.objects.count(),
+        'total_employees': Employee.objects.count(),
+    })
 
 @login_required
 def add_department(request):

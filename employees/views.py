@@ -79,6 +79,7 @@ def employee_list(request):
     
     context = {
         'employees': employees,
+        'total_employees': employees.count(),
         'departments': departments,
         'contract_types': contract_types,
         'roles': roles,

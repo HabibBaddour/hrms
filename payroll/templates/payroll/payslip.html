@@ -1,3 +1,430 @@
 {% extends 'base.html' %}
-{% block title %}قسيمة الراتب | HRMS{% endblock %}
-{% block content %}<div class="container py-4"><div class="card border-0 shadow-sm mx-auto" style="max-width: 800px;"><div class="card-body p-4"><div class="d-flex justify-content-between border-bottom pb-3 mb-4"><div><h3 class="fw-bold">قسيمة راتب</h3><div class="text-muted">{{ payroll.month }}/{{ payroll.year }}</div></div><span class="badge bg-success-subtle text-success align-self-start">مكتمل</span></div><div class="row g-3 mb-4"><div class="col-md-6"><div class="text-muted small">الموظف</div><div class="fw-bold">{{ payroll.employee.get_full_name }}</div></div><div class="col-md-6"><div class="text-muted small">القسم</div><div>{{ payroll.employee.department.name|default:'غير محدد' }}</div></div></div><div class="table-responsive"><table class="table"><tbody><tr><td>الراتب الأساسي</td><td class="text-end">{{ payroll.basic_salary|floatformat:2 }} $</td></tr><tr><td>البدلات</td><td class="text-end">+ {{ payroll.allowances|floatformat:2 }} $</td></tr><tr><td>المكافآت</td><td class="text-end">+ {{ payroll.bonuses|floatformat:2 }} $</td></tr><tr><td>إجمالي الخصومات</td><td class="text-end text-danger">- {{ payroll.total_deductions|floatformat:2 }} $</td></tr><tr class="table-success fw-bold"><td>صافي الراتب</td><td class="text-end">{{ payroll.net_salary|floatformat:2 }} $</td></tr></tbody></table></div><a href="{% url 'payroll_dashboard' %}" class="btn btn-outline-secondary">عودة إلى الرواتب</a></div></div></div>{% endblock %}
+
+{% block title %}قسيمة راتب {{ month_name }} {{ payroll.year }} | HRMS{% endblock %}
+{% block page_title %}قسيمة الراتب{% endblock %}
+
+{% block extra_css %}
+<style>
+    .slip-page { --line:#ECEAF6; --muted:#6E6A86; }
+
+    /* ===== Theme: HR Admin / Superuser (Violet) ===== */
+    .pf-violet {
+        --tone:#6153E4; --tone-deep:#4A3AB8; --strong:#4433C9;
+        --ring:rgba(97,83,228,.16);
+        --tile-bg:rgba(97,83,228,.11); --tile-fg:#4A3AB8;
+        --line-soft:#DCD6F5; --track:#EFEDFA; --head:#1A1338;
+        --grad-1:linear-gradient(90deg,#4A3AB8,#8B7FF2);
+        --grad-2:linear-gradient(90deg,#0B6B70,#17B0A7);
+        --grad-3:linear-gradient(90deg,#E89A5D,#F2B44C);
+        --hero-bg:
+            radial-gradient(520px 260px at 88% 0%, rgba(23,176,167,.35), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
+            linear-gradient(120deg,#1B1442 0%,#4A3AB8 55%,#6153E4 100%);
+        --hero-shadow:0 20px 44px rgba(27,20,66,.35);
+    }
+
+    /* ===== Theme: Manager (Green) ===== */
+    .pf-green {
+        --tone:#14A374; --tone-deep:#0E5C43; --strong:#0F8A60;
+        --ring:rgba(20,163,116,.16);
+        --tile-bg:rgba(20,163,116,.12); --tile-fg:#0F8A60;
+        --line-soft:#CBE7DA; --track:#EAF5EF; --head:#12271E;
+        --grad-1:linear-gradient(90deg,#0E8A5F,#3FC98F);
+        --grad-2:linear-gradient(90deg,#0B6B70,#17B0A7);
+        --grad-3:linear-gradient(90deg,#E89A5D,#F2B44C);
+        --hero-bg:
+            radial-gradient(520px 260px at 88% 0%, rgba(56,224,160,.30), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
+            linear-gradient(120deg,#0B1F17 0%,#0E5C43 55%,#14A374 100%);
+        --hero-shadow:0 20px 44px rgba(11,31,23,.35);
+    }
+
+    /* ===== Theme: Employee (Blue) ===== */
+    .pf-blue {
+        --tone:#3B82F6; --tone-deep:#1E40AF; --strong:#1D4ED8;
+        --ring:rgba(59,130,246,.16);
+        --tile-bg:rgba(59,130,246,.12); --tile-fg:#1D4ED8;
+        --line-soft:#C9DAF8; --track:#EAF1FC; --head:#101A38;
+        --grad-1:linear-gradient(90deg,#1D4ED8,#60A5FA);
+        --grad-2:linear-gradient(90deg,#0284C7,#38BDF8);
+        --grad-3:linear-gradient(90deg,#E89A5D,#F2B44C);
+        --hero-bg:
+            radial-gradient(520px 260px at 88% 0%, rgba(56,189,248,.30), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
+            linear-gradient(120deg,#0A1128 0%,#1E40AF 55%,#3B82F6 100%);
+        --hero-shadow:0 20px 44px rgba(10,17,40,.35);
+    }
+
+    /* ===== Hero ===== */
+    .slip-hero {
+        position:relative; overflow:hidden;
+        border-radius:22px; padding:28px 30px; color:#fff;
+        background:var(--hero-bg); box-shadow:var(--hero-shadow);
+        margin-bottom:26px;
+    }
+    .slip-hero h4 { margin:0 0 6px; font-weight:800; }
+    .slip-hero p { margin:0; color:rgba(255,255,255,.75); font-size:.92rem; }
+    .eyebrow-pill {
+        display:inline-flex; align-items:center; gap:7px;
+        padding:6px 14px; border-radius:999px;
+        background:rgba(255,255,255,.14);
+        border:1px solid rgba(255,255,255,.22);
+        font-size:.74rem; font-weight:700; margin-bottom:10px;
+    }
+    .hero-chip {
+        display:inline-flex; align-items:center; gap:8px;
+        padding:7px 15px; border-radius:999px;
+        background:rgba(255,255,255,.14);
+        border:1px solid rgba(255,255,255,.22);
+        backdrop-filter:blur(8px);
+        font-size:.8rem; font-weight:600;
+    }
+
+    /* ===== Panels ===== */
+    .panel {
+        padding:22px; border-radius:18px; background:#fff;
+        border:1px solid var(--line);
+        box-shadow:0 10px 26px rgba(15,23,42,.05);
+        height:100%;
+    }
+    .panel-title {
+        display:flex; align-items:center; gap:10px;
+        font-weight:800; color:var(--head); font-size:1rem; margin-bottom:18px;
+    }
+    .panel-title i {
+        width:36px; height:36px; border-radius:11px;
+        display:grid; place-items:center; font-size:.9rem;
+        background:var(--tile-bg); color:var(--tile-fg);
+    }
+
+    /* ===== Money Rows ===== */
+    .money-row {
+        display:flex; align-items:center; gap:12px;
+        padding:12px 0; border-bottom:1px dashed var(--line);
+    }
+    .money-row:last-of-type { border-bottom:0; }
+    .mr-icon {
+        width:38px; height:38px; border-radius:12px; flex-shrink:0;
+        display:grid; place-items:center; font-size:.88rem;
+    }
+    .mi-emerald { background:rgba(20,163,116,.12); color:#0F8A60; }
+    .mi-teal { background:rgba(23,176,167,.13); color:#0E8F88; }
+    .mi-gold { background:rgba(242,180,76,.18); color:#C08A25; }
+    .mi-danger { background:rgba(220,53,69,.1); color:#C0392B; }
+    .mi-muted { background:var(--track); color:#9AA0B5; }
+    .mr-name { font-weight:700; color:#45516B; font-size:.87rem; }
+    .mr-bar { height:7px; border-radius:999px; background:var(--track); overflow:hidden; margin-top:6px; max-width:280px; }
+    .mr-fill { height:100%; border-radius:999px; width:0; transition:width 1s ease; }
+    .mf-emerald { background:var(--grad-1); }
+    .mf-teal { background:var(--grad-2); }
+    .mf-gold { background:var(--grad-3); }
+    .mr-pct { font-size:.72rem; font-weight:700; color:var(--muted); margin-top:4px; }
+    .mr-value { margin-inline-start:auto; text-align:left; flex-shrink:0; }
+    .mr-value b { font-weight:800; color:var(--head); font-size:.95rem; letter-spacing:.3px; }
+    .mr-value.neg b { color:#C0392B; }
+    .footer-row {
+        display:flex; justify-content:space-between; align-items:center;
+        padding:13px 16px; border-radius:14px; margin-top:14px;
+        background:linear-gradient(135deg,var(--tile-bg),rgba(255,255,255,0));
+        border:1.5px dashed var(--line-soft);
+    }
+    .footer-row span { font-weight:800; color:var(--strong); font-size:.9rem; }
+    .footer-row b { font-weight:800; color:var(--head); font-size:1.15rem; letter-spacing:.3px; }
+    .zero-note { font-size:.76rem; font-weight:600; color:#9AA0B5; }
+
+    /* ===== Identity ===== */
+    .id-avatar {
+        width:78px; height:78px; border-radius:50%; object-fit:cover;
+        box-shadow:0 0 0 4px var(--tile-bg);
+    }
+    .id-initial {
+        width:78px; height:78px; border-radius:50%;
+        display:grid; place-items:center; margin-inline:auto;
+        font-size:1.9rem; font-weight:800; color:#fff;
+        background:linear-gradient(135deg,var(--tone-deep),var(--tone));
+        box-shadow:0 0 0 4px var(--tile-bg);
+    }
+    .fact-row {
+        display:flex; align-items:center; gap:10px;
+        padding:9px 0; border-bottom:1px dashed var(--line); font-size:.84rem;
+    }
+    .fact-row:last-child { border-bottom:0; }
+    .fact-row i {
+        width:32px; height:32px; border-radius:9px; flex-shrink:0;
+        display:grid; place-items:center; font-size:.8rem;
+        background:var(--tile-bg); color:var(--tile-fg);
+    }
+    .fact-row .fk { color:var(--muted); font-weight:600; }
+    .fact-row .fv { margin-inline-start:auto; font-weight:700; color:var(--head); text-align:left; }
+
+    /* ===== Net Card ===== */
+    .net-card {
+        position:relative; overflow:hidden;
+        border-radius:18px; padding:22px; color:#fff;
+        background:
+            radial-gradient(300px 160px at 90% 0%, rgba(255,255,255,.18), transparent 60%),
+            linear-gradient(135deg,var(--tone-deep),var(--tone));
+        box-shadow:0 18px 36px rgba(15,23,42,.22);
+        margin-bottom:20px;
+    }
+    .net-card h6 { font-size:.85rem; font-weight:700; color:rgba(255,255,255,.8); margin-bottom:6px; }
+    .net-value { font-size:2.3rem; font-weight:800; line-height:1.1; letter-spacing:.5px; }
+    .net-sub { display:inline-flex; align-items:center; gap:7px; margin-top:10px; padding:5px 13px; border-radius:999px; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.22); font-size:.75rem; font-weight:700; }
+
+    /* ===== Comparison ===== */
+    .cmp-card {
+        display:flex; align-items:center; gap:13px;
+        padding:15px 17px; border-radius:16px;
+        background:#fff; border:1.5px dashed var(--line-soft);
+        margin-bottom:20px;
+    }
+    .cmp-icon {
+        width:44px; height:44px; border-radius:13px; flex-shrink:0;
+        display:grid; place-items:center; font-size:1rem;
+    }
+    .cmp-up { background:rgba(20,163,116,.12); color:#0F8A60; }
+    .cmp-down { background:rgba(220,53,69,.1); color:#C0392B; }
+    .cmp-same { background:var(--track); color:#6E6A86; }
+    .cmp-card b { display:block; font-size:.95rem; color:var(--head); }
+    .cmp-card small { color:var(--muted); font-size:.76rem; font-weight:600; }
+
+    /* ===== Status & Buttons ===== */
+    .badge-active {
+        display:inline-flex; align-items:center; gap:7px;
+        padding:5px 14px; border-radius:999px;
+        font-size:.76rem; font-weight:800;
+        background:var(--tile-bg); color:var(--strong);
+    }
+    .pulse-dot { position:relative; width:7px; height:7px; border-radius:50%; background:currentColor; flex-shrink:0; }
+    .pulse-dot::after {
+        content:''; position:absolute; inset:-4px; border-radius:50%;
+        border:2px solid currentColor; opacity:.5;
+        animation:pfPing 1.6s ease-out infinite;
+    }
+    @keyframes pfPing {
+        0% { transform:scale(.6); opacity:.7; }
+        80%, 100% { transform:scale(1.5); opacity:0; }
+    }
+    .btn-tone {
+        display:inline-flex; align-items:center; justify-content:center; gap:8px;
+        background:linear-gradient(135deg,var(--tone-deep),var(--tone));
+        color:#fff !important; border:none; border-radius:12px;
+        padding:.62rem 1.25rem; font-weight:700; font-size:.88rem;
+        text-decoration:none;
+        transition:transform .22s ease, box-shadow .22s ease;
+    }
+    .btn-tone:hover { transform:translateY(-2px); box-shadow:0 12px 26px rgba(15,23,42,.2); }
+    .btn-outline-soft {
+        display:inline-flex; align-items:center; justify-content:center; gap:8px;
+        background:#fff; border:1.5px solid #E3E0F0; color:#5D5878 !important;
+        border-radius:12px; padding:.58rem 1.2rem; font-weight:700; font-size:.88rem;
+        text-decoration:none;
+    }
+    .btn-outline-soft:hover { border-color:var(--tone); color:var(--strong) !important; background:var(--tile-bg); }
+    .btn-gold-solid {
+        display:inline-flex; align-items:center; justify-content:center; gap:8px;
+        background:linear-gradient(135deg,#F2B44C,#E89A5D);
+        color:#3D2A05 !important; border:none; border-radius:12px;
+        padding:.62rem 1.25rem; font-weight:800; font-size:.88rem;
+        transition:transform .22s ease, box-shadow .22s ease;
+    }
+    .btn-gold-solid:hover { transform:translateY(-2px); box-shadow:0 12px 26px rgba(242,180,76,.4); }
+
+    @media (max-width:767px) { .slip-hero { padding:22px 20px; } }
+
+    /* ===== Print ===== */
+    @media print {
+        body { background:#fff !important; }
+        .sidebar, .topbar, .hrms-toast-container, .no-print { display:none !important; }
+        .main-wrapper { margin:0 !important; }
+        main.p-4 { padding:0 !important; }
+        .panel, .net-card, .cmp-card {
+            box-shadow:none !important; break-inside:avoid;
+            border:1px solid #DDD !important;
+        }
+        .slip-hero { box-shadow:none !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 slip-page {% if user_role == 'Manager' %}pf-green{% elif user_role == 'Employee' %}pf-blue{% else %}pf-violet{% endif %}" style="max-width:1200px;">
+
+    <!-- ===== Hero ===== -->
+    <div class="slip-hero">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <span class="eyebrow-pill"><i class="fa-solid fa-file-invoice-dollar"></i> الرواتب</span>
+                <h4>قسيمة راتب {{ month_name }} {{ payroll.year }}</h4>
+                <p>كشف تفصيلي بمكونات الراتب والإضافات والخصومات</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                {% if payroll.status == 'PAID' %}
+                <span class="hero-chip" style="background:rgba(63,201,143,.25);"><i class="fa-solid fa-circle-check"></i> مدفوع</span>
+                {% else %}
+                <span class="hero-chip" style="background:rgba(242,180,76,.28);"><i class="fa-solid fa-hourglass-half"></i> بانتظار الدفع</span>
+                {% endif %}
+                <span class="hero-chip"><i class="fa-regular fa-calendar"></i> صادرة في {{ payroll.created_at|date:"j/n/Y" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <!-- ===== Identity ===== -->
+        <div class="col-lg-4 order-lg-2">
+            <div class="panel">
+                <div class="text-center pb-3" style="border-bottom:1px dashed var(--line);">
+                    {% if payroll.employee.profile_picture %}
+                        <img src="{{ payroll.employee.profile_picture.url }}" alt="صورة الموظف" class="id-avatar">
+                    {% else %}
+                        <div class="id-initial">{{ payroll.employee.get_full_name|slice:":1"|upper }}</div>
+                    {% endif %}
+                    <div style="font-weight:800; color:var(--head); font-size:1.05rem;" class="mt-3">{{ payroll.employee.get_full_name }}</div>
+                    <div style="color:var(--muted); font-size:.82rem; font-weight:600;">{{ payroll.employee.position.title|default:'غير محدد' }}</div>
+                    <span class="badge-active mt-2"><i class="fa-solid fa-sitemap"></i> {{ payroll.employee.department.name|default:'غير محدد' }}</span>
+                </div>
+                <div class="pt-2">
+                    <div class="fact-row"><i class="fa-solid fa-id-badge"></i><span class="fk">رقم الموظف</span><span class="fv">EMP-{{ payroll.employee.employee_number|default:'N/A' }}</span></div>
+                    <div class="fact-row"><i class="fa-regular fa-calendar-days"></i><span class="fk">فترة الراتب</span><span class="fv">{{ month_name }} {{ payroll.year }}</span></div>
+                    <div class="fact-row"><i class="fa-solid fa-circle-info"></i><span class="fk">الحالة</span><span class="fv">{% if payroll.status == 'PAID' %}<span style="color:#0F8A60;"><span class="pulse-dot d-inline-block me-1"></span>مدفوع</span>{% else %}<span style="color:#C08A25;">معلق</span>{% endif %}</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Earnings + Deductions ===== -->
+        <div class="col-lg-8 order-lg-1">
+            <div class="row g-3">
+                <!-- Earnings -->
+                <div class="col-xl-6">
+                    <div class="panel">
+                        <div class="panel-title"><i class="fa-solid fa-circle-plus" style="color:#0F8A60; background:rgba(20,163,116,.12);"></i> الإيرادات والمزايا</div>
+
+                        {% for item in earnings %}
+                        <div class="money-row">
+                            <span class="mr-icon mi-{{ item.tone }}"><i class="fa-solid {{ item.icon }}"></i></span>
+                            <span class="flex-grow-1">
+                                <span class="mr-name">{{ item.label }}</span>
+                                <div class="mr-bar"><div class="mr-fill mf-{{ item.tone }}" data-width="{{ item.pct }}"></div></div>
+                                <div class="mr-pct">{{ item.pct }}٪ من الإجمالي</div>
+                            </span>
+                            <span class="mr-value"><b>+ {{ item.value|floatformat:2 }} $</b></span>
+                        </div>
+                        {% endfor %}
+
+                        <div class="footer-row">
+                            <span><i class="fa-solid fa-scale-balanced me-2"></i>الإجمالي قبل الخصومات</span>
+                            <b>{{ gross|floatformat:2 }} $</b>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deductions -->
+                <div class="col-xl-6">
+                    <div class="panel">
+                        <div class="panel-title"><i class="fa-solid fa-circle-minus" style="color:#C0392B; background:rgba(220,53,69,.1);"></i> الخصومات</div>
+
+                        {% for item in deduction_items %}
+                            {% if item.value > 0 %}
+                            <div class="money-row">
+                                <span class="mr-icon mi-danger"><i class="fa-solid {{ item.icon }}"></i></span>
+                                <span class="mr-name">{{ item.label }}</span>
+                                <span class="mr-value neg"><b>- {{ item.value|floatformat:2 }} $</b></span>
+                            </div>
+                            {% endif %}
+                        {% empty %}
+                            <div class="zero-note py-2">لا توجد بنود مسجلة</div>
+                        {% endfor %}
+
+                        {% if deductions_total == 0 %}
+                        <div class="zero-note py-2"><i class="fa-solid fa-badge-check me-1"></i>ممتاز — لا توجد أي خصومات هذا الشهر</div>
+                        {% else %}
+                        <div class="footer-row">
+                            <span style="color:#C0392B;"><i class="fa-solid fa-scissors me-2"></i>إجمالي الخصومات</span>
+                            <b style="color:#C0392B;">- {{ deductions_total|floatformat:2 }} $</b>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Composition strip -->
+            <div class="panel mt-3">
+                <div class="panel-title"><i class="fa-solid fa-chart-simple"></i> تركيبة الراتب</div>
+                <div class="d-flex" style="height:14px; border-radius:999px; overflow:hidden;">
+                    {% for item in earnings %}
+                        {% if item.value > 0 %}
+                        <div class="mf-{{ item.tone }}" style="width:{{ item.pct }}%;"></div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="d-flex flex-wrap gap-3 mt-3">
+                    {% for item in earnings %}
+                    <span class="d-inline-flex align-items-center gap-2" style="font-size:.78rem; font-weight:700; color:#45516B;">
+                        <span style="width:11px;height:11px;border-radius:4px;display:inline-block;" class="mf-{{ item.tone }}"></span>
+                        {{ item.label }} <span style="color:var(--muted);">({{ item.pct }}٪)</span>
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Net + Comparison ===== -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-8">
+            <div class="net-card h-100 d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                    <h6><i class="fa-solid fa-wallet me-2"></i>صافي الراتب المستحق</h6>
+                    <div class="net-value">{{ net|floatformat:2 }} $</div>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    <span class="net-sub"><i class="fa-solid fa-arrow-down"></i> إجمالي مستحقات: {{ gross|floatformat:2 }} $</span>
+                    <span class="net-sub"><i class="fa-solid fa-scissors"></i> إجمالي خصومات: {{ deductions_total|floatformat:2 }} $</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            {% if comparison %}
+            <div class="cmp-card h-100">
+                <span class="cmp-icon cmp-{% if comparison.direction == 'up' %}up{% elif comparison.direction == 'down' %}down{% else %}same{% endif %}">
+                    <i class="fa-solid {% if comparison.direction == 'up' %}fa-arrow-trend-up{% elif comparison.direction == 'down' %}fa-arrow-trend-down{% else %}fa-equals{% endif %}"></i>
+                </span>
+                <span>
+                    <b>{% if comparison.direction == 'up' %}<span style="color:#0F8A60;">+ {{ comparison.diff|floatformat:2 }} $</span>{% elif comparison.direction == 'down' %}<span style="color:#C0392B;">- {{ comparison.diff|floatformat:"-2" }} $</span>{% else %}دون تغيير{% endif %}</b>
+                    <small>مقارنة براتب {{ comparison.month_name }} ({{ comparison.net|floatformat:2 }} $)</small>
+                </span>
+            </div>
+            {% else %}
+            <div class="cmp-card h-100">
+                <span class="cmp-icon cmp-same"><i class="fa-solid fa-clock-rotate-left"></i></span>
+                <span>
+                    <b>لا يوجد سجل سابق</b>
+                    <small>هذه أول قسيمة مسجلة للموظف</small>
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ===== Actions ===== -->
+    <div class="no-print d-flex flex-wrap gap-2 justify-content-center">
+        <button type="button" onclick="window.print()" class="btn-gold-solid px-4">
+            <i class="fa-solid fa-print me-2"></i>طباعة القسيمة
+        </button>
+        <a href="{% url 'payroll_dashboard' %}" class="btn-outline-soft">
+            <i class="fa-solid fa-arrow-left me-2"></i>عودة إلى الرواتب
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.mr-fill[data-width]').forEach(function (el) {
+        const w = Math.min(parseFloat(el.dataset.width) || 0, 100);
+        requestAnimationFrame(function () { el.style.width = w + '%'; });
+    });
+});
+</script>
+{% endblock %}

@@ -3,113 +3,303 @@
 {% block title %}بوابة الموظف | HRMS{% endblock %}
 {% block page_title %}بوابة الموظف{% endblock %}
 
+{% block extra_css %}
+<style>
+    .emp-dash {
+        --tone-primary: #3B82F6;
+        --panel-icon-bg: rgba(59, 130, 246, 0.12);
+        --panel-icon-fg: #1D4ED8;
+    }
+
+    .hero-band {
+        position: relative;
+        overflow: hidden;
+        border-radius: 22px;
+        padding: 28px 30px;
+        color: #fff;
+        background:
+            radial-gradient(520px 260px at 88% 0%, rgba(56, 189, 248, 0.30), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(242, 180, 76, 0.22), transparent 60%),
+            linear-gradient(120deg, #0A1128 0%, #1E40AF 55%, #3B82F6 100%);
+        box-shadow: 0 20px 44px rgba(10, 17, 40, 0.35);
+        margin-bottom: 26px;
+    }
+    .hero-band h4 { margin: 0 0 6px; font-weight: 800; }
+    .hero-band p { margin: 0; color: rgba(255, 255, 255, 0.75); font-size: 0.92rem; }
+    .hero-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 16px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        backdrop-filter: blur(8px);
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+
+    .stat-card {
+        position: relative;
+        display: block;
+        overflow: hidden;
+        padding: 22px;
+        border-radius: 18px;
+        background: #fff;
+        border: 1px solid #ECEAF6;
+        text-decoration: none;
+        box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; right: 0; left: 0;
+        height: 4px;
+        background: var(--accent);
+    }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 22px 42px rgba(15, 23, 42, 0.13); border-color: var(--accent-solid); }
+    .stat-blue   { --accent: linear-gradient(90deg, #2563EB, #60A5FA); --accent-solid: rgba(37, 99, 235, 0.5); --tile: rgba(37, 99, 235, 0.12); --tone: #1D4ED8; }
+    .stat-sky    { --accent: linear-gradient(90deg, #0284C7, #38BDF8); --accent-solid: rgba(2, 132, 199, 0.5); --tile: rgba(2, 132, 199, 0.12); --tone: #0369A1; }
+    .stat-indigo { --accent: linear-gradient(90deg, #4338CA, #818CF8); --accent-solid: rgba(67, 56, 202, 0.5); --tile: rgba(67, 56, 202, 0.12); --tone: #4338CA; }
+    .stat-gold   { --accent: linear-gradient(90deg, #F2B44C, #E89A5D); --accent-solid: rgba(217, 154, 43, 0.55); --tile: rgba(242, 180, 76, 0.18); --tone: #C08A25; }
+
+    .stat-tile {
+        width: 52px; height: 52px;
+        border-radius: 14px;
+        display: grid; place-items: center;
+        font-size: 1.3rem;
+        color: var(--tone);
+        background: var(--tile);
+        transition: transform 0.25s ease;
+    }
+    .stat-card:hover .stat-tile { transform: scale(1.08) rotate(-4deg); }
+    .stat-value { font-size: 2rem; font-weight: 800; color: #101A38; line-height: 1.15; }
+    .stat-label { color: #6E6A86; font-size: 0.85rem; font-weight: 600; margin-bottom: 0; }
+    .stat-sub { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 4px 11px; border-radius: 999px; background: #F2F6FD; color: #5D6B85; font-size: 0.74rem; font-weight: 700; }
+    .stat-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; color: var(--tone); font-size: 0.78rem; font-weight: 700; }
+    .stat-link i { transition: transform 0.25s ease; }
+    .stat-card:hover .stat-link i { transform: translateX(-4px); }
+
+    .mini-kpi {
+        display: flex; align-items: center; gap: 12px;
+        padding: 14px 18px;
+        border-radius: 16px;
+        background: #fff;
+        border: 1px dashed #C9DAF8;
+        height: 100%;
+    }
+    .mini-kpi i { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; font-size: 0.95rem; flex-shrink: 0; }
+    .mini-kpi b { display: block; font-size: 1.15rem; color: #101A38; line-height: 1.1; }
+    .mini-kpi span { font-size: 0.76rem; color: #6E6A86; font-weight: 600; }
+
+    .action-tile {
+        display: flex; align-items: center; gap: 14px;
+        padding: 16px 18px;
+        border-radius: 16px;
+        background: #fff;
+        border: 1px solid #ECEAF6;
+        text-decoration: none;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+        transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+        height: 100%;
+    }
+    .action-tile:hover { transform: translateY(-4px); border-color: var(--tone); box-shadow: 0 16px 32px rgba(15, 23, 42, 0.12); }
+    .action-tile .act-icon { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; font-size: 1.1rem; color: #fff; background: var(--grad); flex-shrink: 0; }
+    .action-tile b { display: block; color: #101A38; font-size: 0.92rem; }
+    .action-tile small { color: #6E6A86; font-size: 0.75rem; }
+    .act-blue { --tone: #2563EB; --grad: linear-gradient(135deg, #1D4ED8, #60A5FA); }
+    .act-sky { --tone: #0369A1; --grad: linear-gradient(135deg, #0284C7, #38BDF8); }
+    .act-indigo { --tone: #4338CA; --grad: linear-gradient(135deg, #4338CA, #818CF8); }
+    .act-gold { --tone: #D99A2B; --grad: linear-gradient(135deg, #E89A5D, #F2B44C); }
+
+    .panel {
+        padding: 22px;
+        border-radius: 18px;
+        background: #fff;
+        border: 1px solid #ECEAF6;
+        box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+        height: 100%;
+    }
+    .panel-title { display: flex; align-items: center; gap: 10px; font-weight: 800; color: #101A38; font-size: 1rem; margin-bottom: 18px; }
+    .panel-title i { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: var(--panel-icon-bg); color: var(--panel-icon-fg); font-size: 0.9rem; }
+
+    .bar-row { margin-bottom: 14px; }
+    .bar-row:last-child { margin-bottom: 0; }
+    .bar-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.83rem; font-weight: 700; color: #45516B; }
+    .bar-track { height: 9px; border-radius: 999px; background: #EAF1FC; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; width: 0; transition: width 1s ease; }
+    .bar-count { min-width: 34px; text-align: center; font-size: 0.75rem; color: #fff; padding: 2px 9px; border-radius: 999px; }
+    .bf-1 { background: linear-gradient(90deg, #1D4ED8, #60A5FA); } .bc-1 { background: #2563EB; }
+    .bf-2 { background: linear-gradient(90deg, #0284C7, #38BDF8); } .bc-2 { background: #0284C7; }
+    .bf-3 { background: linear-gradient(90deg, #E89A5D, #F2B44C); } .bc-3 { background: #D99A2B; }
+    .bf-4 { background: linear-gradient(90deg, #4338CA, #818CF8); } .bc-4 { background: #4338CA; }
+    .bf-5 { background: linear-gradient(90deg, #172554, #1E40AF); } .bc-5 { background: #172554; }
+
+    .activity-item { display: flex; gap: 13px; padding: 13px 4px; border-bottom: 1px dashed #E4ECFA; text-decoration: none; border-radius: 12px; transition: background 0.2s ease; }
+    .activity-item:last-child { border-bottom: 0; }
+    .activity-item:hover { background: #F4F8FE; }
+    .activity-item:hover .act-bubble { transform: scale(1.07); }
+    .act-bubble { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 0.9rem; flex-shrink: 0; color: var(--tone); background: var(--tone-bg); transition: transform 0.2s ease; }
+    .tn-blue { --tone: #1D4ED8; --tone-bg: rgba(37, 99, 235, 0.12); }
+    .tn-sky { --tone: #0369A1; --tone-bg: rgba(2, 132, 199, 0.13); }
+    .tn-indigo { --tone: #4338CA; --tone-bg: rgba(67, 56, 202, 0.12); }
+    .tn-gold { --tone: #C08A25; --tone-bg: rgba(242, 180, 76, 0.18); }
+    .tn-navy { --tone: #172554; --tone-bg: rgba(23, 37, 84, 0.12); }
+    .activity-title { font-weight: 700; color: #232F4B; font-size: 0.87rem; margin-bottom: 2px; }
+    .activity-text { color: #6E7686; font-size: 0.8rem; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .activity-time { font-size: 0.72rem; color: #94A0B8; white-space: nowrap; }
+
+    .side-row { display: flex; align-items: center; gap: 12px; padding: 11px 4px; border-bottom: 1px dashed #E4ECFA; }
+    .side-row:last-child { border-bottom: 0; }
+    .status-mini { display: inline-flex; align-items: center; gap: 5px; margin-inline-start: auto; padding: 4px 11px; border-radius: 999px; font-size: 0.68rem; font-weight: 800; white-space: nowrap; }
+    .sm-pending { background: rgba(242, 180, 76, 0.16); color: #B4540A; }
+    .sm-approved { background: rgba(37, 99, 235, 0.12); color: #1D4ED8; }
+    .sm-rejected { background: rgba(220, 38, 38, 0.1); color: #DC2626; }
+    .score-chip { margin-inline-start: auto; padding: 4px 12px; border-radius: 999px; background: rgba(67, 56, 202, 0.1); color: #4338CA; font-size: 0.72rem; font-weight: 800; white-space: nowrap; font-family: 'Courier New', monospace; }
+    .empty-mini { text-align: center; padding: 22px 10px; color: #94A0B8; font-size: 0.84rem; }
+    .empty-mini i { display: block; font-size: 1.6rem; margin-bottom: 8px; opacity: 0.6; }
+
+    @media (max-width: 767px) { .hero-band { padding: 22px 20px; } }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid py-4">
-    <!-- Employee Info Card -->
-    <div class="row g-4 mb-4">
-        <div class="col-12">
-            <div class="glass-card p-4">
-                <div class="d-flex align-items-center">
-                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-4" style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">
-                        {{ user.username|slice:":1"|upper }}
-                    </div>
-                    <div>
-                        <h4 class="fw-bold mb-1 text-dark">{{ user.get_full_name|default:user.username }}</h4>
-                        <p class="text-muted mb-2">{{ user.email }}</p>
-                        <div>
-                            {% if user.is_superuser %}
-                                <span class="badge bg-danger text-white">SuperUser</span>
-                            {% elif user.groups.all.0.name == 'Manager' %}
-                                <span class="badge bg-warning text-dark">مدير</span>
-                            {% elif user.groups.all.0.name == 'HR' %}
-                                <span class="badge bg-info text-dark">HR Admin</span>
-                            {% else %}
-                                <span class="badge bg-secondary text-white">موظف</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
+<div class="container-fluid py-4 emp-dash">
+
+    <div class="hero-band">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <h4>أهلاً بك، {{ user.get_full_name|default:user.username }}</h4>
+                <p>هذه مساحتك الشخصية — {{ today_ar }}</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="hero-chip"><i class="fa-solid fa-calendar-check"></i> رصيدك {{ total_leave_remaining }} يوم</span>
+                <span class="hero-chip"><i class="fa-solid fa-hourglass-half"></i> {{ pending_leaves }} طلب معلق</span>
+                {% if unread_notifications %}<span class="hero-chip"><i class="fa-solid fa-bell"></i> {{ unread_notifications }} إشعار جديد</span>{% endif %}
             </div>
         </div>
     </div>
 
-    <!-- Personal Statistics -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="glass-card p-4">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <h6 class="text-muted small mb-1">رصيد الإجازات</h6>
-                        <h3 class="fw-bold mb-0 text-dark">{{ leave_balance }} يوم</h3>
-                    </div>
-                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
-                        <i class="fa-solid fa-calendar-check"></i>
-                    </div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-xl-3">
+            <a href="{% url 'leaves:leave_list' %}" class="stat-card stat-blue">
+                <div class="d-flex align-items-start justify-content-between mb-3">
+                    <div><div class="stat-value">{{ total_leave_remaining }}</div><p class="stat-label">رصيدي المتبقي (يوم)</p></div>
+                    <span class="stat-tile"><i class="fa-solid fa-calendar-check"></i></span>
                 </div>
+                <span class="stat-sub"><i class="fa-solid fa-hourglass-half"></i> {{ pending_leaves }} طلب بانتظار الموافقة</span>
+                <span class="stat-link d-block">طلبات إجازاتي <i class="fa-solid fa-arrow-left"></i></span>
+            </a>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <a href="{% url 'leaves:apply_leave' %}" class="stat-card stat-gold">
+                <div class="d-flex align-items-start justify-content-between mb-3">
+                    <div><div class="stat-value">{{ annual_remaining }}<small style="font-size:1rem;color:#9B95B5;">/11</small></div><p class="stat-label">رصيد الإجازات السنوية</p></div>
+                    <span class="stat-tile"><i class="fa-solid fa-umbrella-beach"></i></span>
+                </div>
+                <span class="stat-sub"><i class="fa-solid fa-plus"></i> قدّم طلباً جديداً الآن</span>
+                <span class="stat-link d-block">طلب إجازة جديد <i class="fa-solid fa-arrow-left"></i></span>
+            </a>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            {% if last_payroll %}
+            <a href="{% url 'payroll_payslip' last_payroll.pk %}" class="stat-card stat-sky">
+                <div class="d-flex align-items-start justify-content-between mb-3">
+                    <div><div class="stat-value">{{ last_payroll.net_salary|floatformat:"0" }} $</div><p class="stat-label">راتب {{ month_name }} (الصافي)</p></div>
+                    <span class="stat-tile"><i class="fa-solid fa-money-bill-wave"></i></span>
+                </div>
+                <span class="stat-sub"><i class="fa-solid fa-receipt"></i> {{ payslips_count }} قسيمة راتب مسجلة</span>
+                <span class="stat-link d-block">عرض القسيمة <i class="fa-solid fa-arrow-left"></i></span>
+            </a>
+            {% else %}
+            <div class="stat-card stat-sky" style="cursor:default;">
+                <div class="d-flex align-items-start justify-content-between mb-3">
+                    <div><div class="stat-value">-</div><p class="stat-label">لا يوجد راتب بعد</p></div>
+                    <span class="stat-tile"><i class="fa-solid fa-money-bill-wave"></i></span>
+                </div>
+                <span class="stat-sub"><i class="fa-solid fa-receipt"></i> ستظهر قسائمك هنا</span>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <a href="{% url 'evaluations_dashboard' %}" class="stat-card stat-indigo">
+                <div class="d-flex align-items-start justify-content-between mb-3">
+                    <div><div class="stat-value">{{ avg_my_score }} / 5</div><p class="stat-label">متوسط تقييماتي</p></div>
+                    <span class="stat-tile"><i class="fa-solid fa-ranking-star"></i></span>
+                </div>
+                <span class="stat-sub"><i class="fa-solid fa-clipboard-check"></i> {{ evaluations_completed }} تقييم مكتمل</span>
+                <span class="stat-link d-block">تقييماتي <i class="fa-solid fa-arrow-left"></i></span>
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="mini-kpi">
+                <i class="fa-solid fa-notes-medical" style="background: rgba(2,132,199,.12); color: #0369A1;"></i>
+                <div><b>{{ sick_remaining }}/11</b><span>الرصيد المرضي المتبقي</span></div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="glass-card p-4">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <h6 class="text-muted small mb-1">طلبات معلقة</h6>
-                        <h3 class="fw-bold mb-0 text-warning">{{ pending_leaves }}</h3>
-                    </div>
-                    <div class="stat-icon bg-warning bg-opacity-10 text-warning">
-                        <i class="fa-solid fa-hourglass-half"></i>
-                    </div>
-                </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="mini-kpi">
+                <i class="fa-solid fa-bolt" style="background: rgba(242,180,76,.18); color: #C08A25;"></i>
+                <div><b>{{ emergency_remaining }}/11</b><span>الرصيد الطارئ المتبقي</span></div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="glass-card p-4">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <h6 class="text-muted small mb-1">آخر راتب</h6>
-                        <h3 class="fw-bold mb-0 text-success">
-                            {% if last_payroll %}
-                                {{ last_payroll.net_salary|floatformat:2 }} $
-                            {% else %}
-                                غير متوفر
-                            {% endif %}
-                        </h3>
-                    </div>
-                    <div class="stat-icon bg-success bg-opacity-10 text-success">
-                        <i class="fa-solid fa-wallet"></i>
-                    </div>
-                </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="mini-kpi">
+                <i class="fa-solid fa-bell" style="background: rgba(37,99,235,.12); color: #1D4ED8;"></i>
+                <div><b>{{ unread_notifications }}</b><span>إشعارات غير مقروءة</span></div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="mini-kpi">
+                <i class="fa-solid fa-users" style="background: rgba(67,56,202,.12); color: #4338CA;"></i>
+                <div><b>{{ team_size }}</b><span>زملاء في قسمك</span></div>
             </div>
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="row g-4 mb-4">
+    <div class="row g-3 mb-4">
         <div class="col-12">
-            <div class="glass-card p-4">
-                <h5 class="fw-bold text-dark mb-4"><i class="fa-solid fa-bolt text-primary me-2"></i>إجراءات سريعة</h5>
+            <div class="panel">
+                <div class="panel-title"><i class="fa-solid fa-bolt"></i> إجراءات سريعة</div>
                 <div class="row g-3">
-                    <div class="col-md-3">
-                        <a href="{% url 'leaves:leave_list' %}" class="btn btn-outline-primary w-100 py-3 rounded-3">
-                            <i class="fa-solid fa-calendar-plus mb-2 d-block fs-4"></i>
-                            طلب إجازة
+                    <div class="col-md-6 col-xl-4">
+                        <a href="{% url 'leaves:apply_leave' %}" class="action-tile act-blue">
+                            <span class="act-icon"><i class="fa-solid fa-calendar-plus"></i></span>
+                            <span><b>تقديم طلب إجازة</b><small>اختر النوع والفترة وأرسل طلبك</small></span>
                         </a>
                     </div>
-                    <div class="col-md-3">
-                        <a href="#" class="btn btn-outline-success w-100 py-3 rounded-3">
-                            <i class="fa-solid fa-file-invoice mb-2 d-block fs-4"></i>
-                            كشف الراتب
+                    <div class="col-md-6 col-xl-4">
+                        <a href="{% url 'leaves:leave_list' %}" class="action-tile act-sky">
+                            <span class="act-icon"><i class="fa-solid fa-calendar-days"></i></span>
+                            <span><b>متابعة طلباتي</b><small>حالة طلباتك وسجل إجازاتك</small></span>
                         </a>
                     </div>
-                    <div class="col-md-3">
-                        <a href="#" class="btn btn-outline-info w-100 py-3 rounded-3">
-                            <i class="fa-solid fa-id-card mb-2 d-block fs-4"></i>
-                            تحديث الملف
+                    <div class="col-md-6 col-xl-4">
+                        <a href="{% url 'evaluations_dashboard' %}" class="action-tile act-indigo">
+                            <span class="act-icon"><i class="fa-solid fa-ranking-star"></i></span>
+                            <span><b>تقييمات أدائي</b><small>نتائج تقييماتك وملاحظات المقيّمين</small></span>
                         </a>
                     </div>
-                    <div class="col-md-3">
-                        <a href="{% url 'user_settings' %}" class="btn btn-outline-secondary w-100 py-3 rounded-3">
-                            <i class="fa-solid fa-gear mb-2 d-block fs-4"></i>
-                            الإعدادات
+                    <div class="col-md-6 col-xl-4">
+                        <a href="{% url 'message_list' %}" class="action-tile act-gold">
+                            <span class="act-icon"><i class="fa-solid fa-envelope"></i></span>
+                            <span><b>الرسائل الداخلية</b><small>رسائل الإدارة والزملاء</small></span>
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-xl-4">
+                        <a href="{% url 'core:notification_list' %}" class="action-tile act-blue">
+                            <span class="act-icon"><i class="fa-solid fa-bell"></i></span>
+                            <span><b>مركز الإشعارات</b><small>كل تنبيهاتك في مكان واحد</small></span>
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-xl-4">
+                        <a href="{% url 'user_settings' %}" class="action-tile act-sky">
+                            <span class="act-icon"><i class="fa-solid fa-gear"></i></span>
+                            <span><b>إعدادات حسابي</b><small>بياناتك الشخصية وتفضيلاتك</small></span>
                         </a>
                     </div>
                 </div>
@@ -117,50 +307,104 @@
         </div>
     </div>
 
-    <!-- Recent Requests -->
-    <div class="row g-4">
-        <div class="col-12">
-            <div class="glass-card p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>طلباتي الأخيرة</h5>
-                    <a href="{% url 'leaves:leave_list' %}" class="btn btn-sm btn-outline-primary">عرض الكل</a>
+    <div class="row g-3 mb-4">
+        <div class="col-lg-6">
+            <div class="panel">
+                <div class="panel-title"><i class="fa-solid fa-chart-simple"></i> طلباتي حسب النوع</div>
+                {% for item in my_leave_breakdown %}
+                <div class="bar-row">
+                    <div class="bar-head"><span>{{ item.label }}</span><span class="bar-count bc-{% cycle '1' '2' '3' '4' %}">{{ item.count }}</span></div>
+                    <div class="bar-track"><div class="bar-fill bf-{% cycle '1' '2' '3' '4' %}" data-width="{% widthratio item.count max_my_leave_count 100 %}"></div></div>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>نوع الطلب</th>
-                                <th>التاريخ</th>
-                                <th>المدة</th>
-                                <th>الحالة</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for leave in recent_leaves %}
-                            <tr>
-                                <td>{{ leave.get_leave_type_display }}</td>
-                                <td>{{ leave.start_date|date:'Y-m-d' }} - {{ leave.end_date|date:'Y-m-d' }}</td>
-                                <td>{{ leave.total_days }} يوم</td>
-                                <td>
-                                    {% if leave.status == 'PENDING' %}
-                                        <span class="badge bg-warning text-dark">معلق</span>
-                                    {% elif leave.status == 'APPROVED' %}
-                                        <span class="badge bg-success">مقبول</span>
-                                    {% else %}
-                                        <span class="badge bg-danger">مرفوض</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center py-4 text-muted">لا توجد طلبات حالياً</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                {% empty %}
+                <div class="empty-mini"><i class="fa-regular fa-folder-open"></i>لم تقدم أي طلبات إجازة بعد</div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="panel">
+                <div class="panel-title"><i class="fa-solid fa-wallet"></i> أرصدتي التفصيلية</div>
+                {% for item in balance_breakdown %}
+                <div class="bar-row">
+                    <div class="bar-head"><span>{{ item.label }}</span><span class="bar-count bc-{% cycle '1' '2' '3' %}">{{ item.count }}/{{ item.total }}</span></div>
+                    <div class="bar-track"><div class="bar-fill bf-{% cycle '1' '2' '3' %}" data-width="{% widthratio item.count item.total 100 %}"></div></div>
                 </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div class="panel mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="panel-title mb-0"><i class="fa-solid fa-clock-rotate-left"></i> النشاط الأخير</div>
+                    <a href="{% url 'core:notification_list' %}" class="text-decoration-none fw-bold" style="font-size: 0.78rem; color: #1D4ED8;">عرض الكل</a>
+                </div>
+                {% if recent_activities %}
+                    {% for activity in recent_activities %}
+                    <a href="{{ activity.activity_url }}" class="activity-item">
+                        <span class="act-bubble tn-{{ activity.tone }}"><i class="fa-solid {{ activity.icon_class }}"></i></span>
+                        <span class="flex-grow-1 min-width-0" style="min-width: 0;">
+                            <span class="d-flex justify-content-between align-items-center gap-2">
+                                <span class="activity-title">{{ activity.title }}</span>
+                                <span class="activity-time">منذ {{ activity.created_at|timesince }}</span>
+                            </span>
+                            <p class="activity-text">{{ activity.text|striptags|truncatechars:110 }}</p>
+                        </span>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                <div class="empty-mini"><i class="fa-regular fa-bell"></i>لا يوجد نشاط حديث حتى الآن</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="panel mb-3">
+                <div class="panel-title"><i class="fa-solid fa-calendar-days"></i> آخر طلباتي</div>
+                {% for leave in recent_leaves %}
+                <div class="side-row">
+                    <span class="act-bubble tn-navy" style="width:34px;height:34px;font-size:0.78rem;"><i class="fa-solid fa-calendar-day"></i></span>
+                    <span>
+                        <b style="font-size: 0.85rem; color: #232F4B;">{{ leave.get_leave_type_display }}</b>
+                        <small class="d-block text-muted" style="font-size: 0.73rem;">{{ leave.start_date|date:"j/n/Y" }} ← {{ leave.end_date|date:"j/n/Y" }}</small>
+                    </span>
+                    <span class="status-mini {% if leave.status == 'PENDING' %}sm-pending{% elif leave.status == 'APPROVED' %}sm-approved{% else %}sm-rejected{% endif %}">{{ leave.get_status_display }}</span>
+                </div>
+                {% empty %}
+                <div class="empty-mini"><i class="fa-regular fa-calendar-xmark"></i>لا توجد طلبات إجازة بعد</div>
+                {% endfor %}
+            </div>
+            <div class="panel">
+                <div class="panel-title"><i class="fa-solid fa-ranking-star"></i> آخر تقييماتي</div>
+                {% for evaluation in my_evaluations %}
+                <div class="side-row">
+                    <span class="act-bubble tn-indigo" style="width:34px;height:34px;font-size:0.78rem;"><i class="fa-solid fa-clipboard-check"></i></span>
+                    <span>
+                        <b style="font-size: 0.85rem; color: #232F4B;">{{ evaluation.title|default:evaluation.period }}</b>
+                        <small class="d-block text-muted" style="font-size: 0.73rem;">{{ evaluation.period }} — {{ evaluation.evaluation_date|date:"j/n/Y" }}</small>
+                    </span>
+                    {% if evaluation.status == 'COMPLETED' and evaluation.overall_score > 0 %}
+                    <span class="score-chip">{{ evaluation.overall_score|floatformat:1 }}/5</span>
+                    {% else %}
+                    <span class="status-mini sm-pending">مسودة</span>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div class="empty-mini"><i class="fa-regular fa-star"></i>لا توجد تقييمات مسجلة لك بعد</div>
+                {% endfor %}
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('.bar-fill').forEach(function(bar) {
+        window.requestAnimationFrame(function() {
+            bar.style.width = Math.min(bar.dataset.width || 0, 100) + '%';
+        });
+    });
+</script>
 {% endblock %}

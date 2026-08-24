@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponse
+from django.utils import timezone
 
 from departments.models import Department
 from .models import LeaveRequest
@@ -163,6 +164,10 @@ def leave_list(request):
 
     return render(request, 'leaves/leave_list.html', {
         'leaves': leaves,
+        'filtered_count': leaves.count(),
+        'pending_count': leaves.filter(status='PENDING').count(),
+        'approved_count': leaves.filter(status='APPROVED').count(),
+        'rejected_count': leaves.filter(status='REJECTED').count(),
         'employees': employees,
         'can_view_all': can_view_all,
         'departments': departments,
@@ -178,6 +183,37 @@ def leave_list(request):
 
 @login_required
 def apply_leave(request):
+    def _context():
+        employee = getattr(request.user, 'employee_profile', None)
+        recent_leaves = []
+        type_balances = []
+        if employee:
+            recent_leaves = list(
+                LeaveRequest.objects.filter(employee=employee)
+                .order_by('-created_at')[:4]
+            )
+            for code, label, icon in [
+                ('ANNUAL', 'سنوية', 'fa-umbrella-beach'),
+                ('SICK', 'مرضية', 'fa-notes-medical'),
+                ('EMERGENCY', 'طارئة', 'fa-bolt'),
+            ]:
+                type_balances.append({
+                    'code': code,
+                    'label': label,
+                    'icon': icon,
+                    'remaining': employee.leave_remaining(code),
+                    'total': employee.leave_quota(code),
+                })
+        return {
+            'employee': employee,
+            'today': timezone.localdate(),
+            'recent_leaves': recent_leaves,
+            'type_balances': type_balances,
+            'annual_left': employee.leave_remaining('ANNUAL') if employee else None,
+            'sick_left': employee.leave_remaining('SICK') if employee else None,
+            'emergency_left': employee.leave_remaining('EMERGENCY') if employee else None,
+        }
+
     if request.method == 'POST':
         leave_type = request.POST.get('leave_type')
         start_date = request.POST.get('start_date')
@@ -188,12 +224,12 @@ def apply_leave(request):
             start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
             end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
         except (TypeError, ValueError):
-            messages.error(request, 'يرجى إدخال تاريخي بداية ونهاية صالحين.')
-            return render(request, 'leaves/apply_leave.html')
+            messages.error(request, '???? ????? ?????? ????? ?????? ??????.')
+            return render(request, 'leaves/apply_leave.html', _context())
 
         if end_date < start_date:
             messages.error(request, 'يجب أن يكون تاريخ النهاية بعد تاريخ البداية.')
-            return render(request, 'leaves/apply_leave.html')
+            return render(request, 'leaves/apply_leave.html', _context())
 
         employee = getattr(request.user, 'employee_profile', None)
 
@@ -206,7 +242,7 @@ def apply_leave(request):
             ).exists()
             if overlapping_request:
                 messages.error(request, 'يوجد طلب إجازة مسجل بالفعل لهذا الموظف خلال هذه الفترة.')
-                return render(request, 'leaves/apply_leave.html')
+                return render(request, 'leaves/apply_leave.html', _context())
 
             leave = LeaveRequest.objects.create(
                 employee=employee,
@@ -223,7 +259,7 @@ def apply_leave(request):
 
         messages.error(request, 'يجب ربط حسابك بملف موظف قبل تقديم طلب الإجازة.')
 
-    return render(request, 'leaves/apply_leave.html')
+    return render(request, 'leaves/apply_leave.html', _context())
 
 
 @login_required

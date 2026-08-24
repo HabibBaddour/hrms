@@ -30,6 +30,24 @@
             --dark-text-color: #f8fafc;
             --dark-text-muted: #94a3b8;
             --dark-border-color: #334155;
+
+            /* ألوان هوية المشروع */
+            --brand-night: #151130;
+            --brand-primary: #6153E4;
+            --brand-primary-soft: #8B7FF2;
+            --brand-teal: #17B0A7;
+            --brand-gold: #F2B44C;
+
+            /* زجاج السايدبار والنافبار العلوي */
+            --glass-sidebar: rgba(21, 17, 48, 0.82);
+            --glass-topbar: rgba(21, 17, 48, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.14);
+        }
+
+        body.dark-mode {
+            --glass-sidebar: rgba(12, 10, 30, 0.9);
+            --glass-topbar: rgba(12, 10, 30, 0.86);
+            --glass-border: rgba(255, 255, 255, 0.1);
         }
 
         body {
@@ -151,13 +169,18 @@
             position: fixed;
             top: 0;
             right: 0;
-            background-color: var(--sidebar-bg);
+            background:
+                linear-gradient(180deg, rgba(97, 83, 228, 0.18) 0%, rgba(23, 176, 167, 0.06) 42%, rgba(21, 17, 48, 0) 70%),
+                var(--glass-sidebar);
+            -webkit-backdrop-filter: blur(24px) saturate(160%);
+            backdrop-filter: blur(24px) saturate(160%);
             color: #fff;
             z-index: 1000;
             display: flex;
             flex-direction: column;
             transition: all 0.3s ease;
-            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+            border-left: 1px solid var(--glass-border);
+            box-shadow: -18px 0 44px rgba(8, 6, 28, 0.35);
         }
 
         .sidebar-brand {
@@ -170,6 +193,19 @@
             gap: 12px;
             color: #fff;
             text-decoration: none;
+            letter-spacing: 0.03em;
+        }
+
+        .sidebar-brand .brand-logo {
+            display: grid;
+            place-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-teal));
+            box-shadow: 0 8px 22px rgba(97, 83, 228, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
         }
 
         .sidebar-menu {
@@ -189,36 +225,86 @@
         .sidebar-menu .menu-header {
             font-size: 0.7rem;
             text-transform: uppercase;
-            color: var(--text-muted);
-            padding: 10px 12px 4px;
+            color: rgba(255, 255, 255, 0.42);
+            padding: 12px 14px 4px;
             font-weight: 700;
+            letter-spacing: 0.05em;
         }
 
         .sidebar-menu li a {
+            position: relative;
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 8px 12px;
-            color: #cbd5e1;
+            padding: 9px 16px 9px 12px;
+            color: rgba(233, 230, 247, 0.72);
             text-decoration: none;
-            border-radius: 10px;
+            border-radius: 11px;
             font-weight: 600;
             font-size: 0.88rem;
-            transition: all 0.2s ease;
+            transition: all 0.22s ease;
             margin-bottom: 2px;
         }
 
-        .sidebar-menu li a:hover, .sidebar-menu li a.active {
-            background: rgba(255, 255, 255, 0.12);
+        .sidebar-menu li a::after {
+            content: '';
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            width: 3.5px;
+            height: 56%;
+            border-radius: 4px;
+            background: linear-gradient(180deg, var(--brand-gold), var(--brand-primary-soft));
+            box-shadow: 0 0 10px rgba(242, 180, 76, 0.55);
+            transform: translateY(-50%) scaleY(0);
+            opacity: 0;
+            transition: transform 0.25s ease, opacity 0.25s ease;
+        }
+
+        .sidebar-menu li a:hover {
+            background: rgba(255, 255, 255, 0.07);
             color: #fff;
+            transform: translateX(-4px);
+        }
+
+        .sidebar-menu li a:hover::after {
+            transform: translateY(-50%) scaleY(0.6);
+            opacity: 0.55;
+        }
+
+        .sidebar-menu li a.active {
+            background: linear-gradient(90deg, rgba(139, 127, 242, 0.28) 0%, rgba(23, 176, 167, 0.1) 100%);
+            color: #fff;
+            font-weight: 700;
+            box-shadow: inset 0 0 0 1px rgba(139, 127, 242, 0.28), 0 6px 16px rgba(8, 6, 28, 0.25);
             transform: translateX(-3px);
+        }
+
+        .sidebar-menu li a.active::after {
+            transform: translateY(-50%) scaleY(1);
+            opacity: 1;
         }
 
         .sidebar-menu li a i {
             font-size: 1rem;
             width: 20px;
             text-align: center;
-            color: #818cf8;
+            color: rgba(233, 230, 247, 0.5);
+            transition: color 0.22s ease, transform 0.22s ease;
+        }
+
+        .sidebar-menu li a:hover i {
+            color: var(--brand-primary-soft);
+            transform: scale(1.08);
+        }
+
+        .sidebar-menu li a.active i {
+            color: var(--brand-gold);
+        }
+
+        .sidebar-user-avatar {
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-teal));
+            box-shadow: 0 6px 16px rgba(97, 83, 228, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         /* Main Wrapper */
@@ -232,22 +318,36 @@
 
         /* Topbar */
         .topbar {
-            height: 65px;
-            background: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
+            height: 64px;
+            margin: 16px 22px 6px;
+            padding: 0 26px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 25px;
             position: sticky;
-            top: 0;
+            top: 14px;
             z-index: 999;
+            border-radius: 999px;
+            color: #fff;
+            background:
+                linear-gradient(90deg, rgba(97, 83, 228, 0.16) 0%, rgba(23, 176, 167, 0.08) 100%),
+                var(--glass-topbar);
+            -webkit-backdrop-filter: blur(22px) saturate(160%);
+            backdrop-filter: blur(22px) saturate(160%);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 16px 38px rgba(8, 6, 28, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.12);
             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
 
+        .topbar .page-title {
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+
         body.dark-mode .topbar {
-            background: #1e293b;
-            border-bottom: 1px solid #334155;
+            border-color: var(--glass-border);
+            box-shadow: 0 16px 38px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
         /* Navbar Icons */
@@ -258,64 +358,53 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #64748b;
-            background: #f1f5f9;
-            border: none;
+            color: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
             position: relative;
             font-size: 1rem;
             text-decoration: none;
         }
 
         .navbar-icon:hover {
-            background: #e2e8f0;
-            color: #334155;
+            background: rgba(139, 127, 242, 0.3);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(97, 83, 228, 0.35);
+        }
+
+        .navbar-icon.active {
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-teal));
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 8px 20px rgba(97, 83, 228, 0.45);
         }
 
         .navbar-icon-danger {
-            color: #ef4444;
-            background: #fee2e2;
+            color: #ffb4b4;
+            background: rgba(239, 68, 68, 0.16);
+            border-color: rgba(239, 68, 68, 0.28);
         }
 
         .navbar-icon-danger:hover {
-            background: #fecaca;
-            color: #dc2626;
-        }
-
-        body.dark-mode .navbar-icon {
-            background: #334155;
-            color: #cbd5e1;
-        }
-
-        body.dark-mode .navbar-icon:hover {
-            background: #475569;
-            color: #f8fafc;
-        }
-
-        body.dark-mode .navbar-icon-danger {
-            background: #451a1a;
-            color: #fca5a5;
-        }
-
-        body.dark-mode .navbar-icon-danger:hover {
-            background: #7f1d1d;
-            color: #fecaca;
+            background: rgba(239, 68, 68, 0.32);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(220, 38, 38, 0.35);
         }
 
         .navbar-icon .notification-badge {
             position: absolute;
-            top: -2px;
-            right: -2px;
-            width: 9px;
-            height: 9px;
+            top: -1px;
+            right: -1px;
+            width: 10px;
+            height: 10px;
             background: #ef4444;
             border-radius: 50%;
-            border: 2px solid #ffffff;
-        }
-
-        body.dark-mode .navbar-icon .notification-badge {
-            border-color: #1e293b;
+            border: 2px solid rgba(21, 17, 48, 0.95);
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
         }
 
         /* User Profile Dropdown */
@@ -323,24 +412,29 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 6px 12px 6px 16px;
-            border-radius: 12px;
+            padding: 6px 14px;
+            border-radius: 999px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            transition: all 0.25s ease;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.14);
         }
 
         .user-profile-trigger:hover {
-            background: #f1f5f9;
-            border-color: #cbd5e1;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(139, 127, 242, 0.45);
+            box-shadow: 0 8px 20px rgba(97, 83, 228, 0.3);
+        }
+
+        .user-profile-trigger .fa-chevron-down {
+            color: rgba(255, 255, 255, 0.6) !important;
         }
 
         .user-avatar {
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #312e81 0%, #4f46e5 100%);
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-teal) 100%);
             color: #fff;
             display: flex;
             align-items: center;
@@ -348,6 +442,7 @@
             font-weight: 700;
             font-size: 0.9rem;
             flex-shrink: 0;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .user-info {
@@ -358,22 +453,20 @@
 
         .user-name {
             font-weight: 600;
-            color: #1e293b;
+            color: #fff;
             font-size: 0.88rem;
         }
 
         .user-role-preview {
             font-size: 0.75rem;
-            color: #64748b;
+            color: rgba(255, 255, 255, 0.62);
         }
 
-        body.dark-mode .user-name { color: #f1f5f9; }
-        body.dark-mode .user-role-preview { color: #94a3b8; }
         body.dark-mode .user-profile-trigger {
-            background: #334155;
-            border-color: #475569;
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.1);
         }
-        body.dark-mode .user-profile-trigger:hover { background: #475569; }
+        body.dark-mode .user-profile-trigger:hover { background: rgba(255, 255, 255, 0.12); }
 
         /* Dropdown Menu */
         .dropdown-menu-custom {
@@ -483,7 +576,7 @@
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
         <a href="{% url 'dashboard' %}" class="sidebar-brand">
-            <i class="fa-solid fa-users-gear text-warning fs-4"></i>
+            <span class="brand-logo"><i class="fa-solid fa-users-gear"></i></span>
             <span>HRMS System</span>
         </a>
 
@@ -597,9 +690,15 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    {% if latest_payslip_id %}
+                    <a href="{% url 'payroll_payslip' latest_payslip_id %}" class="{% if request.resolver_match.url_name == 'payroll_payslip' %}active{% endif %}">
                         <i class="fa-solid fa-file-invoice-dollar"></i> كشف الراتب
                     </a>
+                    {% else %}
+                    <a href="#" style="opacity:.55; cursor:not-allowed;" title="لا يوجد كشف راتب صادر لك بعد">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> كشف الراتب
+                    </a>
+                    {% endif %}
                 </li>
                 <li>
                     <a href="{% url 'employees:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
@@ -617,7 +716,7 @@
         <!-- User Profile Quick View at Bottom -->
         <div class="p-3 border-top border-secondary border-opacity-25 mt-auto bg-black bg-opacity-10">
             <div class="d-flex align-items-center gap-2">
-                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0" style="width: 38px; height: 38px; font-size: 0.95rem;">
+                <div class="sidebar-user-avatar text-white rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0" style="width: 38px; height: 38px; font-size: 0.95rem;">
                     {{ user.username|slice:":1"|upper }}
                 </div>
                 <div class="overflow-hidden w-100">
@@ -654,7 +753,7 @@
         <header class="topbar">
             <!-- Dynamic Header Title -->
             <div class="d-flex align-items-center gap-3">
-                <h5 class="fw-bold mb-0 text-dark" id="page-main-title">
+                <h5 class="page-title fw-bold mb-0" id="page-main-title">
                     {% block page_title %}
                         {% if request.resolver_match.url_name == 'dashboard' %}لوحة التحكم الرئيسية
                         {% elif 'department' in request.resolver_match.url_name %}إدارة الأقسام والوظائف

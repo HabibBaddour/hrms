@@ -1,18 +1,22 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Q
+from django.db.models import Q, Sum, Avg, Count
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
 from django.http import JsonResponse
+from django.urls import reverse
+from django.utils import timezone
 from html import escape
 from html.parser import HTMLParser
 from datetime import timedelta
 from types import SimpleNamespace
-from employees.models import Employee
+from employees.models import Employee, Contract
 from departments.models import Department, Position
 from leaves.models import LeaveRequest  # اضبط اسم الموديل بحسب مشروعك
 from leaves.services import get_pending_leaves_count
-from core.models import InternalMessage
+from payroll.models import Payroll
+from performance.models import PerformanceEvaluation
+from core.models import InternalMessage, SystemNotification
 
 
 ROLE_OPTIONS = ['Employee', 'Manager', 'HR Admin']
@@ -118,70 +122,300 @@ def dashboard_redirect(request):
     else:
         return redirect('employee_dashboard')
 
+AR_MONTHS = ['كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران',
+             'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول']
+
+
+def _arabic_date(value):
+    return f"{value.day} {AR_MONTHS[value.month - 1]} {value.year}"
+
+
+def build_activity_feed(user, limit=8):
+    icon_map = {
+        'SYSTEM': 'fa-server',
+        'EMPLOYEE': 'fa-user-plus',
+        'DEPARTMENT': 'fa-sitemap',
+        'LEAVE': 'fa-calendar-days',
+        'PAYROLL': 'fa-money-check-dollar',
+    }
+    tone_map = {
+        'SYSTEM': 'violet',
+        'EMPLOYEE': 'indigo',
+        'DEPARTMENT': 'teal',
+        'LEAVE': 'gold',
+        'PAYROLL': 'plum',
+    }
+    verb_map = {
+        'created': 'إنشاء', 'updated': 'تحديث', 'deleted': 'حذف', 'assigned': 'تعيين',
+        'submitted': 'طلب جديد', 'approved': 'موافقة', 'rejected': 'رفض',
+    }
+    feed = []
+    for note in SystemNotification.objects.filter(recipient=user)[:limit]:
+        feed.append(SimpleNamespace(
+            tone=tone_map.get(note.notification_type, 'violet'),
+            icon_class=icon_map.get(note.notification_type, 'fa-bell'),
+            title=f"{verb_map.get(note.verb, note.verb)} - {note.get_notification_type_display()}",
+            text=note.message,
+            created_at=note.created_at,
+            activity_url=reverse('core:notification_list'),
+        ))
+    return feed
+
+
 @login_required(login_url='login')
 def hr_dashboard(request):
     """HR Admin / SuperUser Dashboard with full administrative rights"""
-    total_employees = Employee.objects.count()
-    total_departments = Department.objects.count()
-    total_positions = Position.objects.count()
-    
-    pending_leaves = get_pending_leaves_count()
-    
+    today = timezone.localdate()
+    month_start = today.replace(day=1)
+
+    payroll_filter = Payroll.objects.filter(year=today.year, month=today.month)
+    payroll_total = payroll_filter.aggregate(total=Sum('net_salary'))['total'] or 0
+
+    completed_evals = PerformanceEvaluation.objects.filter(status='COMPLETED', overall_score__gt=0)
+    avg_performance = round(completed_evals.aggregate(value=Avg('overall_score'))['value'] or 0, 1)
+
+    contracts_soon = []
+    active_contracts = Contract.objects.filter(
+        status='ACTIVE', end_date__isnull=False,
+        end_date__gte=today, end_date__lte=today + timedelta(days=60),
+    ).select_related('employee').order_by('end_date')
+    for contract in active_contracts:
+        contracts_soon.append({
+            'employee': contract.employee.get_full_name(),
+            'end_date': contract.end_date,
+            'days_left': (contract.end_date - today).days,
+            'type': contract.get_contract_type_display(),
+        })
+
+    leave_breakdown = []
+    for code, label in LeaveRequest.LeaveType.choices:
+        count = LeaveRequest.objects.filter(leave_type=code, start_date__year=today.year).count()
+        leave_breakdown.append({'label': label, 'count': count})
+    max_leave_count = max((item['count'] for item in leave_breakdown), default=0)
+
+    top_departments = Department.objects.annotate(headcount=Count('employee')).order_by('-headcount')[:5]
+    max_dept_headcount = max((dept.headcount for dept in top_departments), default=0)
+
+    birthdays = []
+    for emp in Employee.objects.select_related('user'):
+        birth = emp.date_of_birth or emp.birth_date
+        if birth and birth.month == today.month:
+            birthdays.append({
+                'name': emp.get_full_name(),
+                'day': birth.day,
+                'month_name': AR_MONTHS[birth.month - 1],
+            })
+    birthdays.sort(key=lambda item: item['day'])
+    birthdays = birthdays[:6]
+
     context = {
-        'employee_count': total_employees,
-        'department_count': total_departments,
-        'position_count': total_positions,
-        'pending_leaves': pending_leaves,
+        'employee_count': Employee.objects.count(),
+        'active_accounts': Employee.objects.filter(user__is_active=True).count(),
+        'department_count': Department.objects.count(),
+        'position_count': Position.objects.count(),
+        'pending_leaves': get_pending_leaves_count(),
+        'payroll_total': payroll_total,
+        'payroll_count': payroll_filter.count(),
+        'approved_leaves_month': LeaveRequest.objects.filter(
+            status='APPROVED', start_date__range=(month_start, today)).count(),
+        'avg_performance': avg_performance,
+        'evaluation_count': completed_evals.count(),
+        'contracts_soon': contracts_soon,
+        'ai_flagged': LeaveRequest.objects.filter(status='PENDING').exclude(ai_prediction='PENDING').count(),
+        'leave_breakdown': leave_breakdown,
+        'max_leave_count': max_leave_count,
+        'top_departments': top_departments,
+        'max_dept_headcount': max_dept_headcount,
+        'birthdays': birthdays,
+        'recent_activities': build_activity_feed(request.user),
+        'month_name': AR_MONTHS[today.month - 1],
+        'today_ar': _arabic_date(today),
     }
     return render(request, 'dashboard/hr_dashboard.html', context)
 
 @login_required(login_url='login')
 def manager_dashboard(request):
     """Manager Dashboard with team management capabilities"""
-    # Get manager's department employees
-    try:
-        employee_profile = request.user.employee_profile
-        if employee_profile and employee_profile.department:
-            team_employees = Employee.objects.filter(department=employee_profile.department).count()
-        else:
-            team_employees = 0
-    except:
-        team_employees = 0
-    
+    today = timezone.localdate()
+    month_start = today.replace(day=1)
+
+    employee_profile = getattr(request.user, 'employee_profile', None)
+    department = getattr(employee_profile, 'department', None)
+
+    if department is not None:
+        team_qs = Employee.objects.filter(department=department)
+        team_scope = Q(employee__department=department)
+    else:
+        team_qs = Employee.objects.none()
+        team_scope = Q(pk__in=[])
+
+    team_count = team_qs.count()
+
     pending_leaves = get_pending_leaves_count()
-    
+    dept_pending_leaves = LeaveRequest.objects.filter(team_scope, status='PENDING').count()
+    dept_approved_month = LeaveRequest.objects.filter(
+        team_scope, status='APPROVED', start_date__range=(month_start, today)).count()
+
+    pending_evaluations = PerformanceEvaluation.objects.filter(
+        employee__department=department, status='DRAFT',
+    ).select_related('employee__user').order_by('-evaluation_date')[:6]
+
+    team_evals = PerformanceEvaluation.objects.filter(
+        employee__department=department, status='COMPLETED', overall_score__gt=0)
+    avg_performance = round(team_evals.aggregate(value=Avg('overall_score'))['value'] or 0, 1)
+
+    leave_breakdown = []
+    for code, label in LeaveRequest.LeaveType.choices:
+        count = LeaveRequest.objects.filter(
+            team_scope, leave_type=code, start_date__year=today.year).count()
+        leave_breakdown.append({'label': label, 'count': count})
+    max_leave_count = max((item['count'] for item in leave_breakdown), default=0)
+
+    status_breakdown = [
+        {'label': 'معلق', 'count': LeaveRequest.objects.filter(team_scope, status='PENDING').count()},
+        {'label': 'مقبول', 'count': LeaveRequest.objects.filter(team_scope, status='APPROVED').count()},
+        {'label': 'مرفوض', 'count': LeaveRequest.objects.filter(team_scope, status='REJECTED').count()},
+    ]
+    max_status_count = max((item['count'] for item in status_breakdown), default=0)
+
+    recent_team_leaves = LeaveRequest.objects.filter(team_scope).select_related(
+        'employee', 'employee__user').order_by('-created_at')[:5]
+
+    contracts_soon = []
+    active_contracts = Contract.objects.filter(
+        employee__department=department, status='ACTIVE', end_date__isnull=False,
+        end_date__gte=today, end_date__lte=today + timedelta(days=60),
+    ).select_related('employee').order_by('end_date')
+    for contract in active_contracts:
+        contracts_soon.append({
+            'employee': contract.employee.get_full_name(),
+            'end_date': contract.end_date,
+            'days_left': (contract.end_date - today).days,
+            'type': contract.get_contract_type_display(),
+        })
+
+    birthdays = []
+    for emp in team_qs.select_related('user'):
+        birth = emp.date_of_birth or emp.birth_date
+        if birth and birth.month == today.month:
+            birthdays.append({
+                'name': emp.get_full_name(),
+                'day': birth.day,
+                'month_name': AR_MONTHS[birth.month - 1],
+            })
+    birthdays.sort(key=lambda item: item['day'])
+    birthdays = birthdays[:6]
+
     context = {
-        'team_count': team_employees,
+        'team_count': team_count,
         'pending_leaves': pending_leaves,
+        'dept_pending_leaves': dept_pending_leaves,
+        'dept_approved_month': dept_approved_month,
+        'department_name': department.name if department else 'غير محدد',
+        'pending_evaluations': pending_evaluations,
+        'avg_performance': avg_performance,
+        'evaluation_count': team_evals.count(),
+        'leave_breakdown': leave_breakdown,
+        'max_leave_count': max_leave_count,
+        'status_breakdown': status_breakdown,
+        'max_status_count': max_status_count,
+        'recent_team_leaves': recent_team_leaves,
+        'contracts_soon': contracts_soon,
+        'birthdays': birthdays,
+        'recent_activities': build_activity_feed(request.user),
+        'month_name': AR_MONTHS[today.month - 1],
+        'today_ar': _arabic_date(today),
     }
     return render(request, 'dashboard/manager_dashboard.html', context)
 
 @login_required(login_url='login')
 def employee_dashboard(request):
     """Employee Dashboard with personal features"""
+    today = timezone.localdate()
     employee_profile = getattr(request.user, 'employee_profile', None)
 
     pending_leaves = 0
     leave_balance = 0
     last_payroll = None
     recent_leaves = []
+    annual_remaining = 0
+    sick_remaining = 0
+    emergency_remaining = 0
+    total_leave_remaining = 0
+    unread_notifications = 0
+    my_evaluations = []
+    evaluations_completed = 0
+    avg_my_score = 0
+    payslips_count = 0
+    team_size = 0
 
     if employee_profile:
         pending_leaves = LeaveRequest.objects.filter(employee=employee_profile, status='PENDING').count()
-        leave_balance = employee_profile.get_annual_leave_balance()
         recent_leaves = LeaveRequest.objects.filter(employee=employee_profile).order_by('-created_at')[:5]
 
         try:
+            leave_balance = employee_profile.get_annual_leave_balance()
+        except Exception:
+            leave_balance = getattr(employee_profile, 'annual_remaining', 0)
+        annual_remaining = getattr(employee_profile, 'annual_remaining', leave_balance) or 0
+        sick_remaining = getattr(employee_profile, 'sick_remaining', 0) or 0
+        emergency_remaining = getattr(employee_profile, 'emergency_remaining', 0) or 0
+        total_leave_remaining = getattr(employee_profile, 'total_leave_remaining', 0) or 0
+
+        try:
             last_payroll = employee_profile.payrolls.order_by('-year', '-month').first()
+            payslips_count = employee_profile.payrolls.count()
         except Exception:
             last_payroll = None
 
+        unread_notifications = SystemNotification.objects.filter(
+            recipient=request.user, is_read=False).count()
+
+        my_evaluations = PerformanceEvaluation.objects.filter(
+            employee=employee_profile).select_related('evaluator__user').order_by('-evaluation_date')[:5]
+        my_completed_evals = PerformanceEvaluation.objects.filter(
+            employee=employee_profile, status='COMPLETED', overall_score__gt=0)
+        evaluations_completed = my_completed_evals.count()
+        avg_my_score = round(my_completed_evals.aggregate(value=Avg('overall_score'))['value'] or 0, 1)
+
+        department = getattr(employee_profile, 'department', None)
+        if department is not None:
+            team_size = Employee.objects.filter(department=department).count()
+
+    my_leave_breakdown = []
+    if employee_profile:
+        for code, label in LeaveRequest.LeaveType.choices:
+            count = LeaveRequest.objects.filter(employee=employee_profile, leave_type=code).count()
+            my_leave_breakdown.append({'label': label, 'count': count})
+    max_my_leave_count = max((item['count'] for item in my_leave_breakdown), default=0)
+
+    balance_breakdown = [
+        {'label': 'السنوية المتبقية', 'count': annual_remaining, 'total': 11},
+        {'label': 'المرضية المتبقية', 'count': sick_remaining, 'total': 11},
+        {'label': 'الطارئة المتبقية', 'count': emergency_remaining, 'total': 11},
+    ]
     context = {
         'pending_leaves': pending_leaves,
         'leave_balance': leave_balance,
         'recent_leaves': recent_leaves,
         'last_payroll': last_payroll,
         'employee_profile': employee_profile,
+        'annual_remaining': annual_remaining,
+        'sick_remaining': sick_remaining,
+        'emergency_remaining': emergency_remaining,
+        'total_leave_remaining': total_leave_remaining,
+        'balance_breakdown': balance_breakdown,
+        'unread_notifications': unread_notifications,
+        'my_evaluations': my_evaluations,
+        'evaluations_completed': evaluations_completed,
+        'avg_my_score': avg_my_score,
+        'payslips_count': payslips_count,
+        'team_size': team_size,
+        'my_leave_breakdown': my_leave_breakdown,
+        'max_my_leave_count': max_my_leave_count,
+        'recent_activities': build_activity_feed(request.user),
+        'month_name': AR_MONTHS[today.month - 1],
+        'today_ar': _arabic_date(today),
     }
     return render(request, 'dashboard/employee_portal.html', context)
 

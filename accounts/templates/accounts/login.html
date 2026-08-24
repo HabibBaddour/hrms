@@ -3,188 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول | HRMS</title>
+    <meta name="theme-color" content="#151130">
+    <title>{% if login_success %}مرحباً بك{% else %}تسجيل الدخول{% endif %} | HRMS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --ink: #152b36; --muted: #71818a; --teal: #167d78; --gold: #e6a84d; --paper: #f5f7f4; }
+        /* لوحة ألوان المشروع الرسمية (استخدمها في بقية الصفحات):
+           --brand-night: #151130 | --brand-primary: #6153E4 | --brand-primary-soft: #8B7FF2
+           --brand-teal: #17B0A7 | --brand-gold: #F2B44C | --brand-surface: #F6F4FB */
+        :root {
+            --brand-night: #151130;
+            --brand-primary: #6153E4;
+            --brand-primary-strong: #4F42CC;
+            --brand-primary-soft: #8B7FF2;
+            --brand-teal: #17B0A7;
+            --brand-teal-deep: #0E8F88;
+            --brand-gold: #F2B44C;
+            --brand-surface: #F6F4FB;
+        }
         * { box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; overflow: hidden; }
-        body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'Cairo', sans-serif; }
-        .auth-shell { display: flex; width: 100%; height: 100vh; overflow: hidden; }
-        .login-panel { order: 1; width: 50%; display: flex; align-items: center; justify-content: center; padding: 4rem clamp(2rem, 7vw, 7rem); background: #fbfcfa; opacity: 1; transition: width .8s cubic-bezier(.4, 0, .2, 1), opacity .4s ease, padding .8s cubic-bezier(.4, 0, .2, 1); }
-        .login-content { width: min(100%, 430px); animation: rise .7s ease both; }
-        .brand { display: inline-flex; align-items: center; gap: .75rem; color: var(--teal); font-size: 1.35rem; font-weight: 800; letter-spacing: .08em; margin-bottom: 3.5rem; }
-        .brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; color: white; background: var(--teal); box-shadow: 5px 5px 0 var(--gold); }
-        h1 { margin: 0 0 .55rem; font-size: clamp(1.8rem, 3vw, 2.5rem); line-height: 1.35; }
-        .intro { margin: 0 0 2.25rem; color: var(--muted); font-size: .95rem; }
-        .alert { padding: .75rem 1rem; margin-bottom: 1.25rem; border-radius: 10px; color: #9f2e2e; background: #fff0ef; font-size: .85rem; }
+        html, body { width: 100%; min-height: 100%; }
+        body { margin: 0; background: var(--brand-night); color: #fff; font-family: 'Cairo', sans-serif; overflow-x: hidden; }
+
+        .bg-split { position: fixed; inset: 0; z-index: 0; }
+        .bg-half { position: absolute; top: 0; bottom: 0; width: 50%; overflow: hidden; }
+        .half-images { right: 0; background: var(--brand-night); }
+        .half-gradients { left: 0; }
+        .layer { position: absolute; inset: 0; opacity: 0; background-position: center; background-size: cover; transition: opacity 1.5s ease; }
+        .layer.active { opacity: 1; }
+        .half-images .layer.active { animation: kenburns 14s ease-out forwards; }
+        @keyframes kenburns { from { transform: scale(1.09); } to { transform: scale(1); } }
+        .half-images .layer::after { content: ''; position: absolute; inset: 0; background: linear-gradient(270deg, rgba(21,17,48,.82) 0%, rgba(21,17,48,.3) 45%, rgba(21,17,48,.5) 100%); }
+        .half-gradients .layer::after { content: ''; position: absolute; inset: 0; background: radial-gradient(620px 620px at 82% 18%, rgba(255,255,255,.15), transparent 62%), radial-gradient(520px 520px at 14% 86%, rgba(0,0,0,.28), transparent 65%); }
+        .grad-1 { background: linear-gradient(135deg, #1B1442 0%, #4A3AB8 52%, #8B7FF2 100%); }
+        .grad-2 { background: linear-gradient(135deg, #052E33 0%, #0B6B70 52%, #17B0A7 100%); }
+        .grad-3 { background: linear-gradient(135deg, #2E1548 0%, #8E3D74 55%, #E89A5D 100%); }
+
+        .auth-stage { position: relative; z-index: 2; min-height: 100vh; display: grid; place-items: center; padding: 2rem 1.25rem; }
+        .login-card { width: min(100%, 470px); padding: 2.6rem 2.4rem 2rem; border-radius: 26px; background: rgba(23,19,54,.55); border: 1px solid rgba(255,255,255,.16); backdrop-filter: blur(26px) saturate(150%); -webkit-backdrop-filter: blur(26px) saturate(150%); box-shadow: 0 34px 90px rgba(8,6,28,.6), inset 0 1px 0 rgba(255,255,255,.16); transition: opacity .5s ease, transform .5s ease; animation: rise .8s ease both; }
+        @keyframes rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+
+        .brand { display: flex; align-items: center; gap: .85rem; margin-bottom: 2.2rem; }
+        .brand-mark { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; color: #fff; font-size: 1.15rem; background: linear-gradient(135deg, var(--brand-primary), var(--brand-teal)); box-shadow: 0 10px 26px rgba(97,83,228,.45); }
+        .brand-text b { display: block; color: #fff; font-size: 1.25rem; font-weight: 800; letter-spacing: .08em; line-height: 1.2; }
+        .brand-text span { display: block; color: rgba(255,255,255,.58); font-size: .72rem; letter-spacing: .04em; }
+        h1 { margin: 0 0 .4rem; font-size: clamp(1.5rem, 2.6vw, 1.95rem); font-weight: 800; }
+        .intro { margin: 0 0 1.9rem; color: rgba(255,255,255,.68); font-size: .92rem; }
+
+        .alert { display: flex; align-items: center; gap: .5rem; padding: .8rem 1rem; margin-bottom: 1.3rem; border: 1px solid rgba(255,120,120,.3); border-radius: 12px; color: #FFB4B4; background: rgba(255,90,90,.13); font-size: .85rem; }
         .field { margin-bottom: 1.25rem; }
-        label { display: block; margin-bottom: .5rem; font-size: .88rem; font-weight: 700; }
+        label { display: block; margin-bottom: .5rem; color: rgba(255,255,255,.86); font-size: .87rem; font-weight: 700; }
         .control { position: relative; }
-        .control > i { position: absolute; top: 50%; right: 1rem; color: #9aa8ac; transform: translateY(-50%); pointer-events: none; }
-        input[type="text"], input[type="password"], input[type="email"] { width: 100%; border: 1px solid #dbe3e0; border-radius: 10px; padding: .9rem 2.9rem .9rem 3rem; color: var(--ink); background: white; font: inherit; outline: none; transition: border-color .25s, box-shadow .25s; }
-        input:focus { border-color: var(--teal); box-shadow: 0 0 0 4px rgba(22, 125, 120, .12); }
-        .password-toggle { position: absolute; top: 50%; left: .9rem; border: 0; padding: .25rem; color: #89999d; background: transparent; cursor: pointer; transform: translateY(-50%); }
-        .password-toggle:hover { color: var(--teal); }
-        .form-options { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: .25rem 0 1.75rem; font-size: .82rem; }
-        .remember { display: flex; align-items: center; gap: .45rem; color: var(--muted); cursor: pointer; }
-        .remember input { accent-color: var(--teal); }
-        .forgot { color: var(--teal); font-weight: 700; text-decoration: none; }
-        .login-button { width: 100%; border: 0; border-radius: 10px; padding: .95rem; color: white; background: var(--teal); font: 700 .95rem 'Cairo', sans-serif; cursor: pointer; transition: transform .25s, box-shadow .25s, background .25s; }
-        .login-button:hover { background: #116864; box-shadow: 0 10px 22px rgba(22, 125, 120, .22); transform: translateY(-2px); }
-        .secure { margin: 2rem 0 0; color: #87969a; text-align: center; font-size: .78rem; }
-        .secure i { margin-left: .35rem; color: var(--teal); }
-        .slider-panel { order: 2; position: relative; width: 50%; min-height: 100vh; overflow: hidden; color: white; background: #183c43; transition: width .8s cubic-bezier(.4, 0, .2, 1); }
-        .slide { position: absolute; inset: 0; display: flex; align-items: flex-end; padding: clamp(2rem, 6vw, 6rem); opacity: 0; background-position: center; background-size: cover; transition: opacity 1s ease; }
-        .slide::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10, 37, 42, .1) 15%, rgba(10, 37, 42, .88) 100%); }
-        .slide.active { opacity: 1; }
-        .slide-copy { position: relative; max-width: 560px; }
-        .eyebrow { display: inline-block; margin-bottom: 1rem; color: #f3c26d; font-size: .8rem; font-weight: 700; letter-spacing: .12em; }
-        .slide h2 { margin: 0 0 .8rem; font-size: clamp(1.8rem, 4vw, 3.5rem); line-height: 1.25; }
-        .slide p { margin: 0; color: rgba(255,255,255,.82); font-size: 1rem; }
-        .welcome-overlay { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; padding: 2rem; text-align: center; background: rgba(15, 23, 42, .85); backdrop-filter: blur(12px); opacity: 0; visibility: hidden; transition: opacity .5s ease, visibility .5s ease, background-color 1s ease, backdrop-filter 1s ease; }
-        .welcome-card { width: min(100%, 620px); transform: translateY(20px) scale(.96); opacity: 0; transition: transform .7s .35s cubic-bezier(.2, .8, .2, 1), opacity .7s .35s ease; }
+        .control > i { position: absolute; top: 50%; right: 1rem; color: rgba(255,255,255,.45); transform: translateY(-50%); pointer-events: none; }
+        input[type="text"], input[type="password"], input[type="email"] { width: 100%; border: 1px solid rgba(255,255,255,.2); border-radius: 12px; padding: .92rem 2.9rem .92rem 3rem; color: #fff; background: rgba(255,255,255,.09); font: inherit; outline: none; transition: border-color .25s, box-shadow .25s, background .25s; }
+        input::placeholder { color: rgba(255,255,255,.4); }
+        input:focus { border-color: var(--brand-primary-soft); background: rgba(255,255,255,.13); box-shadow: 0 0 0 4px rgba(97,83,228,.28); }
+        .password-toggle { position: absolute; top: 50%; left: .9rem; border: 0; padding: .25rem; color: rgba(255,255,255,.5); background: transparent; cursor: pointer; transform: translateY(-50%); transition: color .25s; }
+        .password-toggle:hover { color: var(--brand-primary-soft); }
+        .form-options { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: .25rem 0 1.7rem; font-size: .82rem; }
+        .remember { display: flex; align-items: center; gap: .45rem; margin-bottom: 0; color: rgba(255,255,255,.72); cursor: pointer; font-weight: 600; }
+        .remember input { width: auto; accent-color: var(--brand-primary-soft); }
+        .login-button { width: 100%; border: 0; border-radius: 12px; padding: .98rem; color: #fff; background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-soft) 60%, var(--brand-teal) 135%); font: 700 1rem 'Cairo', sans-serif; cursor: pointer; box-shadow: 0 14px 30px rgba(79,66,204,.38); transition: transform .25s, box-shadow .25s, filter .25s; }
+        .login-button:hover { transform: translateY(-2px); filter: brightness(1.07); box-shadow: 0 18px 38px rgba(79,66,204,.5); }
+        .secure { margin: 1.9rem 0 0; color: rgba(255,255,255,.55); text-align: center; font-size: .78rem; }
+        .secure i { margin-left: .35rem; color: var(--brand-teal); }
+
+        .scene-dots { position: fixed; bottom: 1.5rem; left: 50%; z-index: 5; display: flex; gap: .55rem; padding: .5rem .75rem; border-radius: 999px; background: rgba(21,17,48,.42); border: 1px solid rgba(255,255,255,.14); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transform: translateX(-50%); }
+        .dot { width: 26px; height: 4px; border: 0; padding: 0; border-radius: 4px; background: rgba(255,255,255,.32); cursor: pointer; transition: background .35s, width .35s; }
+        .dot.active { width: 36px; background: linear-gradient(90deg, var(--brand-gold), var(--brand-primary-soft)); }
+
+        .welcome-scene { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 2rem 1.25rem; overflow: hidden; background: var(--brand-night); }
+        .welcome-scene::after { content: ''; position: absolute; inset: 0; background: radial-gradient(1200px 700px at 50% 42%, transparent 38%, rgba(8,6,24,.62) 100%); pointer-events: none; z-index: 1; }
+        .aurora-flow { position: absolute; top: -35%; left: -35%; width: 170%; height: 170%; background: linear-gradient(120deg, #1B1442 0%, #4A3AB8 14%, #8B7FF2 26%, #17123F 38%, #052E33 50%, #0B6B70 62%, #17B0A7 72%, #2E1548 84%, #8E3D74 92%, #E89A5D 100%); background-size: 320% 320%; opacity: .55; animation: flowMove 26s ease-in-out infinite alternate; pointer-events: none; }
+        @keyframes flowMove { 0% { background-position: 0% 45%; transform: rotate(0deg) scale(1); } 50% { background-position: 55% 65%; transform: rotate(4deg) scale(1.06); } 100% { background-position: 100% 35%; transform: rotate(-3deg) scale(1); } }
+        .blob { position: absolute; border-radius: 50%; pointer-events: none; z-index: 1; }
+        .blob-1 { width: 620px; height: 620px; top: -180px; right: -150px; background: radial-gradient(circle at 32% 32%, rgba(139,127,242,.75), rgba(74,58,184,.32) 55%, transparent 76%); animation: drift1 17s ease-in-out infinite alternate; }
+        .blob-2 { width: 560px; height: 560px; bottom: -190px; left: -150px; background: radial-gradient(circle at 35% 35%, rgba(23,176,167,.7), rgba(11,107,112,.3) 55%, transparent 76%); animation: drift2 20s ease-in-out infinite alternate; }
+        .blob-3 { width: 420px; height: 420px; top: 54%; left: 54%; background: radial-gradient(circle at 35% 35%, rgba(232,154,93,.6), rgba(142,61,116,.28) 55%, transparent 76%); animation: drift3 23s ease-in-out infinite alternate; }
+        @keyframes drift1 { to { transform: translate(-90px, 70px) scale(1.18); } }
+        @keyframes drift2 { to { transform: translate(95px, -60px) scale(1.12); } }
+        @keyframes drift3 { to { transform: translate(-75px, -85px) scale(1.22); } }
+
+        .welcome-card { position: relative; z-index: 2; width: min(100%, 600px); padding: 2.8rem 2.5rem 2.4rem; text-align: center; border-radius: 26px; background: rgba(23,19,54,.55); border: 1px solid rgba(255,255,255,.16); backdrop-filter: blur(26px) saturate(150%); -webkit-backdrop-filter: blur(26px) saturate(150%); box-shadow: 0 34px 90px rgba(8,6,28,.6), inset 0 1px 0 rgba(255,255,255,.16); animation: rise .7s ease both; }
+        .welcome-brand { display: inline-flex; align-items: center; gap: .7rem; margin-bottom: 1.8rem; color: #fff; font-weight: 800; letter-spacing: .08em; font-size: 1.05rem; }
+        .welcome-brand .brand-mark { width: 38px; height: 38px; border-radius: 12px; font-size: .95rem; }
         .welcome-loader { position: relative; display: flex; align-items: center; justify-content: center; width: 160px; height: 160px; margin: 0 auto 1.5rem; }
-        .loader-bar { position: absolute; top: 5px; left: 77px; width: 6px; height: 30px; border-radius: 6px; opacity: .85; transform-origin: 3px 75px; }
-        .loader-bar:nth-child(1) { --rotation: 0deg; --bar-color: #818cf8; }
-        .loader-bar:nth-child(2) { --rotation: 22.5deg; --bar-color: #a78bfa; }
-        .loader-bar:nth-child(3) { --rotation: 45deg; --bar-color: #c084fc; }
-        .loader-bar:nth-child(4) { --rotation: 67.5deg; --bar-color: #e879f9; }
-        .loader-bar:nth-child(5) { --rotation: 90deg; --bar-color: #f472b6; }
-        .loader-bar:nth-child(6) { --rotation: 112.5deg; --bar-color: #fb7185; }
-        .loader-bar:nth-child(7) { --rotation: 135deg; --bar-color: #fb923c; }
-        .loader-bar:nth-child(8) { --rotation: 157.5deg; --bar-color: #fbbf24; }
-        .loader-bar:nth-child(9) { --rotation: 180deg; --bar-color: #facc15; }
-        .loader-bar:nth-child(10) { --rotation: 202.5deg; --bar-color: #a3e635; }
-        .loader-bar:nth-child(11) { --rotation: 225deg; --bar-color: #4ade80; }
-        .loader-bar:nth-child(12) { --rotation: 247.5deg; --bar-color: #2dd4bf; }
-        .loader-bar:nth-child(13) { --rotation: 270deg; --bar-color: #22d3ee; }
-        .loader-bar:nth-child(14) { --rotation: 292.5deg; --bar-color: #38bdf8; }
-        .loader-bar:nth-child(15) { --rotation: 315deg; --bar-color: #60a5fa; }
-        .loader-bar:nth-child(16) { --rotation: 337.5deg; --bar-color: #818cf8; }
-        .loader-bar { background: transparent; box-shadow: none; transform: rotate(var(--rotation)); transition: background-color .25s ease, box-shadow .25s ease; }
+        .loader-bar { position: absolute; top: 5px; left: 77px; width: 6px; height: 30px; border-radius: 6px; opacity: .85; transform-origin: 3px 75px; background: transparent; transform: rotate(var(--rotation)); transition: background-color .25s ease, box-shadow .25s ease; }
+        .loader-bar:nth-child(4n+1) { --bar-color: var(--brand-primary-soft); }
+        .loader-bar:nth-child(4n+2) { --bar-color: var(--brand-teal); }
+        .loader-bar:nth-child(4n+3) { --bar-color: var(--brand-gold); }
+        .loader-bar:nth-child(4n+4) { --bar-color: var(--brand-primary); }
         .loader-bar.colored { background: var(--bar-color); box-shadow: 0 0 12px var(--bar-color); }
-        .loader-countdown { position: relative; z-index: 1; color: #fff; font-size: 2.25rem; font-weight: 800; text-shadow: 0 2px 12px rgba(15,23,42,.5); }
-        .welcome-card h2 { margin: 0 0 .5rem; color: #fff; font-size: 1.875rem; font-weight: 700; line-height: 1.2; text-shadow: 0 4px 20px rgba(15,23,42,.35); }
-        .welcome-card h1 { margin: 0 0 1rem; color: transparent; font-size: 2.25rem; font-weight: 800; line-height: 1.2; background: linear-gradient(90deg, #bfdbfe, #fff, #dbeafe); background-clip: text; -webkit-background-clip: text; }
-        .welcome-card p { margin: 1rem 0 0; color: rgba(255,255,255,.78); font-size: 1rem; }
-        .welcome-info { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; padding: 1rem 2rem; color: #fff; background: rgba(15,23,42,.6); border: 1px solid rgba(255,255,255,.2); border-radius: 1.5rem; box-shadow: 0 25px 50px rgba(15,23,42,.35); backdrop-filter: blur(16px); }
-        .welcome-info span:first-child time { color: #fbbf24; font: 700 1.5rem/1.2 monospace; letter-spacing: .08em; }
-        .welcome-info span:last-child { padding-right: 1.5rem; border-right: 1px solid rgba(255,255,255,.2); font-size: 1.125rem; font-weight: 500; color: #e2e8f0; }
-        .welcome-info span { display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap; }
-        .welcome-info i { color: #fbbf24; }
-        .login-success .login-panel { width: 0; padding-right: 0; padding-left: 0; opacity: 0; pointer-events: none; }
-        .login-success .slider-panel { width: 100%; }
-        .login-success .slide-copy, .login-success .dots { opacity: 0; transition: opacity .35s ease; }
-        .login-success .welcome-overlay { opacity: 1; visibility: visible; }
-        .login-success .welcome-card { opacity: 1; transform: translateY(0) scale(1); }
-        .dots { position: absolute; right: clamp(2rem, 6vw, 6rem); bottom: 2rem; display: flex; gap: .5rem; }
-        .dot { width: 28px; height: 4px; border: 0; padding: 0; border-radius: 4px; background: rgba(255,255,255,.4); cursor: pointer; }
-        .dot.active { background: var(--gold); }
-        @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 991px) { .slider-panel { display: none; } .login-panel { width: 100%; height: 100%; min-height: 0; padding: 1.5rem; } .brand { margin-bottom: 2rem; } .login-success .slider-panel { display: block; width: 100%; } .login-success .login-panel { display: none; } }
-        @media (max-width: 520px) { .welcome-info { gap: .6rem; padding: .5rem .8rem; font-size: .7rem; } }
+        .loader-bar:nth-child(1) { --rotation: 0deg; } .loader-bar:nth-child(2) { --rotation: 22.5deg; } .loader-bar:nth-child(3) { --rotation: 45deg; } .loader-bar:nth-child(4) { --rotation: 67.5deg; } .loader-bar:nth-child(5) { --rotation: 90deg; } .loader-bar:nth-child(6) { --rotation: 112.5deg; } .loader-bar:nth-child(7) { --rotation: 135deg; } .loader-bar:nth-child(8) { --rotation: 157.5deg; } .loader-bar:nth-child(9) { --rotation: 180deg; } .loader-bar:nth-child(10) { --rotation: 202.5deg; } .loader-bar:nth-child(11) { --rotation: 225deg; } .loader-bar:nth-child(12) { --rotation: 247.5deg; } .loader-bar:nth-child(13) { --rotation: 270deg; } .loader-bar:nth-child(14) { --rotation: 292.5deg; } .loader-bar:nth-child(15) { --rotation: 315deg; } .loader-bar:nth-child(16) { --rotation: 337.5deg; }
+        .loader-countdown { position: relative; z-index: 1; color: #fff; font-size: 2.25rem; font-weight: 800; text-shadow: 0 2px 12px rgba(21,17,48,.5); }
+        .welcome-card h2 { margin: 0 0 .5rem; color: #fff; font-size: 1.7rem; font-weight: 700; line-height: 1.3; }
+        .welcome-card h1 { margin: 0 0 .9rem; color: transparent; font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 800; line-height: 1.25; background: linear-gradient(90deg, var(--brand-primary-soft), #fff, var(--brand-teal)); background-clip: text; -webkit-background-clip: text; }
+        .welcome-card p { margin: 0; color: rgba(255,255,255,.72); font-size: .98rem; }
+        .welcome-info { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin-top: 1.7rem; padding: .95rem 1.8rem; color: #fff; background: rgba(21,17,48,.6); border: 1px solid rgba(255,255,255,.18); border-radius: 1.25rem; }
+        .welcome-info span { display: inline-flex; align-items: center; gap: .45rem; white-space: nowrap; }
+        .welcome-info span:first-child time { color: var(--brand-gold); font: 700 1.4rem/1.2 monospace; letter-spacing: .06em; }
+        .welcome-info span:last-child { padding-right: 1.4rem; border-right: 1px solid rgba(255,255,255,.2); color: #E9E6F7; font-size: 1rem; font-weight: 500; }
+        .welcome-info i { color: var(--brand-gold); }
+
+        @media (max-width: 920px) { .half-gradients { display: none; } .half-images { width: 100%; } }
+        @media (max-width: 520px) {
+            .login-card { padding: 1.8rem 1.4rem 1.5rem; }
+            .brand { margin-bottom: 1.5rem; }
+            .welcome-card { padding: 2rem 1.3rem 1.7rem; }
+            .welcome-loader { width: 130px; height: 130px; }
+            .loader-bar { left: 62px; width: 5px; height: 25px; transform-origin: 2.5px 61px; }
+            .welcome-info { flex-direction: column; gap: .6rem; padding: .8rem 1rem; }
+            .welcome-info span:last-child { padding-right: 0; border-right: 0; font-size: .88rem; }
+        }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
     </style>
 </head>
-<body{% if login_success %} class="login-success"{% endif %}>
-    <main class="auth-shell">
-        <section class="login-panel" aria-label="نموذج تسجيل الدخول">
-            <div class="login-content">
-                <div class="brand"><span class="brand-mark"><i class="fa-solid fa-users-gear"></i></span> HRMS</div>
-                <h1>مرحباً بك مجدداً</h1>
-                <p class="intro">يرجى إدخال بياناتك للوصول للوحة التحكم</p>
+<body>
+    {% if not login_success %}
+    <div class="bg-split" aria-hidden="true">
+        <div class="bg-half half-images">
+            <div class="layer active" style="background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1800&q=80');"></div>
+            <div class="layer" style="background-image: url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=1800&q=80');"></div>
+            <div class="layer" style="background-image: url('https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1800&q=80');"></div>
+        </div>
+        <div class="bg-half half-gradients">
+            <div class="layer grad-1 active"></div>
+            <div class="layer grad-2"></div>
+            <div class="layer grad-3"></div>
+        </div>
+    </div>
 
-                {% if form.errors %}<div class="alert" role="alert"><i class="fa-solid fa-circle-exclamation"></i> اسم المستخدم أو كلمة المرور غير صحيحة.</div>{% endif %}
-
-                <form method="post">
-                    {% csrf_token %}
-                    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
-                    <div class="field">
-                        <label for="username">اسم المستخدم أو البريد الإلكتروني</label>
-                        <div class="control"><i class="fa-regular fa-user"></i><input id="username" type="text" name="username" placeholder="أدخل اسم المستخدم أو البريد الإلكتروني" autocomplete="username" required></div>
-                    </div>
-                    <div class="field">
-                        <label for="password">كلمة المرور</label>
-                        <div class="control"><i class="fa-solid fa-lock"></i><input id="password" type="password" name="password" placeholder="أدخل كلمة المرور" autocomplete="current-password" required><button class="password-toggle" type="button" onclick="togglePassword()" aria-label="إظهار كلمة المرور"><i class="fa-solid fa-eye" id="toggleIcon"></i></button></div>
-                    </div>
-                    <div class="form-options"><label class="remember"><input type="checkbox" name="remember_me"> تذكرني</label></div>
-                    <button class="login-button" type="submit"><i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول</button>
-                </form>
-                <p class="secure"><i class="fa-solid fa-shield-halved"></i> دخول آمن ومشفّر</p>
+    <main class="auth-stage">
+        <section class="login-card" aria-label="نموذج تسجيل الدخول">
+            <div class="brand">
+                <span class="brand-mark"><i class="fa-solid fa-users-gear"></i></span>
+                <span class="brand-text"><b>HRMS</b><span>نظام إدارة الموارد البشرية</span></span>
             </div>
-        </section>
+            <h1>مرحباً بك مجدداً</h1>
+            <p class="intro">يرجى إدخال بياناتك للوصول إلى لوحة التحكم</p>
 
-        <section class="slider-panel" aria-label="مميزات نظام HRMS">
-            <article class="slide active" style="background-image: url('https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1800&q=88');"><div class="slide-copy"><span class="eyebrow">HRMS / 01</span><h2>إدارة متكاملة للموارد البشرية</h2><p>نظام أوتوماتيكي حديث يدير الهيكل التنظيمي وشؤون الموظفين بفاعلية</p></div></article>
-            <article class="slide" style="background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1800&q=88');"><div class="slide-copy"><span class="eyebrow">HRMS / 02</span><h2>تنبؤات الإجازات الذكية (ML)</h2><p>تحليلات متقدمة وتوصيات ذكية لمساعدة الإدارة في اتخاذ القرارات</p></div></article>
-            <article class="slide" style="background-image: url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1800&q=88');"><div class="slide-copy"><span class="eyebrow">HRMS / 03</span><h2>متابعة الحضور والرواتب والتقييم</h2><p>حساب دقيق للرواتب، المكافآت، وتقارير أداء دورية للموظفين</p></div></article>
-            <div class="dots" aria-label="اختيار الشريحة"><button class="dot active" type="button" aria-label="الشريحة الأولى"></button><button class="dot" type="button" aria-label="الشريحة الثانية"></button><button class="dot" type="button" aria-label="الشريحة الثالثة"></button></div>
-            {% if login_success %}
-            <div class="welcome-overlay" aria-live="polite">
-                <div class="welcome-card">
-                    <div class="welcome-loader" role="status" aria-label="جاري تجهيز لوحة التحكم">
-                        {% for bar in "1234567890123456" %}<div class="loader-bar" style="--index: {{ forloop.counter0 }}" aria-hidden="true"></div>{% endfor %}
-                        <span class="loader-countdown" id="welcome-countdown">5</span>
-                    </div>
-                    <h2 dir="rtl">مرحباً بك مجدداً 👋</h2>
-                    <h1 dir="ltr">{{ request.user.get_full_name|default:request.user.username }}</h1>
-                    <p>جاري تجهيز لوحة التحكم الخاصة بك...</p>
-                    <div class="welcome-info">
-                        <span><i class="fa-regular fa-clock"></i><time id="digital-clock" aria-label="الوقت الحالي"></time></span>
-                        <span><i class="fa-regular fa-calendar"></i><time id="login-date" datetime="{{ login_time }}">{{ login_time }}</time></span>
-                    </div>
+            {% if form.errors %}<div class="alert" role="alert"><i class="fa-solid fa-circle-exclamation"></i> اسم المستخدم أو كلمة المرور غير صحيحة.</div>{% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+                <div class="field">
+                    <label for="username">اسم المستخدم أو البريد الإلكتروني</label>
+                    <div class="control"><i class="fa-regular fa-user"></i><input id="username" type="text" name="username" placeholder="أدخل اسم المستخدم أو البريد الإلكتروني" autocomplete="username" required></div>
                 </div>
-            </div>
-            {% endif %}
+                <div class="field">
+                    <label for="password">كلمة المرور</label>
+                    <div class="control"><i class="fa-solid fa-lock"></i><input id="password" type="password" name="password" placeholder="أدخل كلمة المرور" autocomplete="current-password" required><button class="password-toggle" type="button" onclick="togglePassword()" aria-label="إظهار كلمة المرور"><i class="fa-solid fa-eye" id="toggleIcon"></i></button></div>
+                </div>
+                <div class="form-options"><label class="remember"><input type="checkbox" name="remember_me"> تذكرني</label></div>
+                <button class="login-button" type="submit"><i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول</button>
+            </form>
+            <p class="secure"><i class="fa-solid fa-shield-halved"></i> دخول آمن ومشفّر</p>
         </section>
     </main>
+
+    <div class="scene-dots" role="tablist" aria-label="اختيار المشهد">
+        <button class="dot active" type="button" aria-label="المشهد الأول"></button>
+        <button class="dot" type="button" aria-label="المشهد الثاني"></button>
+        <button class="dot" type="button" aria-label="المشهد الثالث"></button>
+    </div>
+
     <script>
-        const slides = document.querySelectorAll('.slide');
+        const imgLayers = document.querySelectorAll('.half-images .layer');
+        const gradLayers = document.querySelectorAll('.half-gradients .layer');
         const dots = document.querySelectorAll('.dot');
-        let currentSlide = 0;
+        let currentScene = 0;
         let sliderTimer;
-        function showSlide(index) { currentSlide = index; slides.forEach((slide, i) => slide.classList.toggle('active', i === index)); dots.forEach((dot, i) => dot.classList.toggle('active', i === index)); }
-        function startSlider() { sliderTimer = setInterval(() => showSlide((currentSlide + 1) % slides.length), 6000); }
-        dots.forEach((dot, index) => dot.addEventListener('click', () => { clearInterval(sliderTimer); showSlide(index); startSlider(); }));
-        {% if not login_success %}startSlider();{% endif %}
+
+        function showScene(index) {
+            currentScene = index;
+            imgLayers.forEach((layer, i) => layer.classList.toggle('active', i === index));
+            gradLayers.forEach((layer, i) => layer.classList.toggle('active', i === index));
+            dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+        }
+        function startSlider() { sliderTimer = setInterval(() => showScene((currentScene + 1) % imgLayers.length), 6500); }
+        dots.forEach((dot, index) => dot.addEventListener('click', () => { clearInterval(sliderTimer); showScene(index); startSlider(); }));
+        startSlider();
+
         function togglePassword() { const input = document.getElementById('password'); const icon = document.getElementById('toggleIcon'); const visible = input.type === 'password'; input.type = visible ? 'text' : 'password'; icon.classList.toggle('fa-eye', !visible); icon.classList.toggle('fa-eye-slash', visible); }
-        {% if login_success %}
+    </script>
+    {% endif %}
+
+    {% if login_success %}
+    <div class="welcome-scene" aria-live="polite">
+        <span class="aurora-flow" aria-hidden="true"></span>
+        <span class="blob blob-1" aria-hidden="true"></span>
+        <span class="blob blob-2" aria-hidden="true"></span>
+        <span class="blob blob-3" aria-hidden="true"></span>
+        <div class="welcome-card">
+            <div class="welcome-brand"><span class="brand-mark"><i class="fa-solid fa-users-gear"></i></span> HRMS</div>
+            <div class="welcome-loader" role="status" aria-label="جاري تجهيز لوحة التحكم">
+                {% for bar in "1234567890123456" %}<div class="loader-bar" aria-hidden="true"></div>{% endfor %}
+                <span class="loader-countdown" id="welcome-countdown">5</span>
+            </div>
+            <h2 dir="rtl">مرحباً بك مجدداً 👋</h2>
+            <h1 dir="ltr">{{ request.user.get_full_name|default:request.user.username }}</h1>
+            <p>جاري تجهيز لوحة التحكم الخاصة بك...</p>
+            <div class="welcome-info">
+                <span><i class="fa-regular fa-clock"></i><time id="digital-clock" aria-label="الوقت الحالي"></time></span>
+                <span><i class="fa-regular fa-calendar"></i><time id="login-date" datetime="{{ login_time }}">{{ login_time }}</time></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
         const countdown = document.getElementById('welcome-countdown');
         const loaderBars = document.querySelectorAll('.loader-bar');
         const digitalClock = document.getElementById('digital-clock');
         const loginDate = document.getElementById('login-date');
-        const welcomeOverlay = document.querySelector('.welcome-overlay');
         const loginDateValue = new Date(loginDate.dateTime);
         const arabicDateFormatter = new Intl.DateTimeFormat('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-        loginDate.textContent = `📅 ${arabicDateFormatter.format(loginDateValue)}`;
+        loginDate.textContent = arabicDateFormatter.format(loginDateValue);
+
         function updateDigitalClock() {
             digitalClock.textContent = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }).format(new Date());
         }
         updateDigitalClock();
         window.setInterval(updateDigitalClock, 1000);
+
         let coloredBarIndex = 0;
         const barColorTimer = window.setInterval(() => {
-            if (coloredBarIndex >= loaderBars.length) {
-                window.clearInterval(barColorTimer);
-                return;
-            }
+            if (coloredBarIndex >= loaderBars.length) { window.clearInterval(barColorTimer); return; }
             loaderBars[coloredBarIndex].classList.add('colored');
             coloredBarIndex += 1;
         }, 300);
+
         let secondsRemaining = 5;
-        window.setInterval(() => {
+        const redirectTimer = window.setInterval(() => {
             secondsRemaining -= 1;
-            countdown.textContent = secondsRemaining;
-            const progress = 1 - (secondsRemaining / 5);
-            welcomeOverlay.style.backgroundColor = `rgba(15, 23, 42, ${Math.max(.35, .85 - (progress * .5))})`;
-            welcomeOverlay.style.backdropFilter = `blur(${Math.max(0, 12 - (progress * 12))}px)`;
-            if (secondsRemaining <= 0) window.location.href = '/dashboard/';
+            countdown.textContent = Math.max(secondsRemaining, 0);
+            if (secondsRemaining <= 0) { window.clearInterval(redirectTimer); window.location.href = '/dashboard/'; }
         }, 1000);
-        {% endif %}
     </script>
+    {% endif %}
 </body>
 </html>

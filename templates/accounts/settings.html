@@ -1,73 +1,367 @@
 {% extends 'base.html' %}
 
 {% block title %}إعدادات الحساب والمظهر | HRMS{% endblock %}
-{% block page_title %}إعدادات المظهر والواجهة والمستخدم{% endblock %}
+{% block page_title %}الإعدادات{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-page { --line:#ECEAF6; --muted:#6E6A86; }
+
+    /* ===== Theme: HR Admin / Superuser (Violet) ===== */
+    .pf-violet {
+        --tone:#6153E4; --tone-deep:#4A3AB8; --strong:#4433C9;
+        --ring:rgba(97,83,228,.16);
+        --tile-bg:rgba(97,83,228,.11); --tile-fg:#4A3AB8;
+        --line-soft:#DCD6F5; --track:#EFEDFA; --head:#1A1338;
+        --hero-bg:
+            radial-gradient(520px 260px at 88% 0%, rgba(23,176,167,.35), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
+            linear-gradient(120deg,#1B1442 0%,#4A3AB8 55%,#6153E4 100%);
+        --hero-shadow:0 20px 44px rgba(27,20,66,.35);
+    }
+
+    /* ===== Theme: Manager (Green) ===== */
+    .pf-green {
+        --tone:#14A374; --tone-deep:#0E5C43; --strong:#0F8A60;
+        --ring:rgba(20,163,116,.16);
+        --tile-bg:rgba(20,163,116,.12); --tile-fg:#0F8A60;
+        --line-soft:#CBE7DA; --track:#EAF5EF; --head:#12271E;
+        --hero-bg:
+            radial-gradient(520px 260px at 88% 0%, rgba(56,224,160,.30), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
+            linear-gradient(120deg,#0B1F17 0%,#0E5C43 55%,#14A374 100%);
+        --hero-shadow:0 20px 44px rgba(11,31,23,.35);
+    }
+
+    /* ===== Theme: Employee (Blue) ===== */
+    .pf-blue {
+        --tone:#3B82F6; --tone-deep:#1E40AF; --strong:#1D4ED8;
+        --ring:rgba(59,130,246,.16);
+        --tile-bg:rgba(59,130,246,.12); --tile-fg:#1D4ED8;
+        --line-soft:#C9DAF8; --track:#EAF1FC; --head:#101A38;
+        --hero-bg:
+            radial-gradient(520px 260px at 88% 0%, rgba(56,189,248,.30), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
+            linear-gradient(120deg,#0A1128 0%,#1E40AF 55%,#3B82F6 100%);
+        --hero-shadow:0 20px 44px rgba(10,17,40,.35);
+    }
+
+    /* ===== Hero ===== */
+    .settings-hero {
+        position:relative; overflow:hidden;
+        border-radius:22px; padding:28px 30px; color:#fff;
+        background:var(--hero-bg); box-shadow:var(--hero-shadow);
+        margin-bottom:26px;
+    }
+    .settings-hero h4 { margin:0 0 6px; font-weight:800; }
+    .settings-hero p { margin:0; color:rgba(255,255,255,.75); font-size:.92rem; }
+    .eyebrow-pill {
+        display:inline-flex; align-items:center; gap:7px;
+        padding:6px 14px; border-radius:999px;
+        background:rgba(255,255,255,.14);
+        border:1px solid rgba(255,255,255,.22);
+        font-size:.74rem; font-weight:700; margin-bottom:10px;
+    }
+    .hero-chip {
+        display:inline-flex; align-items:center; gap:8px;
+        padding:7px 15px; border-radius:999px;
+        background:rgba(255,255,255,.14);
+        border:1px solid rgba(255,255,255,.22);
+        backdrop-filter:blur(8px);
+        font-size:.8rem; font-weight:600;
+    }
+
+    /* ===== Side Nav ===== */
+    .settings-nav { padding:10px; position:sticky; top:90px; }
+    .sn-item {
+        display:flex; align-items:center; gap:11px;
+        padding:11px 14px; border-radius:13px;
+        text-decoration:none; font-size:.87rem; font-weight:700;
+        color:#5D5878; transition:background .2s ease, color .2s ease;
+        border:1.5px solid transparent;
+    }
+    .sn-item i { width:32px; height:32px; border-radius:9px; display:grid; place-items:center; font-size:.82rem; background:var(--track); color:var(--muted); transition:inherit; }
+    .sn-item:hover { background:var(--tile-bg); color:var(--strong); }
+    .sn-item.active { background:linear-gradient(135deg,var(--tone-deep),var(--tone)); color:#fff; }
+    .sn-item.active i { background:rgba(255,255,255,.2); color:#fff; }
+    .sn-divider { border-top:1.5px dashed var(--line-soft); margin:10px 6px; }
+    .sn-label { font-size:.68rem; font-weight:800; color:var(--muted); padding:4px 12px 2px; letter-spacing:.5px; }
+    .sn-link {
+        display:flex; align-items:center; gap:10px; padding:8px 12px;
+        border-radius:11px; text-decoration:none;
+        font-size:.8rem; font-weight:600; color:#6E6A86;
+        transition:background .2s ease, color .2s ease;
+    }
+    .sn-link i { width:26px; text-align:center; color:var(--tile-fg); font-size:.78rem; }
+    .sn-link:hover { background:var(--tile-bg); color:var(--strong); }
+
+    /* ===== Panels ===== */
+    .panel {
+        padding:22px; border-radius:18px; background:#fff;
+        border:1px solid var(--line);
+        box-shadow:0 10px 26px rgba(15,23,42,.05);
+        margin-bottom:20px;
+    }
+    .panel-title {
+        display:flex; align-items:center; gap:10px;
+        font-weight:800; color:var(--head); font-size:1rem; margin-bottom:18px;
+    }
+    .panel-title i {
+        width:36px; height:36px; border-radius:11px;
+        display:grid; place-items:center; font-size:.9rem;
+        background:var(--tile-bg); color:var(--tile-fg);
+    }
+
+    .setting-row {
+        display:flex; align-items:center; justify-content:space-between; gap:16px;
+        padding:16px 0; border-bottom:1px dashed var(--line);
+    }
+    .setting-row:last-child { border-bottom:0; padding-bottom:0; }
+    .setting-row h6 { font-weight:800; color:var(--head); font-size:.93rem; margin-bottom:3px; }
+    .setting-row p { color:var(--muted); font-size:.8rem; margin:0; }
+
+    .form-switch .form-check-input { cursor:pointer; width:3em; height:1.5em; }
+    .form-check-input:checked { background-color:var(--tone); border-color:var(--tone); }
+    .form-check-input:focus { box-shadow:0 0 0 4px var(--ring); border-color:var(--tone); }
+
+    .ro-value {
+        background:#FAF9FE; border:1px solid #EEECF8; border-radius:12px;
+        padding:.62rem .9rem; font-weight:600; color:#2A2547; font-size:.88rem;
+        display:flex; align-items:center; gap:8px;
+    }
+    .f-label { font-size:.78rem; font-weight:700; color:#7A7690; margin-bottom:6px; }
+
+    .badge-active {
+        display:inline-flex; align-items:center; gap:7px;
+        padding:5px 13px; border-radius:999px;
+        font-size:.75rem; font-weight:800; white-space:nowrap;
+    }
+
+    /* ===== Quick Links ===== */
+    .ql-tile {
+        display:flex; align-items:center; gap:13px;
+        padding:14px 16px; border-radius:16px;
+        background:#fff; border:1px solid var(--line);
+        text-decoration:none; height:100%;
+        transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+        box-shadow:0 6px 16px rgba(15,23,42,.04);
+    }
+    .ql-tile:hover { transform:translateY(-4px); border-color:var(--tone); box-shadow:0 16px 32px rgba(15,23,42,.12); }
+    .ql-icon {
+        width:46px; height:46px; border-radius:13px; flex-shrink:0;
+        display:grid; place-items:center; font-size:1.05rem;
+        background:linear-gradient(135deg,var(--tone-deep),var(--tone)); color:#fff;
+    }
+    .ql-gold { background:linear-gradient(135deg,#E89A5D,#F2B44C) !important; }
+    .ql-teal { background:linear-gradient(135deg,#0B6B70,#17B0A7) !important; }
+    .ql-plum { background:linear-gradient(135deg,#8E3D74,#C96D8A) !important; }
+    .ql-tile b { display:block; color:var(--head); font-size:.9rem; }
+    .ql-tile small { color:var(--muted); font-size:.75rem; }
+
+    .btn-tone {
+        display:inline-flex; align-items:center; gap:8px;
+        background:linear-gradient(135deg,var(--tone-deep),var(--tone));
+        color:#fff !important; border:none; border-radius:12px;
+        padding:.6rem 1.2rem; font-weight:700; font-size:.85rem;
+        text-decoration:none;
+        transition:transform .22s ease, box-shadow .22s ease;
+    }
+    .btn-tone:hover { transform:translateY(-2px); box-shadow:0 12px 26px rgba(15,23,42,.2); }
+
+    @media (max-width:767px) { .settings-hero { padding:22px 20px; } .settings-nav { position:static; } }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- القائمة الجانبية للإعدادات -->
-        <div class="col-md-3 mb-4">
-            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-                <div class="list-group list-group-flush p-2">
-                    <a href="#theme-settings" class="list-group-item list-group-item-action border-0 rounded-3 active fw-semibold">
-                        <i class="fa-solid fa-palette me-2"></i> المظهر والواجهة
-                    </a>
-                    <a href="#profile-settings" class="list-group-item list-group-item-action border-0 rounded-3 fw-semibold">
-                        <i class="fa-solid fa-user-gear me-2"></i> معلومات الحساب
-                    </a>
-                </div>
+<div class="container-fluid py-4 settings-page {% if user_role == 'Manager' %}pf-green{% elif user_role == 'Employee' %}pf-blue{% else %}pf-violet{% endif %}">
+
+    <!-- ===== Hero ===== -->
+    <div class="settings-hero">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <span class="eyebrow-pill"><i class="fa-solid fa-sliders"></i> الإعدادات</span>
+                <h4>إعدادات الحساب والمظهر</h4>
+                <p>خصّص تجربتك في النظام وتابع بيانات حسابك وروابطك السريعة</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="hero-chip">
+                    <i class="fa-solid fa-user-tag"></i>
+                    {% if user_role == 'Manager' %}مدير{% elif user_role == 'HR Admin' %}مسؤول الموارد البشرية{% else %}موظف{% endif %}
+                </span>
+                <span class="hero-chip"><i class="fa-solid fa-circle-half-stroke"></i> الوضع: <span id="theme-state-label">فاتح</span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- ===== Side Nav ===== -->
+        <div class="col-lg-3 mb-4">
+            <div class="panel settings-nav" style="height:auto;">
+                <a href="#theme-settings" class="sn-item active" data-section="theme-settings">
+                    <i class="fa-solid fa-palette"></i> المظهر والواجهة
+                </a>
+                <a href="#account-settings" class="sn-item" data-section="account-settings">
+                    <i class="fa-solid fa-user-gear"></i> معلومات الحساب
+                </a>
+                <div class="sn-divider"></div>
+                <div class="sn-label">روابط سريعة</div>
+                <a href="{% url 'employees:profile' %}" class="sn-link"><i class="fa-solid fa-id-card"></i> ملفي الشخصي</a>
+                <a href="{% url 'core:notification_list' %}" class="sn-link"><i class="fa-solid fa-bell"></i> مركز الإشعارات</a>
+                <a href="{% url 'message_list' %}" class="sn-link"><i class="fa-solid fa-envelope"></i> الرسائل الداخلية</a>
+                <a href="{% url 'dashboard' %}" class="sn-link"><i class="fa-solid fa-chart-line"></i> لوحة التحكم</a>
             </div>
         </div>
 
-        <!-- محتوى الإعدادات -->
-        <div class="col-md-9">
-            <!-- كارت إعدادات المظهر -->
-            <div class="card border-0 shadow-sm mb-4" id="theme-settings" style="border-radius: 12px;">
-                <div class="card-header bg-white border-0 py-3">
-                    <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-sliders text-primary me-2"></i> إعدادات المظهر والوضع الليلي</h6>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center pb-3 border-bottom">
+        <!-- ===== Content ===== -->
+        <div class="col-lg-9 mb-4">
+            <!-- Appearance -->
+            <div class="panel" id="theme-settings" style="scroll-margin-top:90px;">
+                <div class="panel-title"><i class="fa-solid fa-palette"></i> المظهر والواجهة</div>
+
+                <div class="setting-row">
+                    <div class="d-flex align-items-center gap-3">
+                        <span style="width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--tile-bg);color:var(--tile-fg);font-size:1.05rem;"><i class="fa-solid fa-moon"></i></span>
                         <div>
-                            <h6 class="fw-bold mb-1 text-dark">الوضع الليلي (Dark Mode)</h6>
-                            <p class="text-muted small mb-0">تفعيل خلفية المظهر الداكن لراحة العين أثناء العمل ليلاً.</p>
-                        </div>
-                        <div class="form-check form-switch fs-4">
-                            <input class="form-check-input theme-switcher-input" type="checkbox" id="page-theme-switch">
+                            <h6>الوضع الليلي (Dark Mode)</h6>
+                            <p>تفعيل الخلفية الداكنة لراحة العين أثناء العمل ليلاً — يُحفظ اختيارك تلقائياً.</p>
                         </div>
                     </div>
+                    <div class="form-check form-switch fs-4 mb-0">
+                        <input class="form-check-input" type="checkbox" role="switch" id="page-theme-switch">
+                    </div>
+                </div>
 
-                    <div class="pt-3">
-                        <h6 class="fw-bold mb-3 text-dark">اللون الرئيسي للواجهة</h6>
-                        <div class="d-flex gap-3">
-                            <button class="btn p-3 rounded-circle border border-2 border-primary" style="background-color: #312e81;" title="Indigo Standard"></button>
-                            <button class="btn p-3 rounded-circle border border-2" style="background-color: #0284c7;" title="Ocean Blue"></button>
-                            <button class="btn p-3 rounded-circle border border-2" style="background-color: #059669;" title="Emerald Green"></button>
+                <div class="setting-row">
+                    <div class="d-flex align-items-center gap-3">
+                        <span style="width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--tile-bg);color:var(--tile-fg);font-size:1.05rem;"><i class="fa-solid fa-shield-halved"></i></span>
+                        <div>
+                            <h6>هوية الألوان الموحدة</h6>
+                            <p>يعتمد النظام هوية لونية موحدة تتكيف تلقائياً حسب دورك في المؤسسة.</p>
                         </div>
+                    </div>
+                    <span class="badge-active" style="background:var(--tile-bg); color:var(--strong);">
+                        <i class="fa-solid fa-check"></i> مفعّلة تلقائياً
+                    </span>
+                </div>
+
+                <div class="setting-row">
+                    <div class="d-flex align-items-center gap-3">
+                        <span style="width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--tile-bg);color:var(--tile-fg);font-size:1.05rem;"><i class="fa-solid fa-font"></i></span>
+                        <div>
+                            <h6>الخط العربي Cairo</h6>
+                            <p>خط عربي حديث متوازن الأوزان لقراءة مريحة في كل الصفحات.</p>
+                        </div>
+                    </div>
+                    <span class="badge-active" style="background:var(--tile-bg); color:var(--strong);">
+                        <i class="fa-solid fa-check"></i> افتراضي
+                    </span>
+                </div>
+            </div>
+
+            <!-- Account Info -->
+            <div class="panel" id="account-settings" style="scroll-margin-top:90px;">
+                <div class="panel-title">
+                    <i class="fa-solid fa-user-gear"></i> معلومات الحساب الحالي
+                    <span class="ms-auto"></span>
+                    <a href="{% url 'employees:profile' %}" class="btn-tone ms-auto"><i class="fa-solid fa-pen me-1"></i> تعديل بياناتي</a>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="f-label">اسم المستخدم</label>
+                        <div class="ro-value"><i class="fa-solid fa-at" style="color:var(--tile-fg);"></i>{{ user.username }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="f-label">البريد الإلكتروني</label>
+                        <div class="ro-value"><i class="fa-solid fa-envelope" style="color:var(--tile-fg);"></i>{{ user.email|default:'لا يوجد بريد مسجل' }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="f-label">الدور في النظام</label>
+                        <div class="ro-value"><i class="fa-solid fa-user-tag" style="color:var(--tile-fg);"></i>{% if user_role == 'Manager' %}مدير{% elif user_role == 'HR Admin' %}مسؤول الموارد البشرية{% else %}موظف{% endif %}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="f-label">القسم</label>
+                        <div class="ro-value"><i class="fa-solid fa-sitemap" style="color:var(--tile-fg);"></i>{{ user.employee_profile.department.name|default:'غير محدد' }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="f-label">المسمى الوظيفي</label>
+                        <div class="ro-value"><i class="fa-solid fa-briefcase" style="color:var(--tile-fg);"></i>{{ user.employee_profile.position.title|default:'غير محدد' }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="f-label">رقم الموظف</label>
+                        <div class="ro-value"><i class="fa-solid fa-id-badge" style="color:var(--tile-fg);"></i>EMP-{{ user.employee_profile.employee_number|default:'N/A' }}</div>
                     </div>
                 </div>
             </div>
 
-            <!-- كارت معلومات الحساب السريعة -->
-            <div class="card border-0 shadow-sm" id="profile-settings" style="border-radius: 12px;">
-                <div class="card-header bg-white border-0 py-3">
-                    <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-id-card text-primary me-2"></i> معلومات الحساب الحالي</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold small text-muted">اسم المستخدم</label>
-                            <input type="text" class="form-control" value="{{ user.username }}" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold small text-muted">البريد الإلكتروني</label>
-                            <input type="email" class="form-control" value="{{ user.email|default:'لا يوجد بريد مسجل' }}" readonly>
-                        </div>
+            <!-- Quick Links -->
+            <div class="panel">
+                <div class="panel-title"><i class="fa-solid fa-bolt"></i> اختصارات شائعة</div>
+                <div class="row g-3">
+                    <div class="col-sm-6 col-xl-3">
+                        <a href="{% url 'employees:profile' %}" class="ql-tile">
+                            <span class="ql-icon ql-gold"><i class="fa-solid fa-id-card"></i></span>
+                            <span><b>ملفي الشخصي</b><small>بياناتك وصورتك وأرصدتك</small></span>
+                        </a>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <a href="{% url 'leaves:apply_leave' %}" class="ql-tile">
+                            <span class="ql-icon"><i class="fa-solid fa-calendar-plus"></i></span>
+                            <span><b>طلب إجازة</b><small>قدّم طلباً جديداً الآن</small></span>
+                        </a>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <a href="{% url 'leaves:leave_list' %}" class="ql-tile">
+                            <span class="ql-icon ql-teal"><i class="fa-solid fa-calendar-days"></i></span>
+                            <span><b>طلباتي</b><small>تابع حالة طلبات إجازاتك</small></span>
+                        </a>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <a href="{% url 'evaluations_dashboard' %}" class="ql-tile">
+                            <span class="ql-icon ql-plum"><i class="fa-solid fa-ranking-star"></i></span>
+                            <span><b>تقييماتي</b><small>نتائج أداء وملاحظات المقيّمين</small></span>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const body = document.body;
+    const themeSwitch = document.getElementById('page-theme-switch');
+    const stateLabel = document.getElementById('theme-state-label');
+
+    function syncThemeUI() {
+        const isDark = body.classList.contains('dark-mode');
+        if (themeSwitch) themeSwitch.checked = isDark;
+        if (stateLabel) stateLabel.textContent = isDark ? 'ليلي' : 'فاتح';
+    }
+
+    syncThemeUI();
+
+    if (themeSwitch) {
+        themeSwitch.addEventListener('change', function () {
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', body.classList.contains('dark-mode') ? 'dark' : 'light');
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                icon.classList.toggle('fa-moon', body.classList.contains('dark-mode'));
+                icon.classList.toggle('fa-sun', !body.classList.contains('dark-mode'));
+            }
+            syncThemeUI();
+        });
+    }
+
+    document.querySelectorAll('.sn-item[data-section]').forEach(function (link) {
+        link.addEventListener('click', function () {
+            document.querySelectorAll('.sn-item[data-section]').forEach(function (l) { l.classList.remove('active'); });
+            link.classList.add('active');
+        });
+    });
+});
+</script>
 {% endblock %}

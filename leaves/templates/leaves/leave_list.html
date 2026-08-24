@@ -1,180 +1,274 @@
 {% extends 'base.html' %}
 
 {% block title %}إدارة الإجازات | HRMS{% endblock %}
+{% block page_title %}طلبات الإجازات{% endblock %}
+
+{% block extra_css %}
+<style>
+    .lv-hero { position: relative; overflow: hidden; border-radius: 22px; padding: 26px 30px 22px; color: #fff; margin-bottom: 26px;
+        background:
+            radial-gradient(520px 260px at 90% -10%, rgba(23, 176, 167, 0.35), transparent 65%),
+            radial-gradient(420px 240px at 5% 110%, rgba(242, 180, 76, 0.22), transparent 60%),
+            linear-gradient(120deg, #1B1442 0%, #4A3AB8 55%, #6153E4 100%);
+        box-shadow: 0 20px 44px rgba(21, 17, 48, 0.35); }
+    .lv-hero h1 { margin: 0 0 6px; font-size: clamp(1.45rem, 2.2vw, 1.9rem); font-weight: 800; }
+    .lv-hero p { margin: 0; color: rgba(255,255,255,.78); font-size: .88rem; }
+    .lv-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.2); font-size: .75rem; font-weight: 700; }
+    .btn-gold-solid { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 20px; border-radius: 12px; background: linear-gradient(135deg, #F2B44C, #E89A5D); color: #241A05 !important; font-weight: 800; font-size: .86rem; border: 0; text-decoration: none; box-shadow: 0 10px 24px rgba(232,154,93,.35); transition: transform .22s ease, filter .22s ease; }
+    .btn-gold-solid:hover { transform: translateY(-2px); filter: brightness(1.05); }
+    .lv-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+    .lv-chips .chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); font-size: .82rem; font-weight: 700; backdrop-filter: blur(6px); }
+    .chip-pending { background: rgba(242,180,76,.28) !important; border-color: rgba(242,180,76,.5) !important; }
+    .chip-approved { background: rgba(23,176,167,.26) !important; border-color: rgba(23,176,167,.5) !important; }
+
+    .lv-panel { padding: 20px 22px; border-radius: 18px; background: #fff; border: 1px solid #ECEAF6; box-shadow: 0 10px 26px rgba(15,23,42,.05); margin-bottom: 22px; }
+    .lv-panel label { color: #6E6A86; font-size: .74rem; font-weight: 700; margin-bottom: 5px; }
+    .lv-panel .form-control, .lv-panel .form-select { min-height: 40px; border-radius: 10px; border-color: #E7E3F5; }
+    .lv-panel .form-control:focus, .lv-panel .form-select:focus { border-color: #8B7FF2; box-shadow: 0 0 0 3px rgba(97,83,228,.14); }
+    .btn-violet-solid { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 40px; border: 0; border-radius: 10px; color: #fff; background: linear-gradient(135deg, #6153E4, #8B7FF2); font-size: .84rem; font-weight: 800; box-shadow: 0 8px 18px rgba(97,83,228,.28); transition: transform .2s ease, filter .2s ease; }
+    .btn-violet-solid:hover { transform: translateY(-2px); filter: brightness(1.07); color: #fff; }
+    .reset-chip { display: inline-flex; align-items: center; gap: 7px; padding: 7px 16px; border-radius: 999px; color: #DC2626; background: rgba(220,38,38,.07); border: 1px solid rgba(220,38,38,.22); font-size: .76rem; font-weight: 800; text-decoration: none; transition: all .2s ease; }
+    .reset-chip:hover { background: rgba(220,38,38,.13); color: #B91C1C; }
+
+    .lv-card { overflow: hidden; border: 1px solid #ECEAF6; border-radius: 18px; background: #fff; box-shadow: 0 14px 34px rgba(21,17,48,.06); }
+    .lv-card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 18px 20px 14px; border-bottom: 1px solid #F0EDFA; }
+    .lv-card-head h5 { display: flex; align-items: center; gap: 10px; margin: 0; color: var(--brand-night); font-size: .98rem; font-weight: 800; }
+    .lv-card-head h5 i { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: rgba(97,83,228,.11); color: #6153E4; font-size: .85rem; }
+    .lv-card-head p { margin: 0; color: #9B95B5; font-size: .75rem; }
+
+    .leaves-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+    .leaves-table thead th { background: #FAF9FE; color: #6E6A86; font-size: .72rem; font-weight: 800; letter-spacing: .02em; padding: 13px 14px; border-bottom: 1px solid #ECEAF6; white-space: nowrap; }
+    .leaves-table td { padding: 13px 14px; border-bottom: 1px dashed #F3F1FA; vertical-align: middle; }
+    .leaves-table tbody tr:last-child td { border-bottom: 0; }
+    .leaves-table tbody tr { transition: background .18s ease; }
+    .leaves-table tbody tr:hover td { background: #FBFAFE; }
+
+    .emp-cell { display: flex; align-items: center; gap: 10px; }
+    .emp-bubble { flex: 0 0 36px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px; color: #fff; font-weight: 800; font-size: .9rem; box-shadow: 0 6px 14px rgba(21,17,48,.16); }
+    .av-violet { background: linear-gradient(135deg,#6153E4,#8B7FF2); }
+    .av-teal { background: linear-gradient(135deg,#17B0A7,#0E8F88); }
+    .av-gold { background: linear-gradient(135deg,#F2B44C,#E89A5D); color:#241A05; }
+    .av-plum { background: linear-gradient(135deg,#8E3D74,#B4589A); }
+    .emp-name { color: var(--brand-night); font-weight: 700; font-size: .82rem; }
+    .emp-id { display: block; color: #9B95B5; font-size: .68rem; font-weight: 600; margin-top: 2px; }
+
+    .type-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 13px; border-radius: 999px; font-size: .72rem; font-weight: 800; }
+    .type-ANNUAL { color: #0E8F88; background: rgba(23,176,167,.11); border: 1px solid rgba(23,176,167,.3); }
+    .type-SICK { color: #C08A25; background: rgba(242,180,76,.15); border: 1px solid rgba(242,180,76,.4); }
+    .type-UNPAID { color: #4A4560; background: #F1EEFA; border: 1px solid #E4E1FB; }
+    .type-EMERGENCY { color: #B91C1C; background: rgba(220,38,38,.08); border: 1px solid rgba(220,38,38,.25); }
+
+    .date-range { white-space: nowrap; color: #4A4560; font-size: .78rem; font-weight: 600; }
+    .date-range i { color: #8B7FF2; margin-inline-end: 6px; }
+
+    .ai-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 14px; border-radius: 999px; font-size: .72rem; font-weight: 800; border: 1px solid transparent; white-space: nowrap; }
+    .ai-approved { color: #0E8F88; background: rgba(23,176,167,.11); border-color: rgba(23,176,167,.32); }
+    .ai-rejected { color: #B91C1C; background: rgba(220,38,38,.08); border-color: rgba(220,38,38,.25); }
+    .ai-waiting { color: #6E6A86; background: #F6F4FB; border-color: #E4E1FB; }
+
+    .status-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 999px; font-size: .72rem; font-weight: 800; border: 1px solid transparent; }
+    .st-pending { color: #B4540A; background: rgba(242,180,76,.16); border-color: rgba(242,180,76,.45); }
+    .st-pending i { animation: pulse-dot 1.6s ease infinite; }
+    .st-approved { color: #0E8F88; background: rgba(23,176,167,.11); border-color: rgba(23,176,167,.3); }
+    .st-rejected { color: #B91C1C; background: rgba(220,38,38,.08); border-color: rgba(220,38,38,.25); }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+    .review-btn { display: inline-flex; align-items: center; gap: 7px; padding: 7px 18px; border-radius: 999px; color: #6153E4; background: #fff; border: 1px solid rgba(97,83,228,.35); font-size: .74rem; font-weight: 800; text-decoration: none; transition: all .2s ease; }
+    .review-btn:hover { color: #fff; background: linear-gradient(135deg, #6153E4, #8B7FF2); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(97,83,228,.3); }
+
+    .empty-row { padding: 54px 20px !important; color: #9B95B5; text-align: center; font-size: .86rem; }
+    .empty-row i { display: block; margin-bottom: 10px; font-size: 1.5rem; color: #C9C3E3; }
+
+    .export-btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 18px; border-radius: 999px; color: #0E8F88; background: rgba(23,176,167,.09); border: 1px solid rgba(23,176,167,.3); font-size: .76rem; font-weight: 800; text-decoration: none; transition: all .2s ease; }
+    .export-btn:hover { color: #fff; background: linear-gradient(135deg, #17B0A7, #0E8F88); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(23,176,167,.3); }
+    .balance-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; color: #2B2545; background: #F6F4FB; border: 1px solid #E4E1FB; font-size: .74rem; font-weight: 800; white-space: nowrap; }
+    .balance-bar { height: 9px; border-radius: 999px; background: #F1EEFA; overflow: hidden; min-width: 120px; }
+    .balance-bar > div { height: 100%; border-radius: 999px; transition: width .6s ease; }
+    .bar-ok { background: linear-gradient(90deg, #17B0A7, #0E8F88); }
+    .bar-low { background: linear-gradient(90deg, #F87171, #DC2626); }
+    .balance-types { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: .72rem; font-weight: 700; }
+    .bt-annual { color: #0E8F88; } .bt-sick { color: #C08A25; } .bt-emergency { color: #E11D48; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h3 class="fw-bold text-dark mb-1">طلبات الإجازات</h3>
-        <p class="text-muted small mb-0">متابعة الطلبات، وتوصيات نموذج التنبؤ الذكي (AI/ML).</p>
-    </div>
-    <a href="{% url 'leaves:apply_leave' %}" class="btn btn-custom-primary">
-        <i class="fa-solid fa-plus me-1"></i> تقديم طلب إجازة
-    </a>
-</div>
+<div class="container-fluid py-4">
 
-<div class="glass-card p-4 mb-4">
-    <form method="get" class="row g-3 align-items-end">
-        <div class="col-lg-3 col-md-6">
-            <label class="form-label small text-muted mb-1">بحث الموظف</label>
-            <input type="text" name="q" class="form-control rounded-3" value="{{ request.GET.q|default:'' }}" placeholder="اسم الموظف أو رقم الهوية">
+    <div class="lv-hero">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="lv-eyebrow"><i class="fa-solid fa-calendar-days"></i> إدارة الإجازات</span>
+                <h1>طلبات الإجازات</h1>
+                <p>متابعة الطلبات، وتوصيات نموذج التنبؤ الذكي (AI/ML).</p>
+            </div>
+            <a href="{% url 'leaves:apply_leave' %}" class="btn-gold-solid"><i class="fa-solid fa-plus"></i> تقديم طلب إجازة</a>
         </div>
-        <div class="col-lg-2 col-md-6">
-            <label class="form-label small text-muted mb-1">القسم</label>
-            <select name="department" class="form-select rounded-3">
-                <option value="">جميع الأقسام</option>
-                {% for department in departments %}
-                    <option value="{{ department.id }}" {% if request.GET.department == department.id|stringformat:'s' %}selected{% endif %}>{{ department.name }}</option>
-                {% endfor %}
-            </select>
+        <div class="lv-chips mt-4">
+            <span class="chip"><i class="fa-solid fa-layer-group"></i> {{ filtered_count }} طلب معروض</span>
+            {% if pending_count %}<span class="chip chip-pending"><i class="fa-solid fa-hourglass-half"></i> {{ pending_count }} معلق</span>{% endif %}
+            {% if approved_count %}<span class="chip chip-approved"><i class="fa-solid fa-circle-check"></i> {{ approved_count }} مقبول</span>{% endif %}
         </div>
-        <div class="col-lg-2 col-md-6">
-            <label class="form-label small text-muted mb-1">الدور</label>
-            <select name="role" class="form-select rounded-3">
-                <option value="">جميع الأدوار</option>
-                {% for role_code, role_label in roles %}
-                    <option value="{{ role_code }}" {% if request.GET.role == role_code %}selected{% endif %}>{{ role_label }}</option>
-                {% endfor %}
-            </select>
+    </div>
+
+    <form method="get" class="lv-panel">
+        <div class="row g-3 align-items-end">
+            <div class="col-lg-3 col-md-6">
+                <label for="leave_q">بحث الموظف</label>
+                <input type="text" name="q" id="leave_q" class="form-control" value="{{ request.GET.q|default:'' }}" placeholder="اسم الموظف أو رقم الهوية">
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <label for="leave_department">القسم</label>
+                <select name="department" id="leave_department" class="form-select">
+                    <option value="">جميع الأقسام</option>
+                    {% for department in departments %}<option value="{{ department.id }}" {% if request.GET.department == department.id|stringformat:'s' %}selected{% endif %}>{{ department.name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <label for="leave_role">الدور</label>
+                <select name="role" id="leave_role" class="form-select">
+                    <option value="">جميع الأدوار</option>
+                    {% for role_code, role_label in roles %}<option value="{{ role_code }}" {% if request.GET.role == role_code %}selected{% endif %}>{{ role_label }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <label for="leave_type_select">نوع الإجازة</label>
+                <select name="leave_type" id="leave_type_select" class="form-select">
+                    <option value="">كل الأنواع</option>
+                    <option value="ANNUAL" {% if request.GET.leave_type == 'ANNUAL' %}selected{% endif %}>سنوية</option>
+                    <option value="SICK" {% if request.GET.leave_type == 'SICK' %}selected{% endif %}>مرضية</option>
+                    <option value="UNPAID" {% if request.GET.leave_type == 'UNPAID' %}selected{% endif %}>بدون راتب</option>
+                    <option value="EMERGENCY" {% if request.GET.leave_type == 'EMERGENCY' %}selected{% endif %}>طارئة</option>
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <label for="leave_status">الحالة</label>
+                <select name="status" id="leave_status" class="form-select">
+                    <option value="">كل الحالات</option>
+                    <option value="PENDING" {% if request.GET.status == 'PENDING' %}selected{% endif %}>معلق</option>
+                    <option value="APPROVED" {% if request.GET.status == 'APPROVED' %}selected{% endif %}>مقبول</option>
+                    <option value="REJECTED" {% if request.GET.status == 'REJECTED' %}selected{% endif %}>مرفوض</option>
+                    <option value="RECOMMENDED_AI" {% if request.GET.status == 'RECOMMENDED_AI' %}selected{% endif %}>موصى به من الذكاء الاصطناعي</option>
+                </select>
+            </div>
+            <div class="col-lg-1 col-md-12">
+                <button type="submit" class="btn-violet-solid"><i class="fa-solid fa-sliders"></i> تطبيق</button>
+            </div>
         </div>
-        <div class="col-lg-2 col-md-6">
-            <label class="form-label small text-muted mb-1">نوع الإجازة</label>
-            <select name="leave_type" class="form-select rounded-3">
-                <option value="">كل الأنواع</option>
-                <option value="ANNUAL" {% if request.GET.leave_type == 'ANNUAL' %}selected{% endif %}>سنوية</option>
-                <option value="SICK" {% if request.GET.leave_type == 'SICK' %}selected{% endif %}>مرضية</option>
-                <option value="UNPAID" {% if request.GET.leave_type == 'UNPAID' %}selected{% endif %}>بدون راتب</option>
-                <option value="EMERGENCY" {% if request.GET.leave_type == 'EMERGENCY' %}selected{% endif %}>طارئة</option>
-            </select>
+        {% if request.GET.q or request.GET.department or request.GET.role or request.GET.leave_type or request.GET.status %}
+        <div class="mt-3 d-flex justify-content-end">
+            <a href="{% url 'leaves:leave_list' %}" class="reset-chip"><i class="fa-solid fa-xmark"></i> مسح الفلاتر</a>
         </div>
-        <div class="col-lg-2 col-md-6">
-            <label class="form-label small text-muted mb-1">الحالة</label>
-            <select name="status" class="form-select rounded-3">
-                <option value="">كل الحالات</option>
-                <option value="PENDING" {% if request.GET.status == 'PENDING' %}selected{% endif %}>معلق</option>
-                <option value="APPROVED" {% if request.GET.status == 'APPROVED' %}selected{% endif %}>مقبول</option>
-                <option value="REJECTED" {% if request.GET.status == 'REJECTED' %}selected{% endif %}>مرفوض</option>
-                <option value="RECOMMENDED_AI" {% if request.GET.status == 'RECOMMENDED_AI' %}selected{% endif %}>موصى به من الذكاء الاصطناعي</option>
-            </select>
-        </div>
-        <div class="col-lg-1 col-md-12 d-flex gap-2">
-            <button type="submit" class="btn btn-primary rounded-3 flex-fill">تطبيق</button>
-        </div>
+        {% endif %}
     </form>
-    {% if request.GET.q or request.GET.department or request.GET.role or request.GET.leave_type or request.GET.status %}
-    <div class="mt-3">
-        <a href="{% url 'leaves:leave_list' %}" class="btn btn-outline-secondary btn-sm rounded-pill">مسح الفلاتر</a>
+
+    <div class="lv-card mb-4">
+        <div class="lv-card-head">
+            <h5><i class="fa-solid fa-list-check"></i> قائمة الطلبات</h5>
+            <p>{{ filtered_count }} نتيجة</p>
+        </div>
+        <div class="table-responsive">
+            <table class="leaves-table">
+                <thead>
+                    <tr>
+                        <th>الموظف</th>
+                        <th>نوع الإجازة</th>
+                        <th>من - إلى</th>
+                        <th>توصية الذكاء الاصطناعي (ML)</th>
+                        <th>حالة الطلب</th>
+                        <th class="text-center">الإجراء</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for leave in leaves %}
+                    <tr>
+                        <td>
+                            <div class="emp-cell">
+                                <span class="emp-bubble {% cycle 'av-violet' 'av-teal' 'av-gold' 'av-plum' %}">{{ leave.employee.get_full_name|default:leave.employee|slice:":1" }}</span>
+                                <div>
+                                    <span class="emp-name">{{ leave.employee.get_full_name|default:leave.employee }}</span>
+                                    <span class="emp-id">#{{ leave.employee_id }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="type-chip type-{{ leave.leave_type }}"><i class="fa-solid {% if leave.leave_type == 'ANNUAL' %}fa-umbrella-beach{% elif leave.leave_type == 'SICK' %}fa-notes-medical{% elif leave.leave_type == 'UNPAID' %}fa-money-bill-wave{% else %}fa-bolt{% endif %}"></i> {{ leave.get_leave_type_display|default:leave.leave_type }}</span></td>
+                        <td><span class="date-range"><i class="fa-regular fa-calendar"></i>{{ leave.start_date }} ← {{ leave.end_date }}</span></td>
+                        <td>
+                            {% if leave.ai_prediction == 'APPROVED' %}
+                                <span class="ai-chip ai-approved"><i class="fa-solid fa-robot"></i> موصى بالقبول ({{ leave.ai_confidence }}%)</span>
+                            {% elif leave.ai_prediction == 'REJECTED' %}
+                                <span class="ai-chip ai-rejected"><i class="fa-solid fa-robot"></i> موصى بالرفض ({{ leave.ai_confidence }}%)</span>
+                            {% else %}
+                                <span class="ai-chip ai-waiting"><i class="fa-solid fa-spinner"></i> قيد التحليل</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if leave.status == 'PENDING' %}
+                                <span class="status-chip st-pending"><i class="fa-solid fa-hourglass-half"></i> معلق</span>
+                            {% elif leave.status == 'APPROVED' %}
+                                <span class="status-chip st-approved"><i class="fa-solid fa-circle-check"></i> مقبول</span>
+                            {% else %}
+                                <span class="status-chip st-rejected"><i class="fa-solid fa-circle-xmark"></i> مرفوض</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <a href="{% url 'leaves:approve_leave' leave.pk %}" class="review-btn"><i class="fa-solid fa-magnifying-glass-chart"></i> مراجعة</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="empty-row"><i class="fa-regular fa-calendar-xmark"></i> لا توجد طلبات إجازة مسجلة.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if can_view_all %}
+    <div class="lv-card">
+        <div class="lv-card-head">
+            <h5><i class="fa-solid fa-wallet" style="background:rgba(23,176,167,.11);color:#0E8F88;"></i> أرصدة الموظفين</h5>
+            <a href="{% url 'leaves:leave_list' %}?{{ request.GET.urlencode }}&export=excel" class="export-btn"><i class="fa-solid fa-file-excel"></i> تصدير Excel</a>
+        </div>
+        <div class="px-3 pb-2 pt-3 small" style="color:#9B95B5;">الرصيد الإجمالي 33 يوم موزّع على 3 فئات (سنوية/مرضية/طارئة) ويُخصم تلقائياً حسب نوع الإجازة المقبولة.</div>
+        <div class="table-responsive">
+            <table class="leaves-table">
+                <thead>
+                    <tr>
+                        <th>الموظف</th>
+                        <th>القسم</th>
+                        <th>الرصيد الإجمالي</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in employees %}
+                    {% with remaining=employee.total_leave_remaining total=employee.TOTAL_LEAVE_ALLOWANCE %}
+                    <tr>
+                        <td>
+                            <div class="emp-cell">
+                                <span class="emp-bubble {% cycle 'av-teal' 'av-violet' 'av-plum' 'av-gold' %}">{{ employee.get_full_name|default:employee|slice:":1" }}</span>
+                                <span class="emp-name">{{ employee.get_full_name }}</span>
+                            </div>
+                        </td>
+                        <td><span class="date-range"><i class="fa-solid fa-building"></i>{{ employee.department|default:"-" }}</span></td>
+                        <td>
+                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                                <span class="balance-badge"><i class="fa-solid fa-coins" style="color:#C08A25;"></i> {{ remaining }} / {{ total }} يوم</span>
+                                <div class="balance-bar flex-grow-1"><div class="{% if remaining <= 5 %}bar-low{% else %}bar-ok{% endif %}" style="width: {% widthratio remaining total 100 %}%;" aria-valuenow="{{ remaining }}" aria-valuemin="0" aria-valuemax="{{ total }}"></div></div>
+                            </div>
+                            <div class="balance-types">
+                                <span class="bt-annual"><i class="fa-solid fa-umbrella-beach me-1"></i>سنوية: {{ employee.annual_remaining }}/11</span>
+                                <span class="bt-sick"><i class="fa-solid fa-notes-medical me-1"></i>مرضية: {{ employee.sick_remaining }}/11</span>
+                                <span class="bt-emergency"><i class="fa-solid fa-bolt me-1"></i>طارئة: {{ employee.emergency_remaining }}/11</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endwith %}
+                    {% empty %}
+                    <tr><td colspan="3" class="empty-row"><i class="fa-solid fa-users-slash"></i> لا يوجد موظفون مسجلون.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
     {% endif %}
 </div>
-
-<div class="glass-card p-4">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>الموظف</th>
-                    <th>نوع الإجازة</th>
-                    <th>من - إلى</th>
-                    <th>توصية الذكاء الاصطناعي (ML)</th>
-                    <th>حالة الطلب</th>
-                    <th>الإجراء</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for leave in leaves %}
-                <tr>
-                    <td class="fw-bold">{{ leave.employee }}</td>
-                    <td>{{ leave.get_leave_type_display|default:leave.leave_type }}</td>
-                    <td class="small text-muted">{{ leave.start_date }} ➔ {{ leave.end_date }}</td>
-                    <td>
-                        {% if leave.ai_prediction == 'APPROVED' %}
-                            <span class="badge bg-success-subtle text-success border border-success px-3 py-1 rounded-pill">
-                                <i class="fa-solid fa-robot me-1"></i> موصى بالقبول ({{ leave.ai_confidence }}%)
-                            </span>
-                        {% elif leave.ai_prediction == 'REJECTED' %}
-                            <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-1 rounded-pill">
-                                <i class="fa-solid fa-robot me-1"></i> موصى بالرفض ({{ leave.ai_confidence }}%)
-                            </span>
-                        {% else %}
-                            <span class="badge bg-secondary-subtle text-secondary px-3 py-1 rounded-pill">قيد التحليل</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if leave.status == 'PENDING' %}
-                            <span class="badge bg-warning text-dark px-3 py-1 rounded-pill">معلق</span>
-                        {% elif leave.status == 'APPROVED' %}
-                            <span class="badge bg-success px-3 py-1 rounded-pill">مقبول</span>
-                        {% else %}
-                            <span class="badge bg-danger px-3 py-1 rounded-pill">مرفوض</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{% url 'leaves:approve_leave' leave.pk %}" class="btn btn-sm btn-outline-primary rounded-pill">مراجعة</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center py-5 text-muted">لا توجد طلبات إجازة مسجلة.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-
-{% if can_view_all %}
-<div class="glass-card p-4 mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
-        <div>
-            <h5 class="fw-bold text-dark mb-1">أرصدة الموظفين</h5>
-            <p class="text-muted small mb-0">الرصيد الإجمالي 33 يوم موزّع على 3 فئات (سنوية/مرضية/طارئة) ويُخصم تلقائياً حسب نوع الإجازة المقبولة.</p>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <a href="{% url 'leaves:leave_list' %}?{{ request.GET.urlencode }}&export=excel" class="btn btn-outline-success rounded-pill btn-sm">
-                <i class="fa-solid fa-file-excel me-1"></i> تصدير Excel
-            </a>
-            <i class="fa-solid fa-wallet text-primary fs-4"></i>
-        </div>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>الموظف</th>
-                    <th>القسم</th>
-                    <th>الرصيد الإجمالي</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for employee in employees %}
-                {% with remaining=employee.total_leave_remaining total=employee.TOTAL_LEAVE_ALLOWANCE %}
-                <tr>
-                    <td class="fw-bold">{{ employee.get_full_name }}</td>
-                    <td>{{ employee.department|default:"-" }}</td>
-                    <td>
-                        <div class="d-flex align-items-center gap-3 min-w-220">
-                            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold">
-                                {{ remaining }} / {{ total }} يوم
-                            </span>
-                            <div class="progress flex-grow-1" style="height: 10px; min-width: 120px;">
-                                <div class="progress-bar {% if remaining <= 5 %}bg-danger{% else %}bg-success{% endif %}" role="progressbar" style="width: {% widthratio remaining total 100 %}%" aria-valuenow="{{ remaining }}" aria-valuemin="0" aria-valuemax="{{ total }}"></div>
-                            </div>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2 mt-2" style="font-size:.72rem;">
-                            <span style="color:#34d399;">سنوية: {{ employee.annual_remaining }}/11</span>
-                            <span style="color:#fbbf24;">مرضية: {{ employee.sick_remaining }}/11</span>
-                            <span style="color:#fb7185;">طارئة: {{ employee.emergency_remaining }}/11</span>
-                        </div>
-                    </td>
-                </tr>
-                {% endwith %}
-                {% empty %}
-                <tr><td colspan="3" class="text-center py-4 text-muted">لا يوجد موظفون مسجلون.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-{% endif %}
 {% endblock %}
