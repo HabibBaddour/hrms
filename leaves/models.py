@@ -20,6 +20,7 @@ class LeaveRequest(models.Model):
     start_date = models.DateField(verbose_name="تاريخ البداية")
     end_date = models.DateField(verbose_name="تاريخ النهاية")
     reason = models.TextField(verbose_name="سبب الإجازة")
+    attachment = models.FileField(upload_to='leave_attachments/', null=True, blank=True, verbose_name="المرفق")
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING, verbose_name="حالة الطلب")
     ai_prediction = models.CharField(max_length=20, choices=[('APPROVED', 'مقبول'), ('REJECTED', 'مرفوض'), ('PENDING', 'قيد التحليل')], default='PENDING', verbose_name="توصية الذكاء الاصطناعي")
     ai_confidence = models.FloatField(default=0.0, verbose_name="نسبة الثقة")

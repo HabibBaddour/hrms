@@ -15,15 +15,6 @@
         --tile-bg:rgba(97,83,228,.11); --tile-fg:#4A3AB8;
         --kpi-border:#DCD6F5; --track:#EFEDFA;
         --head:#1A1338;
-        --grad-1:linear-gradient(90deg,#4A3AB8,#8B7FF2);
-        --grad-2:linear-gradient(90deg,#0B6B70,#17B0A7);
-        --grad-3:linear-gradient(90deg,#E89A5D,#F2B44C);
-        --grad-4:linear-gradient(90deg,#1B1442,#4A3AB8);
-        --hero-bg:
-            radial-gradient(520px 260px at 88% 0%, rgba(23,176,167,.35), transparent 65%),
-            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
-            linear-gradient(120deg,#1B1442 0%,#4A3AB8 55%,#6153E4 100%);
-        --hero-shadow:0 20px 44px rgba(27,20,66,.35);
         --cta-a:#F3F1FF; --cta-b:#FDF4E7;
     }
 
@@ -34,15 +25,6 @@
         --tile-bg:rgba(20,163,116,.12); --tile-fg:#0F8A60;
         --kpi-border:#CBE7DA; --track:#EAF5EF;
         --head:#12271E;
-        --grad-1:linear-gradient(90deg,#0E8A5F,#3FC98F);
-        --grad-2:linear-gradient(90deg,#0B6B70,#17B0A7);
-        --grad-3:linear-gradient(90deg,#E89A5D,#F2B44C);
-        --grad-4:linear-gradient(90deg,#14532D,#166534);
-        --hero-bg:
-            radial-gradient(520px 260px at 88% 0%, rgba(56,224,160,.30), transparent 65%),
-            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
-            linear-gradient(120deg,#0B1F17 0%,#0E5C43 55%,#14A374 100%);
-        --hero-shadow:0 20px 44px rgba(11,31,23,.35);
         --cta-a:#EFFAF4; --cta-b:#FDF4E7;
     }
 
@@ -53,403 +35,509 @@
         --tile-bg:rgba(59,130,246,.12); --tile-fg:#1D4ED8;
         --kpi-border:#C9DAF8; --track:#EAF1FC;
         --head:#101A38;
-        --grad-1:linear-gradient(90deg,#1D4ED8,#60A5FA);
-        --grad-2:linear-gradient(90deg,#0284C7,#38BDF8);
-        --grad-3:linear-gradient(90deg,#E89A5D,#F2B44C);
-        --grad-4:linear-gradient(90deg,#172554,#1E40AF);
-        --hero-bg:
-            radial-gradient(520px 260px at 88% 0%, rgba(56,189,248,.30), transparent 65%),
-            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
-            linear-gradient(120deg,#0A1128 0%,#1E40AF 55%,#3B82F6 100%);
-        --hero-shadow:0 20px 44px rgba(10,17,40,.35);
         --cta-a:#F0F6FF; --cta-b:#FDF4E7;
     }
 
-    /* ===== Hero ===== */
-    .profile-hero {
-        position:relative; overflow:hidden;
-        border-radius:22px; padding:28px 30px; color:#fff;
-        background:var(--hero-bg);
-        box-shadow:var(--hero-shadow);
-        margin-bottom:26px;
-    }
-    .hero-avatar {
-        width:88px; height:88px; border-radius:50%;
-        object-fit:cover; flex-shrink:0;
-        box-shadow:0 0 0 4px rgba(255,255,255,.28);
-    }
-    .hero-initial {
-        width:88px; height:88px; border-radius:50%; flex-shrink:0;
-        display:grid; place-items:center;
-        font-size:2.1rem; font-weight:800; color:#fff;
-        background:linear-gradient(135deg,var(--tone-deep),var(--tone));
-        box-shadow:0 0 0 4px rgba(255,255,255,.28);
-    }
-    .profile-hero h4 { margin:0 0 5px; font-weight:800; }
-    .hero-meta { margin:0; color:rgba(255,255,255,.75); font-size:.9rem; }
-    .hero-chip {
-        display:inline-flex; align-items:center; gap:8px;
-        padding:7px 15px; border-radius:999px;
-        background:rgba(255,255,255,.14);
-        border:1px solid rgba(255,255,255,.22);
-        backdrop-filter:blur(8px);
-        font-size:.8rem; font-weight:600;
+    /* ===== Layout: single-view / no page scroll ===== */
+    .profile-page {
+        height: calc(100vh - 80px);
+        min-height: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
     }
 
-    /* ===== Balance KPI Cards ===== */
-    .kpi-card {
-        position:relative; overflow:hidden;
-        display:block; padding:19px 20px;
-        border-radius:18px; background:#fff;
-        border:1px solid var(--line);
-        text-decoration:none;
-        box-shadow:0 10px 26px rgba(15,23,42,.05);
-        transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    /* ===== Header ===== */
+    .profile-header {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding: 13px 18px;
+        border-radius: 18px;
+        background: #fff;
+        border: 1px solid var(--line);
+        box-shadow: 0 10px 26px rgba(15,23,42,.06);
     }
-    .kpi-card::before {
-        content:''; position:absolute; top:0; right:0; left:0;
-        height:4px; background:var(--g);
+    .avatar-btn {
+        width: 65px;
+        height: 65px;
+        border: none;
+        padding: 0;
+        border-radius: 50%;
+        cursor: pointer;
+        position: relative;
+        flex: 0 0 auto;
+        background: linear-gradient(135deg, var(--tone-deep), var(--tone));
+        box-shadow: var(--bs-box-shadow-sm);
     }
-    .kpi-card:hover { transform:translateY(-5px); box-shadow:0 20px 38px rgba(15,23,42,.12); border-color:var(--kpi-border); }
-    .kg-1 { --g:var(--grad-1); } .kg-2 { --g:var(--grad-2); }
-    .kg-3 { --g:var(--grad-3); } .kg-4 { --g:var(--grad-4); }
-    .kpi-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
-    .kpi-value { font-size:1.5rem; font-weight:800; color:var(--head); line-height:1.15; }
-    .kpi-value small { font-size:.85rem; color:var(--muted); font-weight:700; }
-    .kpi-label { color:var(--muted); font-size:.8rem; font-weight:700; margin:2px 0 0; }
-    .kpi-tile {
-        width:42px; height:42px; border-radius:12px; flex-shrink:0;
-        display:grid; place-items:center; font-size:1rem;
-        color:var(--tile-fg); background:var(--tile-bg);
-        transition:transform .25s ease;
+    .avatar-btn img { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .avatar-btn .avatar-initial {
+        display: grid;
+        place-items: center;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        color: #fff;
+        font-weight: 800;
+        font-size: 1.55rem;
     }
-    .kpi-card:hover .kpi-tile { transform:scale(1.08) rotate(-4deg); }
-    .kpi-track { height:8px; border-radius:999px; background:var(--track); overflow:hidden; margin-top:12px; }
-    .kpi-fill { height:100%; border-radius:999px; width:0; background:var(--g); transition:width 1s ease; }
+    .avatar-badge {
+        position: absolute;
+        bottom: -3px;
+        inset-inline-end: -3px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: .6rem;
+        color: #fff;
+        background: var(--tone);
+        border: 2px solid #fff;
+    }
+    .header-name { margin: 0; font-weight: 800; color: var(--head); font-size: 1.05rem; }
+    .header-sub { margin: 2px 0 0; color: var(--muted); font-size: .82rem; font-weight: 600; }
+    .header-badge { margin-inline-start: auto; }
+
+    /* ===== Tabs ===== */
+    .profile-tabs {
+        flex: 0 0 auto;
+        flex-wrap: wrap;
+        border: none;
+        border-bottom: 2px solid var(--track);
+        gap: 6px;
+    }
+    .profile-tabs .nav-link {
+        --acc: var(--tone);
+        --acc-soft: var(--tile-bg);
+        position: relative;
+        border: none;
+        border-bottom: 3px solid transparent;
+        border-radius: 12px 12px 0 0;
+        color: var(--muted);
+        font-weight: 700;
+        font-size: .88rem;
+        padding: .65rem 1.05rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        white-space: nowrap;
+        transition: color .3s ease, background .3s ease, transform .3s ease,
+                    box-shadow .3s ease, text-shadow .3s ease, border-color .3s ease;
+    }
+    #tab-personal   { --acc: #2563eb; --acc-soft: rgba(37, 99, 235, .12); }
+    #tab-job        { --acc: #4f46e5; --acc-soft: rgba(79, 70, 229, .12); }
+    #tab-financial  { --acc: #059669; --acc-soft: rgba(5, 150, 105, .12); }
+    #tab-contract   { --acc: #d97706; --acc-soft: rgba(217, 119, 6, .12); }
+    #tab-account    { --acc: #0d9488; --acc-soft: rgba(13, 148, 136, .12); }
+    .profile-tabs .nav-link:hover {
+        color: var(--acc);
+        background: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px rgba(15, 23, 42, .08);
+        text-shadow: 0 0 14px var(--acc-soft);
+    }
+    .profile-tabs .nav-link.active {
+        color: var(--acc);
+        background: linear-gradient(180deg, var(--acc-soft), transparent 78%);
+        border-bottom-color: var(--acc);
+        box-shadow: 0 10px 26px var(--acc-soft);
+        text-shadow: 0 0 18px var(--acc-soft);
+        transform: translateY(0);
+    }
+    .profile-tabs .nav-link i { opacity: .9; transition: transform .3s ease; }
+    .profile-tabs .nav-link:hover i,
+    .profile-tabs .nav-link.active i { transform: translateY(-1px); }
+
+    /* ===== Tab body (scrolls internally, never the window) ===== */
+    .profile-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 10px; }
+    .tab-inner { padding: 18px 4px 6px; }
 
     /* ===== Panels ===== */
     .panel {
-        padding:22px; border-radius:18px; background:#fff;
-        border:1px solid var(--line);
-        box-shadow:0 10px 26px rgba(15,23,42,.05);
-        height:100%;
+        padding: 22px;
+        border-radius: 18px;
+        background: #fff;
+        border: 1px solid var(--line);
+        box-shadow: 0 10px 26px rgba(15,23,42,.05);
+        height: 100%;
     }
     .panel-title {
-        display:flex; align-items:center; gap:10px;
-        font-weight:800; color:var(--head); font-size:1rem; margin-bottom:18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        color: var(--head);
+        font-size: 1rem;
+        margin-bottom: 18px;
     }
     .panel-title i {
-        width:36px; height:36px; border-radius:11px;
-        display:grid; place-items:center; font-size:.9rem;
-        background:var(--tile-bg); color:var(--tile-fg);
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+        display: grid;
+        place-items: center;
+        font-size: .9rem;
+        background: var(--tile-bg);
+        color: var(--tile-fg);
     }
-    .panel-title .pt-extra { margin-inline-start:auto; }
 
     /* ===== Fields ===== */
-    .f-label { font-size:.78rem; font-weight:700; color:#7A7690; margin-bottom:6px; }
+    .f-label { font-size: .78rem; font-weight: 700; color: #7A7690; margin-bottom: 6px; }
     .ro-value {
-        background:#FAF9FE; border:1px solid #EEECF8; border-radius:12px;
-        padding:.62rem .9rem; font-weight:600; color:#2A2547; font-size:.9rem;
-        min-height:calc(.62rem*2 + 1.45em); display:flex; align-items:center; gap:8px;
+        background: #FAF9FE;
+        border: 1px solid #EEECF8;
+        border-radius: 14px;
+        padding: .62rem .9rem;
+        font-weight: 600;
+        color: #2A2547;
+        font-size: .9rem;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
-    .ro-value.mono { font-weight:800; letter-spacing:.3px; }
-    .profile-page .form-control, .profile-page .form-select {
-        border-radius:12px; border-color:#E3E0F0; padding:.62rem .9rem; font-size:.9rem;
+    .ro-value.mono { font-weight: 800; letter-spacing: .3px; }
+    .profile-page .form-control,
+    .profile-page .form-select {
+        height: 44px;
+        border-radius: 14px;
+        border-color: #E3E0F0;
+        padding: .6rem .95rem;
+        font-size: .9rem;
     }
-    .profile-page .form-control:focus {
-        border-color:var(--tone);
-        box-shadow:0 0 0 4px var(--ring);
+    .profile-page input.form-control[type="date"] { line-height: 1.4; }
+    .profile-page .form-control:focus,
+    .profile-page .form-select:focus {
+        border-color: var(--tone);
+        box-shadow: 0 0 0 4px var(--ring);
     }
-    .profile-page textarea.form-control { resize:vertical; }
+    .profile-page textarea.form-control { height: auto; resize: vertical; border-radius: 14px; }
+
+    /* ===== Responsive field grid ===== */
+    .pf-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px 18px;
+    }
+    .pf-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .pf-field.wide { grid-column: 1 / -1; }
+    .pf-field .form-control,
+    .pf-field .ro-value { width: 100%; }
+    .pf-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px dashed var(--line);
+    }
+    .pf-note {
+        color: var(--muted);
+        font-weight: 600;
+        font-size: .8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-inline-end: auto;
+    }
+    @media (max-width: 991px) { .pf-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 575px) { .pf-grid { grid-template-columns: 1fr; } .pf-actions { flex-direction: column-reverse; align-items: stretch; } .pf-actions .btn-tone { width: 100%; justify-content: center; } }
 
     /* ===== Buttons ===== */
     .btn-tone {
-        background:linear-gradient(135deg,var(--tone-deep),var(--tone));
-        color:#fff; border:none; border-radius:12px;
-        padding:.6rem 1.15rem; font-weight:700; font-size:.88rem;
-        transition:transform .22s ease, box-shadow .22s ease;
+        background: linear-gradient(135deg, var(--tone-deep), var(--tone));
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: .6rem 1.15rem;
+        font-weight: 700;
+        font-size: .88rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: transform .22s ease, box-shadow .22s ease;
     }
-    .btn-tone:hover { color:#fff; transform:translateY(-2px); box-shadow:0 12px 26px rgba(15,23,42,.2); }
+    .btn-tone:hover { color: #fff; transform: translateY(-2px); box-shadow: 0 12px 26px rgba(15,23,42,.2); }
     .btn-tone-outline {
-        background:#fff; border:1.5px solid var(--tone); color:var(--strong);
-        border-radius:12px; padding:.55rem 1.1rem; font-weight:700; font-size:.88rem;
-        transition:background .22s ease, transform .22s ease;
+        background: #fff;
+        border: 1.5px solid var(--tone);
+        color: var(--strong);
+        border-radius: 12px;
+        padding: .55rem 1.1rem;
+        font-weight: 700;
+        font-size: .88rem;
+        transition: background .22s ease, transform .22s ease;
     }
-    .btn-tone-outline:hover { background:var(--tile-bg); color:var(--strong); transform:translateY(-2px); }
-    .btn-gold-solid {
-        background:linear-gradient(135deg,#F2B44C,#E89A5D);
-        color:#3D2A05; border:none; border-radius:12px;
-        padding:.6rem 1.15rem; font-weight:800; font-size:.88rem;
-        transition:transform .22s ease, box-shadow .22s ease;
-    }
-    .btn-gold-solid:hover { color:#3D2A05; transform:translateY(-2px); box-shadow:0 12px 26px rgba(242,180,76,.4); }
+    .btn-tone-outline:hover { background: var(--tile-bg); color: var(--strong); transform: translateY(-2px); }
     .btn-ghost-danger {
-        background:#fff; border:1px solid #F1C7C7; color:#BB4A4A;
-        border-radius:12px; font-weight:600; font-size:.82rem;
+        background: #fff;
+        border: 1px solid #F1C7C7;
+        color: #BB4A4A;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: .82rem;
     }
-    .btn-ghost-danger:hover { background:#FCF1F1; color:#A63B3B; border-color:#E8B0B0; }
-
-    /* ===== File Upload ===== */
-    .file-drop {
-        display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
-        width:100%; padding:16px 12px; cursor:pointer;
-        border:1.8px dashed var(--kpi-border); border-radius:14px;
-        background:#FDFDFF; color:var(--strong);
-        font-weight:700; font-size:.84rem; text-align:center;
-        transition:border-color .22s ease, background .22s ease;
-    }
-    .file-drop:hover { border-color:var(--tone); background:var(--tile-bg); }
-    .file-drop i { font-size:1.25rem; }
-    #preview-wrap img {
-        width:96px; height:96px; border-radius:50%; object-fit:cover;
-        border:3px solid var(--tile-bg);
-    }
-
-    /* ===== Identity Card Facts ===== */
-    .id-name { font-weight:800; color:var(--head); font-size:1.08rem; margin:14px 0 2px; }
-    .id-sub { color:var(--muted); font-size:.82rem; font-weight:600; }
-    .id-pill {
-        display:inline-flex; align-items:center; gap:7px;
-        padding:5px 14px; border-radius:999px;
-        background:var(--tile-bg); color:var(--tile-fg);
-        font-size:.76rem; font-weight:800;
-    }
-    .fact-row {
-        display:flex; align-items:center; gap:10px;
-        padding:9px 0; border-bottom:1px dashed var(--line); font-size:.84rem;
-    }
-    .fact-row:last-child { border-bottom:0; }
-    .fact-row i {
-        width:32px; height:32px; border-radius:9px; flex-shrink:0;
-        display:grid; place-items:center; font-size:.8rem;
-        background:var(--tile-bg); color:var(--tile-fg);
-    }
-    .fact-row .fk { color:var(--muted); font-weight:600; }
-    .fact-row .fv { margin-inline-start:auto; font-weight:700; color:var(--head); text-align:left; }
+    .btn-ghost-danger:hover { background: #FCF1F1; color: #A63B3B; border-color: #E8B0B0; }
 
     /* ===== Contract CTA ===== */
     .cta-panel {
-        border-radius:18px; padding:22px; height:100%;
-        background:linear-gradient(135deg,var(--cta-a),var(--cta-b));
-        border:1px solid var(--line);
-        display:flex; flex-direction:column; justify-content:center;
+        border-radius: 18px;
+        padding: 22px;
+        height: 100%;
+        background: linear-gradient(135deg, var(--cta-a), var(--cta-b));
+        border: 1px solid var(--line);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    .kpi-tile {
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        border-radius: 12px;
+        font-size: 1rem;
+        color: var(--tile-fg);
+        background: var(--tile-bg);
     }
 
     /* ===== Misc ===== */
     .badge-active {
-        display:inline-flex; align-items:center; gap:7px;
-        padding:4px 12px; border-radius:999px;
-        background:rgba(20,163,116,.12); color:#0F8A60;
-        font-size:.74rem; font-weight:800;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        background: rgba(20,163,116,.12);
+        color: #0F8A60;
+        font-size: .74rem;
+        font-weight: 800;
+        white-space: nowrap;
     }
-    .pulse-dot { position:relative; width:7px; height:7px; border-radius:50%; background:currentColor; }
+    .pulse-dot { position: relative; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
     .pulse-dot::after {
-        content:''; position:absolute; inset:-4px; border-radius:50%;
-        border:2px solid currentColor; opacity:.5;
-        animation:pfPing 1.6s ease-out infinite;
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        border: 2px solid currentColor;
+        opacity: .5;
+        animation: pfPing 1.6s ease-out infinite;
     }
     @keyframes pfPing {
-        0% { transform:scale(.6); opacity:.7; }
-        80%, 100% { transform:scale(1.5); opacity:0; }
+        0% { transform: scale(.6); opacity: .7; }
+        80%, 100% { transform: scale(1.5); opacity: 0; }
     }
     .note-hr {
-        display:flex; align-items:flex-start; gap:10px;
-        background:var(--tile-bg); border:1px dashed var(--kpi-border);
-        color:var(--strong); border-radius:14px;
-        padding:12px 14px; font-size:.82rem; font-weight:600;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        background: var(--tile-bg);
+        border: 1px dashed var(--kpi-border);
+        color: var(--strong);
+        border-radius: 14px;
+        padding: 12px 14px;
+        font-size: .82rem;
+        font-weight: 600;
     }
-    .emg-bubble {
-        width:46px; height:46px; border-radius:13px; flex-shrink:0;
-        display:grid; place-items:center;
-        background:rgba(220,53,69,.1); color:#C0392B; font-size:1.05rem;
+    .avatar-view-img {
+        max-width: 220px;
+        max-height: 220px;
+        border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 0 0 5px var(--tile-bg);
+        margin: 0 auto;
     }
-    .phone-list .input-group { border-radius:12px; }
-    .phone-list .form-control { border-start-end-radius:0; border-end-end-radius:0; }
-    .empty-mini { text-align:center; padding:18px 10px; color:#94A0B8; font-size:.84rem; }
+    .phone-list .input-group { border-radius: 12px; }
+    .phone-list .form-control { border-start-end-radius: 0; border-end-end-radius: 0; }
 
-    @media (max-width:767px) { .profile-hero { padding:22px 20px; } }
+    /* ===== Account tab: password visibility toggle ===== */
+    .password-toggle { border-radius: 14px; }
+    .password-toggle .form-control { border-start-end-radius: 0; border-end-end-radius: 0; }
+    .password-toggle .btn {
+        height: 44px;
+        width: 46px;
+        flex: 0 0 auto;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        border-start-start-radius: 0;
+        border-end-start-radius: 0;
+        border: 1.5px solid #E3E0F0;
+        border-inline-start: 0;
+        background: #FAF9FE;
+        color: #8B85A8;
+    }
+    .password-toggle .btn:hover { color: var(--tone); background: var(--tile-bg); }
+    .password-toggle input.form-control[readonly] { background: #FAF9FE; }
+
+    /* ===== Account tab: icon-prefixed readonly fields ===== */
+    .pf-icongroup { border-radius: 14px; }
+    .pf-icongroup .input-group-text {
+        border-radius: 14px;
+        border-start-end-radius: 0;
+        border-end-end-radius: 0;
+        background: #FAF9FE;
+        border-color: #E3E0F0;
+        color: #8B85A8;
+    }
+    .pf-icongroup .form-control {
+        border-start-start-radius: 0;
+        border-end-start-radius: 0;
+    }
+    .profile-page input.form-control[readonly] { background: #FAF9FE; cursor: default; }
+
+    /* ===== Account tab: collapsible password reset section ===== */
+    .password-reset-section {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(-8px);
+        transition: max-height .5s ease, opacity .4s ease, transform .4s ease;
+    }
+    .password-reset-section.open {
+        max-height: 560px;
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .reset-heading {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-weight: 800;
+        color: var(--head);
+        font-size: .92rem;
+        margin: 6px 0 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px dashed var(--line);
+    }
+    .reset-heading i {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        display: grid;
+        place-items: center;
+        background: var(--tile-bg);
+        color: var(--tile-fg);
+        font-size: .85rem;
+    }
+    .reset-password-btn { align-self: center; }
+    .reset-password-btn .reset-chevron {
+        transition: transform .35s ease;
+        margin-inline-start: 2px;
+        font-size: .72rem;
+    }
+    .reset-password-btn.active .reset-chevron { transform: rotate(180deg); }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4 profile-page {% if user_role == 'Manager' %}pf-green{% elif user_role == 'Employee' %}pf-blue{% else %}pf-violet{% endif %}">
+<div class="profile-page {% if user_role == 'Manager' %}pf-green{% elif user_role == 'Employee' %}pf-blue{% else %}pf-violet{% endif %} px-2 pb-1">
 
-    <!-- ===== Hero ===== -->
-    <div class="profile-hero">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-4">
-            <div class="d-flex align-items-center gap-3">
+    <!-- ===== Top Header: Avatar Dropdown + Name ===== -->
+    <div class="profile-header">
+        <div class="dropdown">
+            <button type="button" class="avatar-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="خيارات الصورة الشخصية">
                 {% if employee.profile_picture %}
-                    <img src="{{ employee.profile_picture.url }}" alt="صورة الملف الشخصي" class="hero-avatar">
+                    <img src="{{ employee.profile_picture.url }}" alt="صورة الملف الشخصي">
                 {% else %}
-                    <div class="hero-initial">{{ user.get_full_name|default:user.username|slice:":1"|upper }}</div>
+                    <span class="avatar-initial">{{ user.get_full_name|default:user.username|slice:":1"|upper }}</span>
                 {% endif %}
-                <div>
-                    <h4>{{ employee.get_full_name|default:user.get_full_name|default:user.username }}</h4>
-                    <p class="hero-meta">
-                        {{ employee.position.title|default:"غير محدد" }} · {{ employee.department.name|default:"غير محدد" }}
-                        {% if contract %}· منذ {{ contract.start_date|date:"Y/m/d" }}{% endif %}
-                    </p>
-                </div>
-            </div>
-            <div class="d-flex flex-wrap gap-2">
-                <span class="hero-chip">
-                    <i class="fa-solid fa-user-tag"></i>
-                    {% if user_role == 'Manager' %}مدير{% elif user_role == 'HR Admin' %}مسؤول الموارد البشرية{% else %}موظف{% endif %}
-                </span>
-                {% if contract %}
-                <span class="hero-chip"><i class="fa-solid fa-file-contract"></i> {{ contract.get_contract_type_display }}</span>
-                {% endif %}
-                <span class="hero-chip"><i class="fa-solid fa-id-badge"></i> EMP-{{ employee.employee_number|default:"N/A" }}</span>
-            </div>
+                <span class="avatar-badge"><i class="fa-solid fa-camera"></i></span>
+            </button>
+            <ul class="dropdown-menu shadow border-0 dropdown-menu-end">
+                <li>
+                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#avatarViewModal">
+                        <i class="fa-regular fa-image me-2"></i> عرض الصورة الشخصية
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item" onclick="document.getElementById('profile_picture').click()">
+                        <i class="fa-solid fa-camera me-2"></i> تغيير / إضافة صورة
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="me-1">
+            <h5 class="header-name">{{ employee.get_full_name|default:user.get_full_name|default:user.username }}</h5>
+            <p class="header-sub">
+                <i class="fa-solid fa-briefcase me-1" style="color:var(--tile-fg);"></i>
+                {{ employee.position.title|default:"غير محدد" }} · {{ employee.department.name|default:"غير محدد" }}
+            </p>
         </div>
     </div>
 
-    <!-- ===== Balance KPIs ===== -->
-    <div class="row g-3 mb-4">
-        <div class="col-sm-6 col-xl-3">
-            <a href="{% url 'leaves:leave_list' %}" class="kpi-card kg-1">
-                <div class="kpi-head">
-                    <div>
-                        <div class="kpi-value">{{ employee.total_leave_remaining|default_if_none:0 }}<small> / {{ employee.TOTAL_LEAVE_ALLOWANCE|default:33 }}</small></div>
-                        <p class="kpi-label">إجمالي رصيدي المتبقي (يوم)</p>
-                    </div>
-                    <span class="kpi-tile"><i class="fa-solid fa-calendar-check"></i></span>
-                </div>
-                <div class="kpi-track"><div class="kpi-fill" data-width="{% widthratio employee.total_leave_remaining|default_if_none:0 33 100 %}"></div></div>
-            </a>
-        </div>
-        <div class="col-sm-6 col-xl-3">
-            <a href="{% url 'leaves:apply_leave' %}" class="kpi-card kg-2">
-                <div class="kpi-head">
-                    <div>
-                        <div class="kpi-value">{{ employee.annual_remaining|default_if_none:0 }}<small> / 11</small></div>
-                        <p class="kpi-label">الرصيد السنوي المتبقي</p>
-                    </div>
-                    <span class="kpi-tile"><i class="fa-solid fa-umbrella-beach"></i></span>
-                </div>
-                <div class="kpi-track"><div class="kpi-fill" data-width="{% widthratio employee.annual_remaining|default_if_none:0 11 100 %}"></div></div>
-            </a>
-        </div>
-        <div class="col-sm-6 col-xl-3">
-            <a href="{% url 'leaves:leave_list' %}" class="kpi-card kg-3">
-                <div class="kpi-head">
-                    <div>
-                        <div class="kpi-value">{{ employee.sick_remaining|default_if_none:0 }}<small> / 11</small></div>
-                        <p class="kpi-label">الرصيد المرضي المتبقي</p>
-                    </div>
-                    <span class="kpi-tile"><i class="fa-solid fa-notes-medical"></i></span>
-                </div>
-                <div class="kpi-track"><div class="kpi-fill" data-width="{% widthratio employee.sick_remaining|default_if_none:0 11 100 %}"></div></div>
-            </a>
-        </div>
-        <div class="col-sm-6 col-xl-3">
-            <a href="{% url 'leaves:leave_list' %}" class="kpi-card kg-4">
-                <div class="kpi-head">
-                    <div>
-                        <div class="kpi-value">{{ employee.emergency_remaining|default_if_none:0 }}<small> / 11</small></div>
-                        <p class="kpi-label">الرصيد الطارئ المتبقي</p>
-                    </div>
-                    <span class="kpi-tile"><i class="fa-solid fa-bolt"></i></span>
-                </div>
-                <div class="kpi-track"><div class="kpi-fill" data-width="{% widthratio employee.emergency_remaining|default_if_none:0 11 100 %}"></div></div>
-            </a>
-        </div>
-    </div>
+    <!-- ===== Bootstrap Tabs ===== -->
+    <ul class="nav nav-tabs nav-justified profile-tabs my-3" id="profileTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-personal" data-bs-toggle="tab" data-bs-target="#pane-personal" type="button" role="tab" aria-controls="pane-personal" aria-selected="true">
+                <i class="fa-solid fa-user-pen"></i> البيانات الشخصية
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-job" data-bs-toggle="tab" data-bs-target="#pane-job" type="button" role="tab" aria-controls="pane-job" aria-selected="false">
+                <i class="fa-solid fa-briefcase"></i> البيانات الوظيفية
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-financial" data-bs-toggle="tab" data-bs-target="#pane-financial" type="button" role="tab" aria-controls="pane-financial" aria-selected="false">
+                <i class="fa-solid fa-sack-dollar"></i> البيانات المالية
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-contract" data-bs-toggle="tab" data-bs-target="#pane-contract" type="button" role="tab" aria-controls="pane-contract" aria-selected="false">
+                <i class="fa-solid fa-file-contract"></i> العقد الرسمي
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-account" data-bs-toggle="tab" data-bs-target="#pane-account" type="button" role="tab" aria-controls="pane-account" aria-selected="false">
+                <i class="fa-solid fa-user-lock"></i> حساب المستخدم
+            </button>
+        </li>
+    </ul>
 
-    <!-- ===== Identity + Personal Data ===== -->
-    <div class="row g-3 mb-4">
-        <!-- Identity Card -->
-        <div class="col-lg-4">
-            <div class="panel">
-                <div class="panel-title"><i class="fa-solid fa-id-card"></i> بطاقة الهوية</div>
+    <!-- ===== Tab Content ===== -->
+    <div class="tab-content profile-body" id="profileTabsContent">
 
-                <div class="text-center">
-                    {% if employee.profile_picture %}
-                        <img src="{{ employee.profile_picture.url }}" alt="صورة الملف الشخصي"
-                             class="rounded-circle" style="width:124px; height:124px; object-fit:cover; box-shadow:0 0 0 5px var(--tile-bg);">
-                    {% else %}
-                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto"
-                             style="width:124px; height:124px; background:linear-gradient(135deg,var(--tone-deep),var(--tone)); color:#fff; font-size:2.8rem; font-weight:800; box-shadow:0 0 0 5px var(--tile-bg);">
-                            {{ user.get_full_name|default:user.username|slice:":1"|upper }}
-                        </div>
-                    {% endif %}
-                    <div class="id-name">{{ employee.get_full_name|default:user.get_full_name|default:user.username }}</div>
-                    <div class="id-sub">{{ employee.position.title|default:"غير محدد" }} · {{ employee.department.name|default:"غير محدد" }}</div>
-                    <div class="mt-2">
-                        <span class="id-pill">
-                            <i class="fa-solid fa-user-tag"></i>
-                            {% if user_role == 'Manager' %}مدير{% elif user_role == 'HR Admin' %}مسؤول الموارد البشرية{% else %}موظف{% endif %}
-                        </span>
-                    </div>
-                </div>
-
-                <div class="my-3" style="border-top:1px dashed var(--line);"></div>
-
-                <div class="fact-row"><i class="fa-solid fa-sitemap"></i><span class="fk">القسم</span><span class="fv">{{ employee.department.name|default:"غير محدد" }}</span></div>
-                <div class="fact-row"><i class="fa-solid fa-briefcase"></i><span class="fk">المسمى الوظيفي</span><span class="fv">{{ employee.position.title|default:"غير محدد" }}</span></div>
-                <div class="fact-row"><i class="fa-solid fa-id-badge"></i><span class="fk">رقم الموظف</span><span class="fv mono">EMP-{{ employee.employee_number|default:"N/A" }}</span></div>
-                <div class="fact-row"><i class="fa-solid fa-calendar-day"></i><span class="fk">تاريخ التعيين</span><span class="fv">{% if contract %}{{ contract.start_date|date:"Y/m/d" }}{% else %}غير محدد{% endif %}</span></div>
-                <div class="fact-row"><i class="fa-solid fa-file-signature"></i><span class="fk">نوع العقد</span><span class="fv">{% if contract %}{{ contract.get_contract_type_display }}{% else %}غير محدد{% endif %}</span></div>
-
-                <div class="d-grid gap-2 mt-3">
-                    <a href="{% url 'user_settings' %}" class="btn-tone-outline d-flex align-items-center justify-content-center gap-2 text-decoration-none">
-                        <i class="fa-solid fa-gear"></i> إعدادات الحساب
-                    </a>
-                    <a href="{% url 'leaves:apply_leave' %}" class="btn-gold-solid d-flex align-items-center justify-content-center gap-2 text-decoration-none">
-                        <i class="fa-solid fa-calendar-plus"></i> طلب إجازة جديد
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Personal Data Form -->
-        <div class="col-lg-8">
-            <div class="panel">
-                <div class="panel-title">
-                    <i class="fa-solid fa-user-pen"></i> البيانات الشخصية
-                    <span class="pt-extra"><span class="badge-active"><span class="pulse-dot"></span> تحديث مباشر</span></span>
-                </div>
-
+        <!-- ===== Tab 1: البيانات الشخصية ===== -->
+        <div class="tab-pane fade show active" id="pane-personal" role="tabpanel" aria-labelledby="tab-personal">
+            <div class="panel tab-inner">
                 <form method="post">
                     {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
+                    <div class="pf-grid">
+                        <div class="pf-field">
                             <label class="f-label">الاسم الكامل</label>
                             <div class="ro-value"><i class="fa-solid fa-user" style="color:var(--tile-fg);"></i>{{ employee.get_full_name|default:user.get_full_name|default:user.username }}</div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="f-label">البريد الإلكتروني</label>
-                            <div class="ro-value"><i class="fa-solid fa-envelope" style="color:var(--tile-fg);"></i>{{ user.email|default:"غير محدد" }}</div>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="primary_phone" class="f-label">رقم الهاتف الرئيسي</label>
-                            <input type="tel" class="form-control" id="primary_phone" name="primary_phone"
-                                   value="{{ employee.phone|default:'' }}" placeholder="05xxxxxxxx">
-                        </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="pf-field">
                             <label for="date_of_birth" class="f-label">تاريخ الميلاد</label>
                             <input type="date" class="form-control" id="date_of_birth" name="date_of_birth"
                                    value="{% if employee.date_of_birth %}{{ employee.date_of_birth|date:'Y-m-d' }}{% endif %}">
                         </div>
-
-                        <div class="col-md-6 mb-3">
+                        <div class="pf-field">
+                            <label class="f-label">البريد الإلكتروني</label>
+                            <div class="ro-value"><i class="fa-solid fa-envelope" style="color:var(--tile-fg);"></i>{{ user.email|default:"غير محدد" }}</div>
+                        </div>
+                        <div class="pf-field">
+                            <label for="primary_phone" class="f-label">رقم الهاتف الرئيسي</label>
+                            <input type="tel" class="form-control" id="primary_phone" name="primary_phone"
+                                   value="{{ employee.phone|default:'' }}" placeholder="05xxxxxxxx">
+                        </div>
+                        <div class="pf-field">
                             <label class="f-label">الرقم الوطني / جواز السفر</label>
                             <div class="ro-value mono">{{ employee.national_id|default:"غير محدد" }}</div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="f-label">جهة الاتصال الطارئة</label>
-                            <div class="ro-value">{{ employee.emergency_contact|default:"غير محدد" }}{% if employee.emergency_phone %}<span style="color:var(--muted);">· {{ employee.emergency_phone }}</span>{% endif %}</div>
-                        </div>
-
-                        <div class="col-md-12 mb-3">
-                            <label for="address" class="f-label">العنوان</label>
-                            <textarea class="form-control" id="address" name="address" rows="3" placeholder="اكتب عنوانك الحالي">{{ employee.address|default:'' }}</textarea>
-                        </div>
-
-                        <div class="col-md-12 mb-2">
+                        <div class="pf-field">
                             <label class="f-label">أرقام الهاتف الإضافية</label>
-                            <div id="phone-list" class="phone-list">
+                            <div id="phone-list" class="phone-list w-100">
                                 {% for phone in phone_numbers %}
                                     {% if not phone.is_primary %}
                                         <div class="input-group mb-2 phone-item">
@@ -464,97 +552,115 @@
                                     </div>
                                 {% endfor %}
                             </div>
-                            <button type="button" id="add-phone" class="btn-tone-outline mt-1" style="padding:.4rem .95rem; font-size:.8rem;">
+                            <button type="button" id="add-phone" class="btn-tone-outline mt-1" style="align-self:flex-start; padding:.4rem .95rem; font-size:.8rem;">
                                 <i class="fa-solid fa-plus me-1"></i>إضافة رقم هاتف
                             </button>
                         </div>
+                        <div class="pf-field wide">
+                            <label for="address" class="f-label">العنوان</label>
+                            <textarea class="form-control" id="address" name="address" rows="3" placeholder="اكتب عنوانك الحالي">{{ employee.address|default:'' }}</textarea>
+                        </div>
                     </div>
 
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3 pt-3" style="border-top:1px dashed var(--line);">
-                        <small style="color:var(--muted); font-weight:600;"><i class="fa-solid fa-shield-halved me-1" style="color:var(--tile-fg);"></i>بياناتك محمية وتُستخدم لأغراض الموارد البشرية فقط</small>
+                    <div class="pf-actions">
+                        <small class="pf-note"><i class="fa-solid fa-shield-halved" style="color:var(--tile-fg);"></i>بياناتك محمية وتُستخدم لأغراض الموارد البشرية فقط</small>
                         <button type="submit" class="btn-tone">
-                            <i class="fa-solid fa-floppy-disk me-2"></i>حفظ التعديلات
+                            <i class="fa-solid fa-floppy-disk"></i> حفظ التعديلات
                         </button>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
 
-    <!-- ===== Job + Financial ===== -->
-    <div class="row g-3 mb-4">
-        <div class="col-lg-6">
-            <div class="panel">
+        <!-- ===== Tab 2: البيانات الوظيفية ===== -->
+        <div class="tab-pane fade" id="pane-job" role="tabpanel" aria-labelledby="tab-job">
+            <div class="panel tab-inner">
                 <div class="panel-title"><i class="fa-solid fa-briefcase"></i> البيانات الوظيفية</div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
+                <div class="pf-grid">
+                    <div class="pf-field">
                         <label class="f-label">القسم</label>
                         <div class="ro-value">{{ employee.department.name|default:"غير محدد" }}</div>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="pf-field">
                         <label class="f-label">المسمى الوظيفي</label>
                         <div class="ro-value">{{ employee.position.title|default:"غير محدد" }}</div>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="pf-field">
                         <label class="f-label">الدور</label>
                         <div class="ro-value">{{ employee.position.role|default:"غير محدد" }}</div>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="pf-field">
                         <label class="f-label">رقم الموظف</label>
                         <div class="ro-value mono">EMP-{{ employee.employee_number|default:"N/A" }}</div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="f-label">تاريخ التعيين</label>
-                        <div class="ro-value">{% if contract %}{{ contract.start_date|date:"Y/m/d" }}{% else %}غير محدد{% endif %}</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="pf-field">
                         <label class="f-label">نوع العقد</label>
                         <div class="ro-value">
                             {% if contract %}{{ contract.get_contract_type_display }}{% if contract.status == 'ACTIVE' %} <span class="badge-active ms-1"><span class="pulse-dot"></span>نشط</span>{% endif %}{% else %}غير محدد{% endif %}
                         </div>
                     </div>
+                    <div class="pf-field">
+                        <label class="f-label">تاريخ التعيين</label>
+                        <div class="ro-value">{% if contract %}{{ contract.start_date|date:"Y/m/d" }}{% else %}غير محدد{% endif %}</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-6">
-            <div class="panel">
+        <!-- ===== Tab 3: البيانات المالية ===== -->
+        <div class="tab-pane fade" id="pane-financial" role="tabpanel" aria-labelledby="tab-financial">
+            <div class="panel tab-inner">
                 <div class="panel-title"><i class="fa-solid fa-sack-dollar"></i> البيانات المالية</div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
+                <div class="pf-grid" style="max-width:720px;">
+                    <div class="pf-field">
                         <label class="f-label">الراتب الأساسي</label>
                         <div class="ro-value mono">{% if contract %}{{ contract.salary }} ${% else %}غير محدد{% endif %}</div>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="pf-field">
                         <label class="f-label">البدلات</label>
                         <div class="ro-value" style="color:var(--muted);">غير محدد</div>
                     </div>
+                    <div class="pf-field wide">
+                        {% if not user.is_staff and employee.position.role != 'HR Admin' %}
+                        <div class="note-hr">
+                            <i class="fa-solid fa-lock mt-1"></i>
+                            <span>البيانات المالية التفصيلية متاحة فقط لمسؤولي الموارد البشرية</span>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
-                {% if not user.is_staff and employee.position.role != 'HR Admin' %}
-                <div class="note-hr mt-2">
-                    <i class="fa-solid fa-lock mt-1"></i>
-                    <span>البيانات المالية التفصيلية متاحة فقط لمسؤولي الموارد البشرية</span>
-                </div>
-                {% endif %}
             </div>
         </div>
-    </div>
 
-    <!-- ===== Contract + Emergency ===== -->
-    <div class="row g-3">
-        <div class="col-lg-5 mb-4">
-            <div class="cta-panel">
-                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="kpi-tile" style="width:48px; height:48px;"><i class="fa-solid fa-file-contract"></i></span>
-                        <div>
-                            <h5 class="fw-bold mb-1" style="color:var(--head);">العقد الرسمي</h5>
-                            <p class="mb-0" style="color:var(--muted); font-size:.84rem;">عرض وطباعة نسخة العقد المعتمدة</p>
-                        </div>
-                    </div>
+        <!-- ===== Tab 4: العقد الرسمي ===== -->
+        <div class="tab-pane fade" id="pane-contract" role="tabpanel" aria-labelledby="tab-contract">
+            <div class="tab-inner">
+                <div class="cta-panel" style="max-width:560px; margin:0 auto;">
+                    <span class="kpi-tile mb-3" style="width:56px; height:56px; font-size:1.3rem;"><i class="fa-solid fa-file-contract"></i></span>
+                    <h5 class="fw-bold mb-1" style="color:var(--head);">العقد الرسمي</h5>
+                    <p class="mb-3" style="color:var(--muted); font-size:.84rem;">عرض وطباعة النسخة المعتمدة من العقد</p>
+
                     {% if contract %}
+                        <div class="pf-grid w-100" style="max-width:420px; margin-bottom:18px; text-align:right;">
+                            <div class="pf-field">
+                                <label class="f-label">نوع العقد</label>
+                                <div class="ro-value">{{ contract.get_contract_type_display }}</div>
+                            </div>
+                            <div class="pf-field">
+                                <label class="f-label">حالة العقد</label>
+                                <div class="ro-value">{% if contract.status == 'ACTIVE' %}نشط{% else %}غير نشط{% endif %}</div>
+                            </div>
+                            <div class="pf-field">
+                                <label class="f-label">تاريخ البدء</label>
+                                <div class="ro-value">{{ contract.start_date|date:"Y/m/d" }}</div>
+                            </div>
+                            <div class="pf-field">
+                                <label class="f-label">الراتب</label>
+                                <div class="ro-value mono">{{ contract.salary }} $</div>
+                            </div>
+                        </div>
                         <a href="{% url 'employees:contract_print' employee.pk %}" class="btn-tone text-decoration-none">
-                            <i class="fa-solid fa-print me-1"></i>عرض وطباعة العقد
+                            <i class="fa-solid fa-print"></i> عرض وطباعة العقد
                         </a>
                     {% else %}
                         <span style="color:var(--muted); font-weight:600; font-size:.85rem;">لا يوجد عقد مسجل</span>
@@ -563,58 +669,119 @@
             </div>
         </div>
 
-        <div class="col-lg-7 mb-4">
-            <div class="panel">
-                <div class="panel-title"><i class="fa-solid fa-phone-volume"></i> جهة الاتصال الطارئة</div>
-                <div class="row align-items-center">
-                    <div class="col-md-2 text-center mb-3 mb-md-0">
-                        <span class="emg-bubble"><i class="fa-solid fa-heart-pulse"></i></span>
-                    </div>
-                    <div class="col-md-5 mb-3 mb-md-0">
-                        <label class="f-label">اسم جهة الاتصال</label>
-                        <div class="ro-value">{{ employee.emergency_contact|default:"غير محدد" }}</div>
-                    </div>
-                    <div class="col-md-5">
-                        <label class="f-label">رقم هاتف الطوارئ</label>
-                        <div class="ro-value mono">{{ employee.emergency_phone|default:"غير محدد" }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== Photo Upload (separate form) ===== -->
-    <div class="row g-3">
-        <div class="col-12">
-            <div class="panel">
-                <div class="panel-title"><i class="fa-solid fa-camera"></i> صورة الملف الشخصي</div>
-                <form method="post" enctype="multipart/form-data">
+        <!-- ===== Tab 5: حساب المستخدم ===== -->
+        <div class="tab-pane fade" id="pane-account" role="tabpanel" aria-labelledby="tab-account">
+            <div class="panel tab-inner">
+                <form method="post" autocomplete="off">
                     {% csrf_token %}
-                    <div class="row align-items-center g-3">
-                        <div class="col-md-5">
-                            <label for="profile_picture" class="file-drop">
-                                <i class="fa-solid fa-cloud-arrow-up"></i>
-                                انقر لاختيار صورة جديدة (JPG / PNG)
-                                <input type="file" class="d-none" id="profile_picture" name="profile_picture"
-                                       accept="image/*" onchange="previewImage(event)">
-                            </label>
-                        </div>
-                        <div class="col-md-4">
-                            <div id="preview-wrap" class="text-center" style="display:none;">
-                                <img id="preview-img" src="" alt="معاينة الصورة">
-                                <div style="font-size:.75rem; color:var(--muted); font-weight:700;" class="mt-1">معاينة الصورة الجديدة</div>
-                            </div>
-                            <div id="no-preview" class="empty-mini" style="padding:8px 0;">
-                                <i class="fa-solid fa-image"></i>لم تختر صورة بعد — ستظهر المعاينة هنا
+                    <input type="hidden" name="form_name" value="account">
+
+                    <!-- ===== Default state: read-only identity + masked password ===== -->
+                    <div class="pf-grid" style="max-width:760px;">
+                        <div class="pf-field">
+                            <label for="account-username" class="f-label">اسم المستخدم</label>
+                            <div class="input-group pf-icongroup">
+                                <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                                <input type="text" id="account-username" class="form-control" value="{{ user.username }}" readonly>
                             </div>
                         </div>
-                        <div class="col-md-3 text-md-start">
-                            <button type="submit" class="btn-tone w-100">
-                                <i class="fa-solid fa-floppy-disk me-2"></i>حفظ الصورة
+                        <div class="pf-field">
+                            <label for="account-email" class="f-label">البريد الإلكتروني</label>
+                            <div class="input-group pf-icongroup">
+                                <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                                <input type="email" id="account-email" name="email" class="form-control" value="{{ user.email|default:'' }}" readonly>
+                            </div>
+                        </div>
+                        <div class="pf-field">
+                            <label for="masked_password" class="f-label">كلمة السر الحالية</label>
+                            <div class="input-group password-toggle">
+                                <input type="password" id="masked_password" class="form-control" value="••••••••" readonly>
+                                <button type="button" class="btn toggle-password" data-target="masked_password" aria-label="إظهار كلمة السر"><i class="fa-solid fa-eye"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pf-actions" style="border-top:0; margin-top:16px;">
+                        <button type="button" id="btn-reset-password" class="btn-tone-outline reset-password-btn" aria-expanded="false">
+                            <i class="fa-solid fa-lock"></i>
+                            <span class="reset-label">إعادة تعيين كلمة المرور</span>
+                            <i class="fa-solid fa-chevron-down reset-chevron"></i>
+                        </button>
+                    </div>
+
+                    <!-- ===== Collapsible: full password change form ===== -->
+                    <div id="password-reset-section" class="password-reset-section" aria-hidden="true">
+                        <div class="reset-heading">
+                            <i class="fa-solid fa-shield-halved"></i> تغيير كلمة المرور
+                        </div>
+                        <div class="pf-grid" style="max-width:760px;">
+                            <div class="pf-field">
+                                <label for="current_password" class="f-label">كلمة المرور الحالية</label>
+                                <div class="input-group password-toggle">
+                                    <input type="password" id="current_password" name="current_password" class="form-control" autocomplete="current-password">
+                                    <button type="button" class="btn toggle-password" data-target="current_password" aria-label="إظهار كلمة السر"><i class="fa-solid fa-eye"></i></button>
+                                </div>
+                            </div>
+                            <div class="pf-field">
+                                <label for="new_password" class="f-label">كلمة المرور الجديدة</label>
+                                <div class="input-group password-toggle">
+                                    <input type="password" id="new_password" name="new_password" class="form-control" autocomplete="new-password">
+                                    <button type="button" class="btn toggle-password" data-target="new_password" aria-label="إظهار كلمة السر"><i class="fa-solid fa-eye"></i></button>
+                                </div>
+                            </div>
+                            <div class="pf-field">
+                                <label for="confirm_password" class="f-label">تأكيد كلمة المرور الجديدة</label>
+                                <div class="input-group password-toggle">
+                                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" autocomplete="new-password">
+                                    <button type="button" class="btn toggle-password" data-target="confirm_password" aria-label="إظهار كلمة السر"><i class="fa-solid fa-eye"></i></button>
+                                </div>
+                            </div>
+                            <div class="pf-field wide">
+                                <div class="note-hr mt-1">
+                                    <i class="fa-solid fa-shield-halved mt-1"></i>
+                                    <span>استخدم 8 رموز أو أكثر وأضف أحرفاً وأرقاماً وعلامات لقوة أفضل.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pf-actions">
+                            <p class="pf-note mb-0"><i class="fa-solid fa-user-lock" style="color:var(--tile-fg);"></i>لوحة بيانات الحساب وجلسة الدخول</p>
+                            <button type="submit" class="btn-tone">
+                                <i class="fa-solid fa-key"></i> حفظ كلمة المرور الجديدة
                             </button>
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Hidden Profile Picture Upload Form ===== -->
+    <form method="post" enctype="multipart/form-data" id="avatar-upload-form" class="d-none">
+        {% csrf_token %}
+        <input type="file" class="d-none" id="profile_picture" name="profile_picture"
+               accept="image/*" onchange="this.form.submit()">
+    </form>
+
+    <!-- ===== Avatar View Modal ===== -->
+    <div class="modal fade" id="avatarViewModal" tabindex="-1" aria-labelledby="avatarViewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content" style="border-radius:18px;">
+                <div class="modal-header border-0 pb-0">
+                    <h6 class="modal-title fw-bold" id="avatarViewModalLabel" style="color:var(--head);">الصورة الشخصية</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center pb-4">
+                    {% if employee.profile_picture %}
+                        <img src="{{ employee.profile_picture.url }}" alt="صورة الملف الشخصي" class="avatar-view-img">
+                    {% else %}
+                        <div class="avatar-view-img d-flex align-items-center justify-content-center"
+                             style="width:160px; height:160px; background:linear-gradient(135deg,var(--tone-deep),var(--tone)); color:#fff; font-size:3.2rem; font-weight:800;">
+                            {{ user.get_full_name|default:user.username|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
+                    <div class="mt-3 fw-bold" style="color:var(--head);">{{ employee.get_full_name|default:user.get_full_name|default:user.username }}</div>
+                    <div class="text-muted" style="font-size:.8rem;">{{ employee.position.title|default:"غير محدد" }}</div>
+                </div>
             </div>
         </div>
     </div>
@@ -623,26 +790,6 @@
 
 {% block extra_js %}
 <script>
-function previewImage(event) {
-    const input = event.target;
-    const previewWrap = document.getElementById('preview-wrap');
-    const noPreview = document.getElementById('no-preview');
-    const previewImg = document.getElementById('preview-img');
-
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            previewImg.src = e.target.result;
-            previewWrap.style.display = 'block';
-            noPreview.style.display = 'none';
-        }
-        reader.readAsDataURL(input.files[0]);
-    } else {
-        previewWrap.style.display = 'none';
-        noPreview.style.display = 'block';
-    }
-}
-
 const phoneList = document.getElementById('phone-list');
 const addPhoneBtn = document.getElementById('add-phone');
 
@@ -669,13 +816,33 @@ document.addEventListener('click', function (event) {
     }
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.kpi-fill[data-width]').forEach(function (el) {
-        const width = el.getAttribute('data-width') || 0;
-        requestAnimationFrame(function () {
-            el.style.width = Math.min(parseInt(width, 10) || 0, 100) + '%';
-        });
+document.querySelectorAll('.toggle-password').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        const input = document.getElementById(this.dataset.target);
+        if (!input) return;
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        this.querySelector('i').className = isPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
     });
 });
+
+const resetBtn = document.getElementById('btn-reset-password');
+const resetSection = document.getElementById('password-reset-section');
+if (resetBtn && resetSection) {
+    resetBtn.addEventListener('click', function () {
+        const open = resetSection.classList.toggle('open');
+        this.classList.toggle('active', open);
+        this.setAttribute('aria-expanded', open ? 'true' : 'false');
+        resetSection.setAttribute('aria-hidden', open ? 'false' : 'true');
+        const label = this.querySelector('.reset-label');
+        if (label) label.textContent = open ? 'إخفاء نموذج كلمة المرور' : 'إعادة تعيين كلمة المرور';
+        const icon = this.querySelector('i:first-child');
+        if (icon) icon.className = open ? 'fa-solid fa-lock-open' : 'fa-solid fa-lock';
+        if (open) {
+            const first = resetSection.querySelector('input');
+            if (first) window.setTimeout(function () { first.focus(); }, 480);
+        }
+    });
+}
 </script>
 {% endblock %}

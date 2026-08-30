@@ -40,10 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third-Party Apps
-    'crispy_forms',
-    'crispy_bootstrap5',
-    'widget_tweaks',
-    'django_filters',
 
     # Project Apps
     'accounts',
@@ -57,9 +53,6 @@ INSTALLED_APPS = [
     'core',
 ]
 
-# إعدادات Crispy Forms لتبني Bootstrap 5
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

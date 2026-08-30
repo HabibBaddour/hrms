@@ -24,8 +24,8 @@
             --brand-surface: #F6F4FB;
         }
         * { box-sizing: border-box; }
-        html, body { width: 100%; min-height: 100%; }
-        body { margin: 0; background: var(--brand-night); color: #fff; font-family: 'Cairo', sans-serif; overflow-x: hidden; }
+        html, body { width: 100%; height: 100%; overflow: hidden; margin: 0; padding: 0; }
+        body { background: var(--brand-night); color: #fff; font-family: 'Cairo', sans-serif; }
 
         .bg-split { position: fixed; inset: 0; z-index: 0; }
         .bg-half { position: absolute; top: 0; bottom: 0; width: 50%; overflow: hidden; }
@@ -41,38 +41,40 @@
         .grad-2 { background: linear-gradient(135deg, #052E33 0%, #0B6B70 52%, #17B0A7 100%); }
         .grad-3 { background: linear-gradient(135deg, #2E1548 0%, #8E3D74 55%, #E89A5D 100%); }
 
-        .auth-stage { position: relative; z-index: 2; min-height: 100vh; display: grid; place-items: center; padding: 2rem 1.25rem; }
-        .login-card { width: min(100%, 470px); padding: 2.6rem 2.4rem 2rem; border-radius: 26px; background: rgba(23,19,54,.55); border: 1px solid rgba(255,255,255,.16); backdrop-filter: blur(26px) saturate(150%); -webkit-backdrop-filter: blur(26px) saturate(150%); box-shadow: 0 34px 90px rgba(8,6,28,.6), inset 0 1px 0 rgba(255,255,255,.16); transition: opacity .5s ease, transform .5s ease; animation: rise .8s ease both; }
+        .auth-stage { position: relative; z-index: 2; min-height: 100vh; max-height: 100vh; display: grid; place-items: center; padding: 1.5rem 1.25rem; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; }
+        .auth-stage::-webkit-scrollbar { display: none; }
+        .login-card { width: min(100%, 470px); padding: 2rem 2.2rem 1.6rem; border-radius: 26px; background: rgba(23,19,54,.55); border: 1px solid rgba(255,255,255,.16); backdrop-filter: blur(26px) saturate(150%); -webkit-backdrop-filter: blur(26px) saturate(150%); box-shadow: 0 34px 90px rgba(8,6,28,.6), inset 0 1px 0 rgba(255,255,255,.16); transition: opacity .5s ease, transform .5s ease; animation: rise .8s ease both; }
         @keyframes rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
 
-        .brand { display: flex; align-items: center; gap: .85rem; margin-bottom: 2.2rem; }
+        .brand { display: flex; align-items: center; gap: .85rem; margin-bottom: 1.4rem; }
         .brand-mark { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; color: #fff; font-size: 1.15rem; background: linear-gradient(135deg, var(--brand-primary), var(--brand-teal)); box-shadow: 0 10px 26px rgba(97,83,228,.45); }
         .brand-text b { display: block; color: #fff; font-size: 1.25rem; font-weight: 800; letter-spacing: .08em; line-height: 1.2; }
         .brand-text span { display: block; color: rgba(255,255,255,.58); font-size: .72rem; letter-spacing: .04em; }
         h1 { margin: 0 0 .4rem; font-size: clamp(1.5rem, 2.6vw, 1.95rem); font-weight: 800; }
-        .intro { margin: 0 0 1.9rem; color: rgba(255,255,255,.68); font-size: .92rem; }
+        .intro { margin: 0 0 1.2rem; color: rgba(255,255,255,.68); font-size: .92rem; }
 
         .alert { display: flex; align-items: center; gap: .5rem; padding: .8rem 1rem; margin-bottom: 1.3rem; border: 1px solid rgba(255,120,120,.3); border-radius: 12px; color: #FFB4B4; background: rgba(255,90,90,.13); font-size: .85rem; }
-        .field { margin-bottom: 1.25rem; }
+        .field { margin-bottom: 1rem; }
         label { display: block; margin-bottom: .5rem; color: rgba(255,255,255,.86); font-size: .87rem; font-weight: 700; }
         .control { position: relative; }
-        .control > i { position: absolute; top: 50%; right: 1rem; color: rgba(255,255,255,.45); transform: translateY(-50%); pointer-events: none; }
+        .control > i { position: absolute; top: 50%; right: 1rem; color: #0d9488 !important; transform: translateY(-50%); pointer-events: none; }
         input[type="text"], input[type="password"], input[type="email"] { width: 100%; border: 1px solid rgba(255,255,255,.2); border-radius: 12px; padding: .92rem 2.9rem .92rem 3rem; color: #fff; background: rgba(255,255,255,.09); font: inherit; outline: none; transition: border-color .25s, box-shadow .25s, background .25s; }
         input::placeholder { color: rgba(255,255,255,.4); }
         input:focus { border-color: var(--brand-primary-soft); background: rgba(255,255,255,.13); box-shadow: 0 0 0 4px rgba(97,83,228,.28); }
-        .password-toggle { position: absolute; top: 50%; left: .9rem; border: 0; padding: .25rem; color: rgba(255,255,255,.5); background: transparent; cursor: pointer; transform: translateY(-50%); transition: color .25s; }
-        .password-toggle:hover { color: var(--brand-primary-soft); }
-        .form-options { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: .25rem 0 1.7rem; font-size: .82rem; }
+        .password-toggle { position: absolute; top: 50%; left: .9rem; border: 0; padding: .25rem; color: #0d9488 !important; background: transparent; cursor: pointer; transform: translateY(-50%); transition: color .25s; }
+        .password-toggle:hover { color: #14b8a6 !important; }
+        .password-toggle i { color: #0d9488 !important; }
+        .form-options { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: .25rem 0 1.2rem; font-size: .82rem; }
         .remember { display: flex; align-items: center; gap: .45rem; margin-bottom: 0; color: rgba(255,255,255,.72); cursor: pointer; font-weight: 600; }
         .remember input { width: auto; accent-color: var(--brand-primary-soft); }
         .login-button { width: 100%; border: 0; border-radius: 12px; padding: .98rem; color: #fff; background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-soft) 60%, var(--brand-teal) 135%); font: 700 1rem 'Cairo', sans-serif; cursor: pointer; box-shadow: 0 14px 30px rgba(79,66,204,.38); transition: transform .25s, box-shadow .25s, filter .25s; }
         .login-button:hover { transform: translateY(-2px); filter: brightness(1.07); box-shadow: 0 18px 38px rgba(79,66,204,.5); }
-        .secure { margin: 1.9rem 0 0; color: rgba(255,255,255,.55); text-align: center; font-size: .78rem; }
+        .secure { margin: 1.2rem 0 0; color: rgba(255,255,255,.55); text-align: center; font-size: .78rem; }
         .secure i { margin-left: .35rem; color: var(--brand-teal); }
 
         .scene-dots { position: fixed; bottom: 1.5rem; left: 50%; z-index: 5; display: flex; gap: .55rem; padding: .5rem .75rem; border-radius: 999px; background: rgba(21,17,48,.42); border: 1px solid rgba(255,255,255,.14); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transform: translateX(-50%); }
-        .dot { width: 26px; height: 4px; border: 0; padding: 0; border-radius: 4px; background: rgba(255,255,255,.32); cursor: pointer; transition: background .35s, width .35s; }
-        .dot.active { width: 36px; background: linear-gradient(90deg, var(--brand-gold), var(--brand-primary-soft)); }
+        .dot { width: 12px; height: 12px; border: 0; padding: 0; border-radius: 50%; background: rgba(255,255,255,.32); cursor: pointer; transition: background .35s, width .35s; }
+        .dot.active { width: 28px; border-radius: 999px; background: linear-gradient(90deg, var(--brand-gold), var(--brand-primary-soft)); }
 
         .welcome-scene { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 2rem 1.25rem; overflow: hidden; background: var(--brand-night); }
         .welcome-scene::after { content: ''; position: absolute; inset: 0; background: radial-gradient(1200px 700px at 50% 42%, transparent 38%, rgba(8,6,24,.62) 100%); pointer-events: none; z-index: 1; }
@@ -124,9 +126,9 @@
     {% if not login_success %}
     <div class="bg-split" aria-hidden="true">
         <div class="bg-half half-images">
-            <div class="layer active" style="background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1800&q=80');"></div>
-            <div class="layer" style="background-image: url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=1800&q=80');"></div>
-            <div class="layer" style="background-image: url('https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1800&q=80');"></div>
+            <div class="layer active" style="background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1920&auto=format&fit=crop');"></div>
+            <div class="layer" style="background-image: url('https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1920&auto=format&fit=crop');"></div>
+            <div class="layer" style="background-image: url('https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1920&auto=format&fit=crop');"></div>
         </div>
         <div class="bg-half half-gradients">
             <div class="layer grad-1 active"></div>

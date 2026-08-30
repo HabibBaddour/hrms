@@ -26,18 +26,38 @@
     }
     .hero-band h4 { margin: 0 0 6px; font-weight: 800; }
     .hero-band p { margin: 0; color: rgba(255, 255, 255, 0.75); font-size: 0.92rem; }
-    .hero-chip {
+    .hero-badge {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 7px 16px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.14);
-        border: 1px solid rgba(255, 255, 255, 0.22);
+        padding: 6px 14px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.20);
         backdrop-filter: blur(8px);
-        font-size: 0.82rem;
-        font-weight: 600;
+        -webkit-backdrop-filter: blur(8px);
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 500;
     }
+    .hero-badge i { color: rgba(255, 255, 255, 0.82); font-size: 0.8rem; }
+
+    .chart-card {
+        height: 100%;
+        background: #fff;
+        border: 1px solid #F1F5F9;
+        border-radius: 16px;
+        padding: 20px 22px;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    .chart-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .chart-card-head i { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: rgba(59, 130, 246, 0.12); color: #1D4ED8; font-size: 0.95rem; flex-shrink: 0; }
+    .chart-card-head h6 { margin: 0; font-weight: 800; color: #101A38; font-size: 0.98rem; }
+    .chart-card-head small { color: #94A0B8; font-size: 0.76rem; }
+    .chart-wrap { position: relative; height: 300px; }
+
+    .emp-dash { padding-bottom: 0; }
+    .emp-dash > .row:last-of-type { margin-bottom: 2.5rem; }
 
     .stat-card {
         position: relative;
@@ -119,7 +139,12 @@
         background: #fff;
         border: 1px solid #ECEAF6;
         box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
-        height: 100%;
+    }
+
+    .main-wrapper > footer {
+        margin-top: 2.5rem !important;
+        clear: both;
+        border-top: 1px solid #E2E8F0;
     }
     .panel-title { display: flex; align-items: center; gap: 10px; font-weight: 800; color: #101A38; font-size: 1rem; margin-bottom: 18px; }
     .panel-title i { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: var(--panel-icon-bg); color: var(--panel-icon-fg); font-size: 0.9rem; }
@@ -174,135 +199,35 @@
                 <p>هذه مساحتك الشخصية — {{ today_ar }}</p>
             </div>
             <div class="d-flex flex-wrap gap-2">
-                <span class="hero-chip"><i class="fa-solid fa-calendar-check"></i> رصيدك {{ total_leave_remaining }} يوم</span>
-                <span class="hero-chip"><i class="fa-solid fa-hourglass-half"></i> {{ pending_leaves }} طلب معلق</span>
-                {% if unread_notifications %}<span class="hero-chip"><i class="fa-solid fa-bell"></i> {{ unread_notifications }} إشعار جديد</span>{% endif %}
+                <span class="hero-badge"><i class="fa-solid fa-building"></i> {{ employee_profile.department.name|default:"قسم الموارد البشرية" }}</span>
+                <span class="hero-badge"><i class="fa-solid fa-user-tie"></i> {{ employee_profile.position.title|default:"مسمى وظيفي" }}</span>
             </div>
         </div>
     </div>
 
     <div class="row g-3 mb-4">
-        <div class="col-md-6 col-xl-3">
-            <a href="{% url 'leaves:leave_list' %}" class="stat-card stat-blue">
-                <div class="d-flex align-items-start justify-content-between mb-3">
-                    <div><div class="stat-value">{{ total_leave_remaining }}</div><p class="stat-label">رصيدي المتبقي (يوم)</p></div>
-                    <span class="stat-tile"><i class="fa-solid fa-calendar-check"></i></span>
+        <div class="col-lg-6">
+            <div class="chart-card h-100">
+                <div class="chart-card-head">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <div>
+                        <h6 class="mb-0">تحليل أرصدة الإجازات</h6>
+                        <small>الرصيد المتبقي مقابل المستخدم لكل نوع</small>
+                    </div>
                 </div>
-                <span class="stat-sub"><i class="fa-solid fa-hourglass-half"></i> {{ pending_leaves }} طلب بانتظار الموافقة</span>
-                <span class="stat-link d-block">طلبات إجازاتي <i class="fa-solid fa-arrow-left"></i></span>
-            </a>
-        </div>
-        <div class="col-md-6 col-xl-3">
-            <a href="{% url 'leaves:apply_leave' %}" class="stat-card stat-gold">
-                <div class="d-flex align-items-start justify-content-between mb-3">
-                    <div><div class="stat-value">{{ annual_remaining }}<small style="font-size:1rem;color:#9B95B5;">/11</small></div><p class="stat-label">رصيد الإجازات السنوية</p></div>
-                    <span class="stat-tile"><i class="fa-solid fa-umbrella-beach"></i></span>
-                </div>
-                <span class="stat-sub"><i class="fa-solid fa-plus"></i> قدّم طلباً جديداً الآن</span>
-                <span class="stat-link d-block">طلب إجازة جديد <i class="fa-solid fa-arrow-left"></i></span>
-            </a>
-        </div>
-        <div class="col-md-6 col-xl-3">
-            {% if last_payroll %}
-            <a href="{% url 'payroll_payslip' last_payroll.pk %}" class="stat-card stat-sky">
-                <div class="d-flex align-items-start justify-content-between mb-3">
-                    <div><div class="stat-value">{{ last_payroll.net_salary|floatformat:"0" }} $</div><p class="stat-label">راتب {{ month_name }} (الصافي)</p></div>
-                    <span class="stat-tile"><i class="fa-solid fa-money-bill-wave"></i></span>
-                </div>
-                <span class="stat-sub"><i class="fa-solid fa-receipt"></i> {{ payslips_count }} قسيمة راتب مسجلة</span>
-                <span class="stat-link d-block">عرض القسيمة <i class="fa-solid fa-arrow-left"></i></span>
-            </a>
-            {% else %}
-            <div class="stat-card stat-sky" style="cursor:default;">
-                <div class="d-flex align-items-start justify-content-between mb-3">
-                    <div><div class="stat-value">-</div><p class="stat-label">لا يوجد راتب بعد</p></div>
-                    <span class="stat-tile"><i class="fa-solid fa-money-bill-wave"></i></span>
-                </div>
-                <span class="stat-sub"><i class="fa-solid fa-receipt"></i> ستظهر قسائمك هنا</span>
-            </div>
-            {% endif %}
-        </div>
-        <div class="col-md-6 col-xl-3">
-            <a href="{% url 'evaluations_dashboard' %}" class="stat-card stat-indigo">
-                <div class="d-flex align-items-start justify-content-between mb-3">
-                    <div><div class="stat-value">{{ avg_my_score }} / 5</div><p class="stat-label">متوسط تقييماتي</p></div>
-                    <span class="stat-tile"><i class="fa-solid fa-ranking-star"></i></span>
-                </div>
-                <span class="stat-sub"><i class="fa-solid fa-clipboard-check"></i> {{ evaluations_completed }} تقييم مكتمل</span>
-                <span class="stat-link d-block">تقييماتي <i class="fa-solid fa-arrow-left"></i></span>
-            </a>
-        </div>
-    </div>
-
-    <div class="row g-3 mb-4">
-        <div class="col-sm-6 col-xl-3">
-            <div class="mini-kpi">
-                <i class="fa-solid fa-notes-medical" style="background: rgba(2,132,199,.12); color: #0369A1;"></i>
-                <div><b>{{ sick_remaining }}/11</b><span>الرصيد المرضي المتبقي</span></div>
+                <div class="chart-wrap"><canvas id="leaveBalanceChart"></canvas></div>
             </div>
         </div>
-        <div class="col-sm-6 col-xl-3">
-            <div class="mini-kpi">
-                <i class="fa-solid fa-bolt" style="background: rgba(242,180,76,.18); color: #C08A25;"></i>
-                <div><b>{{ emergency_remaining }}/11</b><span>الرصيد الطارئ المتبقي</span></div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-xl-3">
-            <div class="mini-kpi">
-                <i class="fa-solid fa-bell" style="background: rgba(37,99,235,.12); color: #1D4ED8;"></i>
-                <div><b>{{ unread_notifications }}</b><span>إشعارات غير مقروءة</span></div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-xl-3">
-            <div class="mini-kpi">
-                <i class="fa-solid fa-users" style="background: rgba(67,56,202,.12); color: #4338CA;"></i>
-                <div><b>{{ team_size }}</b><span>زملاء في قسمك</span></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-3 mb-4">
-        <div class="col-12">
-            <div class="panel">
-                <div class="panel-title"><i class="fa-solid fa-bolt"></i> إجراءات سريعة</div>
-                <div class="row g-3">
-                    <div class="col-md-6 col-xl-4">
-                        <a href="{% url 'leaves:apply_leave' %}" class="action-tile act-blue">
-                            <span class="act-icon"><i class="fa-solid fa-calendar-plus"></i></span>
-                            <span><b>تقديم طلب إجازة</b><small>اختر النوع والفترة وأرسل طلبك</small></span>
-                        </a>
-                    </div>
-                    <div class="col-md-6 col-xl-4">
-                        <a href="{% url 'leaves:leave_list' %}" class="action-tile act-sky">
-                            <span class="act-icon"><i class="fa-solid fa-calendar-days"></i></span>
-                            <span><b>متابعة طلباتي</b><small>حالة طلباتك وسجل إجازاتك</small></span>
-                        </a>
-                    </div>
-                    <div class="col-md-6 col-xl-4">
-                        <a href="{% url 'evaluations_dashboard' %}" class="action-tile act-indigo">
-                            <span class="act-icon"><i class="fa-solid fa-ranking-star"></i></span>
-                            <span><b>تقييمات أدائي</b><small>نتائج تقييماتك وملاحظات المقيّمين</small></span>
-                        </a>
-                    </div>
-                    <div class="col-md-6 col-xl-4">
-                        <a href="{% url 'message_list' %}" class="action-tile act-gold">
-                            <span class="act-icon"><i class="fa-solid fa-envelope"></i></span>
-                            <span><b>الرسائل الداخلية</b><small>رسائل الإدارة والزملاء</small></span>
-                        </a>
-                    </div>
-                    <div class="col-md-6 col-xl-4">
-                        <a href="{% url 'core:notification_list' %}" class="action-tile act-blue">
-                            <span class="act-icon"><i class="fa-solid fa-bell"></i></span>
-                            <span><b>مركز الإشعارات</b><small>كل تنبيهاتك في مكان واحد</small></span>
-                        </a>
-                    </div>
-                    <div class="col-md-6 col-xl-4">
-                        <a href="{% url 'user_settings' %}" class="action-tile act-sky">
-                            <span class="act-icon"><i class="fa-solid fa-gear"></i></span>
-                            <span><b>إعدادات حسابي</b><small>بياناتك الشخصية وتفضيلاتك</small></span>
-                        </a>
+        <div class="col-lg-6">
+            <div class="chart-card h-100">
+                <div class="chart-card-head">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <div>
+                        <h6 class="mb-0">اتجاه الأداء والتقييمات</h6>
+                        <small>متوسط تقييماتك عبر الزمن</small>
                     </div>
                 </div>
+                <div class="chart-wrap"><canvas id="perfTrendChart"></canvas></div>
             </div>
         </div>
     </div>
@@ -400,11 +325,107 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
     document.querySelectorAll('.bar-fill').forEach(function(bar) {
         window.requestAnimationFrame(function() {
             bar.style.width = Math.min(bar.dataset.width || 0, 100) + '%';
         });
     });
+
+    (function () {
+        if (typeof Chart === 'undefined') return;
+        Chart.defaults.font.family = 'Cairo, sans-serif';
+        Chart.defaults.color = '#64748b';
+
+        /* ===== Chart 1: Leave Balance Doughnut ===== */
+        var leaveCtx = document.getElementById('leaveBalanceChart');
+        if (leaveCtx) {
+            var totalEach = 11;
+            var annual = {{ annual_remaining|default:0 }};
+            var sick = {{ sick_remaining|default:0 }};
+            var emergency = {{ emergency_remaining|default:0 }};
+            new Chart(leaveCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['سنوي', 'مرضي', 'طارئ'],
+                    datasets: [{
+                        data: [annual, sick, emergency],
+                        backgroundColor: ['#2563EB', '#0284C7', '#F2B44C'],
+                        borderColor: '#ffffff',
+                        borderWidth: 3,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '62%',
+                    plugins: {
+                        legend: { position: 'bottom', rtl: true, labels: { padding: 16, usePointStyle: true } },
+                        tooltip: {
+                            rtl: true,
+                            callbacks: {
+                                label: function (ctx) {
+                                    var used = totalEach - ctx.parsed;
+                                    return ' ' + ctx.label + ' — متبقي ' + ctx.parsed + '/' + totalEach + ' (مستخدم ' + used + ')';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        /* ===== Chart 2: Performance & Attendance Trend ===== */
+        var perfCtx = document.getElementById('perfTrendChart');
+        if (perfCtx) {
+            var rawLabels = [{% for e in my_evaluations %}"{{ e.evaluation_date|date:'n/Y' }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+            var rawScores = [{% for e in my_evaluations %}{{ e.overall_score|default:0 }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+
+            var labels = [], scores = [];
+            for (var i = 0; i < rawScores.length; i++) {
+                if (rawScores[i] > 0) { labels.push(rawLabels[i]); scores.push(rawScores[i]); }
+            }
+            // chronological order (oldest -> newest)
+            labels.reverse();
+
+            if (labels.length === 0) {
+                perfCtx.parentNode.innerHTML = '<div class="empty-mini"><i class="fa-regular fa-chart-line"></i>لا توجد تقييمات مكتملة مسجلة لك بعد</div>';
+                return;
+            }
+
+            new Chart(perfCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'درجة التقييم',
+                        data: scores,
+                        borderColor: '#6153E4',
+                        backgroundColor: 'rgba(97, 83, 228, 0.15)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#6153E4',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { rtl: true, callbacks: { label: function (ctx) { return ' التقييم: ' + ctx.parsed.y + ' / 5'; } } }
+                    },
+                    scales: {
+                        y: { min: 0, max: 5, ticks: { stepSize: 1 }, grid: { color: '#EEF2F7' } },
+                        x: { ticks: { autoSkip: true, maxRotation: 0 }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+    })();
 </script>
 {% endblock %}

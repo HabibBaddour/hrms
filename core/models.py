@@ -138,48 +138,6 @@ class SystemNotification(models.Model):
         except:
             return None
 
-# Keep the old Notification model for backward compatibility
-class Notification(models.Model):
-    """نموذج الإشعارات القديم للتوافق"""
-    
-    NOTIFICATION_TYPES = (
-        ('employee_created', 'إنشاء موظف'),
-        ('department_created', 'إنشاء قسم'),
-        ('position_created', 'إنشاء مسمى وظيفي'),
-        ('employee_updated', 'تعديل موظف'),
-        ('department_updated', 'تعديل قسم'),
-        ('position_updated', 'تعديل مسمى وظيفي'),
-        ('leave_request', 'طلب إجازة'),
-        ('leave_approved', 'موافقة على إجازة'),
-        ('leave_rejected', 'رفض إجازة'),
-        ('general', 'إشعار عام'),
-    )
-    
-    STATUS_CHOICES = (
-        ('unread', 'غير مقروء'),
-        ('read', 'مقروء'),
-        ('opened', 'مفتوح'),
-    )
-    
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='old_notifications')
-    notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES, default='general')
-    title = models.CharField(max_length=200)
-    message = models.TextField()
-    details = models.JSONField(default=dict, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='unread')
-    created_at = models.DateTimeField(auto_now_add=True)
-    read_at = models.DateTimeField(null=True, blank=True)
-    opened_at = models.DateTimeField(null=True, blank=True)
-    
-    class Meta:
-        ordering = ['-created_at']
-        verbose_name = 'إشعار قديم'
-        verbose_name_plural = 'الإشعارات القديمة'
-    
-    def __str__(self):
-        return f"{self.title} - {self.user.username}"
-
-
 class InternalMessage(models.Model):
     """نموذج الرسائل الداخلية"""
     

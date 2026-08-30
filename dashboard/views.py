@@ -442,21 +442,6 @@ def dashboard_index(request):
     return render(request, 'dashboard/index.html', context)     
 
 
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-# قم باستيراد موديل الإشعارات والرسائل الخاص بك
-# from .models import Notification, Message
-
-@login_required
-def notification_list_view(request):
-    # جلب الإشعارات الخاصة بالمستخدم الحالي فقط من قاعدة البيانات
-    # notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
-    
-    context = {
-        'notifications': [],  # استبدل القائمة الفارغة بـ notifications عند ربط الموديل
-    }
-    return render(request, 'notifications/notification_list.html', context)
-
 @login_required
 def message_list_view(request):
     """عرض قائمة الرسائل الداخلية"""

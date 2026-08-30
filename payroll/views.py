@@ -225,6 +225,32 @@ def payroll_payslip(request, pk):
 
 
 @login_required(login_url='login')
+def my_payslips(request):
+    """Employee-facing list of their own payslips."""
+    employee = getattr(request.user, 'employee_profile', None)
+    payslips = Payroll.objects.none()
+    if employee:
+        payslips = Payroll.objects.filter(employee=employee).order_by('-year', '-month')
+
+    month_map = {num: name for num, name in ARABIC_MONTHS}
+    for p in payslips:
+        p.month_name = month_map.get(p.month, str(p.month))
+
+    total_net = sum(float(p.net_salary) for p in payslips)
+    paid_net = sum(float(p.net_salary) for p in payslips if p.status == 'PAID')
+
+    context = {
+        'employee': employee,
+        'payslips': payslips,
+        'count': payslips.count(),
+        'total_net': total_net,
+        'paid_net': paid_net,
+        'months': ARABIC_MONTHS,
+    }
+    return render(request, 'payroll/my_payslips.html', context)
+
+
+@login_required(login_url='login')
 def export_payroll_pdf(request):
     payrolls = Payroll.objects.select_related('employee__user', 'employee__department', 'employee__position').order_by('-created_at')
     buffer = BytesIO()

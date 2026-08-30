@@ -170,6 +170,7 @@ def leave_list(request):
         'rejected_count': leaves.filter(status='REJECTED').count(),
         'employees': employees,
         'can_view_all': can_view_all,
+        'is_privileged': can_view_all or is_department_manager,
         'departments': departments,
         'roles': role_choices,
         'selected_department': dept_id,
@@ -219,6 +220,7 @@ def apply_leave(request):
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
         reason = request.POST.get('reason')
+        attachment = request.FILES.get('attachment')
 
         try:
             start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
@@ -230,6 +232,13 @@ def apply_leave(request):
         if end_date < start_date:
             messages.error(request, 'يجب أن يكون تاريخ النهاية بعد تاريخ البداية.')
             return render(request, 'leaves/apply_leave.html', _context())
+
+        if attachment:
+            allowed = ('.pdf', '.jpg', '.jpeg', '.png')
+            ext = getattr(attachment, 'name', '') or ''
+            if not ext.lower().endswith(allowed):
+                messages.error(request, 'صيغة المرفق غير مدعومة. يُسمح فقط بملفات PDF أو JPG أو PNG.')
+                return render(request, 'leaves/apply_leave.html', _context())
 
         employee = getattr(request.user, 'employee_profile', None)
 
@@ -250,6 +259,7 @@ def apply_leave(request):
                 start_date=start_date,
                 end_date=end_date,
                 reason=reason,
+                attachment=attachment if attachment else None,
                 status='PENDING'
             )
             predict_leave_status(leave)

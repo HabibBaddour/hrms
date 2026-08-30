@@ -632,13 +632,13 @@
                     </a>
                 </li>
 
-                <li class="menu-header">الملف الشخصي</li>
+                <li class="menu-header">خدماتي</li>
                 <li>
-                    <a href="{% url 'employees:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-                        <i class="fa-solid fa-user-gear"></i> الملف الشخصي
+                    <a href="{% url 'employees:payslip_list' %}" class="{% if 'payslip' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> كشف الراتب
                     </a>
                 </li>
-            
+
             {% elif user_role == 'Manager' or user_role == 'manager' %}
                 <!-- Manager - Limited Menu -->
                 <li class="menu-header">الرئيسية</li>
@@ -661,19 +661,19 @@
                 </li>
  
                 <li class="menu-header">التقارير</li>
-                <li>
+<li>
                     <a href="{% url 'team_performance' %}" class="{% if request.resolver_match.url_name == 'team_performance' %}active{% endif %}">
-                        <i class="fa-solid fa-chart-line"></i> أداء الفريق
+                        <i class="fa-solid fa-clipboard-check"></i> التقييمات المطلوبة
                     </a>
                 </li>
 
-                <li class="menu-header">الملف الشخصي</li>
+                <li class="menu-header">خدماتي</li>
                 <li>
-                    <a href="{% url 'employees:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-                        <i class="fa-solid fa-user-gear"></i> الملف الشخصي
+                    <a href="{% url 'employees:payslip_list' %}" class="{% if 'payslip' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> كشف الراتب
                     </a>
                 </li>
-            
+
             {% else %}
                 <!-- Employee - Limited Menu -->
                 <li class="menu-header">الرئيسية</li>
@@ -690,24 +690,8 @@
                     </a>
                 </li>
                 <li>
-                    {% if latest_payslip_id %}
-                    <a href="{% url 'payroll_payslip' latest_payslip_id %}" class="{% if request.resolver_match.url_name == 'payroll_payslip' %}active{% endif %}">
+                    <a href="{% url 'employees:payslip_list' %}" class="{% if 'payslip' in request.resolver_match.url_name %}active{% endif %}">
                         <i class="fa-solid fa-file-invoice-dollar"></i> كشف الراتب
-                    </a>
-                    {% else %}
-                    <a href="#" style="opacity:.55; cursor:not-allowed;" title="لا يوجد كشف راتب صادر لك بعد">
-                        <i class="fa-solid fa-file-invoice-dollar"></i> كشف الراتب
-                    </a>
-                    {% endif %}
-                </li>
-                <li>
-                    <a href="{% url 'employees:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-                        <i class="fa-solid fa-user-gear"></i> الملف الشخصي
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'user_settings' %}" class="{% if request.resolver_match.url_name == 'user_settings' %}active{% endif %}">
-                        <i class="fa-solid fa-gear"></i> الإعدادات
                     </a>
                 </li>
             {% endif %}

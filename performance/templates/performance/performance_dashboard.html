@@ -71,14 +71,14 @@
                 <h1>تبويبة تقييم الأداء</h1>
                 <p>مراجعة حملات التقييم ونسبة إنجازها لكل قسم.</p>
             </div>
-            <a href="{% url 'evaluation_create' %}" class="btn-gold-solid"><i class="fa-solid fa-plus"></i> إضافة تقييم</a>
+            <a href="{% url 'add_evaluation' %}" class="btn-gold-solid"><i class="fa-solid fa-plus"></i> إضافة تقييم</a>
         </div>
         <div class="perf-chips mt-4">
             <span class="chip"><i class="fa-solid fa-flag-checkered"></i> {{ campaigns|length }} حملة تقييم</span>
         </div>
     </div>
 
-    <form method="get" action="{% url 'performance_list' %}" class="perf-panel">
+    <form method="get" action="{% url 'performance_dashboard' %}" class="perf-panel">
         <div class="row g-3 align-items-end">
             <div class="col-lg-4 col-md-6">
                 <label for="evaluation-title">اسم التقييم</label>
@@ -97,7 +97,7 @@
             </div>
             <div class="col-lg-2 col-md-6 d-flex gap-2">
                 <button type="submit" class="btn-violet-solid"><i class="fa-solid fa-sliders"></i> تطبيق</button>
-                <a href="{% url 'performance_list' %}" class="reset-chip"><i class="fa-solid fa-rotate-left"></i> إعادة ضبط</a>
+                <a href="{% url 'performance_dashboard' %}" class="reset-chip"><i class="fa-solid fa-rotate-left"></i> إعادة ضبط</a>
             </div>
         </div>
     </form>

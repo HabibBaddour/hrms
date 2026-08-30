@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block title %}كشوفات رواتبي | HRMS{% endblock %}
+{% block page_title %}كشوفات رواتبي{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ps-page { --line:#ECEAF6; --muted:#6E6A86; }
+
+    /* ===== Theme: HR Admin / Superuser (Violet) ===== */
+    .pf-violet {
+        --tone:#6153E4; --tone-deep:#4A3AB8; --strong:#4433C9;
+        --ring:rgba(97,83,228,.16);
+        --tile-bg:rgba(97,83,228,.11); --tile-fg:#4A3AB8;
+        --line-soft:#DCD6F5; --track:#EFEDFA; --head:#1A1338;
+        --grad-1:linear-gradient(90deg,#4A3AB8,#8B7FF2);
+        --grad-2:linear-gradient(90deg,#0B6B70,#17B0A7);
+        --grad-3:linear-gradient(90deg,#E89A5D,#F2B44C);
+        --hero-bg:
+            radial-gradient(520px 260px at 88% 0%, rgba(23,176,167,.35), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
+            linear-gradient(120deg,#1B1442 0%,#4A3AB8 55%,#6153E4 100%);
+        --hero-shadow:0 20px 44px rgba(27,20,66,.35);
+    }
+
+    /* ===== Theme: Manager (Green) ===== */
+    .pf-green {
+        --tone:#14A374; --tone-deep:#0E5C43; --strong:#0F8A60;
+        --ring:rgba(20,163,116,.16);
+        --tile-bg:rgba(20,163,116,.12); --tile-fg:#0F8A60;
+        --line-soft:#CBE7DA; --track:#EAF5EF; --head:#12271E;
+        --grad-1:linear-gradient(90deg,#0E8A5F,#3FC98F);
+        --grad-2:linear-gradient(90deg,#0B6B70,#17B0A7);
+        --grad-3:linear-gradient(90deg,#E89A5D,#F2B44C);
+        --hero-bg:
+            radial-gradient(520px 260px at 88% 0%, rgba(56,224,160,.30), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
+            linear-gradient(120deg,#0B1F17 0%,#0E5C43 55%,#14A374 100%);
+        --hero-shadow:0 20px 44px rgba(11,31,23,.35);
+    }
+
+    /* ===== Theme: Employee (Blue) ===== */
+    .pf-blue {
+        --tone:#3B82F6; --tone-deep:#1E40AF; --strong:#1D4ED8;
+        --ring:rgba(59,130,246,.16);
+        --tile-bg:rgba(59,130,246,.12); --tile-fg:#1D4ED8;
+        --line-soft:#C9DAF8; --track:#EAF1FC; --head:#101A38;
+        --grad-1:linear-gradient(90deg,#1D4ED8,#60A5FA);
+        --grad-2:linear-gradient(90deg,#0284C7,#38BDF8);
+        --grad-3:linear-gradient(90deg,#E89A5D,#F2B44C);
+        --hero-bg:
+            radial-gradient(520px 260px at 88% 0%, rgba(56,189,248,.30), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
+            linear-gradient(120deg,#0A1128 0%,#1E40AF 55%,#3B82F6 100%);
+        --hero-shadow:0 20px 44px rgba(10,17,40,.35);
+    }
+
+    /* ===== Hero ===== */
+    .ps-hero {
+        position:relative; overflow:hidden;
+        border-radius:22px; padding:26px 30px; color:#fff;
+        background:var(--hero-bg); box-shadow:var(--hero-shadow);
+        margin-bottom:24px;
+    }
+    .ps-hero h4 { margin:0 0 6px; font-weight:800; font-size:1.5rem; }
+    .ps-hero p { margin:0; color:rgba(255,255,255,.78); font-size:.9rem; }
+    .eyebrow-pill {
+        display:inline-flex; align-items:center; gap:7px;
+        padding:6px 14px; border-radius:999px;
+        background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22);
+        font-size:.74rem; font-weight:700; margin-bottom:10px;
+    }
+    .hero-chip {
+        display:inline-flex; align-items:center; gap:8px;
+        padding:7px 15px; border-radius:999px;
+        background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22);
+        font-size:.8rem; font-weight:700;
+    }
+
+    /* ===== Panels / Cards ===== */
+    .panel {
+        padding:1rem; border-radius:18px; background:#fff;
+        border:1px solid var(--line); box-shadow:0 10px 26px rgba(15,23,42,.05);
+    }
+    .panel-title {
+        display:flex; align-items:center; gap:10px;
+        font-weight:800; color:var(--head); font-size:1rem; margin-bottom:16px;
+    }
+    .panel-title i {
+        width:36px; height:36px; border-radius:11px; display:grid; place-items:center;
+        font-size:.9rem; background:var(--tile-bg); color:var(--tile-fg);
+    }
+
+    /* ===== Stat Cards ===== */
+    .stat-card {
+        position:relative; overflow:hidden;
+        padding:16px 18px; border-radius:16px; background:#fff;
+        border:1px solid var(--line); box-shadow:0 10px 24px rgba(15,23,42,.05);
+    }
+    .stat-card .sc-label { font-size:.76rem; font-weight:700; color:var(--muted); margin-bottom:6px; }
+    .stat-card .sc-value { font-size:1.4rem; font-weight:800; color:var(--head); line-height:1.1; }
+    .stat-card .sc-icon {
+        position:absolute; top:14px; inset-inline-end:14px;
+        width:38px; height:38px; border-radius:11px; display:grid; place-items:center;
+        font-size:.95rem; background:var(--tile-bg); color:var(--tile-fg);
+    }
+    .stat-card .sc-sub { font-size:.72rem; font-weight:700; color:var(--muted); margin-top:4px; }
+
+    /* ===== Payslip Card ===== */
+    .ps-card {
+        position:relative; overflow:hidden;
+        padding:18px; border-radius:16px; background:#fff;
+        border:1.8px solid #E7E4F3; box-shadow:0 10px 24px rgba(15,23,42,.05);
+        transition:border-color .22s ease, transform .22s ease, box-shadow .22s ease;
+    }
+    .ps-card:hover { transform:translateY(-3px); border-color:var(--tone); box-shadow:0 16px 32px rgba(15,23,42,.1); }
+    .ps-card::before {
+        content:''; position:absolute; inset-inline-start:0; top:0; bottom:0; width:5px;
+        background:var(--grad-1); opacity:.85;
+    }
+    .ps-card .ps-month { font-size:1.05rem; font-weight:800; color:var(--head); }
+    .ps-card .ps-year { font-size:.8rem; font-weight:700; color:var(--muted); }
+    .ps-card .ps-net { display:flex; flex-direction:column; gap:2px; margin:14px 0 12px; }
+    .ps-card .ps-net b { font-size:1.7rem; line-height:1; color:var(--head); font-weight:800; }
+    .ps-card .ps-net span { font-size:.74rem; font-weight:700; color:var(--muted); }
+    .ps-card .ps-base { font-size:.78rem; font-weight:700; color:#45516B; margin-bottom:12px; }
+    .ps-card .ps-base b { color:var(--strong); }
+
+    .status-mini { padding:4px 12px; border-radius:999px; font-size:.72rem; font-weight:800; white-space:nowrap; }
+    .st-paid { background:rgba(20,163,116,.13); color:#0F8A60; }
+    .st-pending { background:rgba(242,180,76,.16); color:#C08A25; }
+
+    .btn-tone {
+        display:inline-flex; align-items:center; justify-content:center; gap:8px;
+        background:linear-gradient(135deg,var(--tone-deep),var(--tone));
+        color:#fff; border:none; border-radius:12px;
+        padding:.6rem 1.2rem; font-weight:700; font-size:.85rem; text-decoration:none;
+        transition:transform .22s ease, box-shadow .22s ease;
+    }
+    .btn-tone:hover { color:#fff; transform:translateY(-2px); box-shadow:0 12px 26px rgba(15,23,42,.2); }
+
+    /* ===== Empty State ===== */
+    .empty-state { text-align:center; padding:48px 20px; border-radius:18px; background:#fff; border:1px dashed var(--line-soft); }
+    .empty-state i { font-size:2.6rem; color:var(--tone); opacity:.65; margin-bottom:14px; }
+    .empty-state h5 { color:var(--head); font-weight:800; margin-bottom:6px; }
+    .empty-state p { color:var(--muted); font-size:.9rem; margin:0; }
+
+    @media (max-width:767px) { .ps-hero { padding:22px 20px; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 ps-page {% if user_role == 'Manager' %}pf-green{% elif user_role == 'Employee' %}pf-blue{% else %}pf-violet{% endif %}">
+
+    <!-- ===== Hero ===== -->
+    <div class="ps-hero">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <span class="eyebrow-pill"><i class="fa-solid fa-file-invoice-dollar"></i> الرواتب</span>
+                <h4>كشوفات رواتبي</h4>
+                <p>عرض جميع كشوفات الرواتب الصادرة لك، مع تفاصيل الصافي وحالة الصرف.</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="hero-chip"><i class="fa-solid fa-layer-group"></i> {{ count }} كشف راتب</span>
+                {% if payslips %}<span class="hero-chip"><i class="fa-solid fa-calendar-check"></i> آخر شهر {{ payslips.0.month_name }} / {{ payslips.0.year }}</span>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Summary Stats ===== -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <span class="sc-icon"><i class="fa-solid fa-sack-dollar"></i></span>
+                <div class="sc-label">إجمالي ما صُرف لك</div>
+                <div class="sc-value">{{ paid_net|floatformat:2 }}</div>
+                <div class="sc-sub">القيمة المدفوعة فعلياً</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <span class="sc-icon"><i class="fa-solid fa-receipt"></i></span>
+                <div class="sc-label">عدد الكشوفات</div>
+                <div class="sc-value">{{ count }}</div>
+                <div class="sc-sub">إجمالي القسائم المسجلة</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <span class="sc-icon"><i class="fa-solid fa-wallet"></i></span>
+                <div class="sc-label">إجمالي الصافي</div>
+                <div class="sc-value">{{ total_net|floatformat:2 }}</div>
+                <div class="sc-sub">مجموع صافي جميع الكشوفات</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Payslip List ===== -->
+    <div class="panel">
+        <div class="panel-title"><i class="fa-solid fa-list-ul"></i> سجل كشوفات الرواتب</div>
+
+        {% if payslips %}
+        <div class="row g-3">
+            {% for p in payslips %}
+            <div class="col-md-6 col-lg-4">
+                <div class="ps-card">
+                    <div class="d-flex align-items-center justify-content-between gap-2">
+                        <div>
+                            <div class="ps-month">{{ p.month_name }} — {{ p.year }}</div>
+                            <div class="ps-year">{{ p.year }}</div>
+                        </div>
+                        <span class="status-mini {% if p.status == 'PAID' %}st-paid{% else %}st-pending{% endif %}">
+                            {% if p.status == 'PAID' %}مدفوع{% else %}معلق{% endif %}
+                        </span>
+                    </div>
+                    <div class="ps-net">
+                        <b>{{ p.net_salary|floatformat:2 }}</b>
+                        <span>صافي الراتب</span>
+                    </div>
+                    <div class="ps-base">الراتب الأساسي: <b>{{ p.basic_salary|floatformat:2 }}</b></div>
+                    <a href="{% url 'payroll_payslip' p.pk %}" class="btn-tone w-100">
+                        <i class="fa-solid fa-eye me-1"></i> عرض التفاصيل
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fa-regular fa-file-invoice-dollar"></i>
+            <h5>لا توجد كشوفات راتب صادرة لك بعد</h5>
+            <p>ستظهر كشوفات الرواتب هنا بمجرد اعتمادها من قِبل الإدارة المالية.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    .apply-page { --line:#ECEAF6; --muted:#6E6A86; }
+    .apply-page { --line:#ECEAF6; --muted:#6E6A86; clear:both; margin-bottom:2rem; }
 
     /* ===== Theme: HR Admin / Superuser (Violet) ===== */
     .pf-violet {
@@ -89,10 +89,9 @@
 
     /* ===== Panels ===== */
     .panel {
-        padding:22px; border-radius:18px; background:#fff;
+        padding:1rem; border-radius:18px; background:#fff;
         border:1px solid var(--line);
         box-shadow:0 10px 26px rgba(15,23,42,.05);
-        height:100%;
     }
     .panel-title {
         display:flex; align-items:center; gap:10px;
@@ -143,10 +142,27 @@
     .f-label { font-size:.78rem; font-weight:700; color:#7A7690; margin-bottom:6px; }
     .apply-page .form-control, .apply-page .form-select {
         border-radius:12px; border-color:#E3E0F0; padding:.62rem .9rem; font-size:.9rem;
+        background:#FAF9FE; transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
     }
-    .apply-page .form-control:focus {
-        border-color:var(--tone); box-shadow:0 0 0 4px var(--ring);
+    .apply-page .form-control:focus, .apply-page .form-select:focus {
+        border-color:var(--tone); box-shadow:0 0 0 4px var(--ring); background:#fff;
     }
+
+    /* ===== File Upload ===== */
+    .file-upload { display:flex; flex-direction:column; gap:8px; }
+    .file-upload-label {
+        display:flex; align-items:center; gap:12px; cursor:pointer;
+        padding:14px 16px; border-radius:12px;
+        border:1.6px dashed #D9D4F0; background:#FAF9FE;
+        color:#6E6A86; font-size:.85rem; font-weight:700;
+        transition:border-color .2s ease, background .2s ease, color .2s ease;
+    }
+    .file-upload-label:hover { border-color:var(--tone); background:var(--tile-bg); color:var(--tile-fg); }
+    .file-upload-label i { font-size:1.15rem; color:var(--tone); }
+    .apply-page input[type="file"].form-control {
+        padding:.5rem .7rem; font-size:.83rem; color:#5D5878; line-height:1.4;
+    }
+    .file-hint { color:#9B95B5; font-size:.74rem; font-weight:600; }
 
     /* ===== Buttons ===== */
     .btn-tone {
@@ -237,13 +253,13 @@
         </div>
     </div>
 
-    <div class="row g-3">
+    <div class="row g-4">
         <!-- ===== Form ===== -->
         <div class="col-lg-8">
             <div class="panel">
                 <div class="panel-title"><i class="fa-solid fa-file-signature"></i> تفاصيل الطلب</div>
 
-                <form action="{% url 'leaves:apply_leave' %}" method="post" id="apply-leave-form">
+                <form action="{% url 'leaves:apply_leave' %}" method="post" id="apply-leave-form" enctype="multipart/form-data">
                     {% csrf_token %}
 
                     <label class="f-label">نوع الإجازة</label>
@@ -304,11 +320,24 @@
 
                     <div class="mb-4">
                         <label class="f-label d-flex justify-content-between">
-                            <span>سبب الإجازة</span>
+                            <span>سبب الإجازة / ملاحظات</span>
                             <span id="reason-count" style="font-weight:600;">0 حرف</span>
                         </label>
                         <textarea name="reason" id="reason-input" class="form-control" rows="4"
-                                  placeholder="اكتب سبب الإجازة بوضوح لمساعدة المسؤول على اتخاذ القرار..." required></textarea>
+                                  placeholder="أدخل سبب طلب الإجازة بالتفصيل..." required></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="f-label">إرفاق ملف (PDF / JPG / PNG)</label>
+                        <div class="file-upload">
+                            <label for="attachment-input" class="file-upload-label">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <span class="fu-text">اختر ملفاً لإرفاقه (شهادة طبية أو مستند) — اختياري</span>
+                            </label>
+                            <input type="file" name="attachment" id="attachment-input" class="form-control"
+                                   accept=".pdf,.jpg,.jpeg,.png">
+                            <small class="file-hint">الصيغ المدعومة: PDF, JPG, PNG — الحد الأقصى للحجم حسب إعدادات الخادم.</small>
+                        </div>
                     </div>
 
                     <div class="d-flex flex-wrap gap-2 pt-3" style="border-top:1px dashed var(--line);">

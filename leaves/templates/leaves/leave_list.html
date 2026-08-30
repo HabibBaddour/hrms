@@ -11,11 +11,13 @@
             radial-gradient(420px 240px at 5% 110%, rgba(242, 180, 76, 0.22), transparent 60%),
             linear-gradient(120deg, #1B1442 0%, #4A3AB8 55%, #6153E4 100%);
         box-shadow: 0 20px 44px rgba(21, 17, 48, 0.35); }
-    .lv-hero h1 { margin: 0 0 6px; font-size: clamp(1.45rem, 2.2vw, 1.9rem); font-weight: 800; }
-    .lv-hero p { margin: 0; color: rgba(255,255,255,.78); font-size: .88rem; }
-    .lv-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.2); font-size: .75rem; font-weight: 700; }
-    .btn-gold-solid { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 20px; border-radius: 12px; background: linear-gradient(135deg, #F2B44C, #E89A5D); color: #241A05 !important; font-weight: 800; font-size: .86rem; border: 0; text-decoration: none; box-shadow: 0 10px 24px rgba(232,154,93,.35); transition: transform .22s ease, filter .22s ease; }
-    .btn-gold-solid:hover { transform: translateY(-2px); filter: brightness(1.05); }
+    .lv-hero h1 { margin: 0 0 10px; font-size: clamp(1.45rem, 2.2vw, 1.9rem); font-weight: 800; line-height: 1.15; letter-spacing: -.01em; }
+    .lv-hero p { margin: 0; color: rgba(255,255,255,.78); font-size: .88rem; line-height: 1.5; }
+    .lv-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.2); font-size: .75rem; font-weight: 700; }
+    .btn-primary-solid { display: inline-flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 24px; border-radius: 14px; background: linear-gradient(135deg, #6153E4, #8B7FF2); color: #fff !important; font-weight: 800; font-size: .9rem; border: 0; text-decoration: none; box-shadow: 0 12px 26px rgba(97,83,228,.35); transition: transform .25s ease, box-shadow .25s ease, filter .25s ease; }
+    .btn-primary-solid:hover { transform: translateY(-2px) scale(1.02); color: #fff !important; background: linear-gradient(135deg, #4F42CC, #6153E4); box-shadow: 0 18px 40px rgba(97,83,228,.5); filter: brightness(1.06); }
+    .btn-primary-solid i { transition: transform .25s ease; }
+    .btn-primary-solid:hover i { transform: rotate(-8deg) scale(1.12); }
     .lv-chips { display: flex; flex-wrap: wrap; gap: 10px; }
     .lv-chips .chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); font-size: .82rem; font-weight: 700; backdrop-filter: blur(6px); }
     .chip-pending { background: rgba(242,180,76,.28) !important; border-color: rgba(242,180,76,.5) !important; }
@@ -23,7 +25,7 @@
 
     .lv-panel { padding: 20px 22px; border-radius: 18px; background: #fff; border: 1px solid #ECEAF6; box-shadow: 0 10px 26px rgba(15,23,42,.05); margin-bottom: 22px; }
     .lv-panel label { color: #6E6A86; font-size: .74rem; font-weight: 700; margin-bottom: 5px; }
-    .lv-panel .form-control, .lv-panel .form-select { min-height: 40px; border-radius: 10px; border-color: #E7E3F5; }
+    .lv-panel .form-control, .lv-panel .form-select { min-height: 43px; border-radius: 12px; border-color: #E7E3F5; transition: border-color .2s ease, box-shadow .2s ease; }
     .lv-panel .form-control:focus, .lv-panel .form-select:focus { border-color: #8B7FF2; box-shadow: 0 0 0 3px rgba(97,83,228,.14); }
     .btn-violet-solid { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 40px; border: 0; border-radius: 10px; color: #fff; background: linear-gradient(135deg, #6153E4, #8B7FF2); font-size: .84rem; font-weight: 800; box-shadow: 0 8px 18px rgba(97,83,228,.28); transition: transform .2s ease, filter .2s ease; }
     .btn-violet-solid:hover { transform: translateY(-2px); filter: brightness(1.07); color: #fff; }
@@ -76,6 +78,13 @@
     .review-btn { display: inline-flex; align-items: center; gap: 7px; padding: 7px 18px; border-radius: 999px; color: #6153E4; background: #fff; border: 1px solid rgba(97,83,228,.35); font-size: .74rem; font-weight: 800; text-decoration: none; transition: all .2s ease; }
     .review-btn:hover { color: #fff; background: linear-gradient(135deg, #6153E4, #8B7FF2); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(97,83,228,.3); }
 
+    .req-cell { display: flex; flex-direction: column; gap: 2px; }
+    .req-id { color: var(--brand-night); font-weight: 800; font-size: .82rem; }
+    .req-date { color: #9B95B5; font-size: .7rem; font-weight: 600; }
+
+    .view-btn { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 11px; color: #6153E4; background: rgba(97,83,228,.09); border: 1px solid rgba(97,83,228,.25); text-decoration: none; transition: all .2s ease; }
+    .view-btn:hover { color: #fff; background: linear-gradient(135deg, #6153E4, #8B7FF2); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(97,83,228,.3); }
+
     .empty-row { padding: 54px 20px !important; color: #9B95B5; text-align: center; font-size: .86rem; }
     .empty-row i { display: block; margin-bottom: 10px; font-size: 1.5rem; color: #C9C3E3; }
 
@@ -101,7 +110,7 @@
                 <h1>طلبات الإجازات</h1>
                 <p>متابعة الطلبات، وتوصيات نموذج التنبؤ الذكي (AI/ML).</p>
             </div>
-            <a href="{% url 'leaves:apply_leave' %}" class="btn-gold-solid"><i class="fa-solid fa-plus"></i> تقديم طلب إجازة</a>
+            <a href="{% url 'leaves:apply_leave' %}" class="btn-primary-solid"><i class="fa-solid fa-plus"></i> تقديم طلب إجازة</a>
         </div>
         <div class="lv-chips mt-4">
             <span class="chip"><i class="fa-solid fa-layer-group"></i> {{ filtered_count }} طلب معروض</span>
@@ -112,6 +121,7 @@
 
     <form method="get" class="lv-panel">
         <div class="row g-3 align-items-end">
+            {% if is_privileged %}
             <div class="col-lg-3 col-md-6">
                 <label for="leave_q">بحث الموظف</label>
                 <input type="text" name="q" id="leave_q" class="form-control" value="{{ request.GET.q|default:'' }}" placeholder="اسم الموظف أو رقم الهوية">
@@ -130,7 +140,8 @@
                     {% for role_code, role_label in roles %}<option value="{{ role_code }}" {% if request.GET.role == role_code %}selected{% endif %}>{{ role_label }}</option>{% endfor %}
                 </select>
             </div>
-            <div class="col-lg-2 col-md-6">
+            {% endif %}
+            <div class="col-lg-3 col-md-6">
                 <label for="leave_type_select">نوع الإجازة</label>
                 <select name="leave_type" id="leave_type_select" class="form-select">
                     <option value="">كل الأنواع</option>
@@ -140,7 +151,7 @@
                     <option value="EMERGENCY" {% if request.GET.leave_type == 'EMERGENCY' %}selected{% endif %}>طارئة</option>
                 </select>
             </div>
-            <div class="col-lg-2 col-md-6">
+            <div class="col-lg-3 col-md-6">
                 <label for="leave_status">الحالة</label>
                 <select name="status" id="leave_status" class="form-select">
                     <option value="">كل الحالات</option>
@@ -150,7 +161,7 @@
                     <option value="RECOMMENDED_AI" {% if request.GET.status == 'RECOMMENDED_AI' %}selected{% endif %}>موصى به من الذكاء الاصطناعي</option>
                 </select>
             </div>
-            <div class="col-lg-1 col-md-12">
+            <div class="col-lg-2 col-md-12">
                 <button type="submit" class="btn-violet-solid"><i class="fa-solid fa-sliders"></i> تطبيق</button>
             </div>
         </div>
@@ -170,7 +181,8 @@
             <table class="leaves-table">
                 <thead>
                     <tr>
-                        <th>الموظف</th>
+                        {% if is_privileged %}<th>الموظف</th>{% endif %}
+                        <th>رقم الطلب / التاريخ</th>
                         <th>نوع الإجازة</th>
                         <th>من - إلى</th>
                         <th>توصية الذكاء الاصطناعي (ML)</th>
@@ -181,6 +193,7 @@
                 <tbody>
                     {% for leave in leaves %}
                     <tr>
+                        {% if is_privileged %}
                         <td>
                             <div class="emp-cell">
                                 <span class="emp-bubble {% cycle 'av-violet' 'av-teal' 'av-gold' 'av-plum' %}">{{ leave.employee.get_full_name|default:leave.employee|slice:":1" }}</span>
@@ -188,6 +201,13 @@
                                     <span class="emp-name">{{ leave.employee.get_full_name|default:leave.employee }}</span>
                                     <span class="emp-id">#{{ leave.employee_id }}</span>
                                 </div>
+                            </div>
+                        </td>
+                        {% endif %}
+                        <td>
+                            <div class="req-cell">
+                                <span class="req-id">#{{ leave.pk }}</span>
+                                <span class="req-date">{{ leave.created_at|date:"j/n/Y" }}</span>
                             </div>
                         </td>
                         <td><span class="type-chip type-{{ leave.leave_type }}"><i class="fa-solid {% if leave.leave_type == 'ANNUAL' %}fa-umbrella-beach{% elif leave.leave_type == 'SICK' %}fa-notes-medical{% elif leave.leave_type == 'UNPAID' %}fa-money-bill-wave{% else %}fa-bolt{% endif %}"></i> {{ leave.get_leave_type_display|default:leave.leave_type }}</span></td>
@@ -211,11 +231,11 @@
                             {% endif %}
                         </td>
                         <td class="text-center">
-                            <a href="{% url 'leaves:approve_leave' leave.pk %}" class="review-btn"><i class="fa-solid fa-magnifying-glass-chart"></i> مراجعة</a>
+                            <a href="{% url 'leaves:approve_leave' leave.pk %}" class="view-btn" title="عرض تفاصيل الطلب" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa-solid fa-eye"></i></a>
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="6" class="empty-row"><i class="fa-regular fa-calendar-xmark"></i> لا توجد طلبات إجازة مسجلة.</td></tr>
+                    <tr><td colspan="7" class="empty-row"><i class="fa-regular fa-calendar-xmark"></i> لا توجد طلبات إجازة مسجلة.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

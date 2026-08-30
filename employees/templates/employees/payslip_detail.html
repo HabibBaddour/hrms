@@ -1,0 +1,372 @@
+{% extends 'base.html' %}
+
+{% block title %}قسيمة راتب - {{ employee.get_full_name|default:employee.user.username }} | HRMS{% endblock %}
+
+{% block page_title %}قسيمة الراتب{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ===== Payslip page (Violet Brand) ===== */
+    .ps-page {
+        --tone:#6153E4; --tone-deep:#4A3AB8; --head:#1A1338;
+        --line:#ECEAF6; --muted:#6E6A86;
+        --earn:#0F9D62; --earn-bg:rgba(15,157,98,.10);
+        --ded:#D64545; --ded-bg:rgba(214,69,69,.08);
+    }
+    .pf-green.ps-page, .ps-page.pf-green {
+        --tone:#14A374; --tone-deep:#0E5C43; --head:#12271E;
+    }
+    .pf-blue.ps-page, .ps-page.pf-blue {
+        --tone:#3B82F6; --tone-deep:#1E40AF; --head:#101A38;
+    }
+
+    .ps-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 22px;
+        padding: 24px 26px;
+        color: #fff;
+        background: linear-gradient(135deg, var(--tone-deep), var(--tone) 70%, color-mix(in srgb, var(--tone) 70%, #9b8bff));
+        box-shadow: 0 18px 40px rgba(60, 42, 160, .28);
+        margin-bottom: 22px;
+    }
+    .ps-hero::before {
+        content: "";
+        position: absolute;
+        inset-inline-end: -70px;
+        top: -90px;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.08);
+    }
+    .ps-hero::after {
+        content: "";
+        position: absolute;
+        inset-inline-start: 30%;
+        bottom: -110px;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.06);
+    }
+    .ps-hero > * { position: relative; z-index: 1; }
+
+    .ps-avatar {
+        flex: 0 0 auto;
+        width: 64px;
+        height: 64px;
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: rgba(255,255,255,.18);
+        border: 1px solid rgba(255,255,255,.32);
+        color: #fff;
+        box-shadow: 0 10px 22px rgba(20,10,70,.25);
+    }
+    .ps-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .4px;
+        text-transform: uppercase;
+        background: rgba(255,255,255,.16);
+        border: 1px solid rgba(255,255,255,.28);
+        padding: 4px 11px;
+        border-radius: 999px;
+        margin-bottom: 7px;
+    }
+    .ps-hero h1 {
+        margin: 0;
+        font-size: 1.45rem;
+        font-weight: 800;
+    }
+    .ps-hero .ps-role {
+        margin: 5px 0 0;
+        font-size: .88rem;
+        font-weight: 600;
+        opacity: .92;
+    }
+    .ps-hero .ps-role i { margin-inline-end: 7px; }
+
+    .ps-hero-actions { display: flex; gap: 10px; align-items: center; }
+    .btn-ghost-light {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: .55rem 1.05rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: .86rem;
+        color: #fff;
+        background: rgba(255,255,255,.12);
+        border: 1px solid rgba(255,255,255,.32);
+        text-decoration: none;
+        transition: background .25s ease, transform .25s ease;
+    }
+    .btn-ghost-light:hover { background: rgba(255,255,255,.22); color: #fff; transform: translateY(-1px); }
+    .btn-pdf {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: .6rem 1.2rem;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: .88rem;
+        color: #fff;
+        background: linear-gradient(135deg, #E5494A, #B02326);
+        border: none;
+        box-shadow: 0 10px 22px rgba(176,35,38,.38);
+        text-decoration: none;
+        transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .btn-pdf:hover { color: #fff; transform: translateY(-2px); box-shadow: 0 14px 28px rgba(176,35,38,.45); }
+
+    .ps-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255,255,255,.18);
+    }
+    .ps-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-size: .8rem;
+        font-weight: 700;
+        color: #fff;
+        background: rgba(255,255,255,.14);
+        border: 1px solid rgba(255,255,255,.22);
+        padding: 6px 13px;
+        border-radius: 999px;
+    }
+    .ps-chip i { opacity: .9; }
+
+    /* ===== Panels ===== */
+    .ps-panel {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 12px 30px rgba(15,23,42,.06);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .ps-panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--line);
+    }
+    .ps-panel-head h2 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--head);
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+    }
+    .ps-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: .78rem;
+        font-weight: 800;
+        padding: 4px 11px;
+        border-radius: 999px;
+    }
+    .ps-pill--earn { color: var(--earn); background: var(--earn-bg); }
+    .ps-pill--ded { color: var(--ded); background: var(--ded-bg); }
+
+    .ps-rows { padding: 6px 20px; flex: 1 1 auto; }
+    .ps-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 11px 2px;
+        border-bottom: 1px dashed var(--line);
+    }
+    .ps-row:last-child { border-bottom: none; }
+    .ps-label {
+        color: #4A4566;
+        font-size: .88rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+    }
+    .ps-label i { color: var(--muted); width: 16px; text-align: center; font-size: .85rem; }
+    .ps-row--base .ps-label i { color: var(--tone); }
+    .ps-row--base .ps-label { font-weight: 800; color: var(--head); }
+    .ps-amount {
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        font-size: .9rem;
+    }
+    .ps-amount--base { color: var(--tone-deep); font-weight: 900; }
+    .ps-amount--earn { color: var(--earn); }
+    .ps-amount--ded { color: var(--ded); }
+
+    .ps-empty {
+        padding: 16px 2px;
+        color: var(--muted);
+        font-size: .84rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ps-total {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 0 0 16px;
+        padding: 13px 20px;
+        border-radius: 14px;
+        font-weight: 800;
+        font-size: .95rem;
+    }
+    .ps-total--earn { color: #0B6B45; background: var(--earn-bg); border: 1px solid rgba(15,157,98,.25); }
+    .ps-total--ded { color: #9E2A2A; background: var(--ded-bg); border: 1px solid rgba(214,69,69,.25); }
+    .ps-total span { font-variant-numeric: tabular-nums; }
+
+    /* ===== Net banner ===== */
+    .ps-net {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-top: 22px;
+        padding: 20px 24px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, var(--head), var(--tone-deep));
+        color: #fff;
+        box-shadow: 0 16px 34px rgba(30,25,60,.22);
+    }
+    .ps-net-label { display: block; font-size: .9rem; font-weight: 700; opacity: .85; }
+    .ps-net-note { display: block; font-size: .74rem; font-weight: 600; opacity: .6; margin-top: 3px; }
+    .ps-net-value {
+        font-size: 1.9rem;
+        font-weight: 900;
+        font-variant-numeric: tabular-nums;
+        color: #FFE9A8;
+        text-shadow: 0 2px 10px rgba(0,0,0,.2);
+    }
+
+    @media (max-width: 575.98px) {
+        .ps-hero h1 { font-size: 1.2rem; }
+        .ps-net-value { font-size: 1.55rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ps-page">
+
+    <div class="ps-hero">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <span class="ps-avatar">{{ employee.get_full_name|default:employee.user.username|slice:':1'|upper }}</span>
+                <div>
+                    <span class="ps-eyebrow"><i class="fas fa-file-invoice-dollar"></i> كشف الراتب &nbsp;•&nbsp; {{ payslip.month_name }} {{ payslip.year }}</span>
+                    <h1>{{ employee.get_full_name|default:employee.user.username }}</h1>
+                    <p class="ps-role">
+                        <i class="fas fa-briefcase"></i>
+                        {% if employee.position %}{{ employee.position.title }}{% else %}{{ employee.job_title|default:'موظف' }}{% endif %}
+                        {% if employee.department %}
+                            &nbsp;&nbsp;<span style="opacity:.75">•</span>&nbsp;&nbsp;
+                            <i class="fas fa-building"></i> {{ employee.department.name }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="ps-hero-actions">
+                <a href="{% url 'employees:profile' %}" class="btn-ghost-light"><i class="fas fa-arrow-right"></i> الملف الشخصي</a>
+                <a href="{% url 'employees:payslip_pdf' payslip.pk %}" class="btn-pdf"><i class="fas fa-file-pdf"></i> تحميل PDF</a>
+            </div>
+        </div>
+
+        <div class="ps-meta">
+            <span class="ps-chip"><i class="fas fa-id-badge"></i> رقم الموظف: {{ employee.employee_number|default:'—' }}</span>
+            <span class="ps-chip"><i class="fas fa-calendar-alt"></i> فترة الراتب: {{ payslip.month_name }} {{ payslip.year }}</span>
+            <span class="ps-chip"><i class="fas fa-hashtag"></i> رقم القسيمة: {{ payslip.id }}</span>
+            {% if is_hr %}<span class="ps-chip"><i class="fas fa-user-shield"></i> إدارة الموارد البشرية</span>{% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="ps-panel">
+                <div class="ps-panel-head">
+                    <h2><i class="fas fa-hand-holding-dollar" style="color:var(--earn)"></i> المستحقات</h2>
+                    <span class="ps-pill ps-pill--earn"><i class="fas fa-plus"></i> إضافة</span>
+                </div>
+                <div class="ps-rows">
+                    <div class="ps-row ps-row--base">
+                        <span class="ps-label"><i class="fas fa-sack-dollar"></i> الراتب الأساسي</span>
+                        <span class="ps-amount ps-amount--base">{{ payslip.basic_salary|floatformat:2 }} $</span>
+                    </div>
+                    {% for earning in payslip.earnings.all %}
+                    <div class="ps-row">
+                        <span class="ps-label"><i class="fas fa-circle-plus"></i> {{ earning.title }}</span>
+                        <span class="ps-amount ps-amount--earn">+ {{ earning.amount|floatformat:2 }} $</span>
+                    </div>
+                    {% empty %}
+                    <div class="ps-empty"><i class="fas fa-info-circle"></i> لا توجد مستحقات إضافية لهذا الشهر</div>
+                    {% endfor %}
+                </div>
+                <div class="ps-total ps-total--earn">
+                    <span>إجمالي المستحقات</span>
+                    <span>{{ gross_salary|floatformat:2 }} $</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="ps-panel">
+                <div class="ps-panel-head">
+                    <h2><i class="fas fa-hand-holding-heart" style="color:var(--ded)"></i> الاستقطاعات</h2>
+                    <span class="ps-pill ps-pill--ded"><i class="fas fa-minus"></i> خصم</span>
+                </div>
+                <div class="ps-rows">
+                    {% for deduction in payslip.deductions.all %}
+                    <div class="ps-row">
+                        <span class="ps-label"><i class="fas fa-circle-minus"></i> {{ deduction.title }}</span>
+                        <span class="ps-amount ps-amount--ded">− {{ deduction.amount|floatformat:2 }} $</span>
+                    </div>
+                    {% empty %}
+                    <div class="ps-empty"><i class="fas fa-shield-alt"></i> لا توجد استقطاعات لهذا الشهر</div>
+                    {% endfor %}
+                </div>
+                <div class="ps-total ps-total--ded">
+                    <span>إجمالي الاستقطاعات</span>
+                    <span>{{ total_deductions|floatformat:2 }} $</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ps-net">
+        <div>
+            <span class="ps-net-label"><i class="fas fa-wallet"></i> صافي الراتب المستحق</span>
+            <span class="ps-net-note">بعد إضافة المستحقات وخصم الاستقطاعات</span>
+        </div>
+        <span class="ps-net-value">{{ net_salary|floatformat:2 }} $</span>
+    </div>
+
+</div>
+{% endblock %}

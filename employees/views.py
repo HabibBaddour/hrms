@@ -1,12 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
 from django.db import transaction
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 from django.utils import timezone
-from .models import Employee, Contract
+from django.template.loader import render_to_string
+from decimal import Decimal
+from .models import Employee, Contract, Payslip
 from .forms import ContractLifecycleForm
 from departments.models import Department, Position
 from core.notification_utils import notify_employee_created
@@ -437,6 +440,9 @@ def user_profile(request):
         pass
 
     if request.method == 'POST':
+        if request.POST.get('form_name') == 'account':
+            return _update_account(request)
+
         if 'profile_picture' in request.FILES:
             employee.profile_picture = request.FILES['profile_picture']
             employee.save()
@@ -496,6 +502,45 @@ def user_profile(request):
         ],
     }
     return render(request, 'employees/profile.html', context)
+
+
+def _update_account(request):
+    """Handle the Account Credentials tab: update e-mail and/or change password."""
+    user = request.user
+    if request.POST.get('form_name') != 'account':
+        return None
+
+    email = (request.POST.get('email') or '').strip()
+    current_password = request.POST.get('current_password') or ''
+    new_password = request.POST.get('new_password') or ''
+    confirm_password = request.POST.get('confirm_password') or ''
+
+    if not current_password:
+        messages.error(request, "أدخل كلمة السر الحالية لتأكيد هويتك.")
+        return redirect('employees:profile')
+
+    if not user.check_password(current_password):
+        messages.error(request, "كلمة السر الحالية غير صحيحة. تحقق من الإدخال وأعد المحاولة.")
+        return redirect('employees:profile')
+
+    if email and email != user.email:
+        user.email = email
+
+    if new_password:
+        if new_password != confirm_password:
+            messages.error(request, "كلمة السر الجديدة غير مطابقة لتأكيدها.")
+            return redirect('employees:profile')
+        if len(new_password) < 8:
+            messages.error(request, "كلمة السر الجديدة يجب أن تتكون من 8 رموز على الأقل.")
+            return redirect('employees:profile')
+        user.set_password(new_password)
+
+    user.save()
+    if new_password:
+        update_session_auth_hash(request, user)
+
+    messages.success(request, "تم تحديث بيانات الحساب بنجاح.")
+    return redirect('employees:profile')
 
 
 @login_required(login_url='login')
@@ -560,3 +605,122 @@ def offboard_employee(request, pk):
         messages.success(request, 'تم تسجيل إجراء إنهاء الخدمة وتعطيل حساب الموظف.')
         return redirect('employees:contract_detail', pk=employee.pk)
     return render(request, 'employees/offboard_employee.html', {'employee': employee, 'contract': contract})
+
+
+def _is_hr_user(user):
+    return user.is_superuser or user.is_staff or user.groups.filter(name__iexact='HR').exists()
+
+
+def _payslip_queryset():
+    return Payslip.objects.select_related(
+        'employee__user', 'employee__department', 'employee__position',
+    ).prefetch_related('earnings', 'deductions')
+
+
+def _can_view_payslip(user, payslip):
+    """الموظف يرى قسيمته فقط، ومسؤولو HR يرون كل القسائم."""
+    return _is_hr_user(user) or (payslip.employee.user_id and payslip.employee.user_id == user.id)
+
+
+def _user_assigned_salary(user):
+    """الراتب المعتمد للمستخدم: راتب الموظف → راتب المسمى الوظيفي → راتب العقد."""
+    employee = getattr(user, 'employee_profile', None)
+    if not employee:
+        return Decimal('0.00')
+    if employee.salary:
+        return employee.salary
+    base_salary = getattr(getattr(employee, 'position', None), 'base_salary', None)
+    if base_salary:
+        return base_salary
+    contract_salary = getattr(getattr(employee, 'contract', None), 'salary', None)
+    if contract_salary:
+        return contract_salary
+    return Decimal('0.00')
+
+
+@login_required(login_url='login')
+def payslip_list_view(request):
+    """قائمة القسائم الشخصية: كل دور مسجّل يرى قسائمه المرتبطة بمسمّاه الوظيفي.
+
+    - `payslips`: قسائم المستخدم فقط.
+    - `payslips_count`: عدد القسائم.
+    - `total_net_salary`: مجموع صافي القسائم، أو الراتب المعتمد كمخزون احتياطي.
+    - `user_department`: اسم قسم المستخدم لبطاقة «القسم».
+    """
+    user = request.user
+    employee = getattr(user, 'employee_profile', None)
+
+    user_payslips = Payslip.objects.none()
+    if employee is not None:
+        user_payslips = Payslip.objects.filter(employee=employee).select_related(
+            'employee__user', 'employee__department', 'employee__position',
+        ).prefetch_related('earnings', 'deductions').order_by('-year', '-month', '-id')
+
+    payslips_count = user_payslips.count()
+    total_net_salary = sum(p.net_salary for p in user_payslips)
+    if payslips_count == 0:
+        total_net_salary = _user_assigned_salary(user)
+
+    context = {
+        'payslips': user_payslips,
+        'payslips_count': payslips_count,
+        'count': payslips_count,
+        'total_net_salary': total_net_salary,
+        'user_department': (
+            employee.department.name if getattr(employee, 'department', None) else None
+        ),
+        'is_hr': _is_hr_user(user),
+    }
+    return render(request, 'employees/payslip_list.html', context)
+
+
+@login_required(login_url='login')
+def payslip_detail_view(request, payslip_id):
+    """عرض قسيمة راتب ديناميكية للموظف أو لمسؤولي الموارد البشرية."""
+    payslip = get_object_or_404(_payslip_queryset(), pk=payslip_id)
+    if not _can_view_payslip(request.user, payslip):
+        messages.error(request, 'لا يمكنك الاطلاع على قسيمة راتب موظف آخر.')
+        return redirect('employees:profile')
+
+    employee = payslip.employee
+    context = {
+        'payslip': payslip,
+        'employee': employee,
+        'is_hr': _is_hr_user(request.user),
+        'gross_salary': payslip.basic_salary + payslip.total_earnings,
+        'total_earnings': payslip.total_earnings,
+        'total_deductions': payslip.total_deductions,
+        'net_salary': payslip.net_salary,
+    }
+    return render(request, 'employees/payslip_detail.html', context)
+
+
+@login_required(login_url='login')
+def export_payslip_pdf(request, payslip_id):
+    """توليد ملف PDF لقسمية الراتب عبر WeasyPrint."""
+    payslip = get_object_or_404(_payslip_queryset(), pk=payslip_id)
+    if not _can_view_payslip(request.user, payslip):
+        messages.error(request, 'لا يمكنك تنزيل قسيمة راتب موظف آخر.')
+        return redirect('employees:payslip_detail', payslip_id=payslip.id)
+
+    employee = payslip.employee
+    filename = f"payslip_{employee.employee_number or employee.id}_{payslip.year}_{payslip.month:02d}.pdf"
+
+    try:
+        from weasyprint import HTML
+        html = render_to_string('employees/payslip_pdf.html', {
+            'payslip': payslip,
+            'employee': employee,
+            'gross_salary': payslip.basic_salary + payslip.total_earnings,
+            'total_earnings': payslip.total_earnings,
+            'total_deductions': payslip.total_deductions,
+            'net_salary': payslip.net_salary,
+        }, request=request)
+        pdf = HTML(string=html, base_url=request.build_absolute_uri('/')).write_pdf()
+    except Exception as exc:
+        messages.error(request, f'تعذر إنشاء ملف PDF: {exc}')
+        return redirect('employees:payslip_detail', payslip_id=payslip.id)
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response

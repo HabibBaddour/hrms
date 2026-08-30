@@ -177,3 +177,92 @@ class Contract(models.Model):
 
     def __str__(self):
         return f"عقد الموظف {self.employee}"
+
+
+class Payslip(models.Model):
+    """قسيمة راتب ديناميكية: راتب أساسي + مستحقات + استقطاعات متغيرة."""
+    MONTH_NAMES = {
+        1: 'يناير', 2: 'فبراير', 3: 'مارس', 4: 'أبريل',
+        5: 'مايو', 6: 'يونيو', 7: 'يوليو', 8: 'أغسطس',
+        9: 'سبتمبر', 10: 'أكتوبر', 11: 'نوفمبر', 12: 'ديسمبر',
+    }
+
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name='payslips',
+        verbose_name='الموظف',
+    )
+    month = models.PositiveIntegerField(verbose_name='الشهر')
+    year = models.PositiveIntegerField(verbose_name='السنة')
+    basic_salary = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name='الراتب الأساسي'
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
+
+    class Meta:
+        verbose_name = 'قسيمة راتب'
+        verbose_name_plural = 'قسائم الرواتب'
+        ordering = ['-year', '-month', '-id']
+        unique_together = ('employee', 'month', 'year')
+
+    def __str__(self):
+        return f"قسيمة {self.employee} - {self.month_name} {self.year}"
+
+    @property
+    def month_name(self):
+        return self.MONTH_NAMES.get(self.month, str(self.month))
+
+    @property
+    def total_earnings(self):
+        total = self.earnings.aggregate(total=models.Sum('amount'))['total']
+        return total or models.Decimal('0.00')
+
+    @property
+    def total_deductions(self):
+        total = self.deductions.aggregate(total=models.Sum('amount'))['total']
+        return total or models.Decimal('0.00')
+
+    @property
+    def net_salary(self):
+        return self.basic_salary + self.total_earnings - self.total_deductions
+
+
+class PayslipEarning(models.Model):
+    """مستحق إضافي داخل القسيمة (بدل، مكافأة، ساعات إضافية...)."""
+    payslip = models.ForeignKey(
+        Payslip,
+        on_delete=models.CASCADE,
+        related_name='earnings',
+        verbose_name='القسيمة',
+    )
+    title = models.CharField(max_length=120, verbose_name='البيان')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='المبلغ')
+
+    class Meta:
+        verbose_name = 'مستحق'
+        verbose_name_plural = 'المستحقات'
+        ordering = ['id']
+
+    def __str__(self):
+        return f"{self.title}: {self.amount}"
+
+
+class PayslipDeduction(models.Model):
+    """استقطاع داخل القسيمة (تأمينات، سلفة، غياب...)."""
+    payslip = models.ForeignKey(
+        Payslip,
+        on_delete=models.CASCADE,
+        related_name='deductions',
+        verbose_name='القسيمة',
+    )
+    title = models.CharField(max_length=120, verbose_name='البيان')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='المبلغ')
+
+    class Meta:
+        verbose_name = 'استقطاع'
+        verbose_name_plural = 'الاستقطاعات'
+        ordering = ['id']
+
+    def __str__(self):
+        return f"{self.title}: {self.amount}"

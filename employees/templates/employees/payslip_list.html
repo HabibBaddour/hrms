@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block title %}كشف الراتب | HRMS{% endblock %}
+
+{% block page_title %}كشف الراتب{% endblock %}
+
+{% block extra_css %}
+<style>
+    .psl-page {
+        --tone:#6153E4; --tone-deep:#4A3AB8; --head:#1A1338;
+        --line:#ECEAF6; --muted:#6E6A86;
+        --earn:#0F9D62; --ded:#D64545;
+    }
+    .pf-green.psl-page, .psl-page.pf-green {
+        --tone:#14A374; --tone-deep:#0E5C43; --head:#12271E;
+    }
+    .pf-blue.psl-page, .psl-page.pf-blue {
+        --tone:#3B82F6; --tone-deep:#1E40AF; --head:#101A38;
+    }
+
+    /* ===== Summary strip ===== */
+    .psl-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+    .psl-kpi {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 16px 18px;
+        box-shadow: 0 10px 24px rgba(15,23,42,.05);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .psl-kpi .kpi-icon {
+        flex: 0 0 auto;
+        width: 46px;
+        height: 46px;
+        border-radius: 13px;
+        display: grid;
+        place-items: center;
+        font-size: 1.15rem;
+        background: var(--tile-bg, rgba(97,83,228,.12));
+        color: var(--tone);
+    }
+    .psl-kpi .kpi-label { color: var(--muted); font-size: .76rem; font-weight: 700; }
+    .psl-kpi .kpi-value {
+        font-size: 1.35rem;
+        font-weight: 900;
+        color: var(--head);
+        font-variant-numeric: tabular-nums;
+        line-height: 1.2;
+    }
+    .psl-kpi .kpi-value small { font-size: .8rem; font-weight: 800; opacity: .7; }
+
+    /* ===== List card ===== */
+    .psl-card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 12px 30px rgba(15,23,42,.06);
+        overflow: hidden;
+    }
+    .psl-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--line);
+        flex-wrap: wrap;
+    }
+    .psl-card-head h2 {
+        margin: 0;
+        font-size: .98rem;
+        font-weight: 800;
+        color: var(--head);
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+    }
+    .psl-count { font-size: .76rem; font-weight: 800; color: var(--tone); background: var(--tile-bg); padding: 4px 11px; border-radius: 999px; }
+
+    .psl-rows { padding: 8px 20px 16px; }
+    .psl-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        padding: 14px 2px;
+        border-bottom: 1px dashed var(--line);
+    }
+    .psl-row:last-child { border-bottom: none; padding-bottom: 2px; }
+
+    .psl-month {
+        flex: 0 0 auto;
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--tone-deep), var(--tone));
+        color: #fff;
+        line-height: 1.15;
+        box-shadow: 0 10px 20px rgba(60,42,160,.25);
+    }
+    .psl-month b { font-size: 1.05rem; font-weight: 900; }
+    .psl-month span { font-size: .66rem; font-weight: 700; opacity: .85; }
+
+    .psl-main { flex: 1 1 220px; min-width: 0; }
+    .psl-main .psl-name { font-weight: 800; color: var(--head); font-size: .96rem; }
+    .psl-main .psl-name i { color: var(--tone); margin-inline-end: 6px; font-size: .85rem; }
+    .psl-main .psl-sub { color: var(--muted); font-size: .78rem; font-weight: 600; margin-top: 3px; }
+    .psl-main .psl-sub i { margin-inline-end: 6px; }
+
+    .psl-net {
+        text-align: left;
+        font-variant-numeric: tabular-nums;
+    }
+    .psl-net .lbl { display: block; color: var(--muted); font-size: .7rem; font-weight: 700; }
+    .psl-net .val { font-weight: 900; font-size: 1.05rem; color: var(--tone-deep); }
+
+    .psl-actions { display: flex; gap: 8px; }
+    .btn-view {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: .5rem 1rem;
+        border-radius: 11px;
+        font-weight: 700;
+        font-size: .82rem;
+        color: #fff;
+        background: linear-gradient(135deg, var(--tone), var(--tone-deep));
+        text-decoration: none;
+        transition: transform .25s ease, box-shadow .25s ease;
+        box-shadow: 0 8px 18px rgba(60,42,160,.22);
+        white-space: nowrap;
+    }
+    .btn-view:hover { color: #fff; transform: translateY(-1px); }
+    .btn-pdf-q {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        color: #B02326;
+        background: rgba(214,69,69,.1);
+        border: 1px solid rgba(214,69,69,.25);
+        text-decoration: none;
+        transition: transform .25s ease, background .25s ease;
+    }
+    .btn-pdf-q:hover { color: #8E1C1F; background: rgba(214,69,69,.16); transform: translateY(-1px); }
+
+    .psl-empty {
+        padding: 26px 16px;
+        text-align: center;
+        color: var(--muted);
+    }
+    .psl-empty i { font-size: 2rem; opacity: .55; display: block; margin-bottom: 10px; }
+    .psl-empty p { margin: 0; font-weight: 700; font-size: .9rem; }
+
+    @media (max-width: 575.98px) {
+        .psl-net, .psl-actions { margin-inline-start: 70px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="psl-page">
+
+    <div class="psl-strip">
+        <div class="psl-kpi">
+            <div class="kpi-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+            <div>
+                <div class="kpi-label">عدد القسائم</div>
+                <div class="kpi-value">{{ payslips_count }}</div>
+            </div>
+        </div>
+        <div class="psl-kpi">
+            <div class="kpi-icon"><i class="fas fa-wallet"></i></div>
+            <div>
+                <div class="kpi-label">إجمالي صافي الراتب</div>
+                <div class="kpi-value">{{ total_net_salary|default:"0.00"|floatformat:2 }} <small>$</small></div>
+            </div>
+        </div>
+        <div class="psl-kpi">
+            <div class="kpi-icon"><i class="fas fa-building"></i></div>
+            <div>
+                <div class="kpi-label">القسم</div>
+                <div class="kpi-value" style="font-size:1.05rem">{{ user_department|default:'—' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="psl-card">
+        <div class="psl-card-head">
+            <h2><i class="fas fa-receipt" style="color:var(--tone)"></i> قسائم الرواتب</h2>
+            <span class="psl-count">{{ count }} قسيمة</span>
+        </div>
+
+        <div class="psl-rows">
+            {% for p in payslips %}
+            <div class="psl-row">
+                <div class="psl-month">
+                    <b>{{ p.month_name|slice:':3' }}</b>
+                    <span>{{ p.year }}</span>
+                </div>
+                <div class="psl-main">
+                    {% if is_hr %}
+                    <div class="psl-name"><i class="fas fa-user"></i>{{ p.employee.get_full_name|default:p.employee.user.username }}</div>
+                    <div class="psl-sub"><i class="fas fa-id-badge"></i> رقم الموظف: {{ p.employee.employee_number|default:'—' }}</div>
+                    {% else %}
+                    <div class="psl-name"><i class="fas fa-calendar-alt"></i> {{ p.month_name }} {{ p.year }}</div>
+                    <div class="psl-sub"><i class="fas fa-hashtag"></i> رقم القسيمة: {{ p.id }}</div>
+                    {% endif %}
+                </div>
+                <div class="psl-net">
+                    <span class="lbl">صافي الراتب</span>
+                    <span class="val">{{ p.net_salary|floatformat:2 }} $</span>
+                </div>
+                <div class="psl-actions">
+                    <a href="{% url 'employees:payslip_pdf' p.pk %}" class="btn-pdf-q" title="تحميل PDF"><i class="fas fa-file-pdf"></i></a>
+                    <a href="{% url 'employees:payslip_detail' p.pk %}" class="btn-view"><i class="fas fa-eye"></i> عرض التفاصيل</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="psl-empty">
+                <i class="fas fa-folder-open"></i>
+                <p>لا توجد قسائم رواتب بعد في هذا النظام الديناميكي.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

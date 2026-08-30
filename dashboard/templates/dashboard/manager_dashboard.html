@@ -205,7 +205,7 @@
             </a>
         </div>
         <div class="col-md-6 col-xl-3">
-            <a href="{% url 'evaluations_dashboard' %}" class="stat-card stat-teal">
+            <a href="{% url 'performance_dashboard' %}" class="stat-card stat-teal">
                 <div class="d-flex align-items-start justify-content-between mb-3">
                     <div><div class="stat-value">{{ avg_performance }} / 5</div><p class="stat-label">متوسط أداء الفريق</p></div>
                     <span class="stat-tile"><i class="fa-solid fa-ranking-star"></i></span>
@@ -277,7 +277,7 @@
                         </a>
                     </div>
                     <div class="col-md-6 col-xl-4">
-                        <a href="{% url 'evaluation_create' %}" class="action-tile act-plum">
+                        <a href="{% url 'add_evaluation' %}" class="action-tile act-plum">
                             <span class="act-icon"><i class="fa-solid fa-pen-to-square"></i></span>
                             <span><b>تقييم جديد</b><small>أنشئ تقييماً لأحد أفراد فريقك</small></span>
                         </a>
