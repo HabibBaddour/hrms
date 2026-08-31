@@ -1,371 +1,784 @@
 {% extends 'base.html' %}
 
 {% block title %}قسيمة راتب - {{ employee.get_full_name|default:employee.user.username }} | HRMS{% endblock %}
-
-{% block page_title %}قسيمة الراتب{% endblock %}
+{% block page_title %}تفاصيل قسيمة الراتب{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* ===== Payslip page (Violet Brand) ===== */
-    .ps-page {
-        --tone:#6153E4; --tone-deep:#4A3AB8; --head:#1A1338;
-        --line:#ECEAF6; --muted:#6E6A86;
-        --earn:#0F9D62; --earn-bg:rgba(15,157,98,.10);
-        --ded:#D64545; --ded-bg:rgba(214,69,69,.08);
-    }
-    .pf-green.ps-page, .ps-page.pf-green {
-        --tone:#14A374; --tone-deep:#0E5C43; --head:#12271E;
-    }
-    .pf-blue.ps-page, .ps-page.pf-blue {
-        --tone:#3B82F6; --tone-deep:#1E40AF; --head:#101A38;
+    .ps-container {
+        --theme-primary: #14A374;
+        --theme-primary-dark: #0E5C43;
+        --theme-primary-light: rgba(20, 163, 116, 0.08);
+        --earn-color: #0F9D62;
+        --earn-bg: rgba(15, 157, 98, 0.08);
+        --earn-border: rgba(15, 157, 98, 0.2);
+        --ded-color: #DC2626;
+        --ded-bg: rgba(220, 38, 38, 0.08);
+        --ded-border: rgba(220, 38, 38, 0.2);
+        --net-bg-dark: #111827;
+        --net-accent: #FBBF24;
+        --card-border: #E5E7EB;
+        --text-muted-color: #6B7280;
+        --heading-color: #1F2937;
     }
 
-    .ps-hero {
+    /* ===== Top Summary Header ===== */
+    .ps-summary-header {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0E5C43 100%);
+        border-radius: 20px;
+        padding: 28px 32px;
+        color: #ffffff;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
+        margin-bottom: 28px;
         position: relative;
         overflow: hidden;
-        border-radius: 22px;
-        padding: 24px 26px;
-        color: #fff;
-        background: linear-gradient(135deg, var(--tone-deep), var(--tone) 70%, color-mix(in srgb, var(--tone) 70%, #9b8bff));
-        box-shadow: 0 18px 40px rgba(60, 42, 160, .28);
-        margin-bottom: 22px;
     }
-    .ps-hero::before {
-        content: "";
+
+    .ps-summary-header::after {
+        content: '';
         position: absolute;
-        inset-inline-end: -70px;
-        top: -90px;
-        width: 260px;
-        height: 260px;
-        border-radius: 50%;
-        background: rgba(255,255,255,.08);
-    }
-    .ps-hero::after {
-        content: "";
-        position: absolute;
-        inset-inline-start: 30%;
-        bottom: -110px;
+        top: -60px;
+        left: -60px;
         width: 220px;
         height: 220px;
-        border-radius: 50%;
-        background: rgba(255,255,255,.06);
+        background: radial-gradient(circle, rgba(20, 163, 116, 0.25) 0%, rgba(20, 163, 116, 0) 70%);
+        pointer-events: none;
     }
-    .ps-hero > * { position: relative; z-index: 1; }
 
-    .ps-avatar {
-        flex: 0 0 auto;
+    .ps-header-main {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .ps-user-badge-wrap {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .ps-avatar-box {
         width: 64px;
         height: 64px;
         border-radius: 18px;
         display: grid;
         place-items: center;
+        font-weight: 800;
+        font-size: 1.5rem;
+        background: linear-gradient(135deg, #14A374, #0E5C43);
+        color: #fff;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+    }
+
+    .ps-avatar-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .ps-user-info h1 {
         font-size: 1.5rem;
         font-weight: 800;
-        background: rgba(255,255,255,.18);
-        border: 1px solid rgba(255,255,255,.32);
-        color: #fff;
-        box-shadow: 0 10px 22px rgba(20,10,70,.25);
+        margin: 0 0 6px 0;
+        color: #ffffff;
     }
-    .ps-eyebrow {
+
+    .ps-user-tags {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .ps-tag-pill {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        font-size: .72rem;
-        font-weight: 800;
-        letter-spacing: .4px;
-        text-transform: uppercase;
-        background: rgba(255,255,255,.16);
-        border: 1px solid rgba(255,255,255,.28);
-        padding: 4px 11px;
+        padding: 4px 12px;
         border-radius: 999px;
-        margin-bottom: 7px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        color: rgba(255, 255, 255, 0.95);
     }
-    .ps-hero h1 {
-        margin: 0;
-        font-size: 1.45rem;
-        font-weight: 800;
-    }
-    .ps-hero .ps-role {
-        margin: 5px 0 0;
-        font-size: .88rem;
-        font-weight: 600;
-        opacity: .92;
-    }
-    .ps-hero .ps-role i { margin-inline-end: 7px; }
 
-    .ps-hero-actions { display: flex; gap: 10px; align-items: center; }
-    .btn-ghost-light {
+    .ps-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-pdf-download {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: .55rem 1.05rem;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: .86rem;
-        color: #fff;
-        background: rgba(255,255,255,.12);
-        border: 1px solid rgba(255,255,255,.32);
-        text-decoration: none;
-        transition: background .25s ease, transform .25s ease;
-    }
-    .btn-ghost-light:hover { background: rgba(255,255,255,.22); color: #fff; transform: translateY(-1px); }
-    .btn-pdf {
-        display: inline-flex;
-        align-items: center;
-        gap: 9px;
-        padding: .6rem 1.2rem;
+        padding: 10px 20px;
         border-radius: 12px;
         font-weight: 800;
-        font-size: .88rem;
-        color: #fff;
-        background: linear-gradient(135deg, #E5494A, #B02326);
+        font-size: 0.9rem;
+        color: #111827;
+        background: linear-gradient(135deg, #FDE68A, #F59E0B);
         border: none;
-        box-shadow: 0 10px 22px rgba(176,35,38,.38);
         text-decoration: none;
-        transition: transform .25s ease, box-shadow .25s ease;
+        box-shadow: 0 10px 22px rgba(245, 158, 11, 0.3);
+        transition: all 0.25s ease;
     }
-    .btn-pdf:hover { color: #fff; transform: translateY(-2px); box-shadow: 0 14px 28px rgba(176,35,38,.45); }
 
-    .ps-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 18px;
-        padding-top: 16px;
-        border-top: 1px solid rgba(255,255,255,.18);
+    .btn-pdf-download:hover {
+        color: #000;
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px rgba(245, 158, 11, 0.4);
     }
-    .ps-chip {
+
+    .btn-back-nav {
         display: inline-flex;
         align-items: center;
-        gap: 7px;
-        font-size: .8rem;
+        gap: 8px;
+        padding: 10px 18px;
+        border-radius: 12px;
         font-weight: 700;
-        color: #fff;
-        background: rgba(255,255,255,.14);
-        border: 1px solid rgba(255,255,255,.22);
-        padding: 6px 13px;
-        border-radius: 999px;
+        font-size: 0.88rem;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-decoration: none;
+        transition: all 0.2s ease;
     }
-    .ps-chip i { opacity: .9; }
 
-    /* ===== Panels ===== */
-    .ps-panel {
-        background: #fff;
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        box-shadow: 0 12px 30px rgba(15,23,42,.06);
-        overflow: hidden;
+    .btn-back-nav:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.18);
+    }
+
+    /* KPI Highlights Strip */
+    .ps-kpi-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 14px;
+        margin-top: 22px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .ps-kpi-item {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        padding: 12px 16px;
+    }
+
+    .ps-kpi-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .ps-kpi-value {
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: #ffffff;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .ps-kpi-value.highlight-net {
+        color: #FDE68A;
+    }
+
+    /* ===== Two-Column Tables ===== */
+    .ps-column-card {
+        background: #ffffff;
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
         display: flex;
         flex-direction: column;
         height: 100%;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .ps-panel-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 14px 20px;
-        border-bottom: 1px solid var(--line);
-    }
-    .ps-panel-head h2 {
-        margin: 0;
-        font-size: 1rem;
-        font-weight: 800;
-        color: var(--head);
-        display: inline-flex;
-        align-items: center;
-        gap: 9px;
-    }
-    .ps-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: .78rem;
-        font-weight: 800;
-        padding: 4px 11px;
-        border-radius: 999px;
-    }
-    .ps-pill--earn { color: var(--earn); background: var(--earn-bg); }
-    .ps-pill--ded { color: var(--ded); background: var(--ded-bg); }
 
-    .ps-rows { padding: 6px 20px; flex: 1 1 auto; }
-    .ps-row {
+    .ps-column-card:hover {
+        box-shadow: 0 14px 36px rgba(0, 0, 0, 0.07);
+    }
+
+    .ps-column-header {
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--card-border);
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        padding: 11px 2px;
-        border-bottom: 1px dashed var(--line);
     }
-    .ps-row:last-child { border-bottom: none; }
-    .ps-label {
-        color: #4A4566;
-        font-size: .88rem;
-        font-weight: 700;
-        display: inline-flex;
+
+    .ps-column-header.earnings-header {
+        background: linear-gradient(to left, rgba(15, 157, 98, 0.05), #ffffff);
+        border-top: 4px solid var(--earn-color);
+    }
+
+    .ps-column-header.deductions-header {
+        background: linear-gradient(to left, rgba(220, 38, 38, 0.05), #ffffff);
+        border-top: 4px solid var(--ded-color);
+    }
+
+    .ps-column-title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--heading-color);
+        display: flex;
         align-items: center;
-        gap: 9px;
+        gap: 10px;
     }
-    .ps-label i { color: var(--muted); width: 16px; text-align: center; font-size: .85rem; }
-    .ps-row--base .ps-label i { color: var(--tone); }
-    .ps-row--base .ps-label { font-weight: 800; color: var(--head); }
-    .ps-amount {
+
+    .ps-type-badge {
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.3px;
+    }
+
+    .ps-type-badge.earn {
+        background: var(--earn-bg);
+        color: var(--earn-color);
+        border: 1px solid var(--earn-border);
+    }
+
+    .ps-type-badge.ded {
+        background: var(--ded-bg);
+        color: var(--ded-color);
+        border: 1px solid var(--ded-border);
+    }
+
+    .ps-table-wrap {
+        padding: 8px 22px;
+        flex: 1 1 auto;
+    }
+
+    .ps-item-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 0;
+        border-bottom: 1px dashed var(--card-border);
+        gap: 12px;
+    }
+
+    .ps-item-row:last-child {
+        border-bottom: none;
+    }
+
+    .ps-item-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .ps-item-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .ps-item-icon.earn {
+        background: var(--earn-bg);
+        color: var(--earn-color);
+    }
+
+    .ps-item-icon.ded {
+        background: var(--ded-bg);
+        color: var(--ded-color);
+    }
+
+    .ps-item-title {
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: var(--heading-color);
+    }
+
+    .ps-item-subtitle {
+        font-size: 0.74rem;
+        color: var(--text-muted-color);
+        margin-top: 2px;
+    }
+
+    .ps-item-amount {
+        font-size: 1.05rem;
         font-weight: 800;
         font-variant-numeric: tabular-nums;
         white-space: nowrap;
-        font-size: .9rem;
     }
-    .ps-amount--base { color: var(--tone-deep); font-weight: 900; }
-    .ps-amount--earn { color: var(--earn); }
-    .ps-amount--ded { color: var(--ded); }
 
-    .ps-empty {
-        padding: 16px 2px;
-        color: var(--muted);
-        font-size: .84rem;
-        font-weight: 600;
+    .ps-item-amount.earn {
+        color: var(--earn-color);
+    }
+
+    .ps-item-amount.ded {
+        color: var(--ded-color);
+    }
+
+    .ps-column-footer {
+        padding: 16px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 900;
+        font-size: 1.02rem;
+        border-top: 1px solid var(--card-border);
+    }
+
+    .ps-column-footer.earn {
+        background: var(--earn-bg);
+        color: #065F46;
+        border-top-color: var(--earn-border);
+    }
+
+    .ps-column-footer.ded {
+        background: var(--ded-bg);
+        color: #991B1B;
+        border-top-color: var(--ded-border);
+    }
+
+    /* ===== Payment Details Card ===== */
+    .ps-payment-card {
+        background: #ffffff;
+        border: 1px solid var(--card-border);
+        border-radius: 18px;
+        padding: 22px 26px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+        margin-top: 24px;
+    }
+
+    .ps-payment-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--heading-color);
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--card-border);
+    }
+
+    .ps-payment-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+    }
+
+    .ps-payment-item {
+        background: #F9FAFB;
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+        padding: 14px 18px;
+    }
+
+    .ps-payment-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted-color);
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .ps-payment-val {
+        font-size: 0.96rem;
+        font-weight: 800;
+        color: var(--heading-color);
+        direction: ltr;
+        text-align: right;
+    }
+
+    /* ===== Bottom Summary Banner ===== */
+    .ps-net-banner {
+        background: linear-gradient(135deg, #111827 0%, #1F2937 60%, #0E5C43 100%);
+        border-radius: 20px;
+        padding: 26px 32px;
+        color: #ffffff;
+        margin-top: 28px;
+        box-shadow: 0 16px 36px rgba(17, 24, 39, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .ps-net-calc-box h3 {
+        font-size: 1.35rem;
+        font-weight: 900;
+        margin: 0 0 6px 0;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .ps-net-formula {
+        font-size: 0.84rem;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.75);
         display: flex;
         align-items: center;
         gap: 8px;
-    }
-
-    .ps-total {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        margin: 0 0 16px;
-        padding: 13px 20px;
-        border-radius: 14px;
-        font-weight: 800;
-        font-size: .95rem;
-    }
-    .ps-total--earn { color: #0B6B45; background: var(--earn-bg); border: 1px solid rgba(15,157,98,.25); }
-    .ps-total--ded { color: #9E2A2A; background: var(--ded-bg); border: 1px solid rgba(214,69,69,.25); }
-    .ps-total span { font-variant-numeric: tabular-nums; }
-
-    /* ===== Net banner ===== */
-    .ps-net {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
         flex-wrap: wrap;
-        margin-top: 22px;
-        padding: 20px 24px;
-        border-radius: 18px;
-        background: linear-gradient(135deg, var(--head), var(--tone-deep));
-        color: #fff;
-        box-shadow: 0 16px 34px rgba(30,25,60,.22);
-    }
-    .ps-net-label { display: block; font-size: .9rem; font-weight: 700; opacity: .85; }
-    .ps-net-note { display: block; font-size: .74rem; font-weight: 600; opacity: .6; margin-top: 3px; }
-    .ps-net-value {
-        font-size: 1.9rem;
-        font-weight: 900;
-        font-variant-numeric: tabular-nums;
-        color: #FFE9A8;
-        text-shadow: 0 2px 10px rgba(0,0,0,.2);
     }
 
-    @media (max-width: 575.98px) {
-        .ps-hero h1 { font-size: 1.2rem; }
-        .ps-net-value { font-size: 1.55rem; }
+    .ps-net-formula span {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 3px 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .ps-net-amount-box {
+        text-align: left;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 16px;
+        padding: 14px 24px;
+    }
+
+    .ps-net-amount-box .lbl {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.8);
+        display: block;
+    }
+
+    .ps-net-amount-box .num {
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: #FDE68A;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.1;
+    }
+
+    @media (max-width: 767.98px) {
+        .ps-summary-header {
+            padding: 20px;
+        }
+        .ps-user-info h1 {
+            font-size: 1.25rem;
+        }
+        .ps-net-banner {
+            padding: 20px;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .ps-net-amount-box {
+            text-align: center;
+        }
+        .ps-net-amount-box .num {
+            font-size: 1.8rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="ps-page">
+<div class="ps-container py-3">
 
-    <div class="ps-hero">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <span class="ps-avatar">{{ employee.get_full_name|default:employee.user.username|slice:':1'|upper }}</span>
-                <div>
-                    <span class="ps-eyebrow"><i class="fas fa-file-invoice-dollar"></i> كشف الراتب &nbsp;•&nbsp; {{ payslip.month_name }} {{ payslip.year }}</span>
+    <!-- 1. Top Summary Header -->
+    <div class="ps-summary-header">
+        <div class="ps-header-main">
+            <div class="ps-user-badge-wrap">
+                <div class="ps-avatar-box">
+                    {% if employee.profile_picture %}
+                    <img src="{{ employee.profile_picture.url }}" alt="{{ employee.get_full_name }}">
+                    {% else %}
+                    {{ employee.get_full_name|default:employee.user.username|slice:":1"|upper }}
+                    {% endif %}
+                </div>
+                <div class="ps-user-info">
+                    <div class="ps-user-tags mb-1">
+                        <span class="ps-tag-pill"><i class="fa-solid fa-file-invoice-dollar"></i> كشف الراتب الرسمي</span>
+                        <span class="ps-tag-pill"><i class="fa-solid fa-calendar-days"></i> {{ payslip.month_name }} {{ payslip.year }}</span>
+                    </div>
                     <h1>{{ employee.get_full_name|default:employee.user.username }}</h1>
-                    <p class="ps-role">
-                        <i class="fas fa-briefcase"></i>
-                        {% if employee.position %}{{ employee.position.title }}{% else %}{{ employee.job_title|default:'موظف' }}{% endif %}
+                    <div class="ps-user-tags">
+                        <span class="text-white-50 small"><i class="fa-solid fa-briefcase me-1"></i> {{ employee.position.title|default:'موظف' }}</span>
                         {% if employee.department %}
-                            &nbsp;&nbsp;<span style="opacity:.75">•</span>&nbsp;&nbsp;
-                            <i class="fas fa-building"></i> {{ employee.department.name }}
+                        <span class="text-white-50 small">• <i class="fa-solid fa-building me-1"></i> {{ employee.department.name }}</span>
                         {% endif %}
-                    </p>
+                        <span class="text-white-50 small">• <i class="fa-solid fa-id-badge me-1"></i> الرقم: {{ employee.employee_number|default:employee.id }}</span>
+                    </div>
                 </div>
             </div>
-            <div class="ps-hero-actions">
-                <a href="{% url 'employees:profile' %}" class="btn-ghost-light"><i class="fas fa-arrow-right"></i> الملف الشخصي</a>
-                <a href="{% url 'employees:payslip_pdf' payslip.pk %}" class="btn-pdf"><i class="fas fa-file-pdf"></i> تحميل PDF</a>
+
+            <div class="ps-header-actions">
+                <a href="{% url 'employees:payslip_list' %}" class="btn-back-nav">
+                    <i class="fa-solid fa-arrow-right"></i> كل القسائم
+                </a>
+                <a href="{% url 'employees:payslip_pdf' payslip.pk %}" class="btn-pdf-download">
+                    <i class="fa-solid fa-file-pdf"></i> تحميل PDF
+                </a>
             </div>
         </div>
 
-        <div class="ps-meta">
-            <span class="ps-chip"><i class="fas fa-id-badge"></i> رقم الموظف: {{ employee.employee_number|default:'—' }}</span>
-            <span class="ps-chip"><i class="fas fa-calendar-alt"></i> فترة الراتب: {{ payslip.month_name }} {{ payslip.year }}</span>
-            <span class="ps-chip"><i class="fas fa-hashtag"></i> رقم القسيمة: {{ payslip.id }}</span>
-            {% if is_hr %}<span class="ps-chip"><i class="fas fa-user-shield"></i> إدارة الموارد البشرية</span>{% endif %}
+        <!-- KPI Strip inside Header -->
+        <div class="ps-kpi-strip">
+            <div class="ps-kpi-item">
+                <div class="ps-kpi-label"><i class="fa-solid fa-calendar"></i> فترة القسيمة</div>
+                <div class="ps-kpi-value">{{ payslip.month_name }} / {{ payslip.year }}</div>
+            </div>
+            <div class="ps-kpi-item">
+                <div class="ps-kpi-label"><i class="fa-solid fa-money-bill-wave"></i> الراتب الأساسي</div>
+                <div class="ps-kpi-value">{{ basic_salary|floatformat:2 }} <small class="fs-6">$</small></div>
+            </div>
+            <div class="ps-kpi-item">
+                <div class="ps-kpi-label"><i class="fa-solid fa-circle-plus text-success"></i> إجمالي المستحقات</div>
+                <div class="ps-kpi-value">{{ total_earnings|floatformat:2 }} <small class="fs-6">$</small></div>
+            </div>
+            <div class="ps-kpi-item">
+                <div class="ps-kpi-label"><i class="fa-solid fa-circle-minus text-danger"></i> إجمالي الاستقطاعات</div>
+                <div class="ps-kpi-value">{{ total_deductions|floatformat:2 }} <small class="fs-6">$</small></div>
+            </div>
+            <div class="ps-kpi-item" style="background: rgba(253, 230, 138, 0.15); border-color: rgba(253, 230, 138, 0.3);">
+                <div class="ps-kpi-label text-warning"><i class="fa-solid fa-sack-dollar"></i> صافي الراتب المستحق</div>
+                <div class="ps-kpi-value highlight-net">{{ net_salary|floatformat:2 }} <small class="fs-6">$</small></div>
+            </div>
         </div>
     </div>
 
+    <!-- 2. Dynamic Two-Column Layout (Earnings & Deductions) -->
     <div class="row g-4">
+        
+        <!-- Left Column: المستحقات (Earnings) -->
         <div class="col-lg-6">
-            <div class="ps-panel">
-                <div class="ps-panel-head">
-                    <h2><i class="fas fa-hand-holding-dollar" style="color:var(--earn)"></i> المستحقات</h2>
-                    <span class="ps-pill ps-pill--earn"><i class="fas fa-plus"></i> إضافة</span>
+            <div class="ps-column-card">
+                <div class="ps-column-header earnings-header">
+                    <h2 class="ps-column-title">
+                        <i class="fa-solid fa-circle-plus text-success"></i> المستحقات (Earnings)
+                    </h2>
+                    <span class="ps-type-badge earn">
+                        <i class="fa-solid fa-arrow-trend-up"></i> إضافات للراتب
+                    </span>
                 </div>
-                <div class="ps-rows">
-                    <div class="ps-row ps-row--base">
-                        <span class="ps-label"><i class="fas fa-sack-dollar"></i> الراتب الأساسي</span>
-                        <span class="ps-amount ps-amount--base">{{ payslip.basic_salary|floatformat:2 }} $</span>
+
+                <div class="ps-table-wrap">
+                    <!-- Basic Salary -->
+                    <div class="ps-item-row">
+                        <div class="ps-item-info">
+                            <div class="ps-item-icon earn"><i class="fa-solid fa-money-bill-wave"></i></div>
+                            <div>
+                                <div class="ps-item-title">الراتب الأساسي (Basic Salary)</div>
+                                <div class="ps-item-subtitle">الراتب التعاقدي المعتمد</div>
+                            </div>
+                        </div>
+                        <div class="ps-item-amount earn">+ {{ basic_salary|floatformat:2 }} $</div>
                     </div>
-                    {% for earning in payslip.earnings.all %}
-                    <div class="ps-row">
-                        <span class="ps-label"><i class="fas fa-circle-plus"></i> {{ earning.title }}</span>
-                        <span class="ps-amount ps-amount--earn">+ {{ earning.amount|floatformat:2 }} $</span>
+
+                    <!-- Dynamic / Grouped Earnings Components -->
+                    {% for item in earning_components %}
+                    {% if item.type != 'basic' %}
+                    <div class="ps-item-row">
+                        <div class="ps-item-info">
+                            <div class="ps-item-icon earn"><i class="fa-solid {{ item.icon|default:'fa-gift' }}"></i></div>
+                            <div>
+                                <div class="ps-item-title">{{ item.label }}</div>
+                                {% if item.items %}
+                                <div class="ps-item-subtitle">
+                                    {% for sub in item.items %}
+                                    {{ sub.title }}{% if not forloop.last %} • {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="ps-item-amount earn">+ {{ item.amount|floatformat:2 }} $</div>
                     </div>
+                    {% endif %}
                     {% empty %}
-                    <div class="ps-empty"><i class="fas fa-info-circle"></i> لا توجد مستحقات إضافية لهذا الشهر</div>
+                    <div class="ps-item-row">
+                        <div class="ps-item-info">
+                            <div class="ps-item-icon earn"><i class="fa-solid fa-info-circle"></i></div>
+                            <div class="ps-item-title">لا توجد بدلات أو مكافآت إضافية</div>
+                        </div>
+                        <div class="ps-item-amount earn">+ 0.00 $</div>
+                    </div>
                     {% endfor %}
+
+                    <!-- Fallback explicit zero rows if empty to ensure visual parity -->
+                    {% if not raw_earnings %}
+                    <div class="ps-item-row">
+                        <div class="ps-item-info">
+                            <div class="ps-item-icon earn"><i class="fa-solid fa-gift"></i></div>
+                            <div>
+                                <div class="ps-item-title">المكافآت والحوافز (Bonuses)</div>
+                                <div class="ps-item-subtitle">مكافآت الأداء والتميز</div>
+                            </div>
+                        </div>
+                        <div class="ps-item-amount earn text-muted">+ 0.00 $</div>
+                    </div>
+                    <div class="ps-item-row">
+                        <div class="ps-item-info">
+                            <div class="ps-item-icon earn"><i class="fa-solid fa-house-user"></i></div>
+                            <div>
+                                <div class="ps-item-title">البدلات الثابتة (Fixed Allowances)</div>
+                                <div class="ps-item-subtitle">بدل سكن / انتقال / اتصال</div>
+                            </div>
+                        </div>
+                        <div class="ps-item-amount earn text-muted">+ 0.00 $</div>
+                    </div>
+                    <div class="ps-item-row">
+                        <div class="ps-item-info">
+                            <div class="ps-item-icon earn"><i class="fa-solid fa-business-time"></i></div>
+                            <div>
+                                <div class="ps-item-title">أجر العمل الإضافي (Overtime Pay)</div>
+                                <div class="ps-item-subtitle">ساعات العمل الإضافية المعتمدة</div>
+                            </div>
+                        </div>
+                        <div class="ps-item-amount earn text-muted">+ 0.00 $</div>
+                    </div>
+                    {% endif %}
                 </div>
-                <div class="ps-total ps-total--earn">
-                    <span>إجمالي المستحقات</span>
-                    <span>{{ gross_salary|floatformat:2 }} $</span>
+
+                <div class="ps-column-footer earn">
+                    <span><i class="fa-solid fa-calculator me-1"></i> إجمالي المستحقات</span>
+                    <span>{{ total_earnings|floatformat:2 }} $</span>
                 </div>
             </div>
         </div>
 
+        <!-- Right Column: الاستقطاعات (Deductions) -->
         <div class="col-lg-6">
-            <div class="ps-panel">
-                <div class="ps-panel-head">
-                    <h2><i class="fas fa-hand-holding-heart" style="color:var(--ded)"></i> الاستقطاعات</h2>
-                    <span class="ps-pill ps-pill--ded"><i class="fas fa-minus"></i> خصم</span>
+            <div class="ps-column-card">
+                <div class="ps-column-header deductions-header">
+                    <h2 class="ps-column-title">
+                        <i class="fa-solid fa-circle-minus text-danger"></i> الاستقطاعات (Deductions)
+                    </h2>
+                    <span class="ps-type-badge ded">
+                        <i class="fa-solid fa-arrow-trend-down"></i> خصومات من الراتب
+                    </span>
                 </div>
-                <div class="ps-rows">
-                    {% for deduction in payslip.deductions.all %}
-                    <div class="ps-row">
-                        <span class="ps-label"><i class="fas fa-circle-minus"></i> {{ deduction.title }}</span>
-                        <span class="ps-amount ps-amount--ded">− {{ deduction.amount|floatformat:2 }} $</span>
+
+                <div class="ps-table-wrap">
+                    {% if deduction_components %}
+                    {% for item in deduction_components %}
+                    <div class="ps-item-row">
+                        <div class="ps-item-info">
+                            <div class="ps-item-icon ded"><i class="fa-solid {{ item.icon|default:'fa-receipt' }}"></i></div>
+                            <div>
+                                <div class="ps-item-title">{{ item.label }}</div>
+                                {% if item.items %}
+                                <div class="ps-item-subtitle">
+                                    {% for sub in item.items %}
+                                    {{ sub.title }}{% if not forloop.last %} • {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="ps-item-amount ded">- {{ item.amount|floatformat:2 }} $</div>
                     </div>
-                    {% empty %}
-                    <div class="ps-empty"><i class="fas fa-shield-alt"></i> لا توجد استقطاعات لهذا الشهر</div>
                     {% endfor %}
+                    {% else %}
+                    <div class="ps-item-row">
+                        <div class="ps-item-info">
+                            <div class="ps-item-icon ded"><i class="fa-solid fa-user-clock"></i></div>
+                            <div>
+                                <div class="ps-item-title">الخصومات والجزاءات (Discounts & Penalties)</div>
+                                <div class="ps-item-subtitle">خصومات الحضور والغياب والتأخير</div>
+                            </div>
+                        </div>
+                        <div class="ps-item-amount ded text-muted">- 0.00 $</div>
+                    </div>
+                    <div class="ps-item-row">
+                        <div class="ps-item-info">
+                            <div class="ps-item-icon ded"><i class="fa-solid fa-shield-halved"></i></div>
+                            <div>
+                                <div class="ps-item-title">التأمينات الاجتماعية والضرائب (Social Insurance & Taxes)</div>
+                                <div class="ps-item-subtitle">اشتراك التأمينات وضريبة الدخل</div>
+                            </div>
+                        </div>
+                        <div class="ps-item-amount ded text-muted">- 0.00 $</div>
+                    </div>
+                    <div class="ps-item-row">
+                        <div class="ps-item-info">
+                            <div class="ps-item-icon ded"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                            <div>
+                                <div class="ps-item-title">أقساط السلف والقروض (Loan Installments)</div>
+                                <div class="ps-item-subtitle">سلف العمل والأقساط الشهرية</div>
+                            </div>
+                        </div>
+                        <div class="ps-item-amount ded text-muted">- 0.00 $</div>
+                    </div>
+                    {% endif %}
                 </div>
-                <div class="ps-total ps-total--ded">
-                    <span>إجمالي الاستقطاعات</span>
+
+                <div class="ps-column-footer ded">
+                    <span><i class="fa-solid fa-calculator me-1"></i> إجمالي الخصومات</span>
                     <span>{{ total_deductions|floatformat:2 }} $</span>
                 </div>
             </div>
         </div>
+
     </div>
 
-    <div class="ps-net">
-        <div>
-            <span class="ps-net-label"><i class="fas fa-wallet"></i> صافي الراتب المستحق</span>
-            <span class="ps-net-note">بعد إضافة المستحقات وخصم الاستقطاعات</span>
+    <!-- 3. Payment Method & Bank Info -->
+    <div class="ps-payment-card">
+        <div class="ps-payment-header">
+            <i class="fa-solid fa-credit-card text-success"></i> تفاصيل تحويل الراتب وطريقة الدفع
         </div>
-        <span class="ps-net-value">{{ net_salary|floatformat:2 }} $</span>
+        <div class="ps-payment-grid">
+            <div class="ps-payment-item">
+                <div class="ps-payment-label"><i class="fa-solid fa-building-columns"></i> اسم المصرف / البنك</div>
+                <div class="ps-payment-val" style="direction:rtl; text-align:right;">
+                    {{ payment_details.bank_name|default:'مصرف الراجحي' }}
+                </div>
+            </div>
+            <div class="ps-payment-item">
+                <div class="ps-payment-label"><i class="fa-solid fa-barcode"></i> رقم الحساب / الآيبان (IBAN)</div>
+                <div class="ps-payment-val">
+                    {{ payment_details.iban_masked|default:'SA** **** **** 1234' }}
+                </div>
+            </div>
+            <div class="ps-payment-item">
+                <div class="ps-payment-label"><i class="fa-solid fa-money-check-dollar"></i> طريقة التحويل</div>
+                <div class="ps-payment-val" style="direction:rtl; text-align:right;">
+                    {{ payment_details.method|default:'تحويل بنكي مباشر' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Bottom Summary Banner -->
+    <div class="ps-net-banner">
+        <div class="ps-net-calc-box">
+            <h3><i class="fa-solid fa-wallet text-warning"></i> صافي الراتب المستحق (Net Salary)</h3>
+            <div class="ps-net-formula">
+                <span>المعادلة المعتمدة:</span>
+                <span>إجمالي المستحقات ({{ total_earnings|floatformat:2 }} $)</span>
+                <i class="fa-solid fa-minus text-danger"></i>
+                <span>إجمالي الخصومات ({{ total_deductions|floatformat:2 }} $)</span>
+                <i class="fa-solid fa-equals text-warning"></i>
+                <span class="text-warning fw-bold">صافي الراتب المستحق</span>
+            </div>
+        </div>
+        <div class="ps-net-amount-box">
+            <span class="lbl">المبلغ النهائي للصرف</span>
+            <div class="num">{{ net_salary|floatformat:2 }} <span class="fs-4">$</span></div>
+        </div>
     </div>
 
 </div>

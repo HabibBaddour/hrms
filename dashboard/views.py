@@ -294,18 +294,6 @@ def manager_dashboard(request):
             'type': contract.get_contract_type_display(),
         })
 
-    birthdays = []
-    for emp in team_qs.select_related('user'):
-        birth = emp.date_of_birth or emp.birth_date
-        if birth and birth.month == today.month:
-            birthdays.append({
-                'name': emp.get_full_name(),
-                'day': birth.day,
-                'month_name': AR_MONTHS[birth.month - 1],
-            })
-    birthdays.sort(key=lambda item: item['day'])
-    birthdays = birthdays[:6]
-
     context = {
         'team_count': team_count,
         'pending_leaves': pending_leaves,
@@ -321,7 +309,6 @@ def manager_dashboard(request):
         'max_status_count': max_status_count,
         'recent_team_leaves': recent_team_leaves,
         'contracts_soon': contracts_soon,
-        'birthdays': birthdays,
         'recent_activities': build_activity_feed(request.user),
         'month_name': AR_MONTHS[today.month - 1],
         'today_ar': _arabic_date(today),

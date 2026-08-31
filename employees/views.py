@@ -30,6 +30,21 @@ def employee_list(request):
         employees = Employee.objects.select_related('user', 'department', 'position', 'contract').prefetch_related('user__groups').all()
     except Exception:
         employees = Employee.objects.select_related('user', 'department', 'position').prefetch_related('user__groups', 'contract').all()
+
+    manager_department = None
+    is_manager = request.user.groups.filter(name='Manager').exists()
+    if not is_manager:
+        employee_profile = getattr(request.user, 'employee_profile', None)
+        position = getattr(employee_profile, 'position', None) if employee_profile else None
+        if position and getattr(position, 'role', None) == 'Manager':
+            is_manager = True
+    if is_manager:
+        employee_profile = getattr(request.user, 'employee_profile', None)
+        manager_department = getattr(employee_profile, 'department', None)
+        if manager_department is None and hasattr(request.user, 'department'):
+            manager_department = request.user.department
+        if manager_department is not None:
+            employees = employees.filter(department=manager_department)
     
     # Apply filters
     if department_id:
@@ -638,6 +653,56 @@ def _user_assigned_salary(user):
     return Decimal('0.00')
 
 
+def _mask_iban(value):
+    if not value:
+        return '—'
+    text = str(value).replace(' ', '')
+    if len(text) <= 8:
+        return f"{text[:2]} **** **** {text[-2:]}"
+    return f"{text[:4]} **** **** **** {text[-4:]}"
+
+
+def _sum_matching(items, keywords):
+    total = Decimal('0.00')
+    for item in items:
+        title = (getattr(item, 'title', '') or '').lower()
+        if any(keyword in title for keyword in keywords):
+            total += getattr(item, 'amount', Decimal('0.00')) or Decimal('0.00')
+    return total
+
+
+def _group_salary_components(items, labels):
+    components = []
+    remaining = list(items)
+    used_ids = set()
+
+    for label, keywords, icon in labels:
+        matches = [item for item in remaining if item.id not in used_ids and any(keyword in (getattr(item, 'title', '') or '').lower() for keyword in keywords)]
+        if not matches:
+            continue
+        amount = sum((getattr(item, 'amount', Decimal('0.00')) or Decimal('0.00')) for item in matches)
+        components.append({
+            'label': label,
+            'amount': amount,
+            'icon': icon,
+            'items': [{'title': getattr(m, 'title', ''), 'amount': getattr(m, 'amount', Decimal('0.00'))} for m in matches]
+        })
+        used_ids.update(item.id for item in matches)
+
+    leftover_items = [item for item in remaining if item.id not in used_ids]
+    if leftover_items:
+        leftover = sum((getattr(item, 'amount', Decimal('0.00')) or Decimal('0.00')) for item in leftover_items)
+        if leftover > 0:
+            components.append({
+                'label': 'مستحقات / استقطاعات أخرى',
+                'amount': leftover,
+                'icon': 'fa-folder-plus',
+                'items': [{'title': getattr(m, 'title', ''), 'amount': getattr(m, 'amount', Decimal('0.00'))} for m in leftover_items]
+            })
+
+    return components
+
+
 @login_required(login_url='login')
 def payslip_list_view(request):
     """قائمة القسائم الشخصية: كل دور مسجّل يرى قسائمه المرتبطة بمسمّاه الوظيفي.
@@ -676,22 +741,100 @@ def payslip_list_view(request):
 
 @login_required(login_url='login')
 def payslip_detail_view(request, payslip_id):
-    """عرض قسيمة راتب ديناميكية للموظف أو لمسؤولي الموارد البشرية."""
+    """عرض قسيمة راتب ديناميكية مع تفاصيل كاملة للمستحقات والاستقطاعات."""
     payslip = get_object_or_404(_payslip_queryset(), pk=payslip_id)
     if not _can_view_payslip(request.user, payslip):
         messages.error(request, 'لا يمكنك الاطلاع على قسيمة راتب موظف آخر.')
         return redirect('employees:profile')
 
     employee = payslip.employee
+    earning_items = list(payslip.earnings.all())
+    deduction_items = list(payslip.deductions.all())
+
+    # === SPECIFIC CATEGORY SUMMARIES ===
+    bonuses_amount = _sum_matching(earning_items, ['مكافأة', 'مكافآت', 'bonus', 'incentive', 'حافز', 'حوافز'])
+    allowances_amount = _sum_matching(earning_items, ['بدل', 'بدلات', 'allowance', 'housing', 'transport', 'سكن', 'مواصلات', 'انتقال', 'هاتف'])
+    overtime_amount = _sum_matching(earning_items, ['إضافي', 'اضافي', 'overtime', 'extra', 'ساعة إضافية', 'ساعات إضافية'])
+
+    discounts_amount = _sum_matching(deduction_items, ['خصم', 'خصومات', 'جزاء', 'غرامة', 'penalty', 'discount', 'deduction', 'absent', 'غياب', 'تأخير', 'انضباط'])
+    insurance_amount = _sum_matching(deduction_items, ['تأمين', 'insurance', 'social', 'التأمينات', 'اجتماعي', 'gosi'])
+    taxes_amount = _sum_matching(deduction_items, ['ضريبة', 'tax', 'taxes', 'الضرائب', 'دخل', 'vat'])
+    loans_amount = _sum_matching(deduction_items, ['سلفة', 'سلف', 'قرض', 'loan', 'advance', 'قسط', 'installment'])
+
+    # === EARNINGS BREAKDOWN (المستحقات) ===
+    earning_components = [
+        {
+            'label': 'الراتب الأساسي (Basic Salary)',
+            'amount': payslip.basic_salary,
+            'icon': 'fa-money-bill-wave',
+            'type': 'basic',
+        },
+    ]
+    grouped_earnings = _group_salary_components(earning_items, [
+        ('المكافآت والحوافز (Bonuses)', ['مكافأة', 'مكافآت', 'bonus', 'incentive', 'حافز', 'حوافز'], 'fa-gift'),
+        ('البدلات الثابتة (Allowances)', ['بدل', 'بدلات', 'allowance', 'housing', 'transport', 'سكن', 'مواصلات', 'انتقال', 'هاتف'], 'fa-house-user'),
+        ('أجر العمل الإضافي (Overtime Pay)', ['إضافي', 'اضافي', 'overtime', 'extra', 'ساعة إضافية', 'ساعات إضافية'], 'fa-business-time'),
+    ])
+    earning_components.extend(grouped_earnings)
+
+    # === DEDUCTIONS BREAKDOWN (الاستقطاعات) ===
+    deduction_components = _group_salary_components(deduction_items, [
+        ('الخصومات والجزاءات (Discounts/Penalties)', ['خصم', 'خصومات', 'جزاء', 'غرامة', 'penalty', 'discount', 'deduction', 'absent', 'غياب', 'تأخير', 'انضباط'], 'fa-user-clock'),
+        ('التأمينات الاجتماعية (Social Security)', ['تأمين', 'insurance', 'social', 'التأمينات', 'اجتماعي', 'gosi'], 'fa-shield-halved'),
+        ('الضرائب والاستقطاعات الحكومية (Taxes)', ['ضريبة', 'tax', 'taxes', 'الضرائب', 'دخل', 'vat'], 'fa-file-invoice-dollar'),
+        ('السلف وأقساط القروض (Loans & Advances)', ['سلفة', 'سلف', 'قرض', 'loan', 'advance', 'قسط', 'installment'], 'fa-hand-holding-dollar'),
+    ])
+
+    # === PAYMENT DETAILS (تفاصيل الدفع) ===
+    iban_val = getattr(employee, 'iban', None)
+    bank_name = getattr(employee, 'bank_name', None) or getattr(employee, 'bank', None)
+    if not bank_name and iban_val:
+        bank_name = 'مصرف الراجحي' if 'RJHI' in str(iban_val).upper() else ('البنك الأهلي السعودي' if 'NCBK' in str(iban_val).upper() else 'الحساب البنكي المعتمد')
+    
+    payment_details = {
+        'bank_name': bank_name or 'صرف نقدي مباشر / عبر الخزينة',
+        'iban_masked': _mask_iban(iban_val),
+        'iban_raw': iban_val or '',
+        'method': 'تحويل بنكي مباشر (Bank Transfer)' if iban_val else 'صرف نقدي (Cash Payment)',
+    }
+
+    # === SALARY CALCULATIONS (الحسابات المالية) ===
+    basic_salary = payslip.basic_salary or Decimal('0.00')
+    additional_earnings = payslip.total_earnings or Decimal('0.00')
+    gross_salary = basic_salary + additional_earnings
+    total_deductions = payslip.total_deductions or Decimal('0.00')
+    net_salary = gross_salary - total_deductions
+
     context = {
         'payslip': payslip,
         'employee': employee,
         'is_hr': _is_hr_user(request.user),
-        'gross_salary': payslip.basic_salary + payslip.total_earnings,
-        'total_earnings': payslip.total_earnings,
-        'total_deductions': payslip.total_deductions,
-        'net_salary': payslip.net_salary,
+        # Categorized calculations
+        'basic_salary': basic_salary,
+        'bonuses_amount': bonuses_amount,
+        'allowances_amount': allowances_amount,
+        'overtime_amount': overtime_amount,
+        'discounts_amount': discounts_amount,
+        'insurance_amount': insurance_amount,
+        'taxes_amount': taxes_amount,
+        'loans_amount': loans_amount,
+        'additional_earnings': additional_earnings,
+        'gross_salary': gross_salary,
+        # Total calculations
+        'total_earnings': gross_salary,
+        'total_deductions': total_deductions,
+        'net_salary': net_salary,
+        # Component lists
+        'earning_components': earning_components,
+        'deduction_components': deduction_components,
+        'raw_earnings': earning_items,
+        'raw_deductions': deduction_items,
+        'payment_details': payment_details,
+        # Period info
+        'month_display': payslip.month_name,
+        'year_display': payslip.year,
     }
+    return render(request, 'employees/payslip_detail.html', context)
     return render(request, 'employees/payslip_detail.html', context)
 
 

@@ -20,6 +20,7 @@ urlpatterns = [
     path('performance/', include('performance.urls')),
     path('reports/', include('reports.urls')),
     path('core/', include('core.urls')),
+    path('attendance/', include('attendance.urls')),
     
     # مسارات الواجهات الديناميكية
     path('settings/', TemplateView.as_view(template_name='accounts/settings.html'), name='user_settings'),

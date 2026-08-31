@@ -1,0 +1,183 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container-fluid px-3 px-lg-4 py-4">
+	<div
+		class="card border-0 shadow-sm"
+		style="border-radius: 18px; overflow: hidden; background: #ffffff"
+	>
+		<div
+			class="card-header border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 px-4 py-3"
+			style="
+				background: linear-gradient(135deg, #f8fafc 0%, #eef4ff 100%);
+				border-bottom: 1px solid #e2e8f0;
+			"
+		>
+			<div>
+				<h4 class="mb-1 fw-bold text-dark">جدول الحضور والدوام</h4>
+				<small class="text-muted"
+					>سجل حضور الموظف مع تفاصيل الدخول والخروج</small
+				>
+			</div>
+			<div class="d-flex align-items-center gap-2 flex-wrap">
+				<span
+					class="badge rounded-pill bg-success-subtle text-success px-3 py-2"
+				>
+					<i class="fa-solid fa-calendar-check me-1"></i> أيام الحضور: {{
+					days_present|default:"0" }}
+				</span>
+				<span
+					class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2"
+				>
+					<i class="fa-solid fa-clock me-1"></i> إجمالي الساعات: {{
+					total_working_hours|default:"0" }} ساعة
+				</span>
+			</div>
+		</div>
+
+		<div class="card-body p-0">
+			<div class="table-responsive">
+				<table
+					class="table table-bordered table-hover align-middle mb-0"
+					style="border-collapse: collapse; min-width: 900px"
+				>
+					<thead style="background: #f8fafc">
+						<tr>
+							<th
+								scope="col"
+								class="text-center fw-bold text-dark py-3 px-3"
+								style="border: 1px solid #e2e8f0; white-space: nowrap"
+							>
+								اسم اليوم
+							</th>
+							<th
+								scope="col"
+								class="text-center fw-bold text-dark py-3 px-3"
+								style="border: 1px solid #e2e8f0; white-space: nowrap"
+							>
+								التاريخ
+							</th>
+							<th
+								scope="col"
+								class="text-center fw-bold text-dark py-3 px-3"
+								style="border: 1px solid #e2e8f0; white-space: nowrap"
+							>
+								وقت الدخول
+							</th>
+							<th
+								scope="col"
+								class="text-center fw-bold text-dark py-3 px-3"
+								style="border: 1px solid #e2e8f0; white-space: nowrap"
+							>
+								وقت الخروج
+							</th>
+							<th
+								scope="col"
+								class="text-center fw-bold text-dark py-3 px-3"
+								style="border: 1px solid #e2e8f0; white-space: nowrap"
+							>
+								إجمالي ساعات العمل
+							</th>
+							<th
+								scope="col"
+								class="text-center fw-bold text-dark py-3 px-3"
+								style="border: 1px solid #e2e8f0; white-space: nowrap"
+							>
+								الحالة
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for log in attendance_logs %}
+						<tr style="background-color: {% cycle '#ffffff' '#fafcff' %};">
+							<td
+								class="text-center py-2 px-3"
+								style="border: 1px solid #e2e8f0; font-weight: 500"
+							>
+								{{ log.date|date:"l" }}
+							</td>
+							<td
+								class="text-center py-2 px-3"
+								style="
+									border: 1px solid #e2e8f0;
+									font-family: &quot;Segoe UI&quot;, Tahoma, sans-serif;
+								"
+							>
+								{{ log.date }}
+							</td>
+							<td
+								class="text-center py-2 px-3"
+								style="
+									border: 1px solid #e2e8f0;
+									font-family:
+										&quot;Consolas&quot;, &quot;Courier New&quot;, monospace;
+									font-size: 0.95rem;
+								"
+							>
+								{{ log.check_in|time:"H:i" }}
+							</td>
+							<td
+								class="text-center py-2 px-3"
+								style="
+									border: 1px solid #e2e8f0;
+									font-family:
+										&quot;Consolas&quot;, &quot;Courier New&quot;, monospace;
+									font-size: 0.95rem;
+								"
+							>
+								{{ log.check_out|time:"H:i"|default:"--" }}
+							</td>
+							<td
+								class="text-center py-2 px-3"
+								style="
+									border: 1px solid #e2e8f0;
+									font-family:
+										&quot;Consolas&quot;, &quot;Courier New&quot;, monospace;
+									font-weight: 600;
+								"
+							>
+								{{ log.get_working_hours }}
+							</td>
+							<td
+								class="text-center py-2 px-3"
+								style="border: 1px solid #e2e8f0"
+							>
+								{% if log.status == 'حاضر' %}
+								<span
+									class="badge rounded-pill bg-success-subtle text-success px-3 py-2"
+									><i class="fa-solid fa-circle-check me-1"></i>{{ log.status
+									}}</span
+								>
+								{% elif log.status == 'تأخير' %}
+								<span
+									class="badge rounded-pill bg-warning-subtle text-warning-emphasis px-3 py-2"
+									><i class="fa-solid fa-clock me-1"></i>{{ log.status }}</span
+								>
+								{% else %}
+								<span
+									class="badge rounded-pill bg-danger-subtle text-danger px-3 py-2"
+									><i class="fa-solid fa-circle-xmark me-1"></i>{{ log.status
+									}}</span
+								>
+								{% endif %}
+							</td>
+						</tr>
+						{% empty %}
+						<tr>
+							<td
+								colspan="6"
+								class="text-center py-5 text-muted"
+								style="border: 1px solid #e2e8f0"
+							>
+								<i
+									class="fa-solid fa-calendar-xmark fa-2x mb-3 d-block text-body-secondary"
+								></i>
+								لا توجد سجلات حضور حتى الآن.
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
