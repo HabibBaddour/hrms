@@ -58,7 +58,11 @@
                                 <small class="text-muted">{{ evaluation.employee.position.title|default:'غير محدد' }}</small>
                             </td>
                             <td>{{ evaluation.title|default:evaluation.period }}</td>
-                            <td>{{ evaluation.question_schema|length }}</td>
+                            <td>
+                                {% with canonical=evaluation.questions.count %}
+                                {{ canonical|default:evaluation.question_schema|length }}
+                                {% endwith %}
+                            </td>
                             <td><span class="badge bg-warning text-dark">مسودة</span></td>
                             <td><a href="{% url 'evaluation_detail' evaluation.pk %}" class="btn btn-sm btn-primary"><i class="fa-solid fa-pen-to-square me-1" aria-hidden="true"></i>تعبئة التقييم</a></td>
                         </tr>

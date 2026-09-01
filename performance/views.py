@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 from departments.models import Department
 from employees.models import Employee
-from performance.models import PerformanceEvaluation
+from performance.models import PerformanceEvaluation, PerformanceQuestion
 from .forms import EvaluationDispatchForm, PerformanceEvaluationForm
 
 
@@ -213,10 +213,26 @@ def _get_department_evaluator(department):
 
 
 def _render_dispatch_form(request, form):
+    categories = getattr(form, 'categories', [])
+    tab_builders = [
+        {
+            'category': category,
+            'values': getattr(form, 'category_values', {}).get(category.code, ['']),
+        }
+        for category in categories
+    ]
+    active_type = (
+        form.data.get('evaluation_type')
+        if getattr(form, 'data', None) else ''
+    ) or 'COMPETENCIES'
     return render(request, 'performance/add_evaluation.html', {
         'form': form,
-        'departments': form.fields['department_id'].queryset,
+        'departments': form.fields['departments'].queryset,
+        'selected_department_ids': getattr(form, 'selected_department_ids', []),
         'question_values': getattr(form, 'question_values', ['']),
+        'categories': categories,
+        'tab_builders': tab_builders,
+        'active_type': active_type,
     })
 
 
@@ -240,48 +256,103 @@ def add_evaluation(request):
     if not form.is_valid():
         return _render_dispatch_form(request, form)
 
-    department = form.cleaned_data['department_id']
-    evaluator = _get_department_evaluator(department)
-    if evaluator is None:
-        form.add_error(
-            None,
-            'لا يوجد مدير نشط أو رئيس قسم معيّن للقسم المحدد.',
-        )
+    departments = form.cleaned_data['departments']
+    if not departments:
+        form.add_error('departments', 'اختر قسماً واحداً على الأقل.')
         return _render_dispatch_form(request, form)
 
-    questions = [
-        {'text': text, 'max_rating': 5, 'rating': None}
-        for text in form.cleaned_questions
-    ]
-    employees = Employee.objects.select_related(
-        'user', 'department', 'position'
-    ).filter(
-        department=department,
-        user__is_active=True,
-    ).exclude(
-        pk=evaluator.pk,
-    ).exclude(
-        position__role='Manager',
-    ).order_by('user__first_name', 'user__last_name', 'pk')
+    category_map = {category.code: category for category in form.categories}
+    question_rows = []
+    question_schema = []
+    for category in form.categories:
+        for text in form.cleaned_questions_by_category.get(category.code, []):
+            question_schema.append({
+                'category': category.code,
+                'text': text,
+                'max_rating': 5,
+                'rating': None,
+            })
+            question_rows.append((category, text))
 
-    with transaction.atomic():
-        for employee in employees:
-            PerformanceEvaluation.objects.create(
-                title=form.cleaned_data['title'],
-                employee=employee,
-                evaluator=evaluator,
-                period=form.cleaned_data['title'][:50],
-                period_type='ANNUAL',
-                status='DRAFT',
-                work_quality=0,
-                commitment=0,
-                cooperation=0,
-                overall_score=0,
-                feedback='',
-                question_schema=questions,
+    main_type = next(
+        (
+            category.code
+            for category in form.categories
+            if form.cleaned_questions_by_category.get(category.code)
+        ),
+        'COMPETENCIES',
+    )
+
+    evaluators = {}
+    department_labels = []
+    for department in departments:
+        evaluator = _get_department_evaluator(department)
+        if evaluator is None:
+            form.add_error(
+                None,
+                f'لا يوجد مدير نشط أو رئيس قسم معيّن لقسم "{department.name}".',
             )
+            return _render_dispatch_form(request, form)
+        evaluators[department.pk] = evaluator
+        department_labels.append(department.name)
 
-    messages.success(request, 'تم إرسال التقييم إلى القسم المحدد.')
+    created_count = 0
+    with transaction.atomic():
+        for department in departments:
+            evaluator = evaluators[department.pk]
+            employees = Employee.objects.select_related(
+                'user', 'department', 'position'
+            ).filter(
+                department=department,
+                user__is_active=True,
+            ).exclude(
+                pk=evaluator.pk,
+            ).exclude(
+                position__role='Manager',
+            ).order_by('user__first_name', 'user__last_name', 'pk')
+
+            for employee in employees:
+                evaluation = PerformanceEvaluation.objects.create(
+                    title=form.cleaned_data['title'],
+                    evaluation_type=main_type,
+                    employee=employee,
+                    evaluator=evaluator,
+                    period=form.cleaned_data['title'][:50],
+                    period_type='ANNUAL',
+                    status='DRAFT',
+                    work_quality=0,
+                    commitment=0,
+                    cooperation=0,
+                    overall_score=0,
+                    feedback='',
+                    question_schema=question_schema,
+                )
+                evaluation.departments.add(department)
+                for order, (category, text) in enumerate(question_rows, start=1):
+                    PerformanceQuestion.objects.create(
+                        evaluation=evaluation,
+                        category=category,
+                        text=text,
+                        max_score=5,
+                        order=order,
+                    )
+                created_count += 1
+
+    if created_count == 0:
+        messages.warning(
+            request,
+            'لم يُنشأ أي تقييم؛ لا يوجد موظفون نشطون في الأقسام المحددة.',
+        )
+    elif len(departments) == 1:
+        messages.success(
+            request,
+            f'تم إرسال التقييم إلى القسم "{department_labels[0]}" بنجاح.',
+        )
+    else:
+        messages.success(
+            request,
+            f'تم إرسال التقييم إلى {len(departments)} أقسام بنجاح.',
+        )
     return redirect('performance_dashboard')
 
 
@@ -323,6 +394,14 @@ def evaluation_detail(request, pk):
                     'rating': rating,
                 })
             evaluation.question_schema = updated_questions
+            question_records = list(evaluation.questions.order_by('order', 'pk'))
+            for index, question_record in enumerate(question_records):
+                rating = (
+                    updated_questions[index].get('rating')
+                    if index < len(updated_questions) else None
+                )
+                question_record.rating = rating
+                question_record.save(update_fields=['rating'])
             evaluation.status = 'COMPLETED'
             evaluation.feedback = request.POST.get('feedback', '').strip()
             evaluation.save()

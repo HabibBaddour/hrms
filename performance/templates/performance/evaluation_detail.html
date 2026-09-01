@@ -19,6 +19,19 @@
                     {% csrf_token %}
                     <fieldset>
                         <legend class="h6 fw-bold mb-3">أسئلة التقييم</legend>
+                        {% if evaluation.questions.all %}
+                        {% for question in evaluation.questions.all %}
+                        <div class="mb-3">
+                            <label for="rating-{{ forloop.counter }}" class="form-label fw-semibold">{{ forloop.counter }}. {{ question.text }} <span class="text-muted">/5</span></label>
+                            <select id="rating-{{ forloop.counter }}" name="rating" class="form-select" required>
+                                <option value="">اختر التقييم</option>
+                                {% for score in '12345' %}
+                                <option value="{{ score }}" {% if question.rating|stringformat:'s' == score %}selected{% endif %}>{{ score }} / 5</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endfor %}
+                        {% else %}
                         {% for question in evaluation.question_schema %}
                         <div class="mb-3">
                             <label for="rating-{{ forloop.counter }}" class="form-label fw-semibold">{{ forloop.counter }}. {{ question.text }} <span class="text-muted">/5</span></label>
@@ -30,6 +43,7 @@
                             </select>
                         </div>
                         {% endfor %}
+                        {% endif %}
                     </fieldset>
                     <div class="mb-3">
                         <label for="feedback" class="form-label fw-semibold">ملاحظات المدير</label>
@@ -42,7 +56,14 @@
                     <div class="text-muted small">المتوسط العام للتقييم الديناميكي</div>
                     <div class="fs-3 fw-bold text-primary">{{ dynamic_overall_score|default:'—' }}/5</div>
                 </div>
-                {% if evaluation.question_schema %}
+                {% if evaluation.questions.all %}
+                <h6 class="fw-bold">أسئلة التقييم</h6>
+                <div class="list-group mb-4">
+                    {% for question in evaluation.questions.all %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center gap-3"><span>{{ forloop.counter }}. {{ question.text }}</span><span class="text-muted small">{{ question.rating|default:'—' }}/{{ question.max_score|default:5 }}</span></div>
+                    {% endfor %}
+                </div>
+                {% elif evaluation.question_schema %}
                 <h6 class="fw-bold">أسئلة التقييم</h6>
                 <div class="list-group mb-4">
                     {% for question in evaluation.question_schema %}

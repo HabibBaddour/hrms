@@ -105,56 +105,144 @@
         font-size: .73rem;
     }
 
-    .editor-layout {
-        display: grid;
-        grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
-        gap: 32px;
-        align-items: start;
-        margin-top: 28px;
-    }
-
-    .question-editor { min-width: 0; }
-    .section-description { margin: 0 0 18px; }
-
-    .question-list {
-        position: relative;
-        padding-right: 44px;
-    }
-
-    .question-list::before {
-        position: absolute;
-        top: 15px;
-        right: 14px;
-        bottom: 15px;
-        width: 2px;
-        background: var(--builder-border);
-        content: '';
-    }
-
-    .question-row,
-    .add-question-row {
-        position: relative;
+    /* --- departments multi-select dropdown --- */
+    .departments-dropdown {
         min-width: 0;
     }
 
-    .question-row {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 14px;
+    #department-dropdown-toggle {
+        display: flex;
         align-items: center;
-        margin-bottom: 12px;
-        padding: 8px 0;
-        border: 0;
+        justify-content: space-between;
+        gap: 10px;
+        width: 100%;
+        min-height: 44px;
+        padding: .55rem .9rem;
+        border-color: var(--builder-border);
+        border-radius: 8px;
+        color: var(--builder-text);
+        background: var(--builder-surface);
+        font-size: .82rem;
+        text-align: start;
     }
 
-    .question-node {
-        position: absolute;
-        top: 50%;
-        right: -44px;
-        display: grid;
+    #department-dropdown-toggle:hover {
+        border-color: var(--builder-primary);
+        color: var(--builder-primary);
+        background: var(--builder-surface);
+    }
+
+    #department-dropdown-label {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .departments-menu {
+        width: 100%;
+        min-width: 280px;
+        max-height: 360px;
+        overflow-y: auto;
+        padding: .9rem;
+    }
+
+    .departments-menu .form-check-label {
+        font-size: .78rem;
+        font-weight: 600;
+        color: var(--builder-text);
+    }
+
+    .departments-menu .dept-checkbox {
+        border-color: var(--builder-border);
+    }
+
+    .departments-menu .dept-checkbox:checked + .form-check-label {
+        color: var(--builder-primary);
+        font-weight: 700;
+    }
+
+    .departments-menu .dept-checkbox:focus-visible + .form-check-label {
+        color: #1d4ed8;
+    }
+
+    .departments-menu .border-bottom .form-check-label {
+        color: var(--builder-primary);
+        font-size: .82rem;
+        font-weight: 700;
+    }
+
+    .departments-menu .border-bottom .form-check-input {
+        float: none;
+        margin-left: 0;
+    }
+
+    /* --- evaluation pillars tabs --- */
+    .pillars-section {
+        margin-top: 26px;
+    }
+
+    #pillar-tabs {
+        gap: 4px;
+        border-bottom: 1px solid var(--builder-border);
+    }
+
+    #pillar-tabs .nav-link {
+        padding: .5rem .85rem;
+        border-radius: 8px 8px 0 0;
+        color: var(--builder-muted);
+        font-size: .78rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    #pillar-tabs .nav-link:hover {
+        color: var(--builder-primary);
+    }
+
+    #pillar-tabs .nav-link.active {
+        color: #fff;
+        background: var(--builder-primary);
+    }
+
+    .pillars-section .tab-content {
+        min-width: 0;
+        padding: 22px 4px 6px;
+    }
+
+    .pane-heading h3 {
+        margin: 0;
+        color: var(--builder-text);
+        font-size: .92rem;
+        font-weight: 800;
+    }
+
+    .category-question-list {
+        min-width: 0;
+    }
+
+    .question-card {
+        min-width: 0;
+        border-color: var(--builder-border);
+        border-radius: 10px;
+        background: var(--builder-surface);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+    }
+
+    .question-card .question-input {
+        flex: 1 1 auto;
+        min-width: 0;
+        min-height: 42px;
+        border-color: var(--builder-border);
+        border-radius: 8px;
+        font-size: .82rem;
+    }
+
+    .question-index {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         width: 30px;
         height: 30px;
-        place-items: center;
         border: 1px solid var(--builder-border);
         border-radius: 50%;
         color: var(--builder-muted);
@@ -162,31 +250,12 @@
         font-size: .7rem;
         font-variant-numeric: tabular-nums;
         font-weight: 800;
-        transform: translateY(-50%);
-        transition: color .2s ease, border-color .2s ease, background-color .2s ease;
     }
 
-    .question-row:focus-within .question-node {
+    .question-card:focus-within .question-index {
         border-color: #93c5fd;
         color: var(--builder-primary);
         background: #eff6ff;
-    }
-
-    .question-input {
-        width: 100%;
-        min-height: 44px;
-        resize: vertical;
-        border-color: var(--builder-border);
-        border-radius: 8px;
-        background: var(--builder-surface);
-        font-size: .82rem;
-    }
-
-    .question-control {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        direction: ltr;
     }
 
     .max-rating {
@@ -200,32 +269,26 @@
         display: inline-flex;
         align-items: center;
         gap: 5px;
-        padding: 7px 0;
-        border: 0;
+        padding: 6px 8px;
+        border-radius: 8px;
         color: var(--builder-muted);
-        background: transparent;
-        font-size: .75rem;
+        font-size: .74rem;
         font-weight: 700;
     }
 
-    .remove-question:hover { color: var(--builder-danger); }
+    .remove-question:hover {
+        color: var(--builder-danger);
+        background: rgba(220, 38, 38, .06);
+    }
+
     .remove-question i { font-size: .8rem; }
 
     .add-question-row {
         display: flex;
         align-items: center;
-        min-height: 54px;
-        border-top: 1px solid var(--builder-border);
-    }
-
-    .add-question-row::after {
-        position: absolute;
-        top: -1px;
-        right: -30px;
-        width: 30px;
-        height: 1px;
-        background: var(--builder-border);
-        content: '';
+        min-height: 48px;
+        border-top: 1px dashed var(--builder-border);
+        margin-top: 16px;
     }
 
     .add-question-button {
@@ -243,10 +306,12 @@
     .add-question-button:hover { color: #1d4ed8; }
     .add-question-button i { font-size: .8rem; }
 
-    .question-empty {
-        padding: 24px 0;
-        color: var(--builder-muted);
-        font-size: .8rem;
+    .editor-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+        gap: 32px;
+        align-items: start;
+        margin-top: 30px;
     }
 
     .dispatch-summary {
@@ -301,14 +366,19 @@
 
     @media (max-width: 575.98px) {
         .builder-header { align-items: flex-start; flex-direction: column; gap: 12px; }
-        .question-row { grid-template-columns: 1fr; gap: 4px; }
-        .question-control { justify-content: space-between; padding-left: 4px; }
-        .remove-question { justify-content: flex-start; }
+        .question-card { flex-wrap: wrap; }
+        .question-card .question-input { flex: 1 1 100%; order: 2; }
+        .question-card .question-index,
+        .question-card .max-rating,
+        .question-card .remove-question {
+            order: 1;
+        }
+        .remove-question { margin-inline-start: auto; }
         .editor-layout { gap: 24px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .question-node { transition: none; }
+        .question-index { transition: none; }
     }
 </style>
 {% endblock %}
@@ -318,7 +388,7 @@
     <header class="builder-header">
         <div>
             <h1>إنشاء تقييم أداء</h1>
-            <p>حدّد القسم ثم أضف أسئلة التقييم.</p>
+            <p>اختر الأقسام المستهدفة ثم أضف أسئلة كل محور من محاور التقييم بالترتيب المطلوب.</p>
         </div>
         <a href="{% url 'performance_dashboard' %}" class="back-link">
             <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
@@ -328,6 +398,7 @@
 
     <form method="post" novalidate id="evaluation-dispatch-form">
         {% csrf_token %}
+        {{ form.evaluation_type }}
         {% if form.non_field_errors %}
             <div class="alert alert-danger py-2" role="alert">{{ form.non_field_errors }}</div>
         {% endif %}
@@ -336,57 +407,98 @@
             <div class="builder-section-title">
                 <h2 id="metadata-heading">بيانات التقييم</h2>
             </div>
-            <div class="row g-3 mt-1">
-                <div class="col-lg-8">
+            <div class="row g-3 align-items-stretch mt-1">
+                <div class="col-lg-5 col-md-12">
                     <label for="id_title" class="form-label">عنوان التقييم</label>
                     {{ form.title }}
-                    <div id="title-error" class="field-error">{% if form.title.errors %}{{ form.title.errors }}{% endif %}</div>
+                    <div id="title-error" class="field-error" role="alert">{% if form.title.errors %}{{ form.title.errors }}{% endif %}</div>
                 </div>
-                <div class="col-lg-4">
-                    <label for="id_department_id" class="form-label">القسم المستهدف</label>
-                    {{ form.department_id }}
-                    <div id="department-error" class="field-error">{% if form.department_id.errors %}{{ form.department_id.errors }}{% endif %}</div>
+                <div class="col-lg-7 col-md-12 departments-dropdown">
+                    <label class="form-label d-block" for="department-dropdown-toggle">الأقسام المستهدفة</label>
+                    <div class="dropdown w-100">
+                        <button type="button" class="btn dropdown-toggle" id="department-dropdown-toggle"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                            <span id="department-dropdown-label">اختر الأقسام المستهدفة…</span>
+                            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                        </button>
+                        <div class="dropdown-menu departments-menu shadow-sm" aria-labelledby="department-dropdown-toggle">
+                            <div class="form-check d-flex align-items-center mb-3 pb-2 border-bottom">
+                                <input class="form-check-input me-2" type="checkbox" id="select-all-depts" aria-label="تحديد جميع الأقسام">
+                                <label class="form-check-label fw-bold text-primary" for="select-all-depts">
+                                    <i class="fa-solid fa-layer-group me-1" aria-hidden="true"></i>جميع الأقسام
+                                </label>
+                                <span class="ms-auto small fw-normal text-muted" id="department-selected-count" aria-live="polite"></span>
+                            </div>
+                            <div class="d-flex flex-column gap-2 ms-2">
+                                {% for department in departments %}
+                                <div class="form-check align-items-center" data-department-name="{{ department.name }}">
+                                    <input class="form-check-input dept-checkbox me-2" type="checkbox" name="departments"
+                                           value="{{ department.id }}" id="dept-{{ department.id }}"
+                                           {% if department.id|stringformat:"s" in selected_department_ids %}checked{% endif %}>
+                                    <label class="form-check-label" for="dept-{{ department.id }}">{{ department.name }}</label>
+                                </div>
+                                {% empty %}
+                                <small class="text-muted">لا توجد أقسام لديها موظفون نشطون.</small>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="department-error" class="field-error" role="alert">{% if form.departments.errors %}{{ form.departments.errors }}{% endif %}</div>
                 </div>
             </div>
         </section>
 
-        <div class="editor-layout">
-            <section class="question-editor" aria-labelledby="questions-heading">
-                <div class="builder-section-title">
-                    <h2 id="questions-heading">أسئلة التقييم</h2>
-                    <span id="question-count" aria-live="polite"></span>
-                </div>
-                <p class="section-description">أضف الأسئلة بالترتيب الذي سيظهر للموظفين.</p>
-
-                <div class="question-list" id="question-list" aria-live="polite">
-                    {% for value in question_values %}
-                    <fieldset class="question-row" data-question-row>
-                        <legend class="visually-hidden">السؤال {{ forloop.counter }}</legend>
-                        <span class="question-node" data-question-number aria-hidden="true">01</span>
-                        <textarea name="questions" class="form-control question-input" rows="1" placeholder="{% if forloop.first %}مثال: كيف تقيّم وضوح أهدافك خلال فترة التقييم؟{% else %}اكتب سؤال التقييم{% endif %}" aria-label="نص السؤال {{ forloop.counter|stringformat:'02d' }}">{{ value }}</textarea>
-                        <div class="question-control">
-                            <span class="max-rating" aria-label="أقصى تقييم 5">/5</span>
-                            <button type="button" class="remove-question" data-remove-question aria-label="حذف السؤال {{ forloop.counter|stringformat:'02d' }}">
+        <section class="pillars-section" aria-labelledby="pillars-heading">
+            <div class="builder-section-title">
+                <h2 id="pillars-heading">محاور التقييم والأسئلة</h2>
+                <span id="total-question-count" aria-live="polite"></span>
+            </div>
+            <ul class="nav nav-tabs nav-pills flex-wrap mb-3" id="pillar-tabs" role="tablist">
+                {% for tab in tab_builders %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if tab.category.code == active_type %}active{% endif %}"
+                            id="tab-{{ tab.category.code }}" data-code="{{ tab.category.code }}"
+                            data-bs-toggle="pill" data-bs-target="#pane-{{ tab.category.code }}"
+                            type="button" role="tab" aria-controls="pane-{{ tab.category.code }}"
+                            aria-selected="{% if tab.category.code == active_type %}true{% else %}false{% endif %}">
+                        {{ tab.category.name }}
+                    </button>
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="tab-content" id="pillar-tabs-content">
+                {% for tab in tab_builders %}
+                <div class="tab-pane fade {% if tab.category.code == active_type %}show active{% endif %}"
+                     id="pane-{{ tab.category.code }}" role="tabpanel" aria-labelledby="tab-{{ tab.category.code }}">
+                    <div class="pane-heading d-flex align-items-center justify-content-between gap-2 mb-1">
+                        <h3>أسئلة {{ tab.category.name }}</h3>
+                        <span class="badge text-bg-light border fw-semibold" data-tab-count>0 سؤال</span>
+                    </div>
+                    <p class="section-description mb-3">أضف الأسئلة بالترتيب الذي سيظهر للموظفين.</p>
+                    <div class="category-question-list d-flex flex-column" data-category="{{ tab.category.code }}">
+                        {% for value in tab.values %}
+                        <div class="question-card d-flex align-items-center gap-2 mb-2 p-2" data-question-row>
+                            <span class="question-index flex-shrink-0" data-question-number aria-hidden="true">01</span>
+                            <input type="text" name="questions_{{ tab.category.code }}[]" class="form-control question-input"
+                                   placeholder="اكتب سؤال التقييم..." value="{{ value }}" aria-label="نص السؤال">
+                            <span class="max-rating flex-shrink-0" aria-label="أقصى تقييم 5">/5</span>
+                            <button type="button" class="btn remove-question flex-shrink-0" data-remove-question aria-label="حذف السؤال">
                                 <i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>حذف السؤال</span>
                             </button>
                         </div>
-                    </fieldset>
-                    {% endfor %}
-                    <div class="question-empty" id="question-empty" hidden>
-                        لا توجد أسئلة في التقييم بعد.
-                        <button type="button" class="add-question-button" data-add-question-empty>
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i> إضافة السؤال الأول
-                        </button>
-                    </div>
-                    <div class="add-question-row">
-                        <button type="button" class="add-question-button" data-add-question>
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i> إضافة سؤال آخر
-                        </button>
+                        {% endfor %}
+                        <div class="add-question-row">
+                            <button type="button" class="add-question-button" data-add-question>
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i> إضافة سؤال آخر
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div id="question-error" class="question-errors" role="alert"></div>
-            </section>
+                {% endfor %}
+            </div>
+        </section>
 
+        <div class="editor-layout">
             <aside class="dispatch-summary" aria-labelledby="summary-heading">
                 <h2 id="summary-heading">ملخص الإرسال</h2>
                 <div class="summary-item">
@@ -394,7 +506,11 @@
                     <span class="summary-value" id="summary-title">—</span>
                 </div>
                 <div class="summary-item">
-                    <span class="summary-label">القسم</span>
+                    <span class="summary-label">المحور الرئيسي</span>
+                    <span class="summary-value" id="summary-type">—</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">الأقسام المستهدفة</span>
                     <span class="summary-value" id="summary-department">—</span>
                 </div>
                 <div class="summary-item">
@@ -416,15 +532,16 @@
             <div class="modal-header border-0 pb-0">
                 <h2 class="modal-title fs-5 fw-bold" id="bulk-send-modal-label">
                     <i class="fa-solid fa-paper-plane text-primary me-2" aria-hidden="true"></i>
-                    إرسال التقييم إلى القسم؟
+                    إرسال التقييم إلى الأقسام؟
                 </h2>
                 <button type="button" class="btn-close ms-0" data-bs-dismiss="modal" aria-label="إغلاق"></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted small mb-3">سيُنشأ هذا التقييم لموظفي القسم المحدد.</p>
+                <p class="text-muted small mb-3">سيُنشأ هذا التقييم لموظفي الأقسام المحددة.</p>
                 <dl class="row small mb-0">
                     <dt class="col-5 text-muted">عنوان التقييم</dt><dd class="col-7 fw-bold" id="modal-title">—</dd>
-                    <dt class="col-5 text-muted mt-2">القسم</dt><dd class="col-7 fw-bold mt-2" id="modal-department">—</dd>
+                    <dt class="col-5 text-muted mt-2">المحور الرئيسي</dt><dd class="col-7 fw-bold mt-2" id="modal-type">—</dd>
+                    <dt class="col-5 text-muted mt-2">الأقسام</dt><dd class="col-7 fw-bold mt-2" id="modal-department">—</dd>
                     <dt class="col-5 text-muted mt-2">عدد الأسئلة</dt><dd class="col-7 fw-bold mt-2" id="modal-question-count">—</dd>
                 </dl>
                 <div id="modal-error" class="text-danger small mt-3" role="alert"></div>
@@ -444,21 +561,23 @@
 <script>
 (function () {
     const form = document.getElementById('evaluation-dispatch-form');
-    const questionList = document.getElementById('question-list');
-    const questionEmpty = document.getElementById('question-empty');
-    const questionCount = document.getElementById('question-count');
     const summaryTitle = document.getElementById('summary-title');
+    const summaryType = document.getElementById('summary-type');
     const summaryDepartment = document.getElementById('summary-department');
     const summaryQuestionCount = document.getElementById('summary-question-count');
+    const totalQuestionCount = document.getElementById('total-question-count');
     const reviewButton = document.getElementById('review-submit');
     const confirmButton = document.getElementById('confirm-submit');
     const modalError = document.getElementById('modal-error');
     const sendModal = new bootstrap.Modal(document.getElementById('bulk-send-modal'));
+    const departmentFields = Array.from(document.querySelectorAll('.dept-checkbox'));
+    const allDepartmentsToggle = document.getElementById('select-all-depts');
+    const departmentDropdownLabel = document.getElementById('department-dropdown-label');
+    const departmentPanelCount = document.getElementById('department-selected-count');
+    const typeInput = document.getElementById('id_evaluation_type');
+    const categoryLists = Array.from(document.querySelectorAll('.category-question-list'));
+    const tabLinks = Array.from(document.querySelectorAll('#pillar-tabs .nav-link'));
     let confirmed = false;
-
-    function getRows() {
-        return Array.from(questionList.querySelectorAll('[data-question-row]'));
-    }
 
     function countLabel(count) {
         if (count === 1) return '1 سؤال';
@@ -466,52 +585,118 @@
         return count + ' أسئلة';
     }
 
-    function updateSummary() {
-        const rows = getRows();
-        const title = document.getElementById('id_title').value.trim();
-        const department = document.getElementById('id_department_id');
-        const departmentName = department.value ? department.options[department.selectedIndex].text : '';
-        const validCount = rows.filter(row => row.querySelector('.question-input').value.trim()).length;
-        const label = countLabel(validCount);
-        summaryTitle.textContent = title || '—';
-        summaryDepartment.textContent = departmentName || '—';
-        summaryQuestionCount.textContent = validCount ? label : '—';
-        questionCount.textContent = validCount ? label : '0 سؤال';
+    function countLabelShort(count) {
+        return count + ' سؤال';
     }
 
-    function renumberQuestions() {
-        const rows = getRows();
-        rows.forEach(function (row, index) {
+    function rowsIn(list) {
+        return Array.from(list.querySelectorAll('[data-question-row]'));
+    }
+
+    function filledIn(list) {
+        return rowsIn(list).filter(function (row) {
+            return row.querySelector('.question-input').value.trim();
+        });
+    }
+
+    function renumber(list) {
+        rowsIn(list).forEach(function (row, index) {
             const number = String(index + 1).padStart(2, '0');
             row.querySelector('[data-question-number]').textContent = number;
-            row.querySelector('legend').textContent = 'السؤال ' + number;
             row.querySelector('.question-input').setAttribute('aria-label', 'نص السؤال ' + number);
             row.querySelector('[data-remove-question]').setAttribute('aria-label', 'حذف السؤال ' + number);
         });
-        questionEmpty.hidden = rows.length > 0;
-        updateSummary();
     }
 
-    function addQuestion(value) {
-        const row = document.createElement('fieldset');
-        row.className = 'question-row';
+    function updateCounts() {
+        let total = 0;
+        categoryLists.forEach(function (list) {
+            const count = filledIn(list).length;
+            total += count;
+            const badge = list.closest('.tab-pane').querySelector('[data-tab-count]');
+            if (badge) badge.textContent = countLabelShort(count);
+            renumber(list);
+        });
+        summaryQuestionCount.textContent = total ? countLabel(total) : '—';
+        totalQuestionCount.textContent = total ? countLabel(total) : '0 سؤال';
+    }
+
+    function selectedDepartments() {
+        return departmentFields.filter(function (box) { return box.checked; });
+    }
+
+    function departmentSummaryLabel() {
+        const selected = selectedDepartments();
+        if (!selected.length) return 'اختر الأقسام المستهدفة…';
+        const allSelected = departmentFields.length > 0 && selected.length === departmentFields.length;
+        if (allSelected) return 'جميع الأقسام (' + selected.length + ')';
+        return selected.map(function (box) {
+            return box.closest('[data-department-name]').dataset.departmentName;
+        }).join('، ');
+    }
+
+    function updateDepartmentsSummary() {
+        const selected = selectedDepartments();
+        allDepartmentsToggle.checked = departmentFields.length > 0 && selected.length === departmentFields.length;
+        departmentPanelCount.textContent = selected.length ? '(' + selected.length + ' مختار)' : '';
+        departmentDropdownLabel.textContent = departmentSummaryLabel();
+        summaryDepartment.textContent = selected.length ? departmentSummaryLabel() : '—';
+    }
+
+    function syncActiveType() {
+        const active = tabLinks.find(function (link) { return link.classList.contains('active'); }) || tabLinks[0];
+        if (!active) return;
+        typeInput.value = active.dataset.code;
+        summaryType.textContent = active.textContent.trim();
+    }
+
+    function updateSummary() {
+        const title = document.getElementById('id_title').value.trim();
+        summaryTitle.textContent = title || '—';
+        syncActiveType();
+        updateDepartmentsSummary();
+        updateCounts();
+    }
+
+    function createQuestionRow(code, value) {
+        const row = document.createElement('div');
+        row.className = 'question-card d-flex align-items-center gap-2 mb-2 p-2';
         row.setAttribute('data-question-row', '');
-        row.innerHTML = '<legend class="visually-hidden"></legend>' +
-            '<span class="question-node" data-question-number aria-hidden="true"></span>' +
-            '<textarea name="questions" class="form-control question-input" rows="1" placeholder="اكتب سؤال التقييم"></textarea>' +
-            '<div class="question-control"><span class="max-rating" aria-label="أقصى تقييم 5">/5</span>' +
-            '<button type="button" class="remove-question" data-remove-question><i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>حذف السؤال</span></button></div>';
+        row.innerHTML =
+            '<span class="question-index flex-shrink-0" data-question-number aria-hidden="true">01</span>' +
+            '<input type="text" name="questions_' + code + '[]" class="form-control question-input" placeholder="اكتب سؤال التقييم..." aria-label="نص السؤال">' +
+            '<span class="max-rating flex-shrink-0" aria-label="أقصى تقييم 5">/5</span>' +
+            '<button type="button" class="btn remove-question flex-shrink-0" data-remove-question aria-label="حذف السؤال">' +
+            '<i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>حذف السؤال</span></button>';
         row.querySelector('.question-input').value = value || '';
-        questionList.insertBefore(row, questionList.querySelector('.add-question-row'));
-        renumberQuestions();
+        return row;
+    }
+
+    function addRowFor(addButton) {
+        const pane = addButton.closest('.tab-pane');
+        const list = pane.querySelector('.category-question-list');
+        const code = list.dataset.category;
+        const row = createQuestionRow(code);
+        list.appendChild(row);
         row.querySelector('.question-input').focus();
+        updateCounts();
+    }
+
+    function removeRow(row) {
+        const list = row.closest('.category-question-list');
+        const previous = row.previousElementSibling;
+        row.remove();
+        updateCounts();
+        if (previous && previous.matches('[data-question-row]')) {
+            previous.querySelector('.question-input').focus();
+        } else {
+            const input = list.querySelector('.question-input');
+            if (input) input.focus();
+        }
     }
 
     function validateBeforeReview() {
         const title = document.getElementById('id_title');
-        const department = document.getElementById('id_department_id');
-        const rows = getRows();
-        const firstQuestion = rows.find(row => row.querySelector('.question-input').value.trim());
         const titleError = document.getElementById('title-error');
         const departmentError = document.getElementById('department-error');
         const questionError = document.getElementById('question-error');
@@ -519,7 +704,6 @@
         departmentError.textContent = '';
         questionError.textContent = '';
         title.removeAttribute('aria-describedby');
-        department.removeAttribute('aria-describedby');
 
         if (!title.value.trim()) {
             titleError.textContent = 'أدخل عنواناً واضحاً للتقييم.';
@@ -527,15 +711,17 @@
             title.focus();
             return false;
         }
-        if (!department.value) {
-            departmentError.textContent = 'اختر القسم الذي سيُرسل إليه التقييم.';
-            department.setAttribute('aria-describedby', 'department-error');
-            department.focus();
+        if (!selectedDepartments().length) {
+            departmentError.textContent = 'اختر قسماً واحداً على الأقل أو فعّل خيار جميع الأقسام.';
+            const firstBox = departmentFields[0];
+            if (firstBox) firstBox.focus();
+            else allDepartmentsToggle.focus();
             return false;
         }
-        if (!firstQuestion) {
+        const hasAnyQuestion = categoryLists.some(function (list) { return filledIn(list).length > 0; });
+        if (!hasAnyQuestion) {
             questionError.textContent = 'أضف سؤال تقييم واحداً على الأقل.';
-            const firstInput = rows[0] && rows[0].querySelector('.question-input');
+            const firstInput = document.querySelector('.category-question-list .question-input');
             if (firstInput) firstInput.focus();
             return false;
         }
@@ -544,32 +730,42 @@
 
     function openReview() {
         if (!validateBeforeReview()) return;
+        syncActiveType();
         document.getElementById('modal-title').textContent = summaryTitle.textContent;
+        document.getElementById('modal-type').textContent = summaryType.textContent;
         document.getElementById('modal-department').textContent = summaryDepartment.textContent;
         document.getElementById('modal-question-count').textContent = summaryQuestionCount.textContent;
         modalError.textContent = '';
         sendModal.show();
     }
 
-    questionList.addEventListener('click', function (event) {
+    form.addEventListener('click', function (event) {
         const removeButton = event.target.closest('[data-remove-question]');
-        if (!removeButton) return;
-        const row = removeButton.closest('[data-question-row]');
-        const previous = row.previousElementSibling && row.previousElementSibling.matches('[data-question-row]')
-            ? row.previousElementSibling.querySelector('.question-input') : null;
-        row.remove();
-        renumberQuestions();
-        if (previous) previous.focus();
-        else if (!getRows().length) questionList.querySelector('[data-add-question-empty]').focus();
+        if (removeButton) {
+            const row = removeButton.closest('[data-question-row]');
+            if (row) removeRow(row);
+            return;
+        }
+        const addButton = event.target.closest('[data-add-question]');
+        if (addButton) addRowFor(addButton);
     });
 
-    questionList.addEventListener('click', function (event) {
-        if (event.target.closest('[data-add-question]') || event.target.closest('[data-add-question-empty]')) addQuestion();
+    form.addEventListener('input', function (event) {
+        if (event.target.matches('.question-input')) updateCounts();
+        if (event.target.id === 'id_title') updateSummary();
     });
 
-    questionList.addEventListener('input', updateSummary);
-    document.getElementById('id_title').addEventListener('input', updateSummary);
-    document.getElementById('id_department_id').addEventListener('change', updateSummary);
+    document.getElementById('pillar-tabs').addEventListener('shown.bs.tab', function () {
+        updateSummary();
+    });
+
+    allDepartmentsToggle.addEventListener('change', function () {
+        departmentFields.forEach(function (box) { box.checked = allDepartmentsToggle.checked; });
+        updateDepartmentsSummary();
+    });
+    departmentFields.forEach(function (box) {
+        box.addEventListener('change', updateDepartmentsSummary);
+    });
     reviewButton.addEventListener('click', openReview);
 
     form.addEventListener('submit', function (event) {
@@ -584,7 +780,7 @@
     });
 
     confirmButton.addEventListener('click', function () { confirmed = true; });
-    renumberQuestions();
+    updateSummary();
 })();
 </script>
 {% endblock %}

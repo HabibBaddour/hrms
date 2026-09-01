@@ -1,6 +1,12 @@
 from django.db import models
 
 class PerformanceEvaluation(models.Model):
+    EVALUATION_TYPES = (
+        ('COMPETENCIES', 'المهارات الوظيفية وجودة العمل (Job Competencies)'),
+        ('BEHAVIORAL', 'السلوك والالتزام التنظيمي (Behavioral & Discipline)'),
+        ('KPI_PRODUCTIVITY', 'الأهداف والإنتاجية (KPIs & Productivity)'),
+        ('INITIATIVE_GROWTH', 'التطوير والمبادرة (Initiative & Growth)'),
+    )
     PERIOD_TYPES = (
         ('ANNUAL', 'سنوي'),
         ('SEMI_ANNUAL', 'نصف سنوي'),
@@ -11,6 +17,12 @@ class PerformanceEvaluation(models.Model):
     )
     # تم استبدال الاستيراد المباشر بالمرجع النصي 'employees.Employee'
     title = models.CharField(max_length=255, default='تقييم أداء', verbose_name="عنوان التقييم")
+    evaluation_type = models.CharField(
+        max_length=30,
+        choices=EVALUATION_TYPES,
+        default='COMPETENCIES',
+        verbose_name='نوع التقييم / المحور الرئيسي',
+    )
     employee = models.ForeignKey('employees.Employee', on_delete=models.CASCADE, related_name='evaluations', verbose_name="الموظف")
     evaluator = models.ForeignKey('employees.Employee', on_delete=models.SET_NULL, null=True, related_name='given_evaluations', verbose_name="المقيِّم (المدير)")
     evaluation_date = models.DateField(auto_now_add=True, verbose_name="تاريخ التقييم")
@@ -27,6 +39,13 @@ class PerformanceEvaluation(models.Model):
         default=list,
         blank=True,
         verbose_name="أسئلة التقييم",
+    )
+
+    departments = models.ManyToManyField(
+        'departments.Department',
+        blank=True,
+        related_name='performance_evaluations',
+        verbose_name="الأقسام المستهدفة",
     )
 
     feedback = models.TextField(blank=True, verbose_name="ملاحظات المدير")
@@ -67,3 +86,65 @@ class PerformanceEvaluation(models.Model):
 
     def __str__(self):
         return f"تقييم {self.employee} - {self.period}"
+
+
+class QuestionCategory(models.Model):
+    """أحد محاور تقييم الأداء التي تُبنى ضمنها الأسئلة."""
+
+    code = models.CharField(
+        max_length=30,
+        unique=True,
+        verbose_name='رمز المحور',
+    )
+    name = models.CharField(max_length=120, verbose_name='اسم المحور')
+    order = models.PositiveSmallIntegerField(
+        default=0,
+        verbose_name='الترتيب',
+    )
+
+    class Meta:
+        ordering = ('order', 'pk')
+        verbose_name = 'محور تقييم'
+        verbose_name_plural = 'محاور التقييم'
+
+    def __str__(self):
+        return self.name
+
+
+class PerformanceQuestion(models.Model):
+    """سؤال تقييم مرتبط بمحور محدد وبسجل التقييم الرئيسي."""
+
+    evaluation = models.ForeignKey(
+        PerformanceEvaluation,
+        on_delete=models.CASCADE,
+        related_name='questions',
+        verbose_name='التقييم',
+    )
+    category = models.ForeignKey(
+        QuestionCategory,
+        on_delete=models.PROTECT,
+        related_name='questions',
+        verbose_name='المحور',
+    )
+    text = models.CharField(max_length=500, verbose_name='نص السؤال')
+    max_score = models.PositiveSmallIntegerField(
+        default=5,
+        verbose_name='الدرجة القصوى',
+    )
+    order = models.PositiveSmallIntegerField(
+        default=0,
+        verbose_name='الترتيب',
+    )
+    rating = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='التقييم',
+    )
+
+    class Meta:
+        ordering = ('order', 'pk')
+        verbose_name = 'سؤال تقييم'
+        verbose_name_plural = 'أسئلة التقييم'
+
+    def __str__(self):
+        return f'{self.category.name}: {self.text[:50]}'

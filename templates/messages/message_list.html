@@ -65,6 +65,14 @@
     .message-reader-modal .modal-header { background:radial-gradient(420px 200px at 85% -30%, rgba(23,176,167,.4), transparent 60%), linear-gradient(120deg,#1B1442,#4A3AB8 55%,#6153E4); color:#fff; }
     .message-reader-modal .modal-title { color:#fff; font-weight:800; }
     .message-reader-body { min-height:210px; padding:18px; color:#3A3552; background:#FAF9FE; border:1px solid #ECEAF6; border-radius:14px; line-height:1.9; white-space:pre-wrap; }
+    .message-reader-body mark { background-color: transparent; color: inherit; padding: 0; }
+    .message-reader-body mark.highlight-yellow { background: #FEF08A; color: #713f12; }
+    .message-reader-body mark.highlight-blue { background: #BFDBFE; color: #453AA0; }
+    .message-reader-body mark.highlight-green { background: #BBF7D0; color: #166534; }
+    .message-reader-body mark.highlight-red { background: #FECDD3; color: #9f1239; }
+    .message-reader-body .important-text, .message-reader-body .important-mark { display: inline; padding: 2px 6px; color: #92400e; background: #fef3c7; border-bottom: 2px solid #f59e0b; border-radius: 5px; }
+    .message-reader-body .mention, .message-reader-body .mention-badge { display: inline-block; padding: 0 8px; color: #4A3AB8; background: #E4E1FB; border-radius: 999px; font-weight: 500; white-space: nowrap; }
+    .message-reader-body .mention-badge { border-radius: 6px; font-weight: 700; padding: 0 6px; }
     .message-reader-meta { color:#6E6A86; font-size:.78rem; }
     .message-reader-meta span[id] { font-weight:700; color:#2B2545; }
     .reader-kpi { padding:6px 12px; border:1px solid #ECEAF6; border-radius:999px; color:#4A4560; background:#F6F4FB; font-size:.74rem; font-weight:800; }
@@ -197,7 +205,7 @@
                         </div>
                         <div id="message-body-{{ message.id }}" class="message-body-preview">{{ message.body|safe }}</div>
                         <div id="message-recipients-{{ message.id }}" class="message-body-preview">
-                            {% for recipient in message.group_recipients %}<div class="recipient-status-row {% if recipient.is_read %}recipient-is-read{% else %}recipient-is-unread{% endif %}" data-department="{{ recipient.department_id }}" data-role="{{ recipient.role }}" data-status="{% if recipient.is_read %}read{% else %}unread{% endif %}" title="{% if recipient.is_read and recipient.read_at %}تمت القراءة: {{ recipient.read_at|date:'Y-m-d H:i:s' }}{% else %}لم تتم القراءة بعد{% endif %}"><span class="recipient-status-badge" aria-hidden="true"><i class="fa-solid {% if recipient.is_read %}fa-check{% else %}fa-circle{% endif %}"></i></span><span class="recipient-status-name">{{ recipient.name }}</span>{% if recipient.department_code %}<small class="department-code">{{ recipient.department_code }}</small>{% endif %}</div>{% endfor %}
+                            {% if message.sender == request.user or request.user.is_superuser or user_role == 'HR Admin' or user_role == 'HR' %}{% for recipient in message.group_recipients %}<div class="recipient-status-row {% if recipient.is_read %}recipient-is-read{% else %}recipient-is-unread{% endif %}" data-department="{{ recipient.department_id }}" data-role="{{ recipient.role }}" data-status="{% if recipient.is_read %}read{% else %}unread{% endif %}" title="{% if recipient.is_read and recipient.read_at %}تمت القراءة: {{ recipient.read_at|date:'Y-m-d H:i:s' }}{% else %}لم تتم القراءة بعد{% endif %}"><span class="recipient-status-badge" aria-hidden="true"><i class="fa-solid {% if recipient.is_read %}fa-check{% else %}fa-circle{% endif %}"></i></span><span class="recipient-status-name">{{ recipient.name }}</span>{% if recipient.department_code %}<small class="department-code">{{ recipient.department_code }}</small>{% endif %}</div>{% endfor %}{% endif %}
                         </div>
                     </td>
                     <td class="small">
@@ -212,7 +220,7 @@
                         {% endif %}
                     </td>
                     <td class="text-center row-actions">
-                        <button type="button" class="btn btn-sm btn-light border read-message-button" title="عرض التفاصيل" data-bs-toggle="modal" data-bs-target="#messageReaderModal" data-message-id="{{ message.id }}" data-subject="{{ message.subject|striptags }}" data-sender="{{ message.sender.get_full_name|default:message.sender.username }}" data-recipient="{{ message.recipient.get_full_name|default:message.recipient.username }}" data-date="{{ message.created_at|date:'Y-m-d H:i' }}" data-read="{% if message.is_read %}مقروءة{% else %}غير مقروءة{% endif %}">
+                        <button type="button" class="btn btn-sm btn-light border read-message-button" title="عرض التفاصيل" data-bs-toggle="modal" data-bs-target="#messageReaderModal" data-message-id="{{ message.id }}" data-subject="{{ message.subject|striptags }}" data-sender="{{ message.sender.get_full_name|default:message.sender.username }}" data-recipient="{{ message.recipient.get_full_name|default:message.recipient.username }}" data-date="{{ message.created_at|date:'Y-m-d H:i' }}" data-read="{% if message.is_read %}مقروءة{% else %}غير مقروءة{% endif %}" data-can-analytics="{% if message.sender == request.user or request.user.is_superuser or user_role == 'HR Admin' or user_role == 'HR' %}true{% else %}false{% endif %}">
                             <i class="fa-solid fa-eye" style="color:#6153E4;"></i>
                         </button>
                         <a href="{% url 'message_delete' message.id %}" class="btn btn-sm btn-light border" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذه الرسالة؟')">
@@ -249,7 +257,7 @@
                     <span id="readerStatus" class="badge bg-secondary-subtle text-secondary"></span>
                 </div>
                 <div id="readerBody" class="message-reader-body"></div>
-                <div class="mt-4">
+                <div class="mt-4" id="readerAnalyticsSection">
                     <h6 class="fw-bold mb-2"><i class="fa-solid fa-users ms-1 text-primary"></i>قائمة المستلمين وحالة الاستلام</h6>
                     <div class="reader-analytics" aria-live="polite">
                         <span id="readerTotal" class="reader-kpi">إجمالي المستلمين: 0</span>
@@ -275,6 +283,7 @@
 
 <script>
 const readerFilters = ['readerDepartmentFilter', 'readerRoleFilter', 'readerStatusFilter'];
+let readerAnalyticsVisible = false;
 
 function updateReaderAnalytics() {
     const recipients = Array.from(document.querySelectorAll('#readerRecipients .recipient-status-row'));
@@ -301,7 +310,9 @@ function updateReaderAnalytics() {
     document.getElementById('readerTotal').textContent = `إجمالي المستلمين: ${visible}`;
     document.getElementById('readerRead').textContent = `تمت القراءة: ${read} (${readPercent}%)`;
     document.getElementById('readerUnread').textContent = `غير مقروءة: ${unread} (${unreadPercent}%)`;
-    document.getElementById('readerRecipient').textContent = `عدد المستلمين: ${visible}`;
+    if (readerAnalyticsVisible) {
+        document.getElementById('readerRecipient').textContent = `عدد المستلمين: ${visible}`;
+    }
 }
 
 readerFilters.forEach(filterId => {
@@ -313,13 +324,16 @@ document.querySelectorAll('.read-message-button').forEach(button => {
         const messageId = this.dataset.messageId;
         const body = document.getElementById(`message-body-${messageId}`);
         const recipients = document.getElementById(`message-recipients-${messageId}`);
+        const canAnalytics = this.dataset.canAnalytics === 'true';
+        readerAnalyticsVisible = canAnalytics;
+        document.getElementById('readerAnalyticsSection').hidden = !canAnalytics;
         document.getElementById('readerSubject').textContent = this.dataset.subject;
         document.getElementById('readerSender').textContent = `من: ${this.dataset.sender}`;
-        document.getElementById('readerRecipient').textContent = `عدد المستلمين: ${recipients ? recipients.children.length : 0}`;
+        document.getElementById('readerRecipient').textContent = canAnalytics ? `عدد المستلمين: ${recipients ? recipients.children.length : 0}` : `المستلم: ${this.dataset.recipient}`;
         document.getElementById('readerDate').textContent = this.dataset.date;
         document.getElementById('readerStatus').textContent = this.dataset.read;
         document.getElementById('readerBody').innerHTML = body ? body.innerHTML : '';
-        document.getElementById('readerRecipients').innerHTML = recipients ? recipients.innerHTML : '';
+        document.getElementById('readerRecipients').innerHTML = canAnalytics && recipients ? recipients.innerHTML : '';
         readerFilters.forEach(filterId => { document.getElementById(filterId).value = ''; });
         updateReaderAnalytics();
         document.getElementById('readerDelete').href = `/dashboard/messages/${messageId}/delete/`;

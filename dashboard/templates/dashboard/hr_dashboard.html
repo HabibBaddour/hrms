@@ -160,7 +160,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4 hr-dash">
+<div class="container-fluid px-4 py-3 d-flex flex-column min-vh-100 hr-dash">
 
     <div class="hero-band">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
@@ -176,7 +176,7 @@
         </div>
     </div>
 
-    <div class="row g-3 mb-4">
+    <div class="row g-4 mb-4">
         <div class="col-md-6 col-xl-3">
             <a href="{% url 'employees:employee_list' %}" class="stat-card stat-violet">
                 <div class="d-flex align-items-start justify-content-between mb-3">
@@ -219,7 +219,7 @@
         </div>
     </div>
 
-    <div class="row g-3 mb-4">
+    <div class="row g-4 mb-4">
         <div class="col-sm-6 col-xl-3">
             <div class="mini-kpi">
                 <i class="fa-solid fa-star" style="background: rgba(242,180,76,.18); color: #C08A25;"></i>
@@ -246,11 +246,11 @@
         </div>
     </div>
 
-    <div class="row g-3 mb-4">
+    <div class="row g-4 mb-4">
         <div class="col-12">
             <div class="panel">
                 <div class="panel-title"><i class="fa-solid fa-bolt"></i> إجراءات سريعة</div>
-                <div class="row g-3">
+                <div class="row g-4">
                     <div class="col-md-6 col-xl-4">
                         <a href="{% url 'employees:add_employee_wizard' %}" class="action-tile act-violet">
                             <span class="act-icon"><i class="fa-solid fa-user-plus"></i></span>
@@ -292,8 +292,8 @@
         </div>
     </div>
 
-    <div class="row g-3 mb-4">
-        <div class="col-lg-6">
+    <div class="row g-4 mb-4">
+        <div class="col-12">
             <div class="panel">
                 <div class="panel-title"><i class="fa-solid fa-chart-simple"></i> توزيع الإجازات حسب النوع — {{ today_ar|slice:"-4:" }}</div>
                 {% for item in leave_breakdown %}
@@ -306,22 +306,9 @@
                 {% endfor %}
             </div>
         </div>
-        <div class="col-lg-6">
-            <div class="panel">
-                <div class="panel-title"><i class="fa-solid fa-ranking-star"></i> الأقسام الأكثر موظفين</div>
-                {% for dept in top_departments %}
-                <div class="bar-row">
-                    <div class="bar-head"><span>{{ dept.name }}</span><span class="bar-count bc-{% cycle '1' '2' '3' '4' '5' %}">{{ dept.headcount }}</span></div>
-                    <div class="bar-track"><div class="bar-fill bf-{% cycle '1' '2' '3' '4' '5' %}" data-width="{% widthratio dept.headcount max_dept_headcount 100 %}"></div></div>
-                </div>
-                {% empty %}
-                <div class="empty-mini"><i class="fa-regular fa-building"></i>لم يتم إنشاء أقسام بعد</div>
-                {% endfor %}
-            </div>
-        </div>
     </div>
 
-    <div class="row g-3">
+    <div class="row g-4">
         <div class="col-lg-7">
             <div class="panel">
                 <div class="d-flex justify-content-between align-items-center mb-2">
@@ -347,7 +334,7 @@
             </div>
         </div>
         <div class="col-lg-5">
-            <div class="panel mb-3">
+            <div class="panel">
                 <div class="panel-title"><i class="fa-solid fa-file-circle-exclamation"></i> عقود تنتهي قريباً</div>
                 {% for contract in contracts_soon %}
                 <div class="side-row">
@@ -360,20 +347,6 @@
                 </div>
                 {% empty %}
                 <div class="empty-mini"><i class="fa-regular fa-circle-check"></i>لا توجد عقود على وشك الانتهاء خلال 60 يوماً</div>
-                {% endfor %}
-            </div>
-            <div class="panel">
-                <div class="panel-title"><i class="fa-solid fa-cake-candles"></i> أعياد ميلاد {{ month_name }}</div>
-                {% for bd in birthdays %}
-                <div class="side-row">
-                    <span class="act-bubble tn-teal" style="width:34px;height:34px;font-size:0.78rem;"><i class="fa-solid fa-gift"></i></span>
-                    <span>
-                        <b style="font-size: 0.85rem; color: #2B2545;">{{ bd.name }}</b>
-                        <small class="d-block text-muted" style="font-size: 0.73rem;">{{ bd.day }} {{ bd.month_name }}</small>
-                    </span>
-                </div>
-                {% empty %}
-                <div class="empty-mini"><i class="fa-regular fa-face-smile"></i>لا أعياد ميلاد هذا الشهر</div>
                 {% endfor %}
             </div>
         </div>

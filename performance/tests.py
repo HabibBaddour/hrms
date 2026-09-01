@@ -4,10 +4,25 @@ from django.urls import reverse
 
 from departments.models import Department, Position
 from employees.models import Employee
-from performance.models import PerformanceEvaluation
+from performance.forms import EvaluationDispatchForm
+from performance.models import PerformanceEvaluation, PerformanceQuestion, QuestionCategory
 
 
 class EvaluationDispatchTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.categories = [
+            QuestionCategory.objects.create(
+                code=code, name=name, order=order,
+            )
+            for code, name, order in [
+                ('COMPETENCIES', 'المهارات الوظيفية وجودة العمل', 1),
+                ('BEHAVIORAL', 'السلوك والالتزام التنظيمي', 2),
+                ('KPI_PRODUCTIVITY', 'الأهداف والإنتاجية', 3),
+                ('INITIATIVE_GROWTH', 'التطوير والمبادرة', 4),
+            ]
+        ]
+
     def setUp(self):
         self.hr_user = get_user_model().objects.create_user(
             username='hr-admin',
@@ -41,16 +56,15 @@ class EvaluationDispatchTests(TestCase):
         )
 
     def _post_dispatch(self, questions=None):
-        from django.http import QueryDict
-
-        data = QueryDict('', mutable=True)
-        data['title'] = 'تقييم الأداء النصف سنوي 2026'
-        data['department_id'] = str(self.department.pk)
-        data.setlist('questions', questions or [
-            'الالتزام بمواعيد تسليم المهام',
-            'جودة التعاون مع الفريق',
-        ])
-        return self.client.post(reverse('add_evaluation'), data)
+        return self.client.post(reverse('add_evaluation'), {
+            'title': 'تقييم الأداء النصف سنوي 2026',
+            'evaluation_type': 'COMPETENCIES',
+            'departments': [str(self.department.pk)],
+            'questions_COMPETENCIES': list(questions or [
+                'الالتزام بمواعيد تسليم المهام',
+                'جودة التعاون مع الفريق',
+            ]),
+        })
 
     def test_dispatch_creates_one_draft_per_active_employee_with_head_evaluator(self):
         head = self._employee('department-head', position=self.head_position)
@@ -74,11 +88,133 @@ class EvaluationDispatchTests(TestCase):
         self.assertEqual(
             evaluations.first().question_schema,
             [
-                {'text': 'الالتزام بمواعيد تسليم المهام', 'max_rating': 5, 'rating': None},
-                {'text': 'جودة التعاون مع الفريق', 'max_rating': 5, 'rating': None},
+                {'category': 'COMPETENCIES', 'text': 'الالتزام بمواعيد تسليم المهام', 'max_rating': 5, 'rating': None},
+                {'category': 'COMPETENCIES', 'text': 'جودة التعاون مع الفريق', 'max_rating': 5, 'rating': None},
             ],
         )
+        self.assertEqual(
+            list(evaluations.first().questions.values_list('category__code', 'text')),
+            [('COMPETENCIES', 'الالتزام بمواعيد تسليم المهام'), ('COMPETENCIES', 'جودة التعاون مع الفريق')],
+        )
         self.assertTrue(all(item.overall_score == 0 for item in evaluations))
+        self.assertTrue(all(item.evaluation_type == 'COMPETENCIES' for item in evaluations))
+
+    def test_dispatch_saves_selected_evaluation_type(self):
+        self._employee('department-head', position=self.head_position)
+        self._employee('employee-one')
+        self.client.force_login(self.hr_user)
+
+        response = self.client.post(reverse('add_evaluation'), {
+            'title': 'تقييم الأداء الربع ثاني',
+            'evaluation_type': 'KPI_PRODUCTIVITY',
+            'departments': [str(self.department.pk)],
+            'questions_KPI_PRODUCTIVITY': ['قيس تحقيق الأهداف'],
+        })
+
+        self.assertRedirects(response, reverse('performance_dashboard'))
+        evaluation = PerformanceEvaluation.objects.get()
+        self.assertEqual(evaluation.evaluation_type, 'KPI_PRODUCTIVITY')
+        self.assertEqual(evaluation.questions.count(), 1)
+        self.assertEqual(evaluation.question_schema, [
+            {'category': 'KPI_PRODUCTIVITY', 'text': 'قيس تحقيق الأهداف', 'max_rating': 5, 'rating': None},
+        ])
+
+    def test_dispatch_saves_questions_grouped_by_category_and_main_type_follows_tab_order(self):
+        self._employee('department-head', position=self.head_position)
+        self._employee('employee-one')
+        self.client.force_login(self.hr_user)
+
+        response = self.client.post(reverse('add_evaluation'), {
+            'title': 'تقييم متعدد المحاور',
+            'evaluation_type': 'INITIATIVE_GROWTH',
+            'departments': [str(self.department.pk)],
+            'questions_BEHAVIORAL': ['الالتزام'],
+            'questions_INITIATIVE_GROWTH': ['المبادرة'],
+        })
+
+        self.assertRedirects(response, reverse('performance_dashboard'))
+        evaluation = PerformanceEvaluation.objects.get()
+        self.assertEqual(evaluation.evaluation_type, 'BEHAVIORAL')
+        self.assertEqual(
+            [(q['category'], q['text']) for q in evaluation.question_schema],
+            [('BEHAVIORAL', 'الالتزام'), ('INITIATIVE_GROWTH', 'المبادرة')],
+        )
+        self.assertEqual(
+            list(evaluation.questions.values_list('category__code', 'text', 'order')),
+            [('BEHAVIORAL', 'الالتزام', 1), ('INITIATIVE_GROWTH', 'المبادرة', 2)],
+        )
+
+    def test_dispatch_handles_multiple_selected_departments(self):
+        head = self._employee('department-head', position=self.head_position)
+        employee_one = self._employee('employee-one')
+        self._employee('employee-two')
+
+        finance = Department.objects.create(name='Finance', code='FIN')
+        finance_head_position = Position.objects.create(
+            title='Finance Head',
+            department=finance,
+            role='Manager',
+            is_head=True,
+        )
+        finance_head = Employee.objects.create(
+            user=get_user_model().objects.create_user(
+                username='finance-head', password='pass123',
+            ),
+            department=finance,
+            position=finance_head_position,
+            first_name='FinanceHead',
+        )
+        finance_employee_position = Position.objects.create(
+            title='Accountant',
+            department=finance,
+            role='Employee',
+        )
+        finance_employee = Employee.objects.create(
+            user=get_user_model().objects.create_user(
+                username='finance-employee', password='pass123',
+            ),
+            department=finance,
+            position=finance_employee_position,
+            first_name='FinanceEmployee',
+        )
+        self.client.force_login(self.hr_user)
+
+        response = self.client.post(reverse('add_evaluation'), {
+            'title': 'تقييم موحّد',
+            'evaluation_type': 'BEHAVIORAL',
+            'departments': [str(self.department.pk), str(finance.pk)],
+            'questions_BEHAVIORAL': ['الالتزام بالمواعيد'],
+        })
+
+        self.assertRedirects(response, reverse('performance_dashboard'))
+        evaluations = PerformanceEvaluation.objects.order_by('employee_id')
+        self.assertEqual(
+            set(evaluations.values_list('employee_id', flat=True)),
+            {employee_one.pk, finance_employee.pk},
+        )
+        self.assertEqual(
+            set(evaluations.values_list('evaluator_id', flat=True)),
+            {head.pk, finance_head.pk},
+        )
+        for evaluation in evaluations:
+            self.assertEqual(
+                set(evaluation.departments.values_list('name', flat=True)),
+                {evaluation.employee.department.name},
+            )
+
+    def test_dispatch_records_selected_departments_on_each_record(self):
+        head = self._employee('department-head', position=self.head_position)
+        employee = self._employee('employee')
+        self.client.force_login(self.hr_user)
+
+        response = self._post_dispatch(['سؤال واحد'])
+
+        self.assertRedirects(response, reverse('performance_dashboard'))
+        evaluation = PerformanceEvaluation.objects.get(employee=employee)
+        self.assertEqual(
+            list(evaluation.departments.values_list('pk', flat=True)),
+            [self.department.pk],
+        )
 
     def test_hr_overview_groups_campaign_and_hides_zero_for_pending(self):
         manager = self._employee('department-manager', position=self.head_position)
@@ -238,11 +374,15 @@ class EvaluationDispatchTests(TestCase):
 
     def test_dispatch_requires_a_title_and_question(self):
         self.client.force_login(self.hr_user)
-        from django.http import QueryDict
 
-        data = QueryDict('', mutable=True)
-        data['department_id'] = str(self.department.pk)
-        data.setlist('questions', [''])
+        data = {
+            'departments': [str(self.department.pk)],
+            'evaluation_type': 'COMPETENCIES',
+            'questions_COMPETENCIES': [''],
+            'questions_BEHAVIORAL': [''],
+            'questions_KPI_PRODUCTIVITY': [''],
+            'questions_INITIATIVE_GROWTH': [''],
+        }
 
         response = self.client.post(reverse('add_evaluation'), data)
 
@@ -393,3 +533,7 @@ class EvaluationDispatchTests(TestCase):
         self.assertEqual(evaluation.status, 'COMPLETED')
         self.assertEqual(evaluation.overall_score, 4.5)
         self.assertEqual([item['rating'] for item in evaluation.question_schema], [4, 5])
+        self.assertEqual(
+            list(evaluation.questions.values_list('rating', flat=True)),
+            [4, 5],
+        )

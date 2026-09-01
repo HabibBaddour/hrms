@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 
 class AttendanceLog(models.Model):
@@ -63,3 +64,32 @@ class AttendanceLog(models.Model):
         hours = total_seconds // 3600
         minutes = (total_seconds % 3600) // 60
         return f'{hours:02d}:{minutes:02d}'
+
+    @staticmethod
+    def record_checkin(user):
+        """تسجيل توقيت دخول الموظف - سجل واحد لكل يوم"""
+        today = timezone.localdate()
+        check_in = timezone.localtime()
+        log, _ = AttendanceLog.objects.get_or_create(
+            employee=user,
+            date=today,
+            defaults={'check_in': check_in, 'status': AttendanceLog.STATUS_PRESENT},
+        )
+        if log.check_in is None:
+            log.check_in = check_in
+            log.save(update_fields=['check_in'])
+        return log
+
+    @staticmethod
+    def record_checkout(user):
+        """تسجيل توقيت خروج الموظف - يُحدَّث سجل اليوم إذا وُجد"""
+        today = timezone.localdate()
+        try:
+            log = AttendanceLog.objects.get(employee=user, date=today)
+        except AttendanceLog.DoesNotExist:
+            return None
+        check_out = timezone.localtime()
+        if log.check_out is None or check_out > log.check_out:
+            log.check_out = check_out
+            log.save(update_fields=['check_out'])
+        return log

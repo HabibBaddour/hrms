@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}تفاصيل طلب الإجازة | HRMS{% endblock %}
+{% block page_title %}تفاصيل طلب الإجازة{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ld-page {
+        --tone:#6153E4; --tone-deep:#4A3AB8; --head:#1A1338;
+        --line:#ECEAF6; --muted:#6E6A86;
+        --earn:#0E8F88; --ded:#B91C1C; --warn:#B4540A;
+    }
+    .ld-card { overflow: hidden; border: 1px solid #ECEAF6; border-radius: 18px; background: #fff; box-shadow: 0 14px 34px rgba(21,17,48,.06); }
+
+    .ld-hero { position: relative; overflow: hidden; border-radius: 18px; padding: 24px 26px; color: #fff; margin-bottom: 22px;
+        background:
+            radial-gradient(420px 240px at 90% -10%, rgba(23,176,167,.32), transparent 60%),
+            linear-gradient(120deg, #1B1442 0%, #4A3AB8 60%, #6153E4 100%);
+        box-shadow: 0 18px 40px rgba(21,17,48,.3); }
+    .ld-hero h1 { margin: 0; font-size: 1.4rem; font-weight: 800; }
+    .ld-eyebrow { display: inline-flex; align-items: center; gap: 7px; padding: 5px 13px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.2); font-size: .74rem; font-weight: 700; margin-bottom: 10px; }
+
+    .ld-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 15px; border-radius: 999px; font-size: .78rem; font-weight: 800; border: 1px solid transparent; }
+    .ld-st-pending { color:#fff; background:rgba(242,180,76,.85); }
+    .ld-st-approved { color:#fff; background:rgba(23,176,167,.9); }
+    .ld-st-rejected { color:#fff; background:rgba(220,38,38,.9); }
+
+    .ld-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+    .ld-box { border: 1px solid #ECEAF6; border-radius: 14px; padding: 14px 16px; background: #FAF9FE; }
+    .ld-box .k { color: #6E6A86; font-size: .72rem; font-weight: 700; display: block; margin-bottom: 4px; }
+    .ld-box .v { color: var(--head); font-size: .9rem; font-weight: 800; }
+
+    .ld-section { padding: 20px 24px; }
+    .ld-section + .ld-section { border-top: 1px dashed #EFECFA; }
+    .ld-section h3 { margin: 0 0 12px; font-size: .92rem; font-weight: 800; color: var(--head); display: flex; align-items: center; gap: 9px; }
+    .ld-section h3 i { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px; background: rgba(97,83,228,.11); color: #6153E4; font-size: .8rem; }
+    .ld-reason { color: #4A4560; font-size: .88rem; line-height: 1.7; white-space: pre-wrap; }
+
+    .ld-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-ai { color:#0E8F88; background:rgba(23,176,167,.1); border:1px solid rgba(23,176,167,.32); }
+    .btn-ai-red { color:#B91C1C; background:rgba(220,38,38,.07); border:1px solid rgba(220,38,38,.25); }
+    .btn-line { color:#6153E4; background:#fff; border:1px solid rgba(97,83,228,.35); }
+    .btn-ai, .btn-ai-red, .btn-line { display:inline-flex; align-items:center; gap:8px; padding:8px 18px; border-radius:999px; font-size:.78rem; font-weight:800; text-decoration:none; transition:all .2s ease; cursor:pointer; }
+    .btn-ai:hover, .btn-ai-red:hover, .btn-line:hover { transform: translateY(-2px); filter: brightness(1.04); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 ld-page">
+
+    <div class="ld-hero d-flex flex-wrap justify-content-between align-items-end gap-3">
+        <div>
+            <span class="ld-eyebrow"><i class="fa-solid fa-calendar-days"></i> طلب إجازة #{{ leave.pk }}</span>
+            <h1>{{ leave.employee.get_full_name|default:leave.employee.user.username }}</h1>
+            <p class="mb-0 mt-2" style="opacity:.82; font-size:.85rem;">
+                <i class="fa-solid fa-building me-1"></i>
+                {{ leave.employee.department.name|default:'—' }}
+                &nbsp;&nbsp;<span style="opacity:.6">•</span>&nbsp;&nbsp;
+                <i class="fa-solid fa-hashtag"></i> رقم الموظف: {{ leave.employee_id }}
+            </p>
+        </div>
+        {% if leave.status == 'PENDING' %}
+            <span class="ld-status ld-st-pending"><i class="fa-solid fa-hourglass-half"></i> معلق</span>
+        {% elif leave.status == 'APPROVED' %}
+            <span class="ld-status ld-st-approved"><i class="fa-solid fa-circle-check"></i> مقبول</span>
+        {% else %}
+            <span class="ld-status ld-st-rejected"><i class="fa-solid fa-circle-xmark"></i> مرفوض</span>
+        {% endif %}
+    </div>
+
+    <div class="ld-card">
+        <div class="ld-section">
+            <div class="ld-grid">
+                <div class="ld-box"><span class="k">نوع الإجازة</span><span class="v">{{ leave.get_leave_type_display }}</span></div>
+                <div class="ld-box"><span class="k">من</span><span class="v"><i class="fa-regular fa-calendar me-1"></i>{{ leave.start_date }}</span></div>
+                <div class="ld-box"><span class="k">إلى</span><span class="v"><i class="fa-regular fa-calendar me-1"></i>{{ leave.end_date }}</span></div>
+                <div class="ld-box"><span class="k">عدد الأيام</span><span class="v">{{ leave.total_days }} يوم</span></div>
+                <div class="ld-box"><span class="k">تاريخ التقديم</span><span class="v">{{ leave.created_at|date:"j/n/Y" }}</span></div>
+            </div>
+        </div>
+
+        <div class="ld-section">
+            <h3><i class="fa-solid fa-robot"></i> توصية الذكاء الاصطناعي</h3>
+            <div class="ld-grid">
+                {% if leave.ai_prediction == 'APPROVED' %}
+                    <div class="ld-box"><span class="k">التوصية</span><span class="v" style="color:var(--earn)"><i class="fa-solid fa-thumbs-up me-1"></i> موصى بالقبول</span></div>
+                {% elif leave.ai_prediction == 'REJECTED' %}
+                    <div class="ld-box"><span class="k">التوصية</span><span class="v" style="color:var(--ded)"><i class="fa-solid fa-thumbs-down me-1"></i> موصى بالرفض</span></div>
+                {% else %}
+                    <div class="ld-box"><span class="k">التوصية</span><span class="v"><i class="fa-solid fa-spinner me-1"></i> قيد التحليل</span></div>
+                {% endif %}
+                <div class="ld-box"><span class="k">نسبة الثقة</span><span class="v">{{ leave.ai_confidence|floatformat:1 }}%</span></div>
+            </div>
+        </div>
+
+        <div class="ld-section">
+            <h3><i class="fa-solid fa-file-lines"></i> سبب الإجازة</h3>
+            <p class="ld-reason">{{ leave.reason }}</p>
+        </div>
+
+        {% if leave.manager_notes %}
+        <div class="ld-section">
+            <h3><i class="fa-solid fa-user-tie"></i> ملاحظات المدير</h3>
+            <p class="ld-reason">{{ leave.manager_notes }}</p>
+        </div>
+        {% endif %}
+
+        <div class="ld-section">
+            <div class="ld-btns">
+                {% if leave.attachment %}
+                <a href="{{ leave.attachment.url }}" target="_blank" class="btn-ai"><i class="fa-solid fa-paperclip"></i> المرفق</a>
+                {% endif %}
+                <a href="{% url 'leaves:leave_list' %}" class="btn-line"><i class="fa-solid fa-arrow-right"></i> العودة للقائمة</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

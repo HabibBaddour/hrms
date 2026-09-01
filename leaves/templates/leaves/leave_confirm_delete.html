@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}حذف طلب الإجازة | HRMS{% endblock %}
+{% block page_title %}تأكيد الحذف{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4 text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width:64px;height:64px;border-radius:16px;background:rgba(220,38,38,.1);color:#DC2626;font-size:1.5rem;">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </div>
+                    <h3 class="fw-bold mb-2">حذف طلب الإجازة</h3>
+                    <p class="text-muted mb-4">هل أنت متأكد من حذف طلب الإجازة <strong>#{{ leave.pk }}</strong> المقدّم بتاريخ
+                        <strong>{{ leave.start_date }}</strong>؟ لا يمكن التراجع عن هذا الإجراء.</p>
+
+                    <div class="row g-2 mb-4 text-start">
+                        <div class="col-6"><div class="border rounded p-2 text-center"><small class="text-muted d-block">نوع الإجازة</small><strong>{{ leave.get_leave_type_display }}</strong></div></div>
+                        <div class="col-6"><div class="border rounded p-2 text-center"><small class="text-muted d-block">الفترة</small><strong>{{ leave.start_date }} ← {{ leave.end_date }}</strong></div></div>
+                    </div>
+
+                    <form method="post" class="d-inline-flex gap-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash-can me-1"></i> تأكيد الحذف</button>
+                        <a href="{% url 'leaves:leave_list' %}" class="btn btn-outline-secondary">إلغاء</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

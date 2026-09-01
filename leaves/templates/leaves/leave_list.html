@@ -85,6 +85,25 @@
     .view-btn { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 11px; color: #6153E4; background: rgba(97,83,228,.09); border: 1px solid rgba(97,83,228,.25); text-decoration: none; transition: all .2s ease; }
     .view-btn:hover { color: #fff; background: linear-gradient(135deg, #6153E4, #8B7FF2); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(97,83,228,.3); }
 
+    .del-btn { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 11px; color: #DC2626; background: #fff; border: 1px solid rgba(220,38,38,.28); text-decoration: none; transition: all .2s ease; }
+    .del-btn:hover { color: #fff; background: linear-gradient(135deg, #F87171, #DC2626); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(220,38,38,.3); }
+    .del-btn:disabled { opacity: .45; pointer-events: none; }
+
+    .act-cell { display: inline-flex; gap: 8px; align-items: center; }
+
+    /* ===== Detail modal ===== */
+    .ldm-cover { position: relative; overflow: hidden; border-radius: 14px; padding: 16px 18px; color: #fff; background: linear-gradient(120deg,#1B1442,#4A3AB8 60%,#6153E4); margin: -14px -16px 14px; }
+    .ldm-cover h5 { margin: 0; font-weight: 800; }
+    .ldm-cover small { opacity: .85; }
+    .ldm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .ldm-grid .lbl { color:#6E6A86; font-size:.7rem; font-weight:700; display:block; margin-bottom:3px; }
+    .ldm-grid .val { color:var(--brand-night,#1A1338); font-size:.86rem; font-weight:800; }
+    .ldm-reason { background:#FAF9FE; border:1px solid #ECEAF6; border-radius:12px; padding:12px; font-size:.85rem; line-height:1.7; color:#4A4560; white-space:pre-wrap; margin-top:14px; }
+    .ldm-ai { margin-top:14px; }
+
+    /* ===== Delete modal ===== */
+    .del-icon { width:60px; height:60px; border-radius:16px; display:grid; place-items:center; color:#DC2626; background:rgba(220,38,38,.1); font-size:1.4rem; margin: 0 auto 12px; }
+
     .empty-row { padding: 54px 20px !important; color: #9B95B5; text-align: center; font-size: .86rem; }
     .empty-row i { display: block; margin-bottom: 10px; font-size: 1.5rem; color: #C9C3E3; }
 
@@ -231,7 +250,26 @@
                             {% endif %}
                         </td>
                         <td class="text-center">
-                            <a href="{% url 'leaves:approve_leave' leave.pk %}" class="view-btn" title="عرض تفاصيل الطلب" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fa-solid fa-eye"></i></a>
+                            <div class="act-cell">
+                                <button type="button" class="view-btn js-leave-view" data-id="{{ leave.pk }}" title="عرض التفاصيل" data-bs-toggle="tooltip" data-bs-placement="top">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                                {% if not is_privileged %}
+                                    {% if leave.status == 'PENDING' %}
+                                    <button type="button" class="del-btn js-leave-delete" data-id="{{ leave.pk }}" data-summary="{{ leave.start_date }}" title="حذف الطلب" data-bs-toggle="tooltip" data-bs-placement="top">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                    {% else %}
+                                    <button type="button" class="del-btn" disabled title="لا يمكن حذف طلب مُعالج" data-bs-toggle="tooltip" data-bs-placement="top">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                    {% endif %}
+                                {% else %}
+                                    <button type="button" class="del-btn js-leave-delete" data-id="{{ leave.pk }}" data-summary="{{ leave.start_date }}" title="حذف الطلب" data-bs-toggle="tooltip" data-bs-placement="top">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
@@ -291,4 +329,116 @@
     </div>
     {% endif %}
 </div>
+
+<!-- ===== Leave Details Modal ===== -->
+<div class="modal fade" id="leaveDetailModal" tabindex="-1" aria-labelledby="leaveDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:18px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="leaveDetailModalLabel">تفاصيل طلب الإجازة</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+            </div>
+            <div class="modal-body px-4 pb-4 pt-3" id="ldmBody">
+                <div class="text-center py-4 text-muted"><i class="fa-solid fa-spinner fa-spin me-1"></i> جارٍ تحميل التفاصيل...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Delete Confirm Modal ===== -->
+<div class="modal fade" id="leaveDeleteModal" tabindex="-1" aria-labelledby="leaveDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:18px;">
+            <div class="modal-body p-4 text-center">
+                <div class="del-icon"><i class="fa-solid fa-trash-can"></i></div>
+                <h5 class="fw-bold mb-2" id="leaveDeleteModalLabel">حذف طلب الإجازة</h5>
+                <p class="text-muted mb-4">
+                    هل أنت متأكد من حذف الطلب <span id="ldelInfo">#</span>؟
+                    لا يمكن التراجع عن هذا الإجراء.
+                </p>
+                <div class="d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <form method="post" id="ldelForm" action="">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash-can me-1"></i> تأكيد الحذف</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    function escapeHtml(s) {
+        if (s === null || s === undefined) return '';
+        return String(s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    var detailModal = document.getElementById('leaveDetailModal');
+    var deleteModal = document.getElementById('leaveDeleteModal');
+
+    // ---- View details (AJAX) ----
+    document.querySelectorAll('.js-leave-view').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-id');
+            var body = document.getElementById('ldmBody');
+            body.innerHTML = '<div class="text-center py-4 text-muted"><i class="fa-solid fa-spinner fa-spin me-1"></i> جارٍ تحميل التفاصيل...</div>';
+            if (detailModal) { var m = bootstrap.Modal.getOrCreateInstance(detailModal); m.show(); }
+
+            fetch('{% url "leaves:leave_list" %}' + 'leave/' + id + '/', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            }).then(function (r) { return r.json(); }).then(function (data) {
+                if (!data.success) { throw new Error('فشل التحميل'); }
+                var l = data.leave;
+                var aiHtml;
+                if (l.ai_prediction_code === 'APPROVED') {
+                    aiHtml = '<span class="ai-chip ai-approved"><i class="fa-solid fa-thumbs-up"></i> موصى بالقبول (' + l.ai_confidence + '%)</span>';
+                } else if (l.ai_prediction_code === 'REJECTED') {
+                    aiHtml = '<span class="ai-chip ai-rejected"><i class="fa-solid fa-thumbs-down"></i> موصى بالرفض (' + l.ai_confidence + '%)</span>';
+                } else {
+                    aiHtml = '<span class="ai-chip ai-waiting"><i class="fa-solid fa-spinner"></i> قيد التحليل</span>';
+                }
+                var statusHtml;
+                if (l.status_code === 'PENDING') { statusHtml = '<span class="status-chip st-pending"><i class="fa-solid fa-hourglass-half"></i> معلق</span>'; }
+                else if (l.status_code === 'APPROVED') { statusHtml = '<span class="status-chip st-approved"><i class="fa-solid fa-circle-check"></i> مقبول</span>'; }
+                else { statusHtml = '<span class="status-chip st-rejected"><i class="fa-solid fa-circle-xmark"></i> مرفوض</span>'; }
+
+                body.innerHTML =
+                    '<div class="ldm-cover">' +
+                        '<h5>' + escapeHtml(l.employee_name) + '</h5>' +
+                        '<small>رقم الموظف: ' + escapeHtml(l.employee_id) + ' &nbsp;•&nbsp; ' + escapeHtml(l.leave_type) + '</small>' +
+                    '</div>' +
+                    '<div class="ldm-grid">' +
+                        '<div><span class="lbl">نوع الإجازة</span><span class="val">' + escapeHtml(l.leave_type) + '</span></div>' +
+                        '<div><span class="lbl">الحالة</span><span class="val">' + statusHtml + '</span></div>' +
+                        '<div><span class="lbl">من</span><span class="val">' + escapeHtml(l.start_date) + '</span></div>' +
+                        '<div><span class="lbl">إلى</span><span class="val">' + escapeHtml(l.end_date) + '</span></div>' +
+                        '<div><span class="lbl">عدد الأيام</span><span class="val">' + escapeHtml(l.total_days) + ' يوم</span></div>' +
+                        '<div><span class="lbl">تاريخ التقديم</span><span class="val">' + escapeHtml(l.created_at) + '</span></div>' +
+                    '</div>' +
+                    '<div class="ldm-ai">' + aiHtml + '</div>' +
+                    (l.reason ? '<div class="ldm-reason"><strong>سبب الإجازة:</strong><br>' + escapeHtml(l.reason) + '</div>' : '') +
+                    (l.attachment_url ? '<div class="mt-3"><a href="' + escapeHtml(l.attachment_url) + '" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-paperclip me-1"></i> المرفق</a></div>' : '');
+            }).catch(function () {
+                body.innerHTML = '<div class="text-center py-4 text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> تعذّر تحميل التفاصيل.</div>';
+            });
+        });
+    });
+
+    // ---- Delete confirm ----
+    document.querySelectorAll('.js-leave-delete').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-id');
+            document.getElementById('ldelInfo').textContent = '#' + id + ' (' + (btn.getAttribute('data-summary') || '') + ')';
+            document.getElementById('ldelForm').setAttribute('action', '{% url "leaves:leave_list" %}' + 'leave/' + id + '/delete/');
+            if (deleteModal) { var m = bootstrap.Modal.getOrCreateInstance(deleteModal); m.show(); }
+        });
+    });
+})();
+</script>
 {% endblock %}

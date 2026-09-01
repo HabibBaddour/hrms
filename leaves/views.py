@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 
 from departments.models import Department
@@ -180,6 +180,96 @@ def leave_list(request):
         'search_query': search_query,
         'export_excel': export_excel,
     })
+
+
+def _can_review_leave(request, leave):
+    """هل لدى المستخدم صلاحية رؤية/مراجعة هذا الطلب؟"""
+    employee_profile = getattr(request.user, 'employee_profile', None)
+    is_hr = (
+        request.user.is_superuser or request.user.is_staff or
+        getattr(getattr(employee_profile, 'position', None), 'role', '').lower() == 'hr admin' or
+        request.user.groups.filter(name='HR').exists()
+    )
+    if is_hr:
+        return True
+    is_department_manager = bool(
+        employee_profile and employee_profile.department_id == leave.employee.department_id and
+        getattr(employee_profile.position, 'role', '') == 'Manager'
+    )
+    if is_department_manager:
+        return True
+    # الموظف يرى طلبه الخاص فقط
+    return leave.employee.user_id == request.user.id
+
+
+@login_required
+def leave_detail_view(request, leave_id):
+    """عرض تفاصيل طلب إجازة. يدعم استدعاء AJAX (JSON) للمودال أو صفحة كاملة."""
+    leave = get_object_or_404(
+        LeaveRequest.objects.select_related('employee__user', 'employee__position__department'),
+        pk=leave_id,
+    )
+    if not _can_review_leave(request, leave):
+        messages.error(request, 'ليس لديك صلاحية الاطلاع على هذا الطلب.')
+        return redirect('leaves:leave_list')
+
+    data = {
+        'id': leave.pk,
+        'employee_name': leave.employee.get_full_name(),
+        'employee_id': leave.employee_id,
+        'leave_type': leave.get_leave_type_display(),
+        'leave_type_code': leave.leave_type,
+        'start_date': str(leave.start_date),
+        'end_date': str(leave.end_date),
+        'total_days': leave.total_days,
+        'reason': leave.reason,
+        'status': leave.get_status_display(),
+        'status_code': leave.status,
+        'ai_prediction': leave.get_ai_prediction_display() if hasattr(leave, 'get_ai_prediction_display') else leave.ai_prediction,
+        'ai_prediction_code': leave.ai_prediction,
+        'ai_confidence': leave.ai_confidence,
+        'attachment_url': leave.attachment.url if leave.attachment else None,
+        'created_at': leave.created_at.strftime('%Y-%m-%d %H:%M') if leave.created_at else None,
+        'manager_notes': leave.manager_notes,
+        'approved_by': leave.approved_by.get_full_name() if leave.approved_by else None,
+    }
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+        return JsonResponse({'success': True, 'leave': data})
+
+    return render(request, 'leaves/leave_detail.html', {
+        'leave': leave,
+        'leave_data': data,
+    })
+
+
+@login_required
+def leave_delete_view(request, leave_id):
+    """حذف طلب إجازة. الموظف يحذف طلبه المعلّق فقط، ومسؤولو HR يحذفون أي طلب."""
+    leave = get_object_or_404(LeaveRequest, pk=leave_id)
+    employee_profile = getattr(request.user, 'employee_profile', None)
+    is_hr = (
+        request.user.is_superuser or request.user.is_staff or
+        getattr(getattr(employee_profile, 'position', None), 'role', '').lower() == 'hr admin' or
+        request.user.groups.filter(name='HR').exists()
+    )
+
+    is_owner = leave.employee.user_id == request.user.id
+    if not (is_hr or is_owner):
+        messages.error(request, 'ليس لديك صلاحية حذف هذا الطلب.')
+        return redirect('leaves:leave_list')
+
+    # الموظف يحذف طلبه المعلّق فقط؛ مسؤولو HR يحذفون أي حالة
+    if is_owner and not is_hr and leave.status != 'PENDING':
+        messages.error(request, 'لا يمكن حذف طلب إجازة مكتمل المعالجة (مقبول/مرفوض).')
+        return redirect('leaves:leave_list')
+
+    if request.method == 'POST':
+        leave.delete()
+        messages.success(request, 'تم حذف طلب الإجازة بنجاح.')
+        return redirect('leaves:leave_list')
+
+    return render(request, 'leaves/leave_confirm_delete.html', {'leave': leave})
 
 
 @login_required

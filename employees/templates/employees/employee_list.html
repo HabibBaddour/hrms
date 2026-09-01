@@ -16,6 +16,7 @@
     .dir-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.2); font-size: .75rem; font-weight: 700; }
     .btn-gold-solid { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 20px; border-radius: 12px; background: linear-gradient(135deg, #F2B44C, #E89A5D); color: #241A05 !important; font-weight: 800; font-size: .86rem; border: 0; text-decoration: none; box-shadow: 0 10px 24px rgba(232,154,93,.35); transition: transform .22s ease, filter .22s ease; }
     .btn-gold-solid:hover { transform: translateY(-2px); filter: brightness(1.05); }
+    .bg-opacity-20 { --bs-bg-opacity: .2; }
     .dir-chips { display: flex; flex-wrap: wrap; gap: 10px; }
     .dir-chips .chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); font-size: .82rem; font-weight: 700; backdrop-filter: blur(6px); }
     .chip-gold { background: rgba(242,180,76,.28) !important; border-color: rgba(242,180,76,.5) !important; }
@@ -84,18 +85,22 @@
 {% block content %}
 <div class="container-fluid py-4">
     <section class="dir-hero">
-        <div>
-            <span class="dir-eyebrow"><i class="fa-solid fa-users"></i> إدارة الموارد البشرية</span>
-            <h1>دليل الموظفين</h1>
-            <p>كل أفراد الفريق في مساحة واحدة قابلة للبحث والفرز.</p>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <span class="dir-eyebrow"><i class="fa-solid fa-users"></i> إدارة الموارد البشرية</span>
+                <h1>دليل الموظفين</h1>
+                <p>كل أفراد الفريق في مساحة واحدة قابلة للبحث والفرز.</p>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="badge bg-white bg-opacity-20 text-white px-3 py-2 rounded-pill"><i class="fa-solid fa-user-group me-1"></i> {{ total_employees }} موظف معروض</span>
+                <a href="{% url 'employees:add_employee_wizard' %}" class="btn btn-warning fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-user-plus me-1"></i> تعيين موظف جديد</a>
+            </div>
         </div>
-        <a href="{% url 'employees:add_employee_wizard' %}" class="btn-gold-solid"><i class="fa-solid fa-user-plus"></i> تعيين موظف جديد</a>
+        {% if request.GET.search or request.GET.department or request.GET.role or request.GET.contract_type %}
         <div class="dir-chips mt-4 d-flex">
-            <span class="chip"><i class="fa-solid fa-user-group"></i> {{ total_employees }} موظف معروض</span>
-            {% if request.GET.search or request.GET.department or request.GET.role or request.GET.contract_type %}
             <span class="chip chip-gold"><i class="fa-solid fa-filter"></i> فلاتر مفعّلة</span>
-            {% endif %}
         </div>
+        {% endif %}
     </section>
 
     <section class="dir-panel">

@@ -5,6 +5,14 @@
 {% block extra_css %}
 <style>
     .message-detail-body { min-height: 200px; line-height: 1.9; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .message-detail-body mark { background-color: transparent; color: inherit; padding: 0; }
+    .message-detail-body mark.highlight-yellow { background: #FEF08A; color: #713f12; }
+    .message-detail-body mark.highlight-blue { background: #BFDBFE; color: #453AA0; }
+    .message-detail-body mark.highlight-green { background: #BBF7D0; color: #166534; }
+    .message-detail-body mark.highlight-red { background: #FECDD3; color: #9f1239; }
+    .message-detail-body .important-text, .message-detail-body .important-mark { display: inline; padding: 2px 6px; color: #92400e; background: #fef3c7; border-bottom: 2px solid #f59e0b; border-radius: 5px; }
+    .message-detail-body .mention, .message-detail-body .mention-badge { display: inline-block; padding: 0 8px; color: #4A3AB8; background: #E4E1FB; border-radius: 999px; font-weight: 500; white-space: nowrap; }
+    .message-detail-body .mention-badge { border-radius: 6px; font-weight: 700; padding: 0 6px; }
     .recipient-tags { display: flex; flex-wrap: wrap; gap: 8px; }
     .recipient-tag { display: inline-flex; align-items: center; gap: 7px; max-width: 100%; padding: 7px 10px; color: #1e3a8a; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 18px; font-size: .78rem; }
     .recipient-tag-name { overflow-wrap: anywhere; }
@@ -73,6 +81,7 @@
                         </div>
                     </div>
 
+                    {% if message.sender == request.user or request.user.is_superuser or user_role == 'HR Admin' or user_role == 'HR' %}
                     <div class="message-detail-panel border rounded-3 p-3 mt-4">
                         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
                             <h5 class="fw-bold mb-0"><i class="fa-solid fa-users text-primary me-2"></i>المستلمون وحالة القراءة</h5>
@@ -96,6 +105,7 @@
                         <div class="department-counts mb-3">{% for department, counts in department_counts.items %}<div class="department-count"><strong>{{ department }}</strong><br><span class="text-success">{{ counts.read }} مقروءة</span> · <span class="text-danger">{{ counts.unread }} غير مقروءة</span></div>{% endfor %}</div>
                         <div class="recipient-tags">{% for recipient in recipients %}<span class="recipient-tag {% if recipient.is_read %}is-read{% else %}is-unread{% endif %}" title="{{ recipient.email }}"><i class="fa-solid {% if recipient.is_read %}fa-check{% else %}fa-clock{% endif %}"></i><span class="recipient-tag-name">{{ recipient.name }}</span><span class="recipient-tag-status">{{ recipient.department }} · {{ recipient.role }} · {% if recipient.is_read %}مقروءة{% else %}غير مقروءة{% endif %}</span></span>{% empty %}<span class="text-muted small">لا يوجد مستلمون يطابقون الفلاتر.</span>{% endfor %}</div>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
