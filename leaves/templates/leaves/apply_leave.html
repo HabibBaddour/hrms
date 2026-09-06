@@ -85,7 +85,11 @@
         background:linear-gradient(135deg, rgba(242,180,76,.95), rgba(232,154,93,.95));
         color:#3D2A05; font-size:.8rem; font-weight:800;
         box-shadow:0 8px 20px rgba(232,154,93,.35);
+        border:0; cursor:pointer; font-family:inherit;
+        transition:transform .22s ease, box-shadow .22s ease, filter .22s ease;
     }
+    .ai-chip:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 12px 26px rgba(232,154,93,.45); filter:brightness(1.03); }
+    .ai-chip:disabled { opacity:.65; cursor:wait; transform:none; box-shadow:none; }
 
     /* ===== Panels ===== */
     .panel {
@@ -244,7 +248,9 @@
                 <p>اختر نوع الإجازة وحدد الفترة — سيتم تحليل طلبك بواسطة النموذج الذكي وتوجيهه للإدارة فوراً</p>
             </div>
             <div class="d-flex flex-wrap gap-2">
-                <span class="ai-chip"><i class="fa-solid fa-wand-magic-sparkles"></i> تحليل ذكي للطلب</span>
+                <button type="button" id="ai-analyze-btn" class="ai-chip">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> تحليل ذكي للطلب
+                </button>
                 {% if employee %}
                 <span class="hero-chip"><i class="fa-solid fa-calendar-check"></i> رصيدك المتبقي {{ employee.total_leave_remaining|default_if_none:0 }} يوم</span>
                 {% endif %}
@@ -429,6 +435,59 @@
             </div>
         </div>
     </div>
+
+    <!-- ===== AI Analysis Result Modal ===== -->
+    <div class="modal fade" id="ai-result-modal" tabindex="-1" aria-labelledby="ai-result-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border:none; border-radius:20px; overflow:hidden;">
+                <div class="modal-header border-0" style="background:linear-gradient(120deg,#1B1442,#4A3AB8); color:#fff;">
+                    <h5 class="modal-title fw-bold d-flex align-items-center gap-2" id="ai-result-title">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> نتيجة التحليل الذكي
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                </div>
+                <div class="modal-body p-4" style="background:#FAF9FE;">
+                    <div class="d-flex align-items-center gap-4 flex-wrap">
+                        <div class="position-relative" style="width:128px; height:128px; flex-shrink:0;">
+                            <svg width="128" height="128" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="40" fill="none" stroke="#E6E2F6" stroke-width="9"/>
+                                <circle id="ai-ring-fill" cx="50" cy="50" r="40" fill="none" stroke="#14A374"
+                                        stroke-width="9" stroke-linecap="round" transform="rotate(-90 50 50)"
+                                        stroke-dasharray="251.327" stroke-dashoffset="251.327"/>
+                            </svg>
+                            <div id="ai-prob-num" class="position-absolute top-50 start-50 translate-middle"
+                                 style="font-size:1.45rem; font-weight:800; color:#14A374;">0%</div>
+                        </div>
+                        <div class="flex-grow-1" style="min-width:200px;">
+                            <div id="ai-verdict-badge" class="badge rounded-pill fs-6 fw-bold px-3 py-2 mb-2"
+                                 style="background:#14A374;">—</div>
+                            <p id="ai-recommendation" class="mb-0" style="font-size:.9rem; color:#45516B; font-weight:600;">—</p>
+                        </div>
+                    </div>
+
+                    <div id="ai-summary-chips" class="d-flex flex-wrap gap-2 mt-3"></div>
+
+                    <h6 class="mt-4 mb-2 d-flex align-items-center gap-2" style="font-weight:800; color:#1A1338;">
+                        <i class="fa-solid fa-list-check" style="color:#4A3AB8;"></i> أسباب التحليل
+                    </h6>
+                    <ul id="ai-reasons-list" class="list-unstyled m-0" style="max-height:220px; overflow-y:auto;"></ul>
+                </div>
+                <div class="modal-footer border-0 pt-0" style="background:#FAF9FE;">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius:12px; font-weight:700;">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index:1090;">
+        <div id="ai-toast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-bold" id="ai-toast-msg"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="إغلاق"></button>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
@@ -487,6 +546,104 @@ document.addEventListener('DOMContentLoaded', function () {
     form.addEventListener('submit', function () {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>جاري الإرسال...';
+    });
+
+    /* ===== تحليل ذكي للطلب ===== */
+    const aiBtn = document.getElementById('ai-analyze-btn');
+    const aiToastEl = document.getElementById('ai-toast');
+    const aiToastMsg = document.getElementById('ai-toast-msg');
+    let aiToast = null;
+
+    function showAiToast(msg) {
+        aiToastMsg.textContent = msg;
+        if (!aiToast) aiToast = new bootstrap.Toast(aiToastEl, { delay: 3500 });
+        aiToast.show();
+    }
+
+    function renderAIResult(data) {
+        const prob = Math.max(0, Math.min(100, Math.round(data.probability)));
+        let color, label, icon;
+        if (prob >= 70) { color = '#14A374'; label = 'موصى بالقبول'; icon = 'fa-thumbs-up'; }
+        else if (prob >= 45) { color = '#E89A5D'; label = 'يحتاج إلى مراجعة'; icon = 'fa-magnifying-glass'; }
+        else { color = '#C0392B'; label = 'موصى بالرفض'; icon = 'fa-thumbs-down'; }
+
+        const RING_C = 251.327;
+        const ring = document.getElementById('ai-ring-fill');
+        ring.style.stroke = color;
+        ring.style.strokeDashoffset = RING_C * (1 - prob / 100);
+        const num = document.getElementById('ai-prob-num');
+        num.textContent = prob + '%';
+        num.style.color = color;
+
+        const badge = document.getElementById('ai-verdict-badge');
+        badge.style.background = color;
+        badge.innerHTML = '<i class="fa-solid ' + icon + ' me-2"></i>' + label;
+        document.getElementById('ai-recommendation').textContent = data.recommendation;
+
+        const chips = document.getElementById('ai-summary-chips');
+        chips.innerHTML = '';
+        const chipData = [
+            { icon: 'fa-calendar-days', text: 'المدة المطلوبة: ' + data.requested_days + ' يوم' },
+            { icon: 'fa-wallet', text: 'الرصيد المتبقي: ' + data.remaining_balance + ' يوم' },
+            { icon: 'fa-people-group', text: 'موظفون متعطلون بالقسم: ' + data.dept_conflicts },
+            { icon: 'fa-bell', text: 'مقدّم قبل ' + data.notice_days + ' يوم' },
+            { icon: data.is_peak ? 'fa-fire' : 'fa-sun', text: data.is_peak ? 'فترة ذروة' : 'خارج الذروة' },
+        ];
+        chipData.forEach(function (c) {
+            const chip = document.createElement('span');
+            chip.className = 'd-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill';
+            chip.style.cssText = 'background:#EFEDFA; color:#4A3AB8; font-size:.76rem; font-weight:700;';
+            chip.innerHTML = '<i class="fa-solid ' + c.icon + '"></i>' + c.text;
+            chips.appendChild(chip);
+        });
+
+        const list = document.getElementById('ai-reasons-list');
+        list.innerHTML = '';
+        data.reasons.forEach(function (reasonText) {
+            const li = document.createElement('li');
+            li.style.cssText = 'display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px dashed #E6E2F6; font-size:.86rem; color:#45516B;';
+            li.innerHTML = '<i class="fa-solid fa-circle-check mt-1" style="color:#4A3AB8;"></i><span>' + reasonText + '</span>';
+            list.appendChild(li);
+        });
+
+        new bootstrap.Modal(document.getElementById('ai-result-modal')).show();
+    }
+
+    aiBtn.addEventListener('click', function () {
+        const leaveTypeEl = document.querySelector('input[name="leave_type"]:checked');
+        const leaveType = leaveTypeEl ? leaveTypeEl.value : 'ANNUAL';
+        const start = startInput.value;
+        const end = endInput.value;
+        if (!start || !end) {
+            showAiToast('يرجى تحديد تاريخ البداية والنهاية أولاً.');
+            startInput.focus();
+            return;
+        }
+        aiBtn.disabled = true;
+        aiBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التحليل...';
+        fetch("{% url 'leaves:analyze_leave_ai' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': form.querySelector('[name="csrfmiddlewaretoken"]').value,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: new URLSearchParams({ leave_type: leaveType, start_date: start, end_date: end }),
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            aiBtn.disabled = false;
+            aiBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> تحليل ذكي للطلب';
+            if (!data.success) {
+                showAiToast(data.error || 'تعذر إجراء التحليل.');
+                return;
+            }
+            renderAIResult(data);
+        })
+        .catch(function () {
+            aiBtn.disabled = false;
+            aiBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> تحليل ذكي للطلب';
+            showAiToast('حدث خطأ أثناء التحليل، حاول مرة أخرى.');
+        });
     });
 });
 </script>

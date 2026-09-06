@@ -1,3 +1,353 @@
 {% extends 'base.html' %}
-{% block title %}إضافة مسير راتب | HRMS{% endblock %}
-{% block content %}<div class="container py-4"><div class="row justify-content-center"><div class="col-xl-9"><div class="card border-0 shadow-sm"><div class="card-body p-4"><h3 class="fw-bold mb-4">إضافة مسير راتب شهري</h3><form method="post" novalidate>{% csrf_token %}{{ form.non_field_errors }}<div class="row g-3">{% for field in form %}<div class="col-md-4"><label class="form-label fw-semibold">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}</div>{% endfor %}</div><div class="d-flex gap-2 mt-4"><button class="btn btn-primary"><i class="fa-solid fa-calculator me-1"></i>حساب وحفظ</button><a href="{% url 'payroll_dashboard' %}" class="btn btn-outline-secondary">إلغاء</a></div></form></div></div></div></div></div>{% endblock %}
+
+{% block title %}إضافة مسير راتب جديد | HRMS{% endblock %}
+{% block page_title %}مسير الرواتب{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pf-page { --pf-bg:#0f172a; --pf-card:#1e293b; --pf-card-2:#263449; --pf-border:#334155; --pf-text:#f8fafc; --pf-muted:#94a3b8; --pf-accent:#8b7ff2; --pf-gold:#f2b44c; }
+
+    .pf-holder { background:var(--pf-bg); min-height:calc(100vh - 90px); }
+    .pf-card { background:var(--pf-card); border:1px solid var(--pf-border); border-radius:18px; box-shadow:0 18px 40px rgba(3,7,18,.45); padding:22px; }
+    .pf-card-head { display:flex; align-items:center; gap:10px; font-weight:800; color:var(--pf-text); font-size:1rem; margin-bottom:18px; }
+    .pf-card-head i { width:34px; height:34px; border-radius:10px; display:grid; place-items:center; font-size:.9rem; }
+
+    .pf-field label { color:#cbd5e1; font-weight:700; font-size:.8rem; margin-bottom:6px; }
+    .pf-field .form-control, .pf-field .form-select {
+        background:#0f172a !important; border:1px solid #334155 !important; color:#e2e8f0 !important;
+        border-radius:10px; font-weight:700; min-height:42px;
+    }
+    .pf-field .form-control:focus, .pf-field .form-select:focus { border-color:var(--pf-accent) !important; box-shadow:0 0 0 3px rgba(139,127,242,.18); }
+    .pf-num-prefix { position:relative; }
+    .pf-num-prefix .form-control { padding-left:40px; }
+    .pf-num-prefix .pf-currency {
+        position:absolute; inset-inline-end:12px; top:50%; transform:translateY(-50%);
+        color:#64748b; font-size:.72rem; font-weight:800; pointer-events:none;
+    }
+    .pf-field .errorlist { list-style:none; margin:5px 0 0; padding:0; color:#fda4af; font-size:.78rem; font-weight:600; }
+    .pf-field .errorlist:empty { display:none; }
+
+    .pf-section-earn i { background:rgba(16,185,129,.14); color:#34d399; }
+    .pf-section-ded i { background:rgba(244,63,94,.13); color:#fb7185; }
+    .pf-section-pay i { background:rgba(242,180,76,.15); color:#f2b44c; }
+
+    .pf-divider { border-bottom:1px dashed var(--pf-border); margin:18px 0; }
+
+    /* Live calculator */
+    .pf-calc {
+        background:linear-gradient(135deg,#263449,#1e293b);
+        border:1px solid var(--pf-border); border-radius:20px; padding:20px 24px;
+        box-shadow:0 20px 44px rgba(3,7,18,.5);
+    }
+    .pf-calc-cell { flex:1; min-width:200px; }
+    .pf-calc-label { font-size:.74rem; font-weight:700; color:var(--pf-muted); margin-bottom:6px; display:flex; align-items:center; gap:7px; }
+    .pf-calc-value { font-size:1.55rem; font-weight:800; letter-spacing:.4px; color:var(--pf-text); font-variant-numeric:tabular-nums; }
+    .pf-calc-value.pf-pos { color:#34d399; }
+    .pf-calc-value.pf-neg { color:#fb7185; }
+    .pf-calc-value.pf-net { color:var(--pf-gold); font-size:1.9rem; }
+    .pf-net-bar { height:8px; border-radius:999px; background:#0f172a; overflow:hidden; margin-top:12px; }
+    .pf-net-fill { height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#f2b44c,#e89a5d); transition:width .45s ease; }
+
+    .pf-btn-save {
+        display:inline-flex; align-items:center; justify-content:center; gap:10px;
+        background:linear-gradient(135deg,#f2b44c,#e89a5d); color:#3d2a05 !important;
+        border:none; border-radius:14px; padding:.85rem 2rem; font-weight:800; font-size:.95rem;
+        box-shadow:0 14px 28px rgba(232,154,93,.35); transition:transform .2s ease, filter .2s ease;
+        width:100%;
+    }
+    .pf-btn-save:hover { transform:translateY(-2px); filter:brightness(1.05); }
+    @media (max-width:767px) { .pf-calc-value { font-size:1.25rem; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 pf-page">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <h4 class="mb-1 text-dark" style="font-weight:800; color:#1e293b;"><i class="fa-solid fa-file-invoice-dollar me-2" style="color:#8b7ff2;"></i>إضافة مسير / كشف راتب جديد</h4>
+            <p class="mb-0" style="color:#94a3b8; font-size:.86rem;">أدخل مكونات الراتب ويتم احتساب إجمالي المستحقات والخصومات وصافي الراتب تلقائياً لحظة الكتابة</p>
+        </div>
+        <a href="{% url 'payroll_dashboard' %}" class="btn btn-outline-secondary btn-sm px-3">
+            <i class="fa-solid fa-arrow-right me-1"></i> عودة للمسيرات
+        </a>
+    </div>
+
+    <form method="post" id="payrollForm">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger py-2" style="font-weight:700;">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <!-- ===== Header: Employee / Period / Payment ===== -->
+        <div class="pf-card mb-3">
+            <div class="pf-card-head pf-section-pay"><i class="fa-solid fa-user-tie"></i> بيانات الموظف والفترة</div>
+
+            <!-- ===== Dynamic filters (department/role) ===== -->
+            <div class="row g-3 mb-3">
+                <div class="col-lg-3 pf-field">
+                    <label for="departmentFilter"><i class="fa-solid fa-sitemap me-1"></i> تصفية حسب القسم</label>
+                    <select id="departmentFilter" class="form-select">
+                        <option value="">كل الأقسام</option>
+                        {% for d in departments %}
+                        <option value="{{ d.pk }}">{{ d.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-lg-3 pf-field">
+                    <label for="roleFilter"><i class="fa-solid fa-briefcase me-1"></i> تصفية حسب الدور الوظيفي</label>
+                    <select id="roleFilter" class="form-select">
+                        <option value="">كل الأدوار</option>
+                        {% for r in roles %}
+                        <option value="{{ r }}">{{ r }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-lg-6 pf-field d-flex align-items-end">
+                    <div class="filter-hint w-100" style="color:#64748b; font-size:.78rem; font-weight:600;">
+                        <i class="fa-solid fa-hand-pointer me-1" style="color:#8b7ff2;"></i>
+                        صفِّ الموظفين حسب القسم أو الدور، وعند اختيار موظف سيُملأ الراتب الأساسي تلقائياً من ملفه.
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-lg-5 pf-field">
+                    <label>{{ form.employee.label }}</label>
+                    <select name="employee" id="employeeSelect" class="form-select" {% if form.employee.field.required %}required{% endif %}>
+                        <option value="" data-salary="0" data-department="" data-role="" {% if not form.employee.value %}selected{% endif %}>اختر الموظف...</option>
+                        {% for emp in employee_options %}
+                        <option value="{{ emp.pk }}" data-department="{{ emp.department_id|default:'' }}" data-role="{{ emp.position.role|default:'' }}" data-salary="{% if emp.salary %}{{ emp.salary }}{% elif emp.contract %}{{ emp.contract.salary|default:'0' }}{% else %}0{% endif %}" {% if form.employee.value|stringformat:'s' == emp.pk|stringformat:'s' %}selected{% endif %}>{{ emp.get_full_name|default:emp.user.username }} — {{ emp.position.title|default:'—' }} ({{ emp.department.name|default:'—' }})</option>
+                        {% endfor %}
+                    </select>
+                    {{ form.employee.errors }}
+                </div>
+                <div class="col-lg-2 pf-field">
+                    <label>{{ form.month.label }}</label>
+                    {{ form.month }}
+                    {{ form.month.errors }}
+                </div>
+                <div class="col-lg-3 pf-field">
+                    <label>{{ form.payment_method.label }}</label>
+                    {{ form.payment_method }}
+                    {{ form.payment_method.errors }}
+                </div>
+            </div>
+            <div class="row g-3 bank-details">
+                <div class="col-lg-6 pf-field">
+                    <label>{{ form.bank_name.label }}</label>
+                    {{ form.bank_name }}
+                    {{ form.bank_name.errors }}
+                </div>
+                <div class="col-lg-6 pf-field">
+                    <label>{{ form.account_number.label }}</label>
+                    {{ form.account_number }}
+                    {{ form.account_number.errors }}
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Earnings + Deductions (2 columns) ===== -->
+        <div class="row g-3 mb-3">
+            <div class="col-lg-6">
+                <div class="pf-card h-100">
+                    <div class="pf-card-head pf-section-earn"><i class="fa-solid fa-circle-plus"></i> المستحقات (الإيرادات والمزايا)</div>
+                    <div class="row g-3">
+                        <div class="col-md-6 pf-field pf-num-prefix">
+                            <label>{{ form.basic_salary.label }}</label>
+                            <span class="pf-currency">$</span>
+                            {{ form.basic_salary }}
+                            {{ form.basic_salary.errors }}
+                        </div>
+                        <div class="col-md-6 pf-field pf-num-prefix">
+                            <label>{{ form.allowances.label }}</label>
+                            <span class="pf-currency">$</span>
+                            {{ form.allowances }}
+                            {{ form.allowances.errors }}
+                        </div>
+                        <div class="col-md-6 pf-field pf-num-prefix">
+                            <label>{{ form.bonuses.label }}</label>
+                            <span class="pf-currency">$</span>
+                            {{ form.bonuses }}
+                            {{ form.bonuses.errors }}
+                        </div>
+                        <div class="col-md-6 pf-field pf-num-prefix">
+                            <label>{{ form.overtime_pay.label }}</label>
+                            <span class="pf-currency">$</span>
+                            {{ form.overtime_pay }}
+                            {{ form.overtime_pay.errors }}
+                        </div>
+                    </div>
+                    <div class="pf-divider"></div>
+                    <div class="d-flex justify-content-between" style="font-size:.85rem;">
+                        <span style="color:#94a3b8; font-weight:700;"><i class="fa-solid fa-scale-balanced me-1"></i> إجمالي المستحقات</span>
+                        <b id="pfTotalEarn" style="color:#34d399; font-size:1.05rem;">0.00 $</b>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="pf-card h-100">
+                    <div class="pf-card-head pf-section-ded"><i class="fa-solid fa-circle-minus"></i> الخصومات (الاستقطاعات)</div>
+                    <div class="row g-3">
+                        <div class="col-md-6 pf-field pf-num-prefix">
+                            <label>{{ form.deductions_absence.label }}</label>
+                            <span class="pf-currency">$</span>
+                            {{ form.deductions_absence }}
+                            {{ form.deductions_absence.errors }}
+                        </div>
+                        <div class="col-md-6 pf-field pf-num-prefix">
+                            <label>{{ form.deductions_delay.label }}</label>
+                            <span class="pf-currency">$</span>
+                            {{ form.deductions_delay }}
+                            {{ form.deductions_delay.errors }}
+                        </div>
+                        <div class="col-md-6 pf-field pf-num-prefix">
+                            <label>{{ form.insurance.label }}</label>
+                            <span class="pf-currency">$</span>
+                            {{ form.insurance }}
+                            {{ form.insurance.errors }}
+                        </div>
+                        <div class="col-md-6 pf-field pf-num-prefix">
+                            <label>{{ form.other_deductions.label }}</label>
+                            <span class="pf-currency">$</span>
+                            {{ form.other_deductions }}
+                            {{ form.other_deductions.errors }}
+                        </div>
+                    </div>
+                    <div class="pf-divider"></div>
+                    <div class="d-flex justify-content-between" style="font-size:.85rem;">
+                        <span style="color:#94a3b8; font-weight:700;"><i class="fa-solid fa-scissors me-1"></i> إجمالي الخصومات</span>
+                        <b id="pfTotalDed" style="color:#fb7185; font-size:1.05rem;">0.00 $</b>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Live Calculator ===== -->
+        <div class="pf-calc mb-4">
+            <div class="d-flex flex-wrap align-items-start gap-4">
+                <div class="pf-calc-cell">
+                    <div class="pf-calc-label"><i class="fa-solid fa-arrow-up" style="color:#34d399;"></i> إجمالي المستحقات</div>
+                    <div class="pf-calc-value pf-pos" id="pfNetEarn">0.00 $</div>
+                </div>
+                <div class="pf-calc-cell">
+                    <div class="pf-calc-label"><i class="fa-solid fa-arrow-down" style="color:#fb7185;"></i> إجمالي الخصومات</div>
+                    <div class="pf-calc-value pf-neg" id="pfNetDed">0.00 $</div>
+                </div>
+                <div class="pf-calc-cell">
+                    <div class="pf-calc-label"><i class="fa-solid fa-wallet" style="color:#f2b44c;"></i> صافي الراتب المستحق</div>
+                    <div class="pf-calc-value pf-net" id="pfNetResult">0.00 $</div>
+                    <div class="pf-net-bar"><div class="pf-net-fill" id="pfNetFill"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="pf-btn-save">
+                <i class="fa-solid fa-calculator"></i> حساب وحفظ المسير
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const EARN_FIELDS = ['basic_salary', 'allowances', 'bonuses', 'overtime_pay'];
+    const DED_FIELDS = ['deductions_absence', 'deductions_delay', 'insurance', 'other_deductions'];
+    const inputs = document.querySelectorAll('input[data-calc]');
+
+    function num(value) { const n = parseFloat(value); return isNaN(n) ? 0 : n; }
+    function fmt(n) { return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' $'; }
+
+    function calculateTotals() {
+        let earn = 0, ded = 0;
+        inputs.forEach(function (el) {
+            const v = num(el.value);
+            if (EARN_FIELDS.includes(el.name)) earn += v;
+            if (DED_FIELDS.includes(el.name)) ded += v;
+        });
+        const net = earn - ded;
+        document.getElementById('pfTotalEarn').textContent = fmt(earn);
+        document.getElementById('pfNetEarn').textContent = fmt(earn);
+        document.getElementById('pfTotalDed').textContent = fmt(ded);
+        document.getElementById('pfNetDed').textContent = fmt(ded);
+        document.getElementById('pfNetResult').textContent = fmt(net);
+        const pct = Math.min(Math.max(net / (earn || 1) * 100, 0), 100);
+        document.getElementById('pfNetFill').style.width = pct + '%';
+    }
+    window.calculateTotals = calculateTotals;
+
+    function getBasicInput() {
+        return document.getElementById('id_basic_salary') || document.getElementById('basicSalary');
+    }
+
+    inputs.forEach(function (el) {
+        el.addEventListener('input', calculateTotals);
+        el.addEventListener('change', calculateTotals);
+    });
+    calculateTotals();
+
+    // --- Filtering: department / role → employee options ---
+    const departmentFilter = document.getElementById('departmentFilter');
+    const roleFilter = document.getElementById('roleFilter');
+    const employeeSelect = document.getElementById('employeeSelect');
+    const allEmployeeOptions = Array.prototype.slice.call(employeeSelect ? employeeSelect.options : []);
+
+    const employeeOptions = function () {
+        return allEmployeeOptions.filter(function (opt) { return opt.value !== ''; });
+    };
+
+    function applyFilters() {
+        const deptVal = departmentFilter ? departmentFilter.value : '';
+        const roleVal = roleFilter ? roleFilter.value : '';
+        employeeOptions().forEach(function (opt) {
+            const show =
+                (!deptVal || opt.dataset.department === deptVal) &&
+                (!roleVal || opt.dataset.role === roleVal);
+            opt.disabled = !show;
+            opt.hidden = !show;
+        });
+        if (departmentFilter) { departmentFilter.style.borderColor = deptVal ? '#8b7ff2' : '#334155'; }
+        if (roleFilter) { roleFilter.style.borderColor = roleVal ? '#8b7ff2' : '#334155'; }
+    }
+    window.applyFilters = applyFilters;
+
+    if (departmentFilter) departmentFilter.addEventListener('change', applyFilters);
+    if (roleFilter) roleFilter.addEventListener('change', applyFilters);
+
+    // --- Upon selecting an employee: auto-fill basic salary from data-salary
+    // and immediately refresh "إجمالي المستحقات" + "صافي الراتب المستحق".
+    if (employeeSelect) {
+        employeeSelect.addEventListener('change', function () {
+            const option = employeeSelect.options[employeeSelect.selectedIndex];
+            const salary = num(option ? option.dataset.salary : '0');
+            const basicInput = getBasicInput();
+            if (basicInput) { basicInput.value = salary > 0 ? salary.toFixed(2) : ''; }
+            calculateTotals();
+        });
+    }
+
+    // --- Bank details visibility: only for bank transfer (تحويل بنكي) ---
+    const BANK_METHOD = 'BANK';
+    const bankDetails = document.querySelector('.bank-details');
+    const paymentMethod = document.getElementById('id_payment_method') || document.querySelector('select[name="payment_method"]');
+
+    function toggleBankDetails() {
+        const show = paymentMethod ? paymentMethod.value === BANK_METHOD : true;
+        if (bankDetails) {
+            bankDetails.style.display = show ? '' : 'none';
+        }
+        if (paymentMethod && !show) {
+            const bankName = document.getElementById('id_bank_name');
+            const account = document.getElementById('id_account_number');
+            if (bankName) bankName.value = '';
+            if (account) account.value = '';
+        }
+    }
+    window.toggleBankDetails = toggleBankDetails;
+    if (paymentMethod) paymentMethod.addEventListener('change', toggleBankDetails);
+    toggleBankDetails();
+});
+</script>
+{% endblock %}

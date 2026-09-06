@@ -8,10 +8,12 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from departments.models import Department
 from .models import LeaveRequest
 from employees.models import Employee
+from .ml_engine import is_peak_period, predict_leave_approval
 from .services import deduplicate_leave_queryset, notify_leave_status_changed, notify_leave_submitted
 
 
@@ -273,6 +275,69 @@ def leave_delete_view(request, leave_id):
 
 
 @login_required
+def analyze_leave_ai(request):
+    """تحليل ذكي مبدئي لطلب إجازة (AJAX/POST) — لا يُنشئ أي طلب."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'الطريقة غير مسموحة.'}, status=405)
+
+    employee = getattr(request.user, 'employee_profile', None)
+    if not employee:
+        return JsonResponse({'success': False, 'error': 'يجب ربط حسابك بملف موظف أولاً.'}, status=400)
+
+    leave_type = request.POST.get('leave_type', 'ANNUAL')
+    if leave_type not in dict(LeaveRequest.LeaveType.choices):
+        return JsonResponse({'success': False, 'error': 'نوع الإجازة غير صالح.'}, status=400)
+
+    try:
+        start_date = datetime.strptime(request.POST.get('start_date', ''), '%Y-%m-%d').date()
+        end_date = datetime.strptime(request.POST.get('end_date', ''), '%Y-%m-%d').date()
+    except (TypeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'يرجى إدخال تاريخين صحيحين للبداية والنهاية.'}, status=400)
+
+    if end_date < start_date:
+        return JsonResponse({'success': False, 'error': 'يجب أن يكون تاريخ النهاية بعد تاريخ البداية.'}, status=400)
+
+    requested_days = (end_date - start_date).days + 1
+    remaining_balance = employee.leave_remaining(leave_type)
+
+    dept_conflicts = 0
+    if employee.department_id:
+        dept_conflicts = LeaveRequest.objects.filter(
+            employee__department_id=employee.department_id,
+            status='APPROVED',
+            start_date__lte=end_date,
+            end_date__gte=start_date,
+        ).exclude(employee=employee).count()
+
+    is_peak = is_peak_period(start_date, end_date)
+    notice_days = (start_date - timezone.localdate()).days
+
+    result = predict_leave_approval(
+        requested_days=requested_days,
+        remaining_balance=remaining_balance,
+        dept_conflicts=dept_conflicts,
+        is_peak=is_peak,
+        notice_days=notice_days,
+        leave_type=leave_type,
+    )
+
+    return JsonResponse({
+        'success': True,
+        'leave_type': leave_type,
+        'requested_days': requested_days,
+        'remaining_balance': remaining_balance,
+        'dept_conflicts': dept_conflicts,
+        'is_peak': is_peak,
+        'notice_days': max(notice_days, 0),
+        'probability': result['probability'],
+        'verdict': result['verdict'],
+        'recommendation': result['recommendation'],
+        'reasons': result['reasons'],
+        'model': result['model'],
+    })
+
+
+@login_required
 def apply_leave(request):
     def _context():
         employee = getattr(request.user, 'employee_profile', None)
@@ -363,39 +428,64 @@ def apply_leave(request):
 
 
 @login_required
-def approve_leave(request, pk):
-    leave = get_object_or_404(LeaveRequest, pk=pk)
+def _can_decide_leave(request, leave):
+    """هل يملك المستخدم صلاحية قبول/رفض هذا الطلب؟ (HR فقط أو مدير قسم الموظف صاحب الطلب)"""
     employee_profile = getattr(request.user, 'employee_profile', None)
     is_hr = (
         request.user.is_superuser or request.user.is_staff or
         getattr(getattr(employee_profile, 'position', None), 'role', '').lower() == 'hr admin' or
         request.user.groups.filter(name='HR').exists()
     )
-    is_department_manager = bool(
-        employee_profile and employee_profile.department_id == leave.employee.department_id and
+    if is_hr:
+        return True
+    return bool(
+        employee_profile and
+        employee_profile.department_id == leave.employee.department_id and
         getattr(employee_profile.position, 'role', '') == 'Manager'
     )
-    if not (is_hr or is_department_manager):
+
+
+def _decision_redirect(request):
+    """العودة إلى صفحة الطلب (للمدير) بعد اتخاذ القرار، مع منع إعادة التوجيه لمواقع خارجية."""
+    next_url = request.GET.get('next') or request.POST.get('next')
+    if next_url and url_has_allowed_host_and_scheme(
+            next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return redirect(next_url)
+    return redirect('leaves:leave_list')
+
+
+def _apply_leave_decision(request, leave, decision):
+    """تطبيق قرار القبول/الرفض على طلب إجازة مع تفعيل الرصيد تلقائياً للمقبول."""
+    if not _can_decide_leave(request, leave):
         messages.error(request, 'ليس لديك صلاحية مراجعة طلب الإجازة هذا.')
-        return redirect('leaves:leave_list')
+        return _decision_redirect(request)
+
+    if decision not in ('APPROVED', 'REJECTED'):
+        messages.error(request, 'اختيار القرار غير صالح.')
+        return _decision_redirect(request)
+
+    leave.status = decision
+    leave.approved_by = getattr(request.user, 'employee_profile', None)
+    leave.manager_notes = request.POST.get('manager_notes', '')
+    leave.save(update_fields=['status', 'approved_by', 'manager_notes'])
+    notify_leave_status_changed(leave, actor=request.user)
+    if decision == 'APPROVED':
+        messages.success(request, 'تم قبول طلب الإجازة وتحديث رصيد الموظف تلقائياً.')
+    else:
+        messages.success(request, 'تم رفض طلب الإجازة.')
+    return _decision_redirect(request)
+
+
+@login_required
+def approve_leave(request, pk):
+    leave = get_object_or_404(LeaveRequest, pk=pk)
 
     balance_total = leave.employee.leave_quota(leave.leave_type)
     balance_remaining = leave.employee.leave_remaining(leave.leave_type)
     balance_used = max(balance_total - balance_remaining, 0)
 
     if request.method == 'POST':
-        decision = request.POST.get('decision')
-        if decision not in ['APPROVED', 'REJECTED']:
-            messages.error(request, 'اختيار القرار غير صالح.')
-            return redirect('leaves:leave_list')
-
-        leave.status = decision
-        leave.approved_by = getattr(request.user, 'employee_profile', None)
-        leave.manager_notes = request.POST.get('manager_notes', '')
-        leave.save(update_fields=['status', 'approved_by', 'manager_notes'])
-        notify_leave_status_changed(leave, actor=request.user)
-        messages.success(request, 'تم تحديث حالة طلب الإجازة بنجاح.')
-        return redirect('leaves:leave_list')
+        return _apply_leave_decision(request, leave, request.POST.get('decision'))
 
     return render(request, 'leaves/approve_leave.html', {
         'leave': leave,
@@ -405,13 +495,45 @@ def approve_leave(request, pk):
     })
 
 
+@login_required
+def reject_leave(request, pk):
+    """رفض طلب إجازة مباشرة من قائمة الطلبات (POST فقط)."""
+    if request.method != 'POST':
+        messages.error(request, 'الطريقة غير مسموحة.')
+        return redirect('leaves:leave_list')
+    leave = get_object_or_404(LeaveRequest, pk=pk)
+    return _apply_leave_decision(request, leave, 'REJECTED')
+
+
 def predict_leave_status(leave_instance):
     """
-    محاكاة / استدعاء نموذج الذكاء الاصطناعي للتنبؤ بحالة الإجازة.
+    توليد توصية الذكاء الاصطناعي لطلب إجازة مسجّل (تُحفظ في ai_prediction/ai_confidence).
     """
     try:
-        leave_instance.ai_prediction = 'APPROVED'
-        leave_instance.ai_confidence = 88.5
+        employee = leave_instance.employee
+        remaining = employee.leave_remaining(leave_instance.leave_type)
+
+        dept_conflicts = 0
+        if employee.department_id:
+            dept_conflicts = LeaveRequest.objects.filter(
+                employee__department_id=employee.department_id,
+                status='APPROVED',
+                start_date__lte=leave_instance.end_date,
+                end_date__gte=leave_instance.start_date,
+            ).exclude(employee=employee).count()
+
+        notice_days = (leave_instance.start_date - timezone.localdate()).days
+        result = predict_leave_approval(
+            requested_days=leave_instance.total_days,
+            remaining_balance=remaining,
+            dept_conflicts=dept_conflicts,
+            is_peak=is_peak_period(leave_instance.start_date, leave_instance.end_date),
+            notice_days=notice_days,
+            leave_type=leave_instance.leave_type,
+        )
+
+        leave_instance.ai_prediction = 'APPROVED' if result['probability'] >= 55 else 'REJECTED'
+        leave_instance.ai_confidence = round(result['probability'], 1)
         leave_instance.save(update_fields=['ai_prediction', 'ai_confidence'])
     except Exception as exc:
         print(f"ML Prediction Error: {exc}")

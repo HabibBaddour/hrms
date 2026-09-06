@@ -89,6 +89,16 @@
     .del-btn:hover { color: #fff; background: linear-gradient(135deg, #F87171, #DC2626); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(220,38,38,.3); }
     .del-btn:disabled { opacity: .45; pointer-events: none; }
 
+    .act-form { display: inline; margin: 0; }
+
+    .app-btn { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 11px; color: #15803D; background: rgba(21,128,61,.09); border: 1px solid rgba(21,128,61,.3); text-decoration: none; transition: all .2s ease; }
+
+    .app-btn:hover { color: #fff; background: linear-gradient(135deg, #34D399, #15803D); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(21,128,61,.3); }
+
+    .rej-btn { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 11px; color: #DC2626; background: rgba(220,38,38,.08); border: 1px solid rgba(220,38,38,.28); text-decoration: none; transition: all .2s ease; }
+
+    .rej-btn:hover { color: #fff; background: linear-gradient(135deg, #F87171, #DC2626); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(220,38,38,.3); }
+
     .act-cell { display: inline-flex; gap: 8px; align-items: center; }
 
     /* ===== Detail modal ===== */
@@ -254,6 +264,20 @@
                                 <button type="button" class="view-btn js-leave-view" data-id="{{ leave.pk }}" title="عرض التفاصيل" data-bs-toggle="tooltip" data-bs-placement="top">
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
+                                {% if is_privileged and leave.status == 'PENDING' %}
+                                <form method="post" action="{% url 'leaves:approve_leave' leave.pk %}" class="act-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="app-btn" title="قبول الطلب" data-bs-toggle="tooltip" data-bs-placement="top">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'leaves:reject_leave' leave.pk %}" class="act-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="rej-btn" title="رفض الطلب" data-bs-toggle="tooltip" data-bs-placement="top">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
                                 {% if not is_privileged %}
                                     {% if leave.status == 'PENDING' %}
                                     <button type="button" class="del-btn js-leave-delete" data-id="{{ leave.pk }}" data-summary="{{ leave.start_date }}" title="حذف الطلب" data-bs-toggle="tooltip" data-bs-placement="top">

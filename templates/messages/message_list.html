@@ -34,6 +34,22 @@
     .message-filters form .btn-primary:hover { filter:brightness(1.07); }
     .message-filters .btn-outline-secondary { border-color:#E7E3F5; color:#6E6A86; }
 
+    .msd { position:relative; }
+    .msd .form-select { cursor:pointer; min-height:40px; border-radius:10px; border-color:#E7E3F5; color:#2B2545; font-size:.85rem; white-space:nowrap; }
+    .msd .form-select:focus { border-color:#8B7FF2; box-shadow:0 0 0 3px rgba(97,83,228,.15); }
+    .msd-menu { display:none; position:absolute; top:calc(100% + 4px); inset-inline-start:0; z-index:1060; min-width:100%; width:max-content; max-width:280px; padding:6px; background:#fff; border:1px solid #E7E3F5; border-radius:12px; box-shadow:0 14px 34px rgba(21,17,48,.14); max-height:250px; overflow-y:auto; }
+    .msd.open .msd-menu { display:block; }
+    .msd.open .msd-caret { transform:rotate(180deg); }
+    .msd-caret { transition:transform .2s ease; font-size:.7rem; color:#9B95B5; }
+    .msd-item { display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:.82rem; color:#3A3552; transition:background .15s ease; }
+    .msd-item:hover { background:#F6F4FB; }
+    .msd-item input { cursor:pointer; accent-color:#6153E4; }
+    .msd-all-row { border-bottom:1px solid #F0EDFA; margin-bottom:4px; font-weight:700; color:#6E6A86; white-space:nowrap; }
+    body.dark-mode .msd-menu { background:#172033; border-color:#334155; }
+    body.dark-mode .msd-item { color:#e2e8f0; }
+    body.dark-mode .msd-item:hover { background:#1e293b; }
+    body.dark-mode .msd-all-row { border-color:#334155; }
+
     .messages-table thead th { background:#FAF9FE; color:#6E6A86; font-size:.72rem; font-weight:800; letter-spacing:.02em; border-bottom:1px solid #ECEAF6; padding-block:13px; }
     .messages-table td { border-color:#F3F1FA; }
     .messages-table tbody tr { transition:background .18s ease; }
@@ -141,42 +157,54 @@
     <div class="table-responsive">
         <div class="message-filters">
             <div class="d-flex flex-wrap gap-2 mb-3 folder-pills">
-                <a href="?{% if search_query %}q={{ search_query|urlencode }}&{% endif %}{% if date_from %}date_from={{ date_from }}&{% endif %}{% if date_to %}date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_folder == 'all' and not active_status %}btn-primary{% else %}btn-outline-primary{% endif %}">الكل <span class="badge bg-white text-primary ms-1">{{ filter_counts.all }}</span></a>
-                <a href="?folder=inbox{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_folder == 'inbox' and not active_status %}btn-primary{% else %}btn-outline-primary{% endif %}">الواردة <span class="badge bg-white text-primary ms-1">{{ filter_counts.inbox }}</span></a>
-                <a href="?folder=sent{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_folder == 'sent' %}btn-primary{% else %}btn-outline-primary{% endif %}">الصادرة <span class="badge bg-white text-primary ms-1">{{ filter_counts.sent }}</span></a>
-                <a href="?status=unread{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_status == 'unread' %}btn-primary{% else %}btn-outline-primary{% endif %}">غير مقروءة <span class="badge bg-white text-primary ms-1">{{ filter_counts.unread }}</span></a>
-                <a href="?status=read{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm {% if active_status == 'read' %}btn-primary{% else %}btn-outline-primary{% endif %}">مقروءة <span class="badge bg-white text-primary ms-1">{{ filter_counts.read }}</span></a>
+                <a href="?{{ preserve_query }}" class="btn btn-sm {% if active_folder == 'all' and not active_status %}btn-primary{% else %}btn-outline-primary{% endif %}">الكل <span class="badge bg-white text-primary ms-1">{{ filter_counts.all }}</span></a>
+                <a href="?folder=inbox{% if preserve_query %}&{{ preserve_query }}{% endif %}" class="btn btn-sm {% if active_folder == 'inbox' and not active_status %}btn-primary{% else %}btn-outline-primary{% endif %}">الواردة <span class="badge bg-white text-primary ms-1">{{ filter_counts.inbox }}</span></a>
+                <a href="?folder=sent{% if preserve_query %}&{{ preserve_query }}{% endif %}" class="btn btn-sm {% if active_folder == 'sent' %}btn-primary{% else %}btn-outline-primary{% endif %}">الصادرة <span class="badge bg-white text-primary ms-1">{{ filter_counts.sent }}</span></a>
+                <a href="?status=unread{% if preserve_query %}&{{ preserve_query }}{% endif %}" class="btn btn-sm {% if active_status == 'unread' %}btn-primary{% else %}btn-outline-primary{% endif %}">غير مقروءة <span class="badge bg-white text-primary ms-1">{{ filter_counts.unread }}</span></a>
+                <a href="?status=read{% if preserve_query %}&{{ preserve_query }}{% endif %}" class="btn btn-sm {% if active_status == 'read' %}btn-primary{% else %}btn-outline-primary{% endif %}">مقروءة <span class="badge bg-white text-primary ms-1">{{ filter_counts.read }}</span></a>
             </div>
-            <form method="get" class="row g-2 align-items-end">
-                <div class="col-md-4">
-                    <label for="message_search" class="form-label small fw-semibold mb-1">بحث في الموضوع أو اسم المرسل والمستقبل</label>
-                    <input type="search" class="form-control" id="message_search" name="q" value="{{ search_query }}" placeholder="اكتب كلمة البحث...">
+            <form method="get" class="d-flex align-items-end gap-2 flex-wrap flex-md-nowrap">
+                <div class="flex-grow-1" style="min-width:180px; max-width:300px;">
+                    <label for="message_search" class="form-label small fw-semibold mb-1">بحث</label>
+                    <input type="search" class="form-control" id="message_search" name="q" value="{{ search_query }}" placeholder="ابحث في الموضوع أو المرسل...">
                 </div>
-                <div class="col-md-2">
+                <div style="min-width:150px;">
                     <label for="date_from" class="form-label small fw-semibold mb-1">من تاريخ</label>
                     <input type="date" class="form-control" id="date_from" name="date_from" value="{{ date_from }}">
                 </div>
-                <div class="col-md-2">
+                <div style="min-width:150px;">
                     <label for="date_to" class="form-label small fw-semibold mb-1">إلى تاريخ</label>
                     <input type="date" class="form-control" id="date_to" name="date_to" value="{{ date_to }}">
                 </div>
-                <div class="col-md-2">
-                    <label for="department_filter">القسم</label>
-                    <select class="form-select" id="department_filter" name="department">
-                        <option value="">كل الأقسام</option>
-                        {% for department in departments %}<option value="{{ department.id }}" {% if active_department == department.id|stringformat:"s" %}selected{% endif %}>{{ department.name }}</option>{% endfor %}
-                    </select>
+                <div class="msd" data-msd style="min-width:180px; max-width:230px;">
+                    <label for="department_msd_toggle" class="form-label small fw-semibold mb-1">القسم</label>
+                    <button type="button" class="form-select d-flex align-items-center justify-content-between gap-2" id="department_msd_toggle" data-msd-toggle aria-expanded="false">
+                        <span data-msd-label>كل الأقسام</span>
+                        <i class="fa-solid fa-chevron-down msd-caret" aria-hidden="true"></i>
+                    </button>
+                    <div class="msd-menu" data-msd-menu>
+                        <label class="msd-item msd-all-row"><input type="checkbox" class="msd-all" data-msd-all checked> <span>كل الأقسام</span></label>
+                        {% for department in departments %}
+                        <label class="msd-item"><input type="checkbox" class="msd-option" name="departments" value="{{ department.id }}" {% if department.id|stringformat:'s' in selected_departments %}checked{% endif %}> <span>{{ department.name }}</span></label>
+                        {% endfor %}
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <label for="role_filter">الدور</label>
-                    <select class="form-select" id="role_filter" name="role">
-                        <option value="">كل الأدوار</option>
-                        {% for role in role_options %}<option value="{{ role }}" {% if active_role == role %}selected{% endif %}>{{ role }}</option>{% endfor %}
-                    </select>
+                <div class="msd" data-msd style="min-width:170px; max-width:215px;">
+                    <label for="role_msd_toggle" class="form-label small fw-semibold mb-1">الدور</label>
+                    <button type="button" class="form-select d-flex align-items-center justify-content-between gap-2" id="role_msd_toggle" data-msd-toggle aria-expanded="false">
+                        <span data-msd-label>كل الأدوار</span>
+                        <i class="fa-solid fa-chevron-down msd-caret" aria-hidden="true"></i>
+                    </button>
+                    <div class="msd-menu" data-msd-menu>
+                        <label class="msd-item msd-all-row"><input type="checkbox" class="msd-all" data-msd-all checked> <span>كل الأدوار</span></label>
+                        {% for role in role_options %}
+                        <label class="msd-item"><input type="checkbox" class="msd-option" name="roles" value="{{ role }}" {% if role in selected_roles %}checked{% endif %}> <span>{{ role }}</span></label>
+                        {% endfor %}
+                    </div>
                 </div>
-                <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary flex-grow-1"><i class="fa-solid fa-magnifying-glass"></i> بحث</button>
-                    <a href="{% url 'message_list' %}" class="btn btn-outline-secondary" title="مسح الفلاتر"><i class="fa-solid fa-rotate-left"></i></a>
+                <div class="d-flex gap-2 mt-auto">
+                    <button type="submit" class="btn btn-primary d-flex align-items-center gap-1" style="min-height:40px;"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> بحث</button>
+                    <a href="?" class="btn btn-outline-secondary d-flex align-items-center justify-content-center" style="min-height:40px; min-width:40px;" title="إعادة ضبط الفلاتر"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></a>
                 </div>
             </form>
         </div>
@@ -282,6 +310,50 @@
 </div>
 
 <script>
+(function initMultiSelectDropdowns() {
+    document.querySelectorAll('.msd[data-msd]').forEach((root) => {
+        const toggle = root.querySelector('[data-msd-toggle]');
+        const menu = root.querySelector('[data-msd-menu]');
+        const label = root.querySelector('[data-msd-label]');
+        const all = root.querySelector('[data-msd-all]');
+        const options = Array.from(root.querySelectorAll('.msd-option'));
+        const allText = (all.closest('.msd-item').querySelector('span') || all.closest('.msd-item')).textContent.trim();
+
+        const update = () => {
+            const checked = options.filter(option => option.checked);
+            if (checked.length === 0) {
+                all.checked = true;
+                label.textContent = allText;
+            } else {
+                all.checked = false;
+                label.textContent = checked.length === 1 ? checked[0].parentElement.querySelector('span').textContent.trim() : `تم اختيار ${checked.length}`;
+            }
+        };
+
+        toggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+            document.querySelectorAll('.msd.open').forEach(el => el.classList.remove('open'));
+            root.classList.toggle('open');
+            toggle.setAttribute('aria-expanded', root.classList.contains('open') ? 'true' : 'false');
+        });
+
+        menu.addEventListener('click', (event) => event.stopPropagation());
+
+        all.addEventListener('change', () => {
+            if (all.checked) options.forEach(option => { option.checked = false; });
+            update();
+        });
+
+        options.forEach(option => option.addEventListener('change', update));
+
+        document.addEventListener('click', (event) => {
+            if (!root.contains(event.target)) root.classList.remove('open');
+        });
+
+        update();
+    });
+})();
+
 const readerFilters = ['readerDepartmentFilter', 'readerRoleFilter', 'readerStatusFilter'];
 let readerAnalyticsVisible = false;
 

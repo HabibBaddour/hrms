@@ -110,6 +110,7 @@
     .mi-emerald { background:rgba(20,163,116,.12); color:#0F8A60; }
     .mi-teal { background:rgba(23,176,167,.13); color:#0E8F88; }
     .mi-gold { background:rgba(242,180,76,.18); color:#C08A25; }
+    .mi-sky { background:rgba(59,130,246,.12); color:#1D4ED8; }
     .mi-danger { background:rgba(220,53,69,.1); color:#C0392B; }
     .mi-muted { background:var(--track); color:#9AA0B5; }
     .mr-name { font-weight:700; color:#45516B; font-size:.87rem; }
@@ -118,6 +119,7 @@
     .mf-emerald { background:var(--grad-1); }
     .mf-teal { background:var(--grad-2); }
     .mf-gold { background:var(--grad-3); }
+    .mf-sky { background:linear-gradient(90deg,#1D4ED8,#60A5FA); }
     .mr-pct { font-size:.72rem; font-weight:700; color:var(--muted); margin-top:4px; }
     .mr-value { margin-inline-start:auto; text-align:left; flex-shrink:0; }
     .mr-value b { font-weight:800; color:var(--head); font-size:.95rem; letter-spacing:.3px; }
@@ -288,6 +290,12 @@
                     <div class="fact-row"><i class="fa-regular fa-calendar-days"></i><span class="fk">فترة الراتب</span><span class="fv">{{ month_name }} {{ payroll.year }}</span></div>
                     <div class="fact-row"><i class="fa-solid fa-circle-info"></i><span class="fk">الحالة</span><span class="fv">{% if payroll.status == 'PAID' %}<span style="color:#0F8A60;"><span class="pulse-dot d-inline-block me-1"></span>مدفوع</span>{% else %}<span style="color:#C08A25;">معلق</span>{% endif %}</span></div>
                 </div>
+            </div>
+            <div class="panel mt-3">
+                <div class="panel-title"><i class="fa-solid fa-credit-card"></i> بيانات الصرف</div>
+                <div class="fact-row"><i class="fa-solid fa-money-check-dollar"></i><span class="fk">طريقة الصرف</span><span class="fv">{{ payment_details.method_display|default:'غير محدد' }}</span></div>
+                <div class="fact-row"><i class="fa-solid fa-building-columns"></i><span class="fk">البنك</span><span class="fv">{{ payment_details.bank_name|default:'غير محدد' }}</span></div>
+                <div class="fact-row"><i class="fa-solid fa-hashtag"></i><span class="fk">رقم الحساب</span><span class="fv">{{ payment_details.account_number|default:'غير محدد' }}</span></div>
             </div>
         </div>
 

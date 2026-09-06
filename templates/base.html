@@ -794,7 +794,7 @@
 						href="{% url 'attendance:attendance_list' %}"
 						class="{% if request.resolver_match.url_name == 'attendance_list' %}active{% endif %}"
 					>
-						<i class="fa-solid fa-calendar-check"></i> جدول الحضور والدوام
+						<i class="fa-solid fa-calendar-check"></i> جدول الدوام والإجازات
 					</a>
 				</li>
 				{% elif user_role == 'Manager' or user_role == 'manager' %}
@@ -840,7 +840,7 @@
 						href="{% url 'attendance:attendance_list' %}"
 						class="{% if request.resolver_match.url_name == 'attendance_list' %}active{% endif %}"
 					>
-						<i class="fa-solid fa-calendar-check"></i> جدول الحضور والدوام
+						<i class="fa-solid fa-calendar-check"></i> جدول الدوام والإجازات
 					</a>
 				</li>
 				{% else %}
@@ -876,7 +876,7 @@
 						href="{% url 'attendance:attendance_list' %}"
 						class="{% if request.resolver_match.url_name == 'attendance_list' %}active{% endif %}"
 					>
-						<i class="fa-solid fa-calendar-check"></i> جدول الحضور والدوام
+						<i class="fa-solid fa-calendar-check"></i> جدول الدوام والإجازات
 					</a>
 				</li>
 				{% endif %}
@@ -936,7 +936,7 @@
 			<header class="topbar">
 				<div class="d-flex align-items-center gap-3">
 					<h5 class="page-title fw-bold mb-0" id="page-main-title">
-						{% block page_title %}{% if request.resolver_match.url_name == 'dashboard' %}لوحة التحكم الرئيسية{% elif 'department' in request.resolver_match.url_name %}إدارة الأقسام والوظائف{% elif 'employee' in request.resolver_match.url_name %}إدارة الموظفين{% elif 'leave' in request.resolver_match.url_name %}إدارة طلبات الإجازات{% elif request.resolver_match.url_name == 'message_list' %}صندوق الرسائل والاتصالات الداخلية{% elif request.resolver_match.url_name == 'notification_list' or request.resolver_match.url_name == 'core:notification_list' %}مركز الإشعارات وتنبيهات النظام{% elif request.resolver_match.url_name == 'attendance_list' %}جدول الحضور والدوام{% else %}لوحة التحكم{% endif %}{% endblock %}
+						{% block page_title %}{% if request.resolver_match.url_name == 'dashboard' %}لوحة التحكم الرئيسية{% elif 'department' in request.resolver_match.url_name %}إدارة الأقسام والوظائف{% elif 'employee' in request.resolver_match.url_name %}إدارة الموظفين{% elif 'leave' in request.resolver_match.url_name %}إدارة طلبات الإجازات{% elif request.resolver_match.url_name == 'message_list' %}صندوق الرسائل والاتصالات الداخلية{% elif request.resolver_match.url_name == 'notification_list' or request.resolver_match.url_name == 'core:notification_list' %}مركز الإشعارات وتنبيهات النظام{% elif request.resolver_match.url_name == 'attendance_list' %}جدول الدوام والإجازات{% else %}لوحة التحكم{% endif %}{% endblock %}
 					</h5>
 				</div>
 

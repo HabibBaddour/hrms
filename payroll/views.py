@@ -1,4 +1,5 @@
 from decimal import Decimal
+from datetime import datetime
 from io import BytesIO
 from types import SimpleNamespace
 
@@ -13,7 +14,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from employees.models import Employee
-from departments.models import Department
+from departments.models import Department, Position
 from payroll.models import Payroll
 from .forms import PayrollForm
 
@@ -41,6 +42,7 @@ def _fallback_payroll_row(employee, month, year, status):
         basic_salary=base_salary,
         allowances=Decimal('0'),
         bonuses=Decimal('0'),
+        overtime_pay=Decimal('0'),
         total_deductions=Decimal('0'),
         net_salary=base_salary,
         status=status or 'PENDING',
@@ -154,12 +156,36 @@ def payroll_dashboard(request):
 
 @login_required(login_url='login')
 def create_payroll(request):
-    form = PayrollForm(request.POST or None)
+    data = request.POST or None
+    if data is not None and 'year' not in data:
+        data = data.copy()
+        data['year'] = datetime.now().year
+    form = PayrollForm(data)
+    if request.method == 'POST' and form.is_bound:
+        existing = Payroll.objects.filter(
+            employee_id=request.POST.get('employee'),
+            month=request.POST.get('month'),
+            year=request.POST.get('year'),
+        ).first()
+        if existing:
+            messages.warning(
+                request,
+                f'كشف راتب {existing.employee.get_full_name()} عن شهر {existing.month_display} {existing.year} موجود مسبقاً — تم تحويلك إليه.',
+            )
+            return redirect('payroll_payslip', pk=existing.pk)
     if form.is_valid():
         payroll = form.save()
         messages.success(request, f'تم إنشاء قسيمة راتب {payroll.employee.get_full_name()} بنجاح.')
         return redirect('payroll_payslip', pk=payroll.pk)
-    return render(request, 'payroll/payroll_form.html', {'form': form})
+    context = {
+        'form': form,
+        'employee_options': form.fields['employee'].queryset,
+        'departments': Department.objects.all().order_by('name'),
+        'roles': list(
+            Position.objects.exclude(role='').values_list('role', flat=True).distinct().order_by('role')
+        ),
+    }
+    return render(request, 'payroll/payroll_form.html', context)
 
 
 @login_required(login_url='login')
@@ -181,10 +207,18 @@ def payroll_payslip(request, pk):
         {'label': 'الراتب الأساسي', 'icon': 'fa-sack-dollar', 'value': float(payroll.basic_salary)},
         {'label': 'البدلات', 'icon': 'fa-hand-holding-dollar', 'value': float(payroll.allowances)},
         {'label': 'المكافآت', 'icon': 'fa-gift', 'value': float(payroll.bonuses)},
+        {'label': 'أجر العمل الإضافي', 'icon': 'fa-clock', 'value': float(payroll.overtime_pay)},
     ]
-    for item in earnings:
+    tones = ['emerald', 'teal', 'gold', 'sky']
+    for idx, item in enumerate(earnings):
         item['pct'] = round(item['value'] / safe_gross * 100)
-        item['tone'] = ['emerald', 'teal', 'gold'][earnings.index(item)]
+        item['tone'] = tones[idx]
+
+    payment_details = {
+        'method_display': payroll.get_payment_method_display(),
+        'bank_name': payroll.bank_name.strip() if payroll.bank_name else '',
+        'account_number': payroll.account_number.strip() if payroll.account_number else '',
+    }
 
     deduction_items = [
         {'label': 'خصم الغياب', 'icon': 'fa-user-slash', 'value': float(payroll.deductions_absence)},
@@ -219,6 +253,7 @@ def payroll_payslip(request, pk):
         'net': net,
         'earnings': earnings,
         'deduction_items': deduction_items,
+        'payment_details': payment_details,
         'comparison': comparison,
     }
     return render(request, 'payroll/payslip.html', context)

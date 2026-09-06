@@ -5,11 +5,12 @@ from django.contrib.auth import update_session_auth_hash
 from django.db import transaction
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
-from django.db.models import Q
+from django.db.models import Q, Sum, F, Value, DecimalField, Subquery, OuterRef, ExpressionWrapper
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.template.loader import render_to_string
 from decimal import Decimal
-from .models import Employee, Contract, Payslip
+from .models import Employee, Contract, Payslip, PayslipEarning, PayslipDeduction
 from .forms import ContractLifecycleForm
 from departments.models import Department, Position
 from core.notification_utils import notify_employee_created
@@ -633,8 +634,16 @@ def _payslip_queryset():
 
 
 def _can_view_payslip(user, payslip):
-    """الموظف يرى قسيمته فقط، ومسؤولو HR يرون كل القسائم."""
-    return _is_hr_user(user) or (payslip.employee.user_id and payslip.employee.user_id == user.id)
+    """الموظف يرى قسيمته فقط، ومسؤولو HR يرون كل القسائم، ومدير القسم يرى قسائم موظفي قسمه."""
+    if _is_hr_user(user):
+        return True
+    if user.is_authenticated and payslip.employee.user_id and payslip.employee.user_id == user.id:
+        return True
+    # مدير القسم: يظهر موظفو قسمه فقط
+    viewer_emp = getattr(user, 'employee_profile', None)
+    if viewer_emp and getattr(getattr(viewer_emp, 'position', None), 'role', '') == 'Manager':
+        return bool(viewer_emp.department_id and viewer_emp.department_id == payslip.employee.department_id)
+    return False
 
 
 def _user_assigned_salary(user):
@@ -722,8 +731,28 @@ def payslip_list_view(request):
         ).prefetch_related('earnings', 'deductions').order_by('-year', '-month', '-id')
 
     payslips_count = user_payslips.count()
-    total_net_salary = sum(p.net_salary for p in user_payslips)
-    if payslips_count == 0:
+    if payslips_count:
+        earn_sub = PayslipEarning.objects.filter(
+            payslip=OuterRef('pk')
+        ).values('payslip').annotate(t=Sum('amount')).values('t')
+        ded_sub = PayslipDeduction.objects.filter(
+            payslip=OuterRef('pk')
+        ).values('payslip').annotate(t=Sum('amount')).values('t')
+        net_qs = user_payslips.annotate(
+            _earn=Subquery(earn_sub),
+            _ded=Subquery(ded_sub),
+        ).annotate(
+            _net=ExpressionWrapper(
+                F('basic_salary')
+                + Coalesce(F('_earn'), Value(Decimal('0.00')))
+                - Coalesce(F('_ded'), Value(Decimal('0.00'))),
+                output_field=DecimalField(max_digits=14, decimal_places=2),
+            )
+        )
+        total_net_salary = net_qs.aggregate(
+            total=Coalesce(Sum('_net'), Value(Decimal('0.00')))
+        )['total']
+    else:
         total_net_salary = _user_assigned_salary(user)
 
     context = {
@@ -786,16 +815,30 @@ def payslip_detail_view(request, payslip_id):
     ])
 
     # === PAYMENT DETAILS (تفاصيل الدفع) ===
-    iban_val = getattr(employee, 'iban', None)
-    bank_name = getattr(employee, 'bank_name', None) or getattr(employee, 'bank', None)
+    ps_bank = getattr(payslip, 'bank_name', '') or ''
+    ps_account = getattr(payslip, 'account_number', '') or ''
+    ps_method = getattr(payslip, 'payment_method', '') or ''
+    payslip_driven = bool(ps_bank or ps_account)
+
+    iban_val = ps_account or getattr(employee, 'iban', None)
+    bank_name = ps_bank
+    if not bank_name:
+        bank_name = getattr(employee, 'bank_name', None) or getattr(employee, 'bank', None)
     if not bank_name and iban_val:
         bank_name = 'مصرف الراجحي' if 'RJHI' in str(iban_val).upper() else ('البنك الأهلي السعودي' if 'NCBK' in str(iban_val).upper() else 'الحساب البنكي المعتمد')
-    
+
+    if payslip_driven:
+        method = dict(Payslip.PAYMENT_METHODS).get(ps_method, '') or (
+            'تحويل بنكي مباشر (Bank Transfer)' if ps_account else 'صرف نقدي (Cash Payment)'
+        )
+    else:
+        method = 'تحويل بنكي مباشر (Bank Transfer)' if iban_val else 'صرف نقدي (Cash Payment)'
+
     payment_details = {
         'bank_name': bank_name or 'صرف نقدي مباشر / عبر الخزينة',
         'iban_masked': _mask_iban(iban_val),
         'iban_raw': iban_val or '',
-        'method': 'تحويل بنكي مباشر (Bank Transfer)' if iban_val else 'صرف نقدي (Cash Payment)',
+        'method': method,
     }
 
     # === SALARY CALCULATIONS (الحسابات المالية) ===
@@ -834,7 +877,6 @@ def payslip_detail_view(request, payslip_id):
         'month_display': payslip.month_name,
         'year_display': payslip.year,
     }
-    return render(request, 'employees/payslip_detail.html', context)
     return render(request, 'employees/payslip_detail.html', context)
 
 

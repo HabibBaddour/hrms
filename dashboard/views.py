@@ -6,6 +6,7 @@ from django.contrib.auth.models import User, Group
 from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
+from urllib.parse import urlencode
 from html import escape
 from html.parser import HTMLParser
 from datetime import timedelta
@@ -443,8 +444,8 @@ def message_list_view(request):
     search_query = request.GET.get('q', '').strip()
     date_from = request.GET.get('date_from', '').strip()
     date_to = request.GET.get('date_to', '').strip()
-    department_id = request.GET.get('department', '').strip()
-    role_filter = request.GET.get('role', '').strip()
+    selected_departments = [d for d in request.GET.getlist('departments') if d.isdigit()]
+    selected_roles = [r.strip() for r in request.GET.getlist('roles') if r.strip()]
     if search_query:
         visible_messages = visible_messages.filter(
             Q(subject__icontains=search_query) |
@@ -460,15 +461,15 @@ def message_list_view(request):
         visible_messages = visible_messages.filter(created_at__date__gte=date_from)
     if date_to:
         visible_messages = visible_messages.filter(created_at__date__lte=date_to)
-    if department_id.isdigit():
+    if selected_departments:
         visible_messages = visible_messages.filter(
-            Q(sender__employee_profile__department_id=department_id) |
-            Q(recipient__employee_profile__department_id=department_id)
+            Q(sender__employee_profile__department_id__in=selected_departments) |
+            Q(recipient__employee_profile__department_id__in=selected_departments)
         ).distinct()
-    if role_filter:
+    if selected_roles:
         visible_messages = visible_messages.filter(
-            Q(sender__employee_profile__position__role=role_filter) |
-            Q(recipient__employee_profile__position__role=role_filter)
+            Q(sender__employee_profile__position__role__in=selected_roles) |
+            Q(recipient__employee_profile__position__role__in=selected_roles)
         ).distinct()
 
     folder = request.GET.get('folder', 'all')
@@ -500,15 +501,15 @@ def message_list_view(request):
         counter_base = counter_base.filter(created_at__date__gte=date_from)
     if date_to:
         counter_base = counter_base.filter(created_at__date__lte=date_to)
-    if department_id.isdigit():
+    if selected_departments:
         counter_base = counter_base.filter(
-            Q(sender__employee_profile__department_id=department_id) |
-            Q(recipient__employee_profile__department_id=department_id)
+            Q(sender__employee_profile__department_id__in=selected_departments) |
+            Q(recipient__employee_profile__department_id__in=selected_departments)
         ).distinct()
-    if role_filter:
+    if selected_roles:
         counter_base = counter_base.filter(
-            Q(sender__employee_profile__position__role=role_filter) |
-            Q(recipient__employee_profile__position__role=role_filter)
+            Q(sender__employee_profile__position__role__in=selected_roles) |
+            Q(recipient__employee_profile__position__role__in=selected_roles)
         ).distinct()
 
     filter_counts = {
@@ -567,6 +568,19 @@ def message_list_view(request):
 
     departments = Department.objects.all().order_by('name')
     role_options = Position.objects.values_list('role', flat=True).distinct().order_by('role')
+
+    preserve_params = {}
+    if search_query:
+        preserve_params['q'] = search_query
+    if date_from:
+        preserve_params['date_from'] = date_from
+    if date_to:
+        preserve_params['date_to'] = date_to
+    if selected_departments:
+        preserve_params['departments'] = selected_departments
+    if selected_roles:
+        preserve_params['roles'] = selected_roles
+
     context = {
         'messages_list': grouped_messages,
         'unread_count': filter_counts['unread'],
@@ -578,8 +592,9 @@ def message_list_view(request):
         'date_to': date_to,
         'departments': departments,
         'role_options': role_options,
-        'active_department': department_id,
-        'active_role': role_filter,
+        'selected_departments': selected_departments,
+        'selected_roles': selected_roles,
+        'preserve_query': urlencode(preserve_params, doseq=True),
     }
     return render(request, 'messages/message_list.html', context)
 

@@ -332,6 +332,27 @@
         color: var(--ded-color);
     }
 
+    .ps-empty-msg {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 22px 8px;
+        justify-content: center;
+        color: var(--text-muted-color);
+        font-size: 0.88rem;
+        font-weight: 700;
+        text-align: center;
+        border: 1px dashed var(--card-border);
+        border-radius: 12px;
+        margin: 6px 0;
+        background: #FAFAFA;
+    }
+
+    .ps-empty-msg i {
+        font-size: 1.3rem;
+        opacity: 0.6;
+    }
+
     .ps-column-footer {
         padding: 16px 22px;
         display: flex;
@@ -599,7 +620,7 @@
                                 {% if item.items %}
                                 <div class="ps-item-subtitle">
                                     {% for sub in item.items %}
-                                    {{ sub.title }}{% if not forloop.last %} • {% endif %}
+                                    {{ sub.title }} ({{ sub.amount|floatformat:2 }}$){% if not forloop.last %} • {% endif %}
                                     {% endfor %}
                                 </div>
                                 {% endif %}
@@ -608,47 +629,13 @@
                         <div class="ps-item-amount earn">+ {{ item.amount|floatformat:2 }} $</div>
                     </div>
                     {% endif %}
-                    {% empty %}
-                    <div class="ps-item-row">
-                        <div class="ps-item-info">
-                            <div class="ps-item-icon earn"><i class="fa-solid fa-info-circle"></i></div>
-                            <div class="ps-item-title">لا توجد بدلات أو مكافآت إضافية</div>
-                        </div>
-                        <div class="ps-item-amount earn">+ 0.00 $</div>
-                    </div>
                     {% endfor %}
 
-                    <!-- Fallback explicit zero rows if empty to ensure visual parity -->
+                    <!-- Empty state: لا توجد مستحقات إضافية في قاعدة البيانات -->
                     {% if not raw_earnings %}
-                    <div class="ps-item-row">
-                        <div class="ps-item-info">
-                            <div class="ps-item-icon earn"><i class="fa-solid fa-gift"></i></div>
-                            <div>
-                                <div class="ps-item-title">المكافآت والحوافز (Bonuses)</div>
-                                <div class="ps-item-subtitle">مكافآت الأداء والتميز</div>
-                            </div>
-                        </div>
-                        <div class="ps-item-amount earn text-muted">+ 0.00 $</div>
-                    </div>
-                    <div class="ps-item-row">
-                        <div class="ps-item-info">
-                            <div class="ps-item-icon earn"><i class="fa-solid fa-house-user"></i></div>
-                            <div>
-                                <div class="ps-item-title">البدلات الثابتة (Fixed Allowances)</div>
-                                <div class="ps-item-subtitle">بدل سكن / انتقال / اتصال</div>
-                            </div>
-                        </div>
-                        <div class="ps-item-amount earn text-muted">+ 0.00 $</div>
-                    </div>
-                    <div class="ps-item-row">
-                        <div class="ps-item-info">
-                            <div class="ps-item-icon earn"><i class="fa-solid fa-business-time"></i></div>
-                            <div>
-                                <div class="ps-item-title">أجر العمل الإضافي (Overtime Pay)</div>
-                                <div class="ps-item-subtitle">ساعات العمل الإضافية المعتمدة</div>
-                            </div>
-                        </div>
-                        <div class="ps-item-amount earn text-muted">+ 0.00 $</div>
+                    <div class="ps-empty-msg">
+                        <i class="fa-solid fa-box-open"></i>
+                        <span>لا توجد مستحقات إضافية (بدلات / مكافآت / ساعات إضافية) مسجلة لهذه القسيمة.</span>
                     </div>
                     {% endif %}
                 </div>
@@ -683,7 +670,7 @@
                                 {% if item.items %}
                                 <div class="ps-item-subtitle">
                                     {% for sub in item.items %}
-                                    {{ sub.title }}{% if not forloop.last %} • {% endif %}
+                                    {{ sub.title }} ({{ sub.amount|floatformat:2 }}$){% if not forloop.last %} • {% endif %}
                                     {% endfor %}
                                 </div>
                                 {% endif %}
@@ -693,35 +680,9 @@
                     </div>
                     {% endfor %}
                     {% else %}
-                    <div class="ps-item-row">
-                        <div class="ps-item-info">
-                            <div class="ps-item-icon ded"><i class="fa-solid fa-user-clock"></i></div>
-                            <div>
-                                <div class="ps-item-title">الخصومات والجزاءات (Discounts & Penalties)</div>
-                                <div class="ps-item-subtitle">خصومات الحضور والغياب والتأخير</div>
-                            </div>
-                        </div>
-                        <div class="ps-item-amount ded text-muted">- 0.00 $</div>
-                    </div>
-                    <div class="ps-item-row">
-                        <div class="ps-item-info">
-                            <div class="ps-item-icon ded"><i class="fa-solid fa-shield-halved"></i></div>
-                            <div>
-                                <div class="ps-item-title">التأمينات الاجتماعية والضرائب (Social Insurance & Taxes)</div>
-                                <div class="ps-item-subtitle">اشتراك التأمينات وضريبة الدخل</div>
-                            </div>
-                        </div>
-                        <div class="ps-item-amount ded text-muted">- 0.00 $</div>
-                    </div>
-                    <div class="ps-item-row">
-                        <div class="ps-item-info">
-                            <div class="ps-item-icon ded"><i class="fa-solid fa-hand-holding-dollar"></i></div>
-                            <div>
-                                <div class="ps-item-title">أقساط السلف والقروض (Loan Installments)</div>
-                                <div class="ps-item-subtitle">سلف العمل والأقساط الشهرية</div>
-                            </div>
-                        </div>
-                        <div class="ps-item-amount ded text-muted">- 0.00 $</div>
+                    <div class="ps-empty-msg">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>لا توجد استقطاعات (تأمينات / سلف / خصومات) مسجلة لهذه القسيمة.</span>
                     </div>
                     {% endif %}
                 </div>
@@ -744,19 +705,19 @@
             <div class="ps-payment-item">
                 <div class="ps-payment-label"><i class="fa-solid fa-building-columns"></i> اسم المصرف / البنك</div>
                 <div class="ps-payment-val" style="direction:rtl; text-align:right;">
-                    {{ payment_details.bank_name|default:'مصرف الراجحي' }}
+                    {{ payment_details.bank_name|default:'غير محدد' }}
                 </div>
             </div>
             <div class="ps-payment-item">
                 <div class="ps-payment-label"><i class="fa-solid fa-barcode"></i> رقم الحساب / الآيبان (IBAN)</div>
                 <div class="ps-payment-val">
-                    {{ payment_details.iban_masked|default:'SA** **** **** 1234' }}
+                    {{ payment_details.iban_masked|default:'غير محدد' }}
                 </div>
             </div>
             <div class="ps-payment-item">
                 <div class="ps-payment-label"><i class="fa-solid fa-money-check-dollar"></i> طريقة التحويل</div>
                 <div class="ps-payment-val" style="direction:rtl; text-align:right;">
-                    {{ payment_details.method|default:'تحويل بنكي مباشر' }}
+                    {{ payment_details.method|default:'غير محدد' }}
                 </div>
             </div>
         </div>

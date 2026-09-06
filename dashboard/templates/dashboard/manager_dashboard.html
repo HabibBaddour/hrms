@@ -471,6 +471,33 @@
 		background: rgba(220, 38, 38, 0.1);
 		color: #dc2626;
 	}
+	.dash-decision {
+		width: 30px;
+		height: 30px;
+		border: 0;
+		border-radius: 9px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 0.78rem;
+		transition: 0.15s;
+	}
+	.dash-approve {
+		background: rgba(20, 163, 116, 0.14);
+		color: #0f8a60;
+	}
+	.dash-approve:hover {
+		background: #0f8a60;
+		color: #fff;
+	}
+	.dash-reject {
+		background: rgba(220, 38, 38, 0.12);
+		color: #dc2626;
+	}
+	.dash-reject:hover {
+		background: #dc2626;
+		color: #fff;
+	}
 	.empty-mini {
 		text-align: center;
 		padding: 22px 10px;
@@ -713,8 +740,7 @@
 		<div class="col-lg-6">
 			<div class="panel">
 				<div class="panel-title">
-					<i class="fa-solid fa-chart-simple"></i> إجازات الفريق حسب النوع — {{
-					today_ar|slice:"-4:" }}
+					<i class="fa-solid fa-chart-simple"></i> إجازات الفريق حسب النوع — {{ today_ar|slice:"-4:" }}
 				</div>
 				{% for item in leave_breakdown %}
 				<div class="bar-row">
@@ -815,22 +841,29 @@
 						style="width: 34px; height: 34px; font-size: 0.78rem"
 						><i class="fa-solid fa-user-tie"></i
 					></span>
-					<span>
-						<b style="font-size: 0.85rem; color: #274036"
-							>{{
-							leave.employee.get_full_name|default:leave.employee.user.username
-							}}</b
-						>
-						<small class="d-block text-muted" style="font-size: 0.73rem"
-							>{{ leave.get_leave_type_display }} — {{
-							leave.start_date|date:"j/n" }} ← {{ leave.end_date|date:"j/n"
-							}}</small
-						>
+					<span class="flex-grow-1 min-width-0" style="min-width: 0">
+						<b style="font-size: 0.85rem; color: #274036">{{ leave.employee.get_full_name|default:leave.employee.user.username }}</b>
+						<small class="d-block text-muted" style="font-size: 0.73rem">{{ leave.get_leave_type_display }} — {{ leave.start_date|date:"j/n" }} ← {{ leave.end_date|date:"j/n" }}</small>
 					</span>
-					<span
-						class="status-mini {% if leave.status == 'PENDING' %}sm-pending{% elif leave.status == 'APPROVED' %}sm-approved{% else %}sm-rejected{% endif %}"
-						>{{ leave.get_status_display }}</span
-					>
+					{% if leave.status == 'PENDING' %}
+					<span class="d-flex gap-1 flex-shrink-0" style="margin-inline-start: auto">
+						<form method="post" action="{% url 'leaves:approve_leave' leave.pk %}?next={{ request.path }}" class="d-inline">
+							{% csrf_token %}
+							<input type="hidden" name="decision" value="APPROVED">
+							<button type="submit" class="dash-decision dash-approve" title="قبول الطلب" data-bs-toggle="tooltip" data-bs-placement="top">
+								<i class="fa-solid fa-check"></i>
+							</button>
+						</form>
+						<form method="post" action="{% url 'leaves:reject_leave' leave.pk %}?next={{ request.path }}" class="d-inline">
+							{% csrf_token %}
+							<button type="submit" class="dash-decision dash-reject" title="رفض الطلب" data-bs-toggle="tooltip" data-bs-placement="top">
+								<i class="fa-solid fa-xmark"></i>
+							</button>
+						</form>
+					</span>
+					{% else %}
+					<span class="status-mini {% if leave.status == 'APPROVED' %}sm-approved{% else %}sm-rejected{% endif %}">{{ leave.get_status_display }}</span>
+					{% endif %}
 				</div>
 				{% empty %}
 				<div class="empty-mini">

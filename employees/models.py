@@ -1,4 +1,5 @@
 from django.db import models
+from decimal import Decimal
 from django.contrib.auth.models import User
 from departments.models import Department, Position
 from django.utils import timezone
@@ -198,6 +199,18 @@ class Payslip(models.Model):
     basic_salary = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name='الراتب الأساسي'
     )
+
+    PAYMENT_METHODS = (
+        ('BANK', 'تحويل بنكي'),
+        ('CASH', 'صرف نقدي'),
+    )
+    payment_method = models.CharField(
+        max_length=10, choices=PAYMENT_METHODS, default='BANK',
+        verbose_name='طريقة الصرف',
+    )
+    bank_name = models.CharField(max_length=100, blank=True, verbose_name='اسم البنك')
+    account_number = models.CharField(max_length=40, blank=True, verbose_name='رقم الحساب / الآيبان')
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
 
     class Meta:
@@ -216,12 +229,12 @@ class Payslip(models.Model):
     @property
     def total_earnings(self):
         total = self.earnings.aggregate(total=models.Sum('amount'))['total']
-        return total or models.Decimal('0.00')
+        return total or Decimal('0.00')
 
     @property
     def total_deductions(self):
         total = self.deductions.aggregate(total=models.Sum('amount'))['total']
-        return total or models.Decimal('0.00')
+        return total or Decimal('0.00')
 
     @property
     def net_salary(self):
