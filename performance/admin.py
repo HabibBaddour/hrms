@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PerformanceEvaluation, PerformanceQuestion, QuestionCategory
+from .models import PerformanceEvaluation, PerformanceQuestion, QuestionCategory, EvaluationDraft
 
 
 class PerformanceQuestionInline(admin.TabularInline):
@@ -20,3 +20,10 @@ class PerformanceEvaluationAdmin(admin.ModelAdmin):
 class QuestionCategoryAdmin(admin.ModelAdmin):
     list_display = ('code', 'name', 'order')
     ordering = ('order', 'pk')
+
+
+@admin.register(EvaluationDraft)
+class EvaluationDraftAdmin(admin.ModelAdmin):
+    list_display = ('title', 'created_at', 'updated_at')
+    search_fields = ('title',)
+    filter_horizontal = ('departments',)

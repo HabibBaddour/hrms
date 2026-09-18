@@ -6,9 +6,9 @@
 {% block extra_css %}
 <style>
     .emp-dash {
-        --tone-primary: #3B82F6;
-        --panel-icon-bg: rgba(59, 130, 246, 0.12);
-        --panel-icon-fg: #1D4ED8;
+        --tone-primary: #B9A779;
+        --panel-icon-bg: rgba(185,167,121,0.12);
+        --panel-icon-fg: #988561;
     }
 
     .hero-band {
@@ -18,10 +18,10 @@
         padding: 28px 30px;
         color: #fff;
         background:
-            radial-gradient(520px 260px at 88% 0%, rgba(56, 189, 248, 0.30), transparent 65%),
-            radial-gradient(420px 240px at 8% 100%, rgba(242, 180, 76, 0.22), transparent 60%),
-            linear-gradient(120deg, #0A1128 0%, #1E40AF 55%, #3B82F6 100%);
-        box-shadow: 0 20px 44px rgba(10, 17, 40, 0.35);
+            radial-gradient(520px 260px at 88% 0%, rgba(185,167,121,0.30), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(185,167,121,0.22), transparent 60%),
+            linear-gradient(120deg, #002623 0%, #988561 55%, #B9A779 100%);
+        box-shadow: 0 20px 44px rgba(0,38,35,0.35);
         margin-bottom: 26px;
     }
     .hero-band h4 { margin: 0 0 6px; font-weight: 800; }
@@ -47,14 +47,24 @@
         background: #fff;
         border: 1px solid #F1F5F9;
         border-radius: 16px;
-        padding: 20px 22px;
+        padding: 1rem;
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
     }
-    .chart-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-    .chart-card-head i { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: rgba(59, 130, 246, 0.12); color: #1D4ED8; font-size: 0.95rem; flex-shrink: 0; }
-    .chart-card-head h6 { margin: 0; font-weight: 800; color: #101A38; font-size: 0.98rem; }
-    .chart-card-head small { color: #94A0B8; font-size: 0.76rem; }
-    .chart-wrap { position: relative; height: 300px; }
+    .chart-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+    .chart-card-head i { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: rgba(185,167,121,0.12); color: #988561; font-size: 0.95rem; flex-shrink: 0; }
+    .chart-card-head .chart-head-titles { flex: 1 1 auto; min-width: 0; }
+    .chart-card-head h6 { margin: 0; font-weight: 800; color: #002623; font-size: 0.98rem; white-space: nowrap; }
+    .chart-card-head small { color: #988561; font-size: 0.76rem; }
+    .chart-type-select {
+        width: auto; min-width: 84px; border-radius: 8px;
+        border: 1px solid #b9a779; background: transparent;
+        font-size: 12px; font-weight: 700; color: #002623;
+        padding: 2px 8px;
+        flex-shrink: 0; margin-inline-start: auto;
+    }
+    .chart-card-head small { color: #988561; }
+    .chart-wrap { position: relative; }
+    .chart-wrap-h200 { height: 200px; }
 
     .emp-dash { padding-bottom: 0; }
     .emp-dash > .row:last-of-type { margin-bottom: 2.5rem; }
@@ -66,7 +76,7 @@
         padding: 22px;
         border-radius: 18px;
         background: #fff;
-        border: 1px solid #ECEAF6;
+        border: 1px solid #DFD9C2;
         text-decoration: none;
         box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
         transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
@@ -79,10 +89,10 @@
         background: var(--accent);
     }
     .stat-card:hover { transform: translateY(-5px); box-shadow: 0 22px 42px rgba(15, 23, 42, 0.13); border-color: var(--accent-solid); }
-    .stat-blue   { --accent: linear-gradient(90deg, #2563EB, #60A5FA); --accent-solid: rgba(37, 99, 235, 0.5); --tile: rgba(37, 99, 235, 0.12); --tone: #1D4ED8; }
-    .stat-sky    { --accent: linear-gradient(90deg, #0284C7, #38BDF8); --accent-solid: rgba(2, 132, 199, 0.5); --tile: rgba(2, 132, 199, 0.12); --tone: #0369A1; }
-    .stat-indigo { --accent: linear-gradient(90deg, #4338CA, #818CF8); --accent-solid: rgba(67, 56, 202, 0.5); --tile: rgba(67, 56, 202, 0.12); --tone: #4338CA; }
-    .stat-gold   { --accent: linear-gradient(90deg, #F2B44C, #E89A5D); --accent-solid: rgba(217, 154, 43, 0.55); --tile: rgba(242, 180, 76, 0.18); --tone: #C08A25; }
+    .stat-blue   { --accent: linear-gradient(90deg, #B9A779, #D8CBA6); --accent-solid: rgba(185,167,121,0.5); --tile: rgba(185,167,121,0.12); --tone: #988561; }
+    .stat-sky    { --accent: linear-gradient(90deg, #988561, #B9A779); --accent-solid: rgba(152,133,97,0.5); --tile: rgba(152,133,97,0.12); --tone: #0369A1; }
+    .stat-indigo { --accent: linear-gradient(90deg, #AB9C74, #D8CBA6); --accent-solid: rgba(152,133,97,0.5); --tile: rgba(152,133,97,0.12); --tone: #AB9C74; }
+    .stat-gold   { --accent: linear-gradient(90deg, #B9A779, #988561); --accent-solid: rgba(152,133,97,0.55); --tile: rgba(185,167,121,0.18); --tone: #988561; }
 
     .stat-tile {
         width: 52px; height: 52px;
@@ -94,7 +104,7 @@
         transition: transform 0.25s ease;
     }
     .stat-card:hover .stat-tile { transform: scale(1.08) rotate(-4deg); }
-    .stat-value { font-size: 2rem; font-weight: 800; color: #101A38; line-height: 1.15; }
+    .stat-value { font-size: 2rem; font-weight: 800; color: #002623; line-height: 1.15; }
     .stat-label { color: #6E6A86; font-size: 0.85rem; font-weight: 600; margin-bottom: 0; }
     .stat-sub { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 4px 11px; border-radius: 999px; background: #F2F6FD; color: #5D6B85; font-size: 0.74rem; font-weight: 700; }
     .stat-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; color: var(--tone); font-size: 0.78rem; font-weight: 700; }
@@ -106,11 +116,11 @@
         padding: 14px 18px;
         border-radius: 16px;
         background: #fff;
-        border: 1px dashed #C9DAF8;
+        border: 1px dashed #E2D8BE;
         height: 100%;
     }
     .mini-kpi i { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; font-size: 0.95rem; flex-shrink: 0; }
-    .mini-kpi b { display: block; font-size: 1.15rem; color: #101A38; line-height: 1.1; }
+    .mini-kpi b { display: block; font-size: 1.15rem; color: #002623; line-height: 1.1; }
     .mini-kpi span { font-size: 0.76rem; color: #6E6A86; font-weight: 600; }
 
     .action-tile {
@@ -118,7 +128,7 @@
         padding: 16px 18px;
         border-radius: 16px;
         background: #fff;
-        border: 1px solid #ECEAF6;
+        border: 1px solid #DFD9C2;
         text-decoration: none;
         box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
         transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
@@ -126,51 +136,46 @@
     }
     .action-tile:hover { transform: translateY(-4px); border-color: var(--tone); box-shadow: 0 16px 32px rgba(15, 23, 42, 0.12); }
     .action-tile .act-icon { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; font-size: 1.1rem; color: #fff; background: var(--grad); flex-shrink: 0; }
-    .action-tile b { display: block; color: #101A38; font-size: 0.92rem; }
+    .action-tile b { display: block; color: #002623; font-size: 0.92rem; }
     .action-tile small { color: #6E6A86; font-size: 0.75rem; }
-    .act-blue { --tone: #2563EB; --grad: linear-gradient(135deg, #1D4ED8, #60A5FA); }
-    .act-sky { --tone: #0369A1; --grad: linear-gradient(135deg, #0284C7, #38BDF8); }
-    .act-indigo { --tone: #4338CA; --grad: linear-gradient(135deg, #4338CA, #818CF8); }
-    .act-gold { --tone: #D99A2B; --grad: linear-gradient(135deg, #E89A5D, #F2B44C); }
+    .act-blue { --tone: #B9A779; --grad: linear-gradient(135deg, #988561, #D8CBA6); }
+    .act-sky { --tone: #0369A1; --grad: linear-gradient(135deg, #988561, #B9A779); }
+    .act-indigo { --tone: #AB9C74; --grad: linear-gradient(135deg, #AB9C74, #D8CBA6); }
+    .act-gold { --tone: #D99A2B; --grad: linear-gradient(135deg, #988561, #B9A779); }
 
     .panel {
-        padding: 22px;
+        padding: 1rem;
         border-radius: 18px;
         background: #fff;
-        border: 1px solid #ECEAF6;
+        border: 1px solid #DFD9C2;
         box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
     }
 
-    .main-wrapper > footer {
-        margin-top: 2.5rem !important;
-        clear: both;
-        border-top: 1px solid #E2E8F0;
-    }
-    .panel-title { display: flex; align-items: center; gap: 10px; font-weight: 800; color: #101A38; font-size: 1rem; margin-bottom: 18px; }
+    .panel-title { display: flex; align-items: center; gap: 10px; font-weight: 800; color: #002623; font-size: 1rem; margin-bottom: 16px; }
     .panel-title i { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: var(--panel-icon-bg); color: var(--panel-icon-fg); font-size: 0.9rem; }
 
     .bar-row { margin-bottom: 14px; }
     .bar-row:last-child { margin-bottom: 0; }
     .bar-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.83rem; font-weight: 700; color: #45516B; }
-    .bar-track { height: 9px; border-radius: 999px; background: #EAF1FC; overflow: hidden; }
+    .bar-track { height: 9px; border-radius: 999px; background: #F4EFE3; overflow: hidden; }
     .bar-fill { height: 100%; border-radius: 999px; width: 0; transition: width 1s ease; }
     .bar-count { min-width: 34px; text-align: center; font-size: 0.75rem; color: #fff; padding: 2px 9px; border-radius: 999px; }
-    .bf-1 { background: linear-gradient(90deg, #1D4ED8, #60A5FA); } .bc-1 { background: #2563EB; }
-    .bf-2 { background: linear-gradient(90deg, #0284C7, #38BDF8); } .bc-2 { background: #0284C7; }
-    .bf-3 { background: linear-gradient(90deg, #E89A5D, #F2B44C); } .bc-3 { background: #D99A2B; }
-    .bf-4 { background: linear-gradient(90deg, #4338CA, #818CF8); } .bc-4 { background: #4338CA; }
-    .bf-5 { background: linear-gradient(90deg, #172554, #1E40AF); } .bc-5 { background: #172554; }
+    .bf-1 { background: linear-gradient(90deg, #988561, #D8CBA6); } .bc-1 { background: #B9A779; }
+    .bf-2 { background: linear-gradient(90deg, #988561, #B9A779); } .bc-2 { background: #988561; }
+    .bf-3 { background: linear-gradient(90deg, #988561, #B9A779); } .bc-3 { background: #D99A2B; }
+    .bf-4 { background: linear-gradient(90deg, #AB9C74, #D8CBA6); } .bc-4 { background: #AB9C74; }
+    .bf-5 { background: linear-gradient(90deg, #002623, #988561); } .bc-5 { background: #002623; }
 
     .activity-item { display: flex; gap: 13px; padding: 13px 4px; border-bottom: 1px dashed #E4ECFA; text-decoration: none; border-radius: 12px; transition: background 0.2s ease; }
     .activity-item:last-child { border-bottom: 0; }
     .activity-item:hover { background: #F4F8FE; }
     .activity-item:hover .act-bubble { transform: scale(1.07); }
     .act-bubble { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 0.9rem; flex-shrink: 0; color: var(--tone); background: var(--tone-bg); transition: transform 0.2s ease; }
-    .tn-blue { --tone: #1D4ED8; --tone-bg: rgba(37, 99, 235, 0.12); }
-    .tn-sky { --tone: #0369A1; --tone-bg: rgba(2, 132, 199, 0.13); }
-    .tn-indigo { --tone: #4338CA; --tone-bg: rgba(67, 56, 202, 0.12); }
-    .tn-gold { --tone: #C08A25; --tone-bg: rgba(242, 180, 76, 0.18); }
-    .tn-navy { --tone: #172554; --tone-bg: rgba(23, 37, 84, 0.12); }
+    .tn-blue { --tone: #988561; --tone-bg: rgba(185,167,121,0.12); }
+    .tn-sky { --tone: #0369A1; --tone-bg: rgba(152,133,97,0.13); }
+    .tn-indigo { --tone: #AB9C74; --tone-bg: rgba(152,133,97,0.12); }
+    .tn-gold { --tone: #988561; --tone-bg: rgba(185,167,121,0.18); }
+    .tn-navy { --tone: #002623; --tone-bg: rgba(23, 37, 84, 0.12); }
     .activity-title { font-weight: 700; color: #232F4B; font-size: 0.87rem; margin-bottom: 2px; }
     .activity-text { color: #6E7686; font-size: 0.8rem; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .activity-time { font-size: 0.72rem; color: #94A0B8; white-space: nowrap; }
@@ -178,10 +183,10 @@
     .side-row { display: flex; align-items: center; gap: 12px; padding: 11px 4px; border-bottom: 1px dashed #E4ECFA; }
     .side-row:last-child { border-bottom: 0; }
     .status-mini { display: inline-flex; align-items: center; gap: 5px; margin-inline-start: auto; padding: 4px 11px; border-radius: 999px; font-size: 0.68rem; font-weight: 800; white-space: nowrap; }
-    .sm-pending { background: rgba(242, 180, 76, 0.16); color: #B4540A; }
-    .sm-approved { background: rgba(37, 99, 235, 0.12); color: #1D4ED8; }
+    .sm-pending { background: rgba(185,167,121,0.16); color: #B4540A; }
+    .sm-approved { background: rgba(185,167,121,0.12); color: #988561; }
     .sm-rejected { background: rgba(220, 38, 38, 0.1); color: #DC2626; }
-    .score-chip { margin-inline-start: auto; padding: 4px 12px; border-radius: 999px; background: rgba(67, 56, 202, 0.1); color: #4338CA; font-size: 0.72rem; font-weight: 800; white-space: nowrap; font-family: 'Courier New', monospace; }
+    .score-chip { margin-inline-start: auto; padding: 4px 12px; border-radius: 999px; background: rgba(152,133,97,0.1); color: #AB9C74; font-size: 0.72rem; font-weight: 800; white-space: nowrap; font-family: 'Courier New', monospace; }
     .empty-mini { text-align: center; padding: 22px 10px; color: #94A0B8; font-size: 0.84rem; }
     .empty-mini i { display: block; font-size: 1.6rem; margin-bottom: 8px; opacity: 0.6; }
 
@@ -205,119 +210,99 @@
         </div>
     </div>
 
-    <div class="row g-3 mb-4">
+<div class="row g-3">
+        <!-- ===== العمود الأول (يمين): تحليل أرصدة الإجازات ===== -->
         <div class="col-lg-6">
-            <div class="chart-card h-100">
-                <div class="chart-card-head">
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <div>
-                        <h6 class="mb-0">تحليل أرصدة الإجازات</h6>
-                        <small>الرصيد المتبقي مقابل المستخدم لكل نوع</small>
+            <div class="d-flex flex-column h-100">
+                <div class="chart-card mb-3">
+                    <div class="chart-card-head">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <div class="chart-head-titles">
+                            <h6 class="mb-0">تحليل أرصدة الإجازات</h6>
+                            <small>الرصيد المتبقي مقابل المستخدم لكل نوع</small>
+                        </div>
+                        <select id="leaveChartType" class="form-select form-select-sm chart-type-select">
+                            <option value="doughnut">دائري</option>
+                            <option value="pie">فطيرة</option>
+                            <option value="bar">أعمدة</option>
+                        </select>
+                    </div>
+                    <div class="chart-wrap chart-wrap-h200"><canvas id="leaveBalanceChart"></canvas></div>
+                </div>
+
+                <div class="row g-3 flex-grow-1">
+                    <div class="col-md-6">
+                        <div class="panel h-100">
+                            <div class="panel-title mb-2"><i class="fa-solid fa-chart-simple"></i> طلباتي حسب النوع</div>
+                            {% for item in my_leave_breakdown %}
+                            <div class="bar-row">
+                                <div class="bar-head"><span>{{ item.label }}</span><span class="bar-count bc-{% cycle '1' '2' '3' '4' %}">{{ item.count }}</span></div>
+                                <div class="bar-track"><div class="bar-fill bf-{% cycle '1' '2' '3' '4' %}" data-width="{% widthratio item.count max_my_leave_count 100 %}"></div></div>
+                            </div>
+                            {% empty %}
+                            <div class="empty-mini"><i class="fa-regular fa-folder-open"></i>لم تقدم أي طلبات إجازة بعد</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="panel h-100">
+                            <div class="panel-title mb-2"><i class="fa-solid fa-calendar-days"></i> آخر طلباتي</div>
+                            {% for leave in recent_leaves %}
+                            <div class="side-row">
+                                <span class="act-bubble tn-navy" style="width:34px;height:34px;font-size:0.78rem;"><i class="fa-solid fa-calendar-day"></i></span>
+                                <span>
+                                    <b style="font-size: 0.85rem; color: #232F4B;">{{ leave.get_leave_type_display }}</b>
+                                    <small class="d-block text-muted" style="font-size: 0.73rem;">{{ leave.start_date|date:"j/n/Y" }} ← {{ leave.end_date|date:"j/n/Y" }}</small>
+                                </span>
+                                <span class="status-mini {% if leave.status == 'PENDING' %}sm-pending{% elif leave.status == 'APPROVED' %}sm-approved{% else %}sm-rejected{% endif %}">{{ leave.get_status_display }}</span>
+                            </div>
+                            {% empty %}
+                            <div class="empty-mini"><i class="fa-regular fa-calendar-xmark"></i>لا توجد طلبات إجازة بعد</div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-                <div class="chart-wrap"><canvas id="leaveBalanceChart"></canvas></div>
             </div>
         </div>
+
+        <!-- ===== العمود الثاني (يسار): اتجاه الأداء والتقييمات ===== -->
         <div class="col-lg-6">
-            <div class="chart-card h-100">
-                <div class="chart-card-head">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <div>
-                        <h6 class="mb-0">اتجاه الأداء والتقييمات</h6>
-                        <small>متوسط تقييماتك عبر الزمن</small>
+            <div class="d-flex flex-column h-100">
+                <div class="chart-card mb-3">
+                    <div class="chart-card-head">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <div class="chart-head-titles">
+                            <h6 class="mb-0">اتجاه الأداء والتقييمات</h6>
+                            <small>متوسط تقييماتك عبر الزمن</small>
+                        </div>
+                        <select id="perfChartType" class="form-select form-select-sm chart-type-select">
+                            <option value="line">خطي</option>
+                            <option value="bar">أعمدة</option>
+                            <option value="radar">رادار</option>
+                        </select>
                     </div>
+                    <div class="chart-wrap chart-wrap-h200"><canvas id="perfTrendChart"></canvas></div>
                 </div>
-                <div class="chart-wrap"><canvas id="perfTrendChart"></canvas></div>
-            </div>
-        </div>
-    </div>
 
-    <div class="row g-3 mb-4">
-        <div class="col-lg-6">
-            <div class="panel">
-                <div class="panel-title"><i class="fa-solid fa-chart-simple"></i> طلباتي حسب النوع</div>
-                {% for item in my_leave_breakdown %}
-                <div class="bar-row">
-                    <div class="bar-head"><span>{{ item.label }}</span><span class="bar-count bc-{% cycle '1' '2' '3' '4' %}">{{ item.count }}</span></div>
-                    <div class="bar-track"><div class="bar-fill bf-{% cycle '1' '2' '3' '4' %}" data-width="{% widthratio item.count max_my_leave_count 100 %}"></div></div>
-                </div>
-                {% empty %}
-                <div class="empty-mini"><i class="fa-regular fa-folder-open"></i>لم تقدم أي طلبات إجازة بعد</div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="panel">
-                <div class="panel-title"><i class="fa-solid fa-wallet"></i> أرصدتي التفصيلية</div>
-                {% for item in balance_breakdown %}
-                <div class="bar-row">
-                    <div class="bar-head"><span>{{ item.label }}</span><span class="bar-count bc-{% cycle '1' '2' '3' %}">{{ item.count }}/{{ item.total }}</span></div>
-                    <div class="bar-track"><div class="bar-fill bf-{% cycle '1' '2' '3' %}" data-width="{% widthratio item.count item.total 100 %}"></div></div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-3">
-        <div class="col-lg-7">
-            <div class="panel mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="panel-title mb-0"><i class="fa-solid fa-clock-rotate-left"></i> النشاط الأخير</div>
-                    <a href="{% url 'core:notification_list' %}" class="text-decoration-none fw-bold" style="font-size: 0.78rem; color: #1D4ED8;">عرض الكل</a>
-                </div>
-                {% if recent_activities %}
-                    {% for activity in recent_activities %}
-                    <a href="{{ activity.activity_url }}" class="activity-item">
-                        <span class="act-bubble tn-{{ activity.tone }}"><i class="fa-solid {{ activity.icon_class }}"></i></span>
-                        <span class="flex-grow-1 min-width-0" style="min-width: 0;">
-                            <span class="d-flex justify-content-between align-items-center gap-2">
-                                <span class="activity-title">{{ activity.title }}</span>
-                                <span class="activity-time">منذ {{ activity.created_at|timesince }}</span>
-                            </span>
-                            <p class="activity-text">{{ activity.text|striptags|truncatechars:110 }}</p>
+                <div class="panel flex-grow-1">
+                    <div class="panel-title"><i class="fa-solid fa-ranking-star"></i> آخر تقييماتي</div>
+                    {% for evaluation in my_evaluations %}
+                    <div class="side-row">
+                        <span class="act-bubble tn-indigo" style="width:34px;height:34px;font-size:0.78rem;"><i class="fa-solid fa-clipboard-check"></i></span>
+                        <span>
+                            <b style="font-size: 0.85rem; color: #232F4B;">{{ evaluation.title|default:evaluation.period }}</b>
+                            <small class="d-block text-muted" style="font-size: 0.73rem;">{{ evaluation.period }} — {{ evaluation.evaluation_date|date:"j/n/Y" }}</small>
                         </span>
-                    </a>
+                        {% if evaluation.status == 'COMPLETED' and evaluation.overall_score > 0 %}
+                        <span class="score-chip">{{ evaluation.overall_score|floatformat:1 }}/5</span>
+                        {% else %}
+                        <span class="status-mini sm-pending">مسودة</span>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="empty-mini"><i class="fa-regular fa-star"></i>لا توجد تقييمات مسجلة لك بعد</div>
                     {% endfor %}
-                {% else %}
-                <div class="empty-mini"><i class="fa-regular fa-bell"></i>لا يوجد نشاط حديث حتى الآن</div>
-                {% endif %}
-            </div>
-        </div>
-        <div class="col-lg-5">
-            <div class="panel mb-3">
-                <div class="panel-title"><i class="fa-solid fa-calendar-days"></i> آخر طلباتي</div>
-                {% for leave in recent_leaves %}
-                <div class="side-row">
-                    <span class="act-bubble tn-navy" style="width:34px;height:34px;font-size:0.78rem;"><i class="fa-solid fa-calendar-day"></i></span>
-                    <span>
-                        <b style="font-size: 0.85rem; color: #232F4B;">{{ leave.get_leave_type_display }}</b>
-                        <small class="d-block text-muted" style="font-size: 0.73rem;">{{ leave.start_date|date:"j/n/Y" }} ← {{ leave.end_date|date:"j/n/Y" }}</small>
-                    </span>
-                    <span class="status-mini {% if leave.status == 'PENDING' %}sm-pending{% elif leave.status == 'APPROVED' %}sm-approved{% else %}sm-rejected{% endif %}">{{ leave.get_status_display }}</span>
                 </div>
-                {% empty %}
-                <div class="empty-mini"><i class="fa-regular fa-calendar-xmark"></i>لا توجد طلبات إجازة بعد</div>
-                {% endfor %}
-            </div>
-            <div class="panel">
-                <div class="panel-title"><i class="fa-solid fa-ranking-star"></i> آخر تقييماتي</div>
-                {% for evaluation in my_evaluations %}
-                <div class="side-row">
-                    <span class="act-bubble tn-indigo" style="width:34px;height:34px;font-size:0.78rem;"><i class="fa-solid fa-clipboard-check"></i></span>
-                    <span>
-                        <b style="font-size: 0.85rem; color: #232F4B;">{{ evaluation.title|default:evaluation.period }}</b>
-                        <small class="d-block text-muted" style="font-size: 0.73rem;">{{ evaluation.period }} — {{ evaluation.evaluation_date|date:"j/n/Y" }}</small>
-                    </span>
-                    {% if evaluation.status == 'COMPLETED' and evaluation.overall_score > 0 %}
-                    <span class="score-chip">{{ evaluation.overall_score|floatformat:1 }}/5</span>
-                    {% else %}
-                    <span class="status-mini sm-pending">مسودة</span>
-                    {% endif %}
-                </div>
-                {% empty %}
-                <div class="empty-mini"><i class="fa-regular fa-star"></i>لا توجد تقييمات مسجلة لك بعد</div>
-                {% endfor %}
             </div>
         </div>
     </div>
@@ -336,49 +321,69 @@
     (function () {
         if (typeof Chart === 'undefined') return;
         Chart.defaults.font.family = 'Cairo, sans-serif';
-        Chart.defaults.color = '#64748b';
+        Chart.defaults.color = '#988561';
 
-        /* ===== Chart 1: Leave Balance Doughnut ===== */
+        /* ===== Chart 1: Leave Balance (Doughnut / Pie / Bar) ===== */
         var leaveCtx = document.getElementById('leaveBalanceChart');
+        var leaveChart = null;
         if (leaveCtx) {
-            var totalEach = 11;
             var annual = {{ annual_remaining|default:0 }};
             var sick = {{ sick_remaining|default:0 }};
             var emergency = {{ emergency_remaining|default:0 }};
-            new Chart(leaveCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['سنوي', 'مرضي', 'طارئ'],
-                    datasets: [{
-                        data: [annual, sick, emergency],
-                        backgroundColor: ['#2563EB', '#0284C7', '#F2B44C'],
-                        borderColor: '#ffffff',
-                        borderWidth: 3,
-                        hoverOffset: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '62%',
-                    plugins: {
-                        legend: { position: 'bottom', rtl: true, labels: { padding: 16, usePointStyle: true } },
-                        tooltip: {
-                            rtl: true,
-                            callbacks: {
-                                label: function (ctx) {
-                                    var used = totalEach - ctx.parsed;
-                                    return ' ' + ctx.label + ' — متبقي ' + ctx.parsed + '/' + totalEach + ' (مستخدم ' + used + ')';
+
+            function renderLeaveChart(type) {
+                if (leaveChart) leaveChart.destroy();
+                var isCircular = (type === 'doughnut' || type === 'pie');
+                leaveChart = new Chart(leaveCtx, {
+                    type: type,
+                    data: {
+                        labels: ['سنوي', 'مرضي', 'طارئ'],
+                        datasets: [{
+                            label: 'الرصيد المتبقي',
+                            data: [annual, sick, emergency],
+                            backgroundColor: ['#b9a779', '#8c7b4f', '#004d45'],
+                            borderColor: isCircular ? '#002623' : 'rgba(0,0,0,0)',
+                            borderWidth: isCircular ? 3 : 0,
+                            hoverOffset: isCircular ? 8 : 0,
+                            borderRadius: isCircular ? 0 : 6,
+                            maxBarThickness: 60
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: type === 'doughnut' ? '62%' : 0,
+                        plugins: {
+                            legend: { display: isCircular, position: 'bottom', rtl: true, labels: { padding: 14, usePointStyle: true, color: '#b9a779' } },
+                            tooltip: {
+                                rtl: true,
+                                callbacks: {
+                                    label: function (ctx) {
+                                        var val = typeof ctx.parsed === 'number' ? ctx.parsed : ctx.parsed.y;
+                                        var used = totalEach - val;
+                                        return ' ' + ctx.label + ' — متبقي ' + val + '/11 (مستخدم ' + used + ')';
+                                    }
                                 }
                             }
+                        },
+                        scales: isCircular ? {} : {
+                            y: { beginAtZero: true, grid: { color: 'rgba(185,167,121,0.18)' } },
+                            x: { grid: { display: false } }
                         }
                     }
-                }
+                });
+            }
+
+            var totalEach = 11;
+            document.getElementById('leaveChartType').addEventListener('change', function () {
+                renderLeaveChart(this.value);
             });
+            renderLeaveChart('doughnut');
         }
 
-        /* ===== Chart 2: Performance & Attendance Trend ===== */
+        /* ===== Chart 2: Performance & Attendance Trend (Line / Bar / Radar) ===== */
         var perfCtx = document.getElementById('perfTrendChart');
+        var perfChart = null;
         if (perfCtx) {
             var rawLabels = [{% for e in my_evaluations %}"{{ e.evaluation_date|date:'n/Y' }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
             var rawScores = [{% for e in my_evaluations %}{{ e.overall_score|default:0 }}{% if not forloop.last %}, {% endif %}{% endfor %}];
@@ -395,36 +400,61 @@
                 return;
             }
 
-            new Chart(perfCtx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'درجة التقييم',
-                        data: scores,
-                        borderColor: '#6153E4',
-                        backgroundColor: 'rgba(97, 83, 228, 0.15)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#6153E4',
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: {
+            function renderPerfChart(type) {
+                if (perfChart) perfChart.destroy();
+                var isRadar = type === 'radar';
+                var ds = { label: 'درجة التقييم', data: scores };
+                if (type === 'line') {
+                    ds.borderColor = '#B9A779';
+                    ds.backgroundColor = 'rgba(185,167,121,0.15)';
+                    ds.borderWidth = 3;
+                    ds.fill = true;
+                    ds.tension = 0.4;
+                    ds.pointBackgroundColor = '#B9A779';
+                    ds.pointRadius = 4;
+                    ds.pointHoverRadius = 6;
+                } else if (type === 'bar') {
+                    ds.backgroundColor = '#B9A779';
+                    ds.borderRadius = 6;
+                    ds.maxBarThickness = 48;
+                } else {
+                    ds.borderColor = '#B9A779';
+                    ds.backgroundColor = 'rgba(185,167,121,0.18)';
+                    ds.borderWidth = 2;
+                    ds.pointBackgroundColor = '#B9A779';
+                    ds.pointRadius = 3;
+                }
+                var options = {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false },
-                        tooltip: { rtl: true, callbacks: { label: function (ctx) { return ' التقييم: ' + ctx.parsed.y + ' / 5'; } } }
-                    },
-                    scales: {
-                        y: { min: 0, max: 5, ticks: { stepSize: 1 }, grid: { color: '#EEF2F7' } },
-                        x: { ticks: { autoSkip: true, maxRotation: 0 }, grid: { display: false } }
+                        tooltip: {
+                            rtl: true,
+                            callbacks: {
+                                label: function (ctx) {
+                                    var val = typeof ctx.parsed === 'number' ? ctx.parsed : ctx.parsed.y;
+                                    return ' التقييم: ' + val + ' / 5';
+                                }
+                            }
+                        }
                     }
+                };
+                if (isRadar) {
+                    options.scales = { r: { min: 0, max: 5, ticks: { stepSize: 1, backdropColor: 'transparent' }, grid: { color: 'rgba(185,167,121,0.18)' }, pointLabels: { font: { size: 10 } } } };
+                } else {
+                    options.scales = {
+                        y: { min: 0, max: 5, ticks: { stepSize: 1 }, grid: { color: 'rgba(185,167,121,0.18)' } },
+                        x: { ticks: { autoSkip: true, maxRotation: 0 }, grid: { display: false } }
+                    };
                 }
+                perfChart = new Chart(perfCtx, { type: type, data: { labels: labels, datasets: [ds] }, options: options });
+            }
+
+            document.getElementById('perfChartType').addEventListener('change', function () {
+                renderPerfChart(this.value);
             });
+            renderPerfChart('line');
         }
     })();
 </script>

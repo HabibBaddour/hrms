@@ -10,10 +10,8 @@
         --builder-border: var(--border-color, #e2e8f0);
         --builder-muted: var(--text-muted, #94a3b8);
         --builder-text: var(--text-color, #1e293b);
-        --builder-primary: #2563eb;
+        --builder-primary: #B9A779;
         --builder-danger: #dc2626;
-        max-width: 1240px;
-        margin: 0 auto;
         color: var(--builder-text);
     }
 
@@ -22,12 +20,12 @@
         align-items: flex-end;
         justify-content: space-between;
         gap: 24px;
-        margin-bottom: 28px;
+        margin-bottom: 24px;
     }
 
     .builder-header h1 {
         margin: 0 0 5px;
-        font-size: 1.5rem;
+        font-size: 1.45rem;
         font-weight: 800;
     }
 
@@ -51,51 +49,59 @@
     .back-link:hover { color: var(--builder-primary); }
     .back-link i { font-size: .75rem; }
 
-    .builder-section-title {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 7px;
+    /* --- cards --- */
+    .evaluation-card {
+        border: 1px solid var(--builder-border);
+        border-radius: 12px;
+        background: var(--builder-surface);
+        padding: 1rem;
     }
 
-    .builder-section-title h2 {
-        margin: 0;
+    .evaluation-card-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 15px;
         font-size: 1rem;
         font-weight: 800;
+        color: var(--builder-text);
     }
 
-    .builder-section-title span,
+    .evaluation-card-title i {
+        width: 36px; height: 36px;
+        border-radius: 11px;
+        display: grid; place-items: center;
+        background: rgba(185,167,121,.12);
+        color: #988561;
+        font-size: .9rem;
+    }
+
     .section-description {
         color: var(--builder-muted);
         font-size: .78rem;
     }
 
-    .metadata-section {
-        padding-bottom: 26px;
-        border-bottom: 1px solid var(--builder-border);
-    }
-
-    .metadata-section .form-label {
+    .basic-info .form-label {
         margin-bottom: 7px;
         color: var(--builder-text);
         font-size: .78rem;
         font-weight: 700;
     }
 
-    .metadata-section .form-control,
-    .metadata-section .form-select {
+    .basic-info .form-control,
+    .basic-info .form-select,
+    .question-input:focus {
         min-height: 44px;
         border-color: var(--builder-border);
         border-radius: 8px;
         background: var(--builder-surface);
     }
 
-    .metadata-section .form-control:focus,
-    .metadata-section .form-select:focus,
+    .basic-info .form-control:focus,
+    .basic-info .form-select:focus,
     .question-input:focus {
         border-color: var(--builder-primary);
-        box-shadow: 0 0 0 .22rem rgba(37, 99, 235, .15);
+        box-shadow: 0 0 0 .22rem rgba(185,167,121,.15);
     }
 
     .field-error,
@@ -106,9 +112,7 @@
     }
 
     /* --- departments multi-select dropdown --- */
-    .departments-dropdown {
-        min-width: 0;
-    }
+    .departments-dropdown { min-width: 0; }
 
     #department-dropdown-toggle {
         display: flex;
@@ -152,18 +156,14 @@
         color: var(--builder-text);
     }
 
-    .departments-menu .dept-checkbox {
-        border-color: var(--builder-border);
-    }
+    .departments-menu .dept-checkbox { border-color: var(--builder-border); }
 
     .departments-menu .dept-checkbox:checked + .form-check-label {
         color: var(--builder-primary);
         font-weight: 700;
     }
 
-    .departments-menu .dept-checkbox:focus-visible + .form-check-label {
-        color: #1d4ed8;
-    }
+    .departments-menu .dept-checkbox:focus-visible + .form-check-label { color: #988561; }
 
     .departments-menu .border-bottom .form-check-label {
         color: var(--builder-primary);
@@ -177,37 +177,27 @@
     }
 
     /* --- evaluation pillars tabs --- */
-    .pillars-section {
-        margin-top: 26px;
-    }
-
-    #pillar-tabs {
-        gap: 4px;
-        border-bottom: 1px solid var(--builder-border);
-    }
+    #pillar-tabs { gap: 6px; }
 
     #pillar-tabs .nav-link {
-        padding: .5rem .85rem;
-        border-radius: 8px 8px 0 0;
+        padding: .5rem .9rem;
+        border-radius: 999px;
+        border: 1px solid var(--builder-border);
         color: var(--builder-muted);
         font-size: .78rem;
         font-weight: 700;
         white-space: nowrap;
     }
 
-    #pillar-tabs .nav-link:hover {
-        color: var(--builder-primary);
-    }
+    #pillar-tabs .nav-link:hover { color: var(--builder-primary); }
 
     #pillar-tabs .nav-link.active {
         color: #fff;
         background: var(--builder-primary);
+        border-color: var(--builder-primary);
     }
 
-    .pillars-section .tab-content {
-        min-width: 0;
-        padding: 22px 4px 6px;
-    }
+    .pillars-pane { padding-top: 18px; }
 
     .pane-heading h3 {
         margin: 0;
@@ -216,9 +206,7 @@
         font-weight: 800;
     }
 
-    .category-question-list {
-        min-width: 0;
-    }
+    .category-question-list { min-width: 0; }
 
     .question-card {
         min-width: 0;
@@ -258,12 +246,95 @@
         background: #eff6ff;
     }
 
-    .max-rating {
+    /* --- scale selector --- */
+    .question-scale {
+        width: 92px;
+        flex-shrink: 0;
+        min-height: 38px;
+        border-color: var(--builder-border);
+        border-radius: 8px;
+        font-size: .76rem;
+        font-weight: 700;
+        color: var(--builder-text);
+    }
+
+    /* --- skill tags (essential / target) --- */
+    .skill-tags {
+        display: inline-flex;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    .skill-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 9px;
+        border: 1px solid var(--builder-border);
+        border-radius: 999px;
+        background: var(--builder-surface);
         color: var(--builder-muted);
-        font-size: .78rem;
+        font-size: .66rem;
         font-weight: 800;
         white-space: nowrap;
+        transition: border-color .15s ease, color .15s ease, background .15s ease;
     }
+
+    .skill-tag::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: transparent;
+    }
+
+    .skill-tag:hover {
+        border-color: var(--builder-primary);
+        color: var(--builder-primary);
+    }
+
+    .skill-tag-essential.active {
+        color: #166534;
+        border-color: rgba(22, 163, 74, .45);
+        background: rgba(34, 197, 94, .12);
+    }
+
+    .skill-tag-essential.active::before { background: #22c55e; }
+
+    .skill-tag-target.active {
+        color: #92400e;
+        border-color: rgba(245, 158, 11, .5);
+        background: rgba(185,167,121,.18);
+    }
+
+    .skill-tag-target.active::before { background: #B9A779; }
+
+    /* --- N/A toggle (unscored skills) --- */
+    .skill-na {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 8px;
+        border-radius: 8px;
+        color: var(--builder-muted);
+        font-size: .66rem;
+        font-weight: 800;
+        cursor: pointer;
+        user-select: none;
+        white-space: nowrap;
+    }
+
+    .skill-na input { cursor: pointer; }
+
+    .question-card.is-na { opacity: .82; background: #f8fafc; }
+
+    .question-card.is-na .question-scale {
+        opacity: .45;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+
+    .question-card.is-na .skill-na { color: var(--builder-danger); }
 
     .remove-question {
         display: inline-flex;
@@ -303,36 +374,97 @@
         font-weight: 800;
     }
 
-    .add-question-button:hover { color: #1d4ed8; }
+    .add-question-button:hover { color: #988561; }
     .add-question-button i { font-size: .8rem; }
 
-    .editor-layout {
-        display: grid;
-        grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
-        gap: 32px;
-        align-items: start;
-        margin-top: 30px;
+    /* --- CSV import dropzone --- */
+    .import-zone {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        min-height: 132px;
+        border: 2px dashed var(--builder-border);
+        border-radius: 12px;
+        background: linear-gradient(180deg, rgba(185,167,121,.03), rgba(185,167,121,.07));
+        color: var(--builder-muted);
+        text-align: center;
+        cursor: pointer;
+        transition: border-color .2s ease, background .2s ease, color .2s ease;
     }
 
+    .import-zone:hover,
+    .import-zone.is-dragover {
+        border-color: var(--builder-primary);
+        background: rgba(185,167,121,.08);
+        color: var(--builder-primary);
+    }
+
+    .import-zone i { font-size: 1.7rem; margin-bottom: 4px; }
+    .import-zone strong { font-size: .82rem; font-weight: 800; }
+    .import-zone span { font-size: .72rem; }
+
+    .import-hint { line-height: 1.8; }
+
+    .import-file-list {
+        list-style: none;
+        margin: 10px 0 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .import-file-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border: 1px solid var(--builder-border);
+        border-radius: 9px;
+        font-size: .76rem;
+        background: var(--builder-surface);
+    }
+
+    .import-file-item i.fa-file-csv { color: #16a34a; }
+
+    .import-file-remove {
+        margin-inline-start: auto;
+        border: 0;
+        background: transparent;
+        color: var(--builder-muted);
+    }
+
+    .import-file-remove:hover { color: var(--builder-danger); }
+
+    .import-msg { margin-top: 8px; font-size: .76rem; font-weight: 800; color: #16a34a; }
+    .import-msg.is-error { color: var(--builder-danger); }
+
+    /* --- submission summary (left column) --- */
     .dispatch-summary {
         position: sticky;
         top: 89px;
-        padding: 20px;
+        padding: 1rem;
         border: 1px solid var(--builder-border);
         border-radius: 12px;
         background: var(--builder-surface);
     }
 
     .dispatch-summary h2 {
-        margin: 0 0 20px;
+        margin: 0 0 6px;
         font-size: .95rem;
         font-weight: 800;
     }
 
+    .summary-metrics { display: flex; flex-direction: column; }
+
     .summary-item {
         padding: 12px 0;
-        border-top: 1px solid var(--builder-border);
+        border-bottom: 1px solid var(--builder-border);
     }
+
+    .summary-item:last-of-type { border-bottom: 0; }
 
     .summary-label {
         display: block;
@@ -350,17 +482,85 @@
         line-height: 1.7;
     }
 
+    .axis-metrics {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .axis-kpi {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: #f8fafc;
+        border: 1px solid var(--builder-border);
+    }
+
+    .axis-kpi-name {
+        font-size: .66rem;
+        font-weight: 700;
+        color: var(--builder-muted);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .axis-kpi b {
+        font-size: .95rem;
+        color: var(--builder-text);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .axis-kpi-label {
+        display: block;
+        text-align: center;
+        font-size: .6rem;
+        color: var(--builder-muted);
+        font-weight: 700;
+    }
+
+    .checklist { margin-top: 4px; }
+
+    .check-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 6px 0;
+        font-size: .76rem;
+        color: var(--builder-muted);
+    }
+
+    .check-item i { margin-top: 2px; color: #cbd5e1; font-size: .85rem; }
+    .check-item.is-met { color: #16a34a; }
+    .check-item.is-met i { color: #22c55e; }
+
     .summary-action {
         width: 100%;
-        margin-top: 18px;
-        min-height: 44px;
+        min-height: 46px;
         font-weight: 800;
+        border-radius: 10px;
     }
 
     .summary-action:disabled { cursor: not-allowed; }
 
+    .summary-draft-btn {
+        border-color: var(--builder-primary);
+        color: var(--builder-primary);
+        background: transparent;
+    }
+
+    .summary-draft-btn:hover {
+        color: #fff;
+        background: var(--builder-primary);
+    }
+
+    .axis-kpi b { position: relative; }
+    .axis-kpi b[data-axis-count] { direction: ltr; }
+
     @media (max-width: 991.98px) {
-        .editor-layout { grid-template-columns: 1fr; }
         .dispatch-summary { position: static; }
     }
 
@@ -369,12 +569,9 @@
         .question-card { flex-wrap: wrap; }
         .question-card .question-input { flex: 1 1 100%; order: 2; }
         .question-card .question-index,
-        .question-card .max-rating,
-        .question-card .remove-question {
-            order: 1;
-        }
+        .question-card .question-scale,
+        .question-card .remove-question { order: 1; }
         .remove-question { margin-inline-start: auto; }
-        .editor-layout { gap: 24px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -387,7 +584,7 @@
 <div class="evaluation-builder">
     <header class="builder-header">
         <div>
-            <h1>إنشاء تقييم أداء</h1>
+            <h1>{% if draft %}متابعة مسودة التقييم{% else %}إنشاء تقييم أداء{% endif %}</h1>
             <p>اختر الأقسام المستهدفة ثم أضف أسئلة كل محور من محاور التقييم بالترتيب المطلوب.</p>
         </div>
         <a href="{% url 'performance_dashboard' %}" class="back-link">
@@ -399,129 +596,194 @@
     <form method="post" novalidate id="evaluation-dispatch-form">
         {% csrf_token %}
         {{ form.evaluation_type }}
+        {% if draft %}<input type="hidden" name="draft_id" value="{{ draft.id }}">{% endif %}
         {% if form.non_field_errors %}
             <div class="alert alert-danger py-2" role="alert">{{ form.non_field_errors }}</div>
         {% endif %}
 
-        <section class="metadata-section" aria-labelledby="metadata-heading">
-            <div class="builder-section-title">
-                <h2 id="metadata-heading">بيانات التقييم</h2>
-            </div>
-            <div class="row g-3 align-items-stretch mt-1">
-                <div class="col-lg-5 col-md-12">
-                    <label for="id_title" class="form-label">عنوان التقييم</label>
-                    {{ form.title }}
-                    <div id="title-error" class="field-error" role="alert">{% if form.title.errors %}{{ form.title.errors }}{% endif %}</div>
-                </div>
-                <div class="col-lg-7 col-md-12 departments-dropdown">
-                    <label class="form-label d-block" for="department-dropdown-toggle">الأقسام المستهدفة</label>
-                    <div class="dropdown w-100">
-                        <button type="button" class="btn dropdown-toggle" id="department-dropdown-toggle"
-                                data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            <span id="department-dropdown-label">اختر الأقسام المستهدفة…</span>
-                            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
-                        </button>
-                        <div class="dropdown-menu departments-menu shadow-sm" aria-labelledby="department-dropdown-toggle">
-                            <div class="form-check d-flex align-items-center mb-3 pb-2 border-bottom">
-                                <input class="form-check-input me-2" type="checkbox" id="select-all-depts" aria-label="تحديد جميع الأقسام">
-                                <label class="form-check-label fw-bold text-primary" for="select-all-depts">
-                                    <i class="fa-solid fa-layer-group me-1" aria-hidden="true"></i>جميع الأقسام
-                                </label>
-                                <span class="ms-auto small fw-normal text-muted" id="department-selected-count" aria-live="polite"></span>
-                            </div>
-                            <div class="d-flex flex-column gap-2 ms-2">
-                                {% for department in departments %}
-                                <div class="form-check align-items-center" data-department-name="{{ department.name }}">
-                                    <input class="form-check-input dept-checkbox me-2" type="checkbox" name="departments"
-                                           value="{{ department.id }}" id="dept-{{ department.id }}"
-                                           {% if department.id|stringformat:"s" in selected_department_ids %}checked{% endif %}>
-                                    <label class="form-check-label" for="dept-{{ department.id }}">{{ department.name }}</label>
+        <div class="row g-4">
+            <!-- ============ العمود الرئيسي (يمين): بيانات التقييم ============ -->
+            <div class="col-lg-8">
+                <div class="evaluation-card basic-info mb-4">
+                    <div class="evaluation-card-title"><i class="fa-solid fa-file-lines" aria-hidden="true"></i> بيانات التقييم</div>
+                    <div class="row g-3 align-items-stretch">
+                        <div class="col-md-5">
+                            <label for="id_title" class="form-label">عنوان التقييم</label>
+                            {{ form.title }}
+                            <div id="title-error" class="field-error" role="alert">{% if form.title.errors %}{{ form.title.errors }}{% endif %}</div>
+                        </div>
+                        <div class="col-md-7 departments-dropdown">
+                            <label class="form-label d-block" for="department-dropdown-toggle">الأقسام المستهدفة</label>
+                            <div class="dropdown w-100">
+                                <button type="button" class="btn dropdown-toggle" id="department-dropdown-toggle"
+                                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                    <span id="department-dropdown-label">اختر الأقسام المستهدفة…</span>
+                                    <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                                </button>
+                                <div class="dropdown-menu departments-menu shadow-sm" aria-labelledby="department-dropdown-toggle">
+                                    <div class="form-check d-flex align-items-center mb-3 pb-2 border-bottom">
+                                        <input class="form-check-input me-2" type="checkbox" id="select-all-depts" aria-label="تحديد جميع الأقسام">
+                                        <label class="form-check-label fw-bold text-primary" for="select-all-depts">
+                                            <i class="fa-solid fa-layer-group me-1" aria-hidden="true"></i>جميع الأقسام
+                                        </label>
+                                        <span class="ms-auto small fw-normal text-muted" id="department-selected-count" aria-live="polite"></span>
+                                    </div>
+                                    <div class="d-flex flex-column gap-2 ms-2">
+                                        {% for department in departments %}
+                                        <div class="form-check align-items-center" data-department-name="{{ department.name }}">
+                                            <input class="form-check-input dept-checkbox me-2" type="checkbox" name="departments"
+                                                   value="{{ department.id }}" id="dept-{{ department.id }}"
+                                                   {% if department.id|stringformat:"s" in selected_department_ids %}checked{% endif %}>
+                                            <label class="form-check-label" for="dept-{{ department.id }}">{{ department.name }}</label>
+                                        </div>
+                                        {% empty %}
+                                        <small class="text-muted">لا توجد أقسام لديها موظفون نشطون.</small>
+                                        {% endfor %}
+                                    </div>
                                 </div>
-                                {% empty %}
-                                <small class="text-muted">لا توجد أقسام لديها موظفون نشطون.</small>
+                            </div>
+                            <div id="department-error" class="field-error" role="alert">{% if form.departments.errors %}{{ form.departments.errors }}{% endif %}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="evaluation-card import-card mb-4">
+                    <div class="evaluation-card-title"><i class="fa-solid fa-file-csv" aria-hidden="true"></i> استيراد الأسئلة من ملف CSV</div>
+                    <p class="section-description mb-3">استورد أسئلة جاهزة دفعةً واحدة باختيار ملف أو أكثر، وستضاف إلى المحور المحدد حالياً في التبويبات أعلاه.</p>
+                    <div class="import-zone" id="csv-dropzone" role="button" tabindex="0" aria-label="رفع ملفات CSV">
+                        <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+                        <strong>اسحب ملفات CSV هنا أو انقر للاختيار</strong>
+                        <span>يمكنك اختيار أكثر من ملف — كل سطر يمثل سؤالاً</span>
+                        <input type="file" id="csv-file-input" accept=".csv,text/csv,text/plain" multiple hidden>
+                    </div>
+                    <div class="import-hint small text-muted mt-2">
+                        الصيغة المتوقعة بالترتيب: <code>نص السؤال</code>، ثم <code>سلم الدرجات (3/5/10)</code> اختياري، ثم <code>أساسي / مستهدف / N/A</code> اختياري.
+                    </div>
+                    <ul class="import-file-list" id="import-file-list" aria-live="polite"></ul>
+                    <div id="import-msg" class="import-msg" role="status"></div>
+                </div>
+
+                <div class="evaluation-card" aria-labelledby="pillars-heading">
+                    <div class="evaluation-card-title"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> محاور التقييم والأسئلة</div>
+                    <div id="question-error" class="field-error" role="alert"></div>
+                    <ul class="nav nav-pills flex-wrap mb-3" id="pillar-tabs" role="tablist">
+                        {% for tab in tab_builders %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {% if tab.category.code == active_type %}active{% endif %}"
+                                    id="tab-{{ tab.category.code }}" data-code="{{ tab.category.code }}"
+                                    data-bs-toggle="pill" data-bs-target="#pane-{{ tab.category.code }}"
+                                    type="button" role="tab" aria-controls="pane-{{ tab.category.code }}"
+                                    aria-selected="{% if tab.category.code == active_type %}true{% else %}false{% endif %}">
+                                {{ tab.category.name }}
+                            </button>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="tab-content" id="pillar-tabs-content">
+                        {% for tab in tab_builders %}
+                        <div class="tab-pane fade pillars-pane {% if tab.category.code == active_type %}show active{% endif %}"
+                             id="pane-{{ tab.category.code }}" role="tabpanel" aria-labelledby="tab-{{ tab.category.code }}">
+                            <div class="pane-heading d-flex align-items-center justify-content-between gap-2 mb-1">
+                                <h3>أسئلة {{ tab.category.name }}</h3>
+                                <span class="badge text-bg-light border fw-semibold" data-tab-count>0 سؤال</span>
+                            </div>
+                            <p class="section-description mb-3">أضف الأسئلة بالترتيب الذي سيظهر للموظفين، وحدد سلم الدرجات لكل سؤال.</p>
+                            <div class="category-question-list d-flex flex-column" data-category="{{ tab.category.code }}">
+                                {% for value, scale, is_na, tag in tab.rows %}
+                                <div class="question-card skill-item d-flex align-items-center gap-2 mb-2 p-2 {% if is_na %}is-na{% endif %}" data-question-row>
+                                    <span class="question-index flex-shrink-0" data-question-number aria-hidden="true">01</span>
+                                    <input type="text" name="questions_{{ tab.category.code }}[]" class="form-control question-input"
+                                           placeholder="اكتب سؤال التقييم..." value="{{ value }}" aria-label="نص السؤال">
+                                    <div class="skill-tags" role="group" aria-label="وسم المهارة">
+                                        <button type="button" class="skill-tag skill-tag-essential {% if tag == 'essential' %}active{% endif %}"
+                                                data-tag-choice data-tag="essential"
+                                                aria-pressed="{% if tag == 'essential' %}true{% else %}false{% endif %}">أساسي</button>
+                                        <button type="button" class="skill-tag skill-tag-target {% if tag == 'target' %}active{% endif %}"
+                                                data-tag-choice data-tag="target"
+                                                aria-pressed="{% if tag == 'target' %}true{% else %}false{% endif %}">مستهدف</button>
+                                    </div>
+                                    <select name="scale_{{ tab.category.code }}[]" class="form-select question-scale" aria-label="سلم الدرجات">
+                                        <option value="3" {% if scale == 3 %}selected{% endif %}>/3</option>
+                                        <option value="5" {% if scale == 5 %}selected{% endif %}>/5</option>
+                                        <option value="10" {% if scale == 10 %}selected{% endif %}>/10</option>
+                                    </select>
+                                    <label class="skill-na flex-shrink-0" title="غير قابل للتقييم">
+                                        <input type="checkbox" class="form-check-input" data-na-toggle {% if is_na %}checked{% endif %}
+                                               aria-label="غير قابل للتقييم (N/A)"><span>N/A</span>
+                                    </label>
+                                    <input type="hidden" name="na_{{ tab.category.code }}[]" value="{% if is_na %}1{% else %}0{% endif %}">
+                                    <input type="hidden" name="tag_{{ tab.category.code }}[]" value="{{ tag }}">
+                                    <button type="button" class="btn remove-question flex-shrink-0" data-remove-question aria-label="حذف السؤال">
+                                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>حذف السؤال</span>
+                                    </button>
+                                </div>
+                                {% endfor %}
+                                <div class="add-question-row">
+                                    <button type="button" class="add-question-button" data-add-question>
+                                        <i class="fa-solid fa-plus" aria-hidden="true"></i> إضافة سؤال آخر
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ العمود الجانبي (يسار): ملخص الإرسال ============ -->
+            <div class="col-lg-4">
+                <aside class="dispatch-summary" aria-labelledby="summary-heading">
+                    <h2 id="summary-heading">ملخص الإرسال</h2>
+                    <p class="section-description mb-2">نظرة سريعة على استعداد التقييم قبل نشره.</p>
+
+                    <div class="summary-metrics">
+                        <div class="summary-item">
+                            <span class="summary-label">أسئلة كل محور</span>
+                            <div class="axis-metrics">
+                                {% for tab in tab_builders %}
+                                <span class="axis-kpi" data-axis-kpi data-code="{{ tab.category.code }}">
+                                    <span class="axis-kpi-name">{{ tab.category.name|truncatechars:16 }}</span>
+                                    <b data-axis-count aria-live="polite">0</b>
+                                </span>
                                 {% endfor %}
                             </div>
                         </div>
-                    </div>
-                    <div id="department-error" class="field-error" role="alert">{% if form.departments.errors %}{{ form.departments.errors }}{% endif %}</div>
-                </div>
-            </div>
-        </section>
-
-        <section class="pillars-section" aria-labelledby="pillars-heading">
-            <div class="builder-section-title">
-                <h2 id="pillars-heading">محاور التقييم والأسئلة</h2>
-                <span id="total-question-count" aria-live="polite"></span>
-            </div>
-            <ul class="nav nav-tabs nav-pills flex-wrap mb-3" id="pillar-tabs" role="tablist">
-                {% for tab in tab_builders %}
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link {% if tab.category.code == active_type %}active{% endif %}"
-                            id="tab-{{ tab.category.code }}" data-code="{{ tab.category.code }}"
-                            data-bs-toggle="pill" data-bs-target="#pane-{{ tab.category.code }}"
-                            type="button" role="tab" aria-controls="pane-{{ tab.category.code }}"
-                            aria-selected="{% if tab.category.code == active_type %}true{% else %}false{% endif %}">
-                        {{ tab.category.name }}
-                    </button>
-                </li>
-                {% endfor %}
-            </ul>
-            <div class="tab-content" id="pillar-tabs-content">
-                {% for tab in tab_builders %}
-                <div class="tab-pane fade {% if tab.category.code == active_type %}show active{% endif %}"
-                     id="pane-{{ tab.category.code }}" role="tabpanel" aria-labelledby="tab-{{ tab.category.code }}">
-                    <div class="pane-heading d-flex align-items-center justify-content-between gap-2 mb-1">
-                        <h3>أسئلة {{ tab.category.name }}</h3>
-                        <span class="badge text-bg-light border fw-semibold" data-tab-count>0 سؤال</span>
-                    </div>
-                    <p class="section-description mb-3">أضف الأسئلة بالترتيب الذي سيظهر للموظفين.</p>
-                    <div class="category-question-list d-flex flex-column" data-category="{{ tab.category.code }}">
-                        {% for value in tab.values %}
-                        <div class="question-card d-flex align-items-center gap-2 mb-2 p-2" data-question-row>
-                            <span class="question-index flex-shrink-0" data-question-number aria-hidden="true">01</span>
-                            <input type="text" name="questions_{{ tab.category.code }}[]" class="form-control question-input"
-                                   placeholder="اكتب سؤال التقييم..." value="{{ value }}" aria-label="نص السؤال">
-                            <span class="max-rating flex-shrink-0" aria-label="أقصى تقييم 5">/5</span>
-                            <button type="button" class="btn remove-question flex-shrink-0" data-remove-question aria-label="حذف السؤال">
-                                <i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>حذف السؤال</span>
-                            </button>
+                        <div class="summary-item">
+                            <span class="summary-label">إجمالي الأسئلة</span>
+                            <span class="summary-value" id="summary-question-count">—</span>
                         </div>
-                        {% endfor %}
-                        <div class="add-question-row">
-                            <button type="button" class="add-question-button" data-add-question>
-                                <i class="fa-solid fa-plus" aria-hidden="true"></i> إضافة سؤال آخر
-                            </button>
+                        <div class="summary-item">
+                            <span class="summary-label">الأقسام المستهدفة</span>
+                            <span class="summary-value" id="metric-departments">0</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">سلم التقييم</span>
+                            <span class="summary-value" id="metric-scale">—</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">عنوان التقييم</span>
+                            <span class="summary-value" id="summary-title">—</span>
                         </div>
                     </div>
-                </div>
-                {% endfor %}
-            </div>
-        </section>
 
-        <div class="editor-layout">
-            <aside class="dispatch-summary" aria-labelledby="summary-heading">
-                <h2 id="summary-heading">ملخص الإرسال</h2>
-                <div class="summary-item">
-                    <span class="summary-label">عنوان التقييم</span>
-                    <span class="summary-value" id="summary-title">—</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">المحور الرئيسي</span>
-                    <span class="summary-value" id="summary-type">—</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">الأقسام المستهدفة</span>
-                    <span class="summary-value" id="summary-department">—</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">الأسئلة</span>
-                    <span class="summary-value" id="summary-question-count">—</span>
-                </div>
-                <button type="button" class="btn btn-primary summary-action" id="review-submit">
-                    <i class="fa-solid fa-paper-plane me-1" aria-hidden="true"></i>
-                    مراجعة وإرسال التقييم
-                </button>
-            </aside>
+                    <div class="checklist" id="publish-checklist">
+                        <div class="check-item" data-check-item="title"><i class="fa-regular fa-circle" data-check-icon aria-hidden="true"></i><span>أضف عنواناً واضحاً للتقييم</span></div>
+                        <div class="check-item" data-check-item="dept"><i class="fa-regular fa-circle" data-check-icon aria-hidden="true"></i><span>اختر قسماً واحداً على الأقل</span></div>
+                        <div class="check-item" data-check-item="axes"><i class="fa-regular fa-circle" data-check-icon aria-hidden="true"></i><span>أضف سؤالاً في كل محور</span></div>
+                        <div class="check-item" data-check-item="scale"><i class="fa-regular fa-circle" data-check-icon aria-hidden="true"></i><span>راجع سلم الدرجات لكل سؤال</span></div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-2">
+                        <button type="button" class="btn btn-primary summary-action" id="review-submit">
+                            <i class="fa-solid fa-paper-plane me-1" aria-hidden="true"></i>نشر التقييم
+                        </button>
+                        <button type="submit" name="action" value="draft" form="evaluation-dispatch-form"
+                                class="btn btn-outline-primary summary-action summary-draft-btn">
+                            <i class="fa-solid fa-floppy-disk me-1" aria-hidden="true"></i>حفظ كمسودة
+                        </button>
+                    </div>
+                </aside>
+            </div>
         </div>
     </form>
 </div>
@@ -532,7 +794,7 @@
             <div class="modal-header border-0 pb-0">
                 <h2 class="modal-title fs-5 fw-bold" id="bulk-send-modal-label">
                     <i class="fa-solid fa-paper-plane text-primary me-2" aria-hidden="true"></i>
-                    إرسال التقييم إلى الأقسام؟
+                    نشر التقييم إلى الأقسام؟
                 </h2>
                 <button type="button" class="btn-close ms-0" data-bs-dismiss="modal" aria-label="إغلاق"></button>
             </div>
@@ -547,9 +809,9 @@
                 <div id="modal-error" class="text-danger small mt-3" role="alert"></div>
             </div>
             <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">العودة للتعديل</button>
-                <button type="submit" class="btn btn-primary px-4" id="confirm-submit" form="evaluation-dispatch-form">
-                    <i class="fa-solid fa-paper-plane me-1" aria-hidden="true"></i> إرسال التقييم
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">إلغاء</button>
+                <button type="submit" name="action" value="publish" class="btn btn-primary px-4" id="confirm-submit" form="evaluation-dispatch-form">
+                    <i class="fa-solid fa-paper-plane me-1" aria-hidden="true"></i> نشر التقييم
                 </button>
             </div>
         </div>
@@ -562,10 +824,7 @@
 (function () {
     const form = document.getElementById('evaluation-dispatch-form');
     const summaryTitle = document.getElementById('summary-title');
-    const summaryType = document.getElementById('summary-type');
-    const summaryDepartment = document.getElementById('summary-department');
     const summaryQuestionCount = document.getElementById('summary-question-count');
-    const totalQuestionCount = document.getElementById('total-question-count');
     const reviewButton = document.getElementById('review-submit');
     const confirmButton = document.getElementById('confirm-submit');
     const modalError = document.getElementById('modal-error');
@@ -577,6 +836,10 @@
     const typeInput = document.getElementById('id_evaluation_type');
     const categoryLists = Array.from(document.querySelectorAll('.category-question-list'));
     const tabLinks = Array.from(document.querySelectorAll('#pillar-tabs .nav-link'));
+    const metricDepartments = document.getElementById('metric-departments');
+    const metricScale = document.getElementById('metric-scale');
+    const checkItems = Array.from(document.querySelectorAll('[data-check-item]'));
+    const axisMetrics = Array.from(document.querySelectorAll('[data-axis-kpi]'));
     let confirmed = false;
 
     function countLabel(count) {
@@ -608,17 +871,24 @@
         });
     }
 
+    function axisKpiFor(code) {
+        return axisMetrics.find(function (kpi) { return kpi.dataset.code === code; });
+    }
+
     function updateCounts() {
         let total = 0;
         categoryLists.forEach(function (list) {
-            const count = filledIn(list).length;
-            total += count;
+            const all = filledIn(list).length;
+            const scored = filledIn(list).filter(function (row) { return !isNaRow(row); }).length;
+            total += all;
             const badge = list.closest('.tab-pane').querySelector('[data-tab-count]');
-            if (badge) badge.textContent = countLabelShort(count);
+            if (badge) badge.textContent = countLabelShort(scored);
+            const kpi = axisKpiFor(list.dataset.category);
+            const counter = kpi ? kpi.querySelector('[data-axis-count]') : null;
+            if (counter) counter.textContent = scored;
             renumber(list);
         });
         summaryQuestionCount.textContent = total ? countLabel(total) : '—';
-        totalQuestionCount.textContent = total ? countLabel(total) : '0 سؤال';
     }
 
     function selectedDepartments() {
@@ -640,14 +910,50 @@
         allDepartmentsToggle.checked = departmentFields.length > 0 && selected.length === departmentFields.length;
         departmentPanelCount.textContent = selected.length ? '(' + selected.length + ' مختار)' : '';
         departmentDropdownLabel.textContent = departmentSummaryLabel();
-        summaryDepartment.textContent = selected.length ? departmentSummaryLabel() : '—';
+        metricDepartments.textContent = selected.length;
+    }
+
+    function activePane() {
+        const active = tabLinks.find(function (link) { return link.classList.contains('active'); }) || tabLinks[0];
+        if (!active) return null;
+        return document.getElementById('pane-' + active.dataset.code);
+    }
+
+    function activeScale() {
+        updateCounts();
+        const pane = activePane();
+        if (!pane) return 5;
+        const scoredRow = Array.from(pane.querySelectorAll('[data-question-row]')).find(function (row) {
+            return !isNaRow(row);
+        });
+        const scale = scoredRow ? scoredRow.querySelector('.question-scale') : null;
+        return scale ? parseInt(scale.value, 10) : 5;
     }
 
     function syncActiveType() {
         const active = tabLinks.find(function (link) { return link.classList.contains('active'); }) || tabLinks[0];
         if (!active) return;
         typeInput.value = active.dataset.code;
-        summaryType.textContent = active.textContent.trim();
+    }
+
+    function updateChecklist(title, departmentCount, axisFilled) {
+        const states = {
+            title: Boolean(title),
+            dept: departmentCount > 0,
+            axes: axisFilled.every(Boolean) && axisFilled.length > 0,
+            scale: axisFilled.some(Boolean),
+        };
+        checkItems.forEach(function (item) {
+            const met = Boolean(states[item.dataset.checkItem]);
+            item.classList.toggle('is-met', met);
+            const icon = item.querySelector('[data-check-icon]');
+            if (icon) {
+                icon.classList.remove('fa-circle', 'fa-regular');
+                icon.classList.toggle('fa-circle-check', met);
+                icon.classList.toggle('fa-regular', !met);
+                icon.classList.toggle('fa-solid', met);
+            }
+        });
     }
 
     function updateSummary() {
@@ -656,20 +962,45 @@
         syncActiveType();
         updateDepartmentsSummary();
         updateCounts();
+        metricScale.textContent = activeScale() + ' درجات';
+        const axisScored = categoryLists.map(function (list) {
+            return filledIn(list).filter(function (row) { return !isNaRow(row); }).length;
+        });
+        updateChecklist(title, selectedDepartments().length, axisScored);
     }
 
-    function createQuestionRow(code, value) {
+    function createQuestionRow(code, opts) {
+        opts = opts || {};
+        const isNa = Boolean(opts.na);
+        const tag = opts.tag || '';
         const row = document.createElement('div');
-        row.className = 'question-card d-flex align-items-center gap-2 mb-2 p-2';
+        row.className = 'question-card skill-item d-flex align-items-center gap-2 mb-2 p-2';
+        if (isNa) row.classList.add('is-na');
         row.setAttribute('data-question-row', '');
         row.innerHTML =
             '<span class="question-index flex-shrink-0" data-question-number aria-hidden="true">01</span>' +
             '<input type="text" name="questions_' + code + '[]" class="form-control question-input" placeholder="اكتب سؤال التقييم..." aria-label="نص السؤال">' +
-            '<span class="max-rating flex-shrink-0" aria-label="أقصى تقييم 5">/5</span>' +
+            '<div class="skill-tags" role="group" aria-label="وسم المهارة">' +
+            '<button type="button" class="skill-tag skill-tag-essential' + (tag === 'essential' ? ' active' : '') + '" data-tag-choice data-tag="essential" aria-pressed="' + (tag === 'essential') + '">أساسي</button>' +
+            '<button type="button" class="skill-tag skill-tag-target' + (tag === 'target' ? ' active' : '') + '" data-tag-choice data-tag="target" aria-pressed="' + (tag === 'target') + '">مستهدف</button>' +
+            '</div>' +
+            '<select name="scale_' + code + '[]" class="form-select question-scale" aria-label="سلم الدرجات">' +
+            '<option value="3">/3</option>' +
+            '<option value="5" selected>/5</option>' +
+            '<option value="10">/10</option></select>' +
+            '<label class="skill-na flex-shrink-0" title="غير قابل للتقييم">' +
+            '<input type="checkbox" class="form-check-input" data-na-toggle' + (isNa ? ' checked' : '') + ' aria-label="غير قابل للتقييم (N/A)"><span>N/A</span></label>' +
+            '<input type="hidden" name="na_' + code + '[]" value="' + (isNa ? '1' : '0') + '">' +
+            '<input type="hidden" name="tag_' + code + '[]" value="' + tag + '">' +
             '<button type="button" class="btn remove-question flex-shrink-0" data-remove-question aria-label="حذف السؤال">' +
             '<i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>حذف السؤال</span></button>';
-        row.querySelector('.question-input').value = value || '';
+        if (opts.text != null) row.querySelector('.question-input').value = opts.text;
+        if (opts.scale) row.querySelector('.question-scale').value = String(opts.scale);
         return row;
+    }
+
+    function isNaRow(row) {
+        return row.classList.contains('is-na');
     }
 
     function addRowFor(addButton) {
@@ -677,16 +1008,35 @@
         const list = pane.querySelector('.category-question-list');
         const code = list.dataset.category;
         const row = createQuestionRow(code);
-        list.appendChild(row);
+        list.insertBefore(row, list.querySelector('.add-question-row'));
         row.querySelector('.question-input').focus();
-        updateCounts();
+        updateSummary();
+    }
+
+    function setNaRow(row, isNa) {
+        row.classList.toggle('is-na', isNa);
+        const hidden = row.querySelector('input[type="hidden"][name^="na_"]');
+        if (hidden) hidden.value = isNa ? '1' : '0';
+    }
+
+    function chooseTag(row, tagValue) {
+        const buttons = Array.from(row.querySelectorAll('[data-tag-choice]'));
+        const hidden = row.querySelector('input[type="hidden"][name^="tag_"]');
+        const next = hidden.value === tagValue ? '' : tagValue;
+        buttons.forEach(function (button) {
+            const active = button.dataset.tag === next;
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-pressed', String(active));
+        });
+        if (hidden) hidden.value = next;
+        updateSummary();
     }
 
     function removeRow(row) {
         const list = row.closest('.category-question-list');
         const previous = row.previousElementSibling;
         row.remove();
-        updateCounts();
+        updateSummary();
         if (previous && previous.matches('[data-question-row]')) {
             previous.querySelector('.question-input').focus();
         } else {
@@ -730,16 +1080,22 @@
 
     function openReview() {
         if (!validateBeforeReview()) return;
-        syncActiveType();
+        const active = tabLinks.find(function (link) { return link.classList.contains('active'); }) || tabLinks[0];
         document.getElementById('modal-title').textContent = summaryTitle.textContent;
-        document.getElementById('modal-type').textContent = summaryType.textContent;
-        document.getElementById('modal-department').textContent = summaryDepartment.textContent;
+        document.getElementById('modal-type').textContent = active ? active.textContent.trim() : '—';
+        document.getElementById('modal-department').textContent = departmentSummaryLabel();
         document.getElementById('modal-question-count').textContent = summaryQuestionCount.textContent;
         modalError.textContent = '';
         sendModal.show();
     }
 
     form.addEventListener('click', function (event) {
+        const tagButton = event.target.closest('[data-tag-choice]');
+        if (tagButton) {
+            const row = tagButton.closest('[data-question-row]');
+            if (row) chooseTag(row, tagButton.dataset.tag);
+            return;
+        }
         const removeButton = event.target.closest('[data-remove-question]');
         if (removeButton) {
             const row = removeButton.closest('[data-question-row]');
@@ -751,8 +1107,23 @@
     });
 
     form.addEventListener('input', function (event) {
-        if (event.target.matches('.question-input')) updateCounts();
+        if (event.target.matches('.question-input') || event.target.matches('.question-scale')) {
+            updateSummary();
+        }
         if (event.target.id === 'id_title') updateSummary();
+    });
+
+    form.addEventListener('change', function (event) {
+        const naToggle = event.target.closest('[data-na-toggle]');
+        if (naToggle) {
+            const row = naToggle.closest('[data-question-row]');
+            if (row) {
+                setNaRow(row, naToggle.checked);
+                updateSummary();
+            }
+            return;
+        }
+        if (event.target.matches('.question-scale')) updateSummary();
     });
 
     document.getElementById('pillar-tabs').addEventListener('shown.bs.tab', function () {
@@ -762,24 +1133,167 @@
     allDepartmentsToggle.addEventListener('change', function () {
         departmentFields.forEach(function (box) { box.checked = allDepartmentsToggle.checked; });
         updateDepartmentsSummary();
+        updateSummary();
     });
     departmentFields.forEach(function (box) {
-        box.addEventListener('change', updateDepartmentsSummary);
+        box.addEventListener('change', updateSummary);
     });
     reviewButton.addEventListener('click', openReview);
 
     form.addEventListener('submit', function (event) {
+        const submitter = event.submitter || document.activeElement;
+        if (submitter && submitter.value === 'draft') {
+            confirmButton.disabled = true;
+            return;
+        }
         if (!confirmed) {
             event.preventDefault();
             openReview();
             return;
         }
         confirmButton.disabled = true;
-        confirmButton.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> جارٍ إرسال التقييم…';
+        confirmButton.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> جارٍ نشر التقييم…';
         reviewButton.disabled = true;
     });
 
     confirmButton.addEventListener('click', function () { confirmed = true; });
+
+    // --- CSV import dropzone ---
+    const dropzone = document.getElementById('csv-dropzone');
+    const fileInput = document.getElementById('csv-file-input');
+    const fileListEl = document.getElementById('import-file-list');
+    const importMsg = document.getElementById('import-msg');
+
+    function importMessage(text, isError) {
+        importMsg.textContent = text;
+        importMsg.classList.toggle('is-error', Boolean(isError));
+    }
+
+    function activeCode() {
+        const active = tabLinks.find(function (link) { return link.classList.contains('active'); }) || tabLinks[0];
+        return active ? active.dataset.code : categoryLists[0].dataset.category;
+    }
+
+    function parseCsvLine(line) {
+        const cells = [];
+        let cell = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+            const ch = line[i];
+            if (inQuotes) {
+                if (ch === '"') {
+                    if (line[i + 1] === '"') { cell += '"'; i++; }
+                    else inQuotes = false;
+                } else cell += ch;
+            } else if (ch === '"') {
+                inQuotes = true;
+            } else if (ch === ',' || ch === ';' || ch === '\t') {
+                cells.push(cell); cell = '';
+            } else cell += ch;
+        }
+        cells.push(cell);
+        return cells.map(function (c) { return c.trim(); });
+    }
+
+    function looksLikeHeader(cells) {
+        return /(question|text|سؤال|النص|scale|درجة|tag|وسم|na|na\/?a)/i.test(cells.join(' '));
+    }
+
+    function normalizeCsvRow(cells) {
+        const text = cells[0] || '';
+        let scale = parseInt(cells[1], 10);
+        if (isNaN(scale) || scale < 1 || scale > 10) scale = 5;
+        const meta = String(cells[2] || '').trim().toLowerCase();
+        let na = /(^|[\s،,;])(na|n\/a)(\s|$|[\s،,;])|غير قابل|لا يحسب|unscored|غير مقيم/.test(meta);
+        let tag = '';
+        if (!na) {
+            if (meta.indexOf('أساسي') === 0 || meta.indexOf('اساسي') === 0 || meta.indexOf('essential') === 0) tag = 'essential';
+            else if (meta.indexOf('مستهدف') === 0 || meta.indexOf('target') === 0) tag = 'target';
+        }
+        return { text: text, scale: scale, na: na, tag: tag };
+    }
+
+    function importCsvText(text) {
+        text = String(text).replace(/^\uFEFF/, '');
+        const lines = text.split(/\r?\n/).map(function (line) { return line.trim(); }).filter(Boolean);
+        if (!lines.length) return 0;
+        let start = looksLikeHeader(parseCsvLine(lines[0])) ? 1 : 0;
+        const items = [];
+        for (let i = start; i < lines.length; i++) {
+            const item = normalizeCsvRow(parseCsvLine(lines[i]));
+            if (item.text) items.push(item);
+        }
+        if (!items.length) return 0;
+        const code = activeCode();
+        const list = document.querySelector('.category-question-list[data-category="' + code + '"]');
+        if (!list) return 0;
+        const addRow = list.querySelector('.add-question-row');
+        items.forEach(function (item) {
+            list.insertBefore(createQuestionRow(code, item), addRow);
+        });
+        return items.length;
+    }
+
+    function addFileChip(name) {
+        const item = document.createElement('li');
+        item.className = 'import-file-item';
+        item.innerHTML = '<i class="fa-solid fa-file-csv" aria-hidden="true"></i><span></span>' +
+            '<button type="button" class="import-file-remove" aria-label="إزالة الملف"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>';
+        item.querySelector('span').textContent = name;
+        item.querySelector('.import-file-remove').addEventListener('click', function () { item.remove(); });
+        fileListEl.appendChild(item);
+    }
+
+    function handleFiles(files) {
+        const code = activeCode();
+        let done = 0;
+        let imported = 0;
+        const paneTab = tabLinks.find(function (link) { return link.dataset.code === code; });
+        const paneName = paneTab ? paneTab.textContent.trim() : code;
+        importMessage('');
+        Array.prototype.forEach.call(files, function (file) {
+            addFileChip(file.name);
+            const reader = new FileReader();
+            reader.onload = function () {
+                imported += importCsvText(reader.result);
+                done += 1;
+                if (done === files.length) {
+                    updateSummary();
+                    if (imported) importMessage('تم استيراد ' + imported + ' سؤالاً إلى محور "' + paneName + '".');
+                    else importMessage('لم نجد أسئلة صالحة في الملفات المحددة.', true);
+                }
+            };
+            reader.readAsText(file);
+        });
+    }
+
+    dropzone.addEventListener('click', function () { fileInput.click(); });
+    dropzone.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            fileInput.click();
+        }
+    });
+    fileInput.addEventListener('change', function () {
+        if (fileInput.files.length) handleFiles(fileInput.files);
+    });
+    ['dragenter', 'dragover'].forEach(function (evt) {
+        dropzone.addEventListener(evt, function (event) {
+            event.preventDefault();
+            dropzone.classList.add('is-dragover');
+        });
+    });
+    ['dragleave', 'drop'].forEach(function (evt) {
+        dropzone.addEventListener(evt, function (event) {
+            event.preventDefault();
+            dropzone.classList.remove('is-dragover');
+        });
+    });
+    dropzone.addEventListener('drop', function (event) {
+        const files = event.dataTransfer && event.dataTransfer.files;
+        if (files && files.length) handleFiles(files);
+    });
+
     updateSummary();
 })();
 </script>

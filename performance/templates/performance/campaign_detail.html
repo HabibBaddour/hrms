@@ -3,100 +3,185 @@
 {% block title %}تفاصيل حملة التقييم | HRMS{% endblock %}
 {% block page_title %}تفاصيل حملة التقييم{% endblock %}
 
+{% block extra_css %}
+<style>
+    .cd-hero { position: relative; overflow: hidden; border-radius: 22px; padding: 26px 30px 24px; color: #fff; margin-bottom: 24px;
+        background:
+            radial-gradient(520px 260px at 90% -10%, rgba(185,167,121,0.35), transparent 65%),
+            radial-gradient(420px 240px at 5% 110%, rgba(185,167,121,0.22), transparent 60%),
+            linear-gradient(120deg, #002623 0%, #7A6F4A 55%, #B9A779 100%);
+        box-shadow: 0 20px 44px rgba(0,38,35,0.35); }
+    .cd-hero h1 { margin: 0 0 8px; font-size: clamp(1.35rem, 2vw, 1.75rem); font-weight: 800; }
+    .cd-hero p { margin: 0; color: rgba(255,255,255,.78); font-size: .88rem; }
+    .cd-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.2); font-size: .75rem; font-weight: 700; }
+    .cd-status-badge { display: inline-flex; align-items: center; gap: 7px; padding: 8px 18px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.22); font-size: .82rem; font-weight: 800; backdrop-filter: blur(8px); }
+    .cd-status-badge i { color: rgba(255,255,255,.85); }
+    .btn-back-soft { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 18px; border-radius: 12px; color: #fff; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.22); font-size: .82rem; font-weight: 800; text-decoration: none; backdrop-filter: blur(6px); }
+    .btn-back-soft:hover { color: #fff; background: rgba(255,255,255,.22); }
+    .btn-gold-soft { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 18px; border-radius: 12px; background: linear-gradient(135deg, #B9A779, #988561); color: #241A05 !important; font-size: .82rem; font-weight: 800; text-decoration: none; box-shadow: 0 10px 24px rgba(152,133,97,.35); }
+    .btn-gold-soft:hover { transform: translateY(-2px); filter: brightness(1.05); }
+
+    .cd-panel { padding: 20px 22px; border-radius: 18px; background: #fff; border: 1px solid #DFD9C2; box-shadow: 0 10px 26px rgba(15,23,42,.05); }
+    .cd-panel-icon { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 13px; font-size: 1.05rem; }
+    .cd-panel-title { margin: 0; color: #6E6A86; font-size: .76rem; font-weight: 700; }
+    .cd-panel-value { margin: 4px 0 0; color: var(--brand-night); font-size: .95rem; font-weight: 800; }
+    .cd-panel-sub { margin: 2px 0 0; color: #9B95B5; font-size: .74rem; font-weight: 600; }
+
+    .cd-page { width: 100%; border-collapse: collapse; font-size: .8rem; }
+    .cd-page thead th { background: #FAF9FE; color: #6E6A86; font-size: .72rem; font-weight: 800; padding: 13px 14px; border-bottom: 1px solid #DFD9C2; white-space: nowrap; }
+    .cd-page td { padding: 13px 14px; border-bottom: 1px dashed #F3F1FA; vertical-align: middle; }
+    .cd-page tbody tr:last-child td { border-bottom: 0; }
+    .cd-page tbody tr { transition: background .18s ease; }
+    .cd-page tbody tr:hover td { background: #FBFAFE; }
+
+    .emp-cell { display: flex; align-items: center; gap: 10px; }
+    .emp-avatar { flex: 0 0 34px; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: linear-gradient(135deg, #B9A779, #D8CBA6); font-size: .7rem; font-weight: 800; }
+    .emp-name { display: block; color: var(--brand-night); font-weight: 700; font-size: .8rem; }
+    .emp-pos { display: block; color: #9B95B5; font-size: .7rem; font-weight: 600; }
+
+    .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; font-size: .74rem; font-weight: 800; }
+    .status-pill.done { color: #988561; background: rgba(185,167,121,.09); border: 1px solid rgba(185,167,121,.28); }
+    .status-pill.pending { color: #988561; background: rgba(185,167,121,.14); border: 1px solid rgba(152,133,97,.3); }
+
+    .score-wrap { display: inline-flex; flex-direction: column; gap: 4px; }
+    .score-main { font-family: 'Courier New', monospace; font-size: .88rem; font-weight: 800; color: var(--brand-night); }
+    .score-percent { color: #6E6A86; font-size: .72rem; font-weight: 700; }
+    .grade-tag { display: inline-block; padding: 5px 13px; border-radius: 999px; color: #5A4DD6; background: rgba(185,167,121,.09); border: 1px solid rgba(185,167,121,.24); font-size: .72rem; font-weight: 800; white-space: nowrap; }
+    .grade-tag.muted { color: #9B95B5; background: #F1ECDD; border-color: #E7E3F5; }
+
+    .progress-bar-wrap { height: 8px; border-radius: 999px; background: #F0EDFA; overflow: hidden; }
+    .progress-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #B9A779, #D8CBA6); }
+
+    .detail-btn { display: inline-flex; align-items: center; gap: 7px; padding: 7px 18px; border-radius: 999px; color: #B9A779; background: #fff; border: 1px solid rgba(185,167,121,.35); font-size: .74rem; font-weight: 800; text-decoration: none; transition: all .2s ease; }
+    .detail-btn:hover { color: #fff; background: linear-gradient(135deg, #B9A779, #D8CBA6); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(185,167,121,.3); }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
-        <div>
-            <h3 class="fw-bold mb-1">تفاصيل حملة التقييم</h3>
-            <p class="text-muted mb-0">{{ campaign.title|default:'تقييم أداء' }} · {{ campaign.department_name }}</p>
+
+    <div class="cd-hero">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="cd-eyebrow"><i class="fa-solid fa-clipboard-check"></i> حملة تقييم أداء</span>
+                <h1>{{ campaign.title|default:'تقييم أداء' }}</h1>
+                <p>تفاصيل حملة التقييم الموجهة لقسم {{ campaign.department_name }}</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ back_url }}" class="btn-back-soft"><i class="fa-solid fa-arrow-right"></i> عودة إلى تقييم الأداء</a>
+                <a href="{{ dashboard_url }}" class="btn-gold-soft"><i class="fa-solid fa-gauge-high"></i> لوحة التحكم</a>
+            </div>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{{ back_url }}" class="btn btn-outline-secondary">
-                <i class="fa-solid fa-arrow-right me-1" aria-hidden="true"></i>عودة إلى تقييم الأداء
-            </a>
-            <a href="{{ dashboard_url }}" class="btn btn-outline-primary">
-                <i class="fa-solid fa-gauge-high me-1" aria-hidden="true"></i>عودة للوحة التحكم
-            </a>
+        <div class="mt-4">
+            <span class="cd-status-badge">
+                <i class="fa-solid {% if campaign.status == 'COMPLETED' %}fa-circle-check{% else %}fa-hourglass-half{% endif %}"></i>
+                حالة الحملة: {{ campaign.status_display }}
+            </span>
         </div>
     </div>
 
     <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="text-muted small">اسم المقيّم (المدير)</div>
-                    <div class="fw-bold mt-2">{{ campaign.evaluator_name }}</div>
+        <div class="col-md-6 col-xl-4">
+            <div class="cd-panel d-flex align-items-start gap-3">
+                <span class="cd-panel-icon" style="color:#B9A779;background:rgba(185,167,121,.11);"><i class="fa-solid fa-building"></i></span>
+                <div>
+                    <div class="cd-panel-title">القسم المستهدف</div>
+                    <div class="cd-panel-value">{{ campaign.department_name }}</div>
+                    <div class="cd-panel-sub">{{ campaign.completed_count }} من {{ campaign.total_count }} موظف مقيّم</div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="text-muted small">تاريخ الإنشاء</div>
-                    <div class="fw-bold mt-2">{{ campaign.created_date|date:'Y-m-d' }}</div>
+        <div class="col-md-6 col-xl-4">
+            <div class="cd-panel d-flex align-items-start gap-3">
+                <span class="cd-panel-icon" style="color:#988561;background:rgba(185,167,121,.13);"><i class="fa-solid fa-user-tie"></i></span>
+                <div>
+                    <div class="cd-panel-title">اسم مدير القسم / المقيّم</div>
+                    <div class="cd-panel-value">{{ campaign.evaluator_name }}</div>
+                    <div class="cd-panel-sub">{{ campaign.evaluator_role }}</div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="text-muted small">نسبة الإنجاز</div>
-                    <div class="fw-bold mt-2">{{ completed_count }}/{{ total_count }}</div>
+        <div class="col-md-6 col-xl-4">
+            <div class="cd-panel d-flex align-items-start gap-3">
+                <span class="cd-panel-icon" style="color:#988561;background:rgba(185,167,121,.18);"><i class="fa-solid fa-chart-simple"></i></span>
+                <div class="w-100">
+                    <div class="cd-panel-title">نسبة الإنجاز</div>
+                    <div class="cd-panel-value">{{ campaign.completion_percent }}%</div>
+                    <div class="progress-bar-wrap mt-2"><div class="progress-bar-fill" style="width:{{ campaign.completion_percent }}%;"></div></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white border-0 py-3">
-            <h5 class="fw-bold mb-0">موظفو حملة التقييم</h5>
+    <div class="cd-panel p-0">
+        <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap px-4 py-3" style="border-bottom:1px solid #F0EDFA;">
+            <h5 class="fw-bold mb-0" style="color:var(--brand-night);font-size:.98rem;">
+                <i class="fa-solid fa-users me-1" style="color:#B9A779;"></i> الموظفون المقيّمون ونتائجهم
+            </h5>
+            <span class="detail-btn" style="cursor:default;"><i class="fa-solid fa-layer-group"></i> {{ completed_count }}/{{ total_count }} مكتمل</span>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <caption class="visually-hidden">موظفو حملة {{ campaign.title }}</caption>
-                    <thead class="table-light">
-                        <tr>
-                            <th scope="col">الموظف</th>
-                            <th scope="col">المناصب/المسمى الوظيفي</th>
-                            <th scope="col">حالة التقييم</th>
-                            <th scope="col">النتيجة النهائية</th>
-                            <th scope="col">الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for eval in campaign_evaluations %}
-                        <tr>
-                            <td class="fw-semibold">{{ eval.employee.get_full_name|default:eval.employee.user.username }}</td>
-                            <td>{{ eval.employee.position.title|default:'غير محدد' }}</td>
-                            <td>
-                                {% if eval.status == 'COMPLETED' %}
-                                <span class="badge bg-success-subtle text-success">مكتمل</span>
-                                {% else %}
-                                <span class="badge bg-warning-subtle text-warning">لم يقيّم بعد</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if eval.status == 'COMPLETED' %}
-                                <span class="badge bg-success-subtle text-success font-monospace">{{ eval.score_display }}/5</span>
-                                {% else %}
-                                <span class="badge bg-warning-subtle text-warning">لم يقيّم بعد</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <a href="{% url 'evaluation_detail' eval.pk %}" class="btn btn-sm btn-outline-primary">
-                                    <i class="fa-solid fa-eye me-1" aria-hidden="true"></i>عرض التفاصيل
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center text-muted py-5">لا توجد تقييمات في هذه الحملة.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <div class="table-responsive">
+            <table class="cd-page">
+                <caption class="visually-hidden">الموظفون المقيّمون في حملة {{ campaign.title }}</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">الموظف</th>
+                        <th scope="col">المسمى الوظيفي</th>
+                        <th scope="col">حالة التقييم</th>
+                        <th scope="col">النتيجة / الدرجة</th>
+                        <th scope="col">التقدير</th>
+                        <th scope="col">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for eval in campaign_evaluations %}
+                    <tr>
+                        <td>
+                            <div class="emp-cell">
+                                <span class="emp-avatar">{{ eval.employee.get_full_name|default:eval.employee.user.username|slice:":1" }}</span>
+                                <div>
+                                    <span class="emp-name">{{ eval.employee.get_full_name|default:eval.employee.user.username }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ eval.employee.position.title|default:'غير محدد' }}</td>
+                        <td>
+                            {% if eval.status == 'COMPLETED' %}
+                            <span class="status-pill done"><i class="fa-solid fa-circle-check"></i> مكتمل</span>
+                            {% else %}
+                            <span class="status-pill pending"><i class="fa-regular fa-clock"></i> لم يقيّم بعد</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if eval.status == 'COMPLETED' %}
+                            <div class="score-wrap">
+                                <span class="score-main">{{ eval.score_display }}/5</span>
+                                <span class="score-percent">{{ eval.score_percent }}%</span>
+                            </div>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if eval.status == 'COMPLETED' %}
+                            <span class="grade-tag">{{ eval.grade_display }}</span>
+                            {% else %}
+                            <span class="grade-tag muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'evaluation_detail' eval.pk %}" class="detail-btn" aria-label="عرض تفاصيل تقييم {{ eval.employee }}">
+                                <i class="fa-solid fa-eye"></i> عرض التفاصيل
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-5"><i class="fa-regular fa-folder-open d-block mb-2" style="font-size:1.4rem;"></i>لا توجد تقييمات في هذه الحملة.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

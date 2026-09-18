@@ -9,10 +9,26 @@ from leaves.models import LeaveRequest
 
 class LeaveWorkflowTests(TestCase):
     def setUp(self):
+        self.manager_user = get_user_model().objects.create_user(username='deptmanager', password='secret123', is_staff=False)
+        self.department = Department.objects.create(name='IT', code='IT01')
+        self.manager_position = Position.objects.create(title='IT Manager', department=self.department, role='Manager')
+        self.manager_employee = Employee.objects.create(
+            user=self.manager_user,
+            department=self.department,
+            position=self.manager_position,
+            first_name='Rami',
+            last_name='Haji',
+        )
+        self.department.manager = self.manager_employee
+        self.department.save(update_fields=['manager'])
+
         self.user = get_user_model().objects.create_user(username='hradmin', password='secret123')
         self.user.is_staff = True
         self.user.save()
-        self.employee = Employee.objects.create(user=self.user, first_name='Ali', last_name='Hassan')
+        self.employee = Employee.objects.create(
+            user=self.user, department=self.department,
+            first_name='Ali', last_name='Hassan',
+        )
         self.leave = LeaveRequest.objects.create(
             employee=self.employee,
             leave_type='ANNUAL',
@@ -23,13 +39,21 @@ class LeaveWorkflowTests(TestCase):
         )
 
     def test_approve_leave_view_updates_status(self):
-        self.client.login(username='hradmin', password='secret123')
+        self.client.login(username='deptmanager', password='secret123')
         url = reverse('leaves:approve_leave', args=[self.leave.pk])
-        response = self.client.post(url, {'decision': 'APPROVED', 'manager_notes': 'Approved by HR'})
+        response = self.client.post(url, {'decision': 'APPROVED', 'manager_notes': 'Approved by manager'})
         self.assertEqual(response.status_code, 302)
         self.leave.refresh_from_db()
         self.assertEqual(self.leave.status, 'APPROVED')
-        self.assertEqual(self.leave.manager_notes, 'Approved by HR')
+        self.assertEqual(self.leave.manager_notes, 'Approved by manager')
+
+    def test_approve_leave_denied_for_non_manager(self):
+        self.client.login(username='hradmin', password='secret123')
+        url = reverse('leaves:approve_leave', args=[self.leave.pk])
+        response = self.client.post(url, {'decision': 'APPROVED', 'manager_notes': 'Should be denied'})
+        self.assertEqual(response.status_code, 302)
+        self.leave.refresh_from_db()
+        self.assertEqual(self.leave.status, 'PENDING')
 
     def test_leave_list_filters_by_department_role_and_search(self):
         self.client.login(username='hradmin', password='secret123')

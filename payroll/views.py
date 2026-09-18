@@ -16,7 +16,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 from employees.models import Employee
 from departments.models import Department, Position
 from payroll.models import Payroll
-from .forms import PayrollForm
+from .forms import PayrollForm, SalaryAdvanceForm
 
 
 ARABIC_MONTHS = [
@@ -321,3 +321,29 @@ def export_payroll_pdf(request):
     response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="payroll_report.pdf"'
     return response
+
+
+@login_required(login_url='login')
+def salary_advance_apply(request):
+    """استقبال طلب سلفة مالية عبر POST ثم إعادة التوجيه لصفحة القسائم."""
+    if request.method != 'POST':
+        return redirect('my_payslips')
+
+    employee = getattr(request.user, 'employee_profile', None)
+    if employee is None:
+        messages.error(request, 'تعذر العثور على ملفك الوظيفي. تواصل مع الإدارة.')
+        return redirect('employees:payslip_list')
+
+    form = SalaryAdvanceForm(request.POST)
+    if form.is_valid():
+        advance = form.save(commit=False)
+        advance.employee = employee
+        advance.save()
+        messages.success(
+            request,
+            f'تم إرسال طلب السلفة بمبلغ {advance.amount} $ لفترة {advance.months} شهر بنجاح.',
+        )
+    else:
+        messages.error(request, 'تأكد من صحة البيانات المدخلة ثم أعد المحاولة.')
+
+    return redirect('employees:payslip_list')

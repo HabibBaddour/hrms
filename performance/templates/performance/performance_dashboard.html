@@ -7,57 +7,86 @@
 <style>
     .perf-hero { position: relative; overflow: hidden; border-radius: 22px; padding: 26px 30px 22px; color: #fff; margin-bottom: 26px;
         background:
-            radial-gradient(520px 260px at 90% -10%, rgba(23, 176, 167, 0.35), transparent 65%),
-            radial-gradient(420px 240px at 5% 110%, rgba(242, 180, 76, 0.22), transparent 60%),
-            linear-gradient(120deg, #1B1442 0%, #4A3AB8 55%, #6153E4 100%);
-        box-shadow: 0 20px 44px rgba(21, 17, 48, 0.35); }
+            radial-gradient(520px 260px at 90% -10%, rgba(185,167,121,0.35), transparent 65%),
+            radial-gradient(420px 240px at 5% 110%, rgba(185,167,121,0.22), transparent 60%),
+            linear-gradient(120deg, #002623 0%, #7A6F4A 55%, #B9A779 100%);
+        box-shadow: 0 20px 44px rgba(0,38,35,0.35); }
     .perf-hero h1 { margin: 0 0 6px; font-size: clamp(1.45rem, 2.2vw, 1.9rem); font-weight: 800; }
     .perf-hero p { margin: 0; color: rgba(255,255,255,.78); font-size: .88rem; }
     .perf-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.2); font-size: .75rem; font-weight: 700; }
-    .btn-gold-solid { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 20px; border-radius: 12px; background: linear-gradient(135deg, #F2B44C, #E89A5D); color: #241A05 !important; font-weight: 800; font-size: .86rem; border: 0; text-decoration: none; box-shadow: 0 10px 24px rgba(232,154,93,.35); transition: transform .22s ease, filter .22s ease; }
+    .btn-gold-solid { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 20px; border-radius: 12px; background: linear-gradient(135deg, #B9A779, #988561); color: #241A05 !important; font-weight: 800; font-size: .86rem; border: 0; text-decoration: none; box-shadow: 0 10px 24px rgba(152,133,97,.35); transition: transform .22s ease, filter .22s ease; }
     .btn-gold-solid:hover { transform: translateY(-2px); filter: brightness(1.05); }
     .perf-chips { display: flex; flex-wrap: wrap; gap: 10px; }
     .perf-chips .chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); font-size: .82rem; font-weight: 700; backdrop-filter: blur(6px); }
 
-    .perf-panel { padding: 20px 22px; border-radius: 18px; background: #fff; border: 1px solid #ECEAF6; box-shadow: 0 10px 26px rgba(15,23,42,.05); margin-bottom: 22px; }
+    .perf-panel { padding: 20px 22px; border-radius: 18px; background: #fff; border: 1px solid #DFD9C2; box-shadow: 0 10px 26px rgba(15,23,42,.05); margin-bottom: 22px; }
     .perf-panel label { color: #6E6A86; font-size: .74rem; font-weight: 700; margin-bottom: 5px; }
     .perf-panel .form-control, .perf-panel .form-select { min-height: 40px; border-radius: 10px; border-color: #E7E3F5; }
-    .perf-panel .form-control:focus, .perf-panel .form-select:focus { border-color: #8B7FF2; box-shadow: 0 0 0 3px rgba(97,83,228,.14); }
-    .btn-violet-solid { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 40px; border: 0; border-radius: 10px; color: #fff; background: linear-gradient(135deg, #6153E4, #8B7FF2); font-size: .84rem; font-weight: 800; box-shadow: 0 8px 18px rgba(97,83,228,.28); transition: transform .2s ease, filter .2s ease; }
+    .perf-panel .form-control:focus, .perf-panel .form-select:focus { border-color: #D8CBA6; box-shadow: 0 0 0 3px rgba(185,167,121,.14); }
+    .btn-violet-solid { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 40px; border: 0; border-radius: 10px; color: #fff; background: linear-gradient(135deg, #B9A779, #D8CBA6); font-size: .84rem; font-weight: 800; box-shadow: 0 8px 18px rgba(185,167,121,.28); transition: transform .2s ease, filter .2s ease; }
     .btn-violet-solid:hover { transform: translateY(-2px); filter: brightness(1.07); color: #fff; }
-    .reset-chip { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; padding: 0 18px; width: 100%; border-radius: 10px; color: #6E6A86 !important; background: #F6F4FB; border: 1px solid #E4E1FB; font-size: .78rem; font-weight: 800; text-decoration: none; transition: all .2s ease; }
+    .reset-chip { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; padding: 0 18px; width: 100%; border-radius: 10px; color: #6E6A86 !important; background: #F1ECDD; border: 1px solid #E4E1FB; font-size: .78rem; font-weight: 800; text-decoration: none; transition: all .2s ease; }
     .reset-chip:hover { color: #4A4560 !important; border-color: #C9C3E3; }
 
-    .lv-card { overflow: hidden; border: 1px solid #ECEAF6; border-radius: 18px; background: #fff; box-shadow: 0 14px 34px rgba(21,17,48,.06); }
+    .lv-card { overflow: hidden; border: 1px solid #DFD9C2; border-radius: 18px; background: #fff; box-shadow: 0 14px 34px rgba(0,38,35,.06); }
     .lv-card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 18px 20px 14px; border-bottom: 1px solid #F0EDFA; }
     .lv-card-head h5 { display: flex; align-items: center; gap: 10px; margin: 0; color: var(--brand-night); font-size: .98rem; font-weight: 800; }
-    .lv-card-head h5 i { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: rgba(97,83,228,.11); color: #6153E4; font-size: .85rem; }
-    .count-chip { display: inline-flex; align-items: center; gap: 7px; padding: 7px 16px; border-radius: 999px; color: #6153E4; background: rgba(97,83,228,.09); border: 1px solid rgba(97,83,228,.28); font-size: .74rem; font-weight: 800; }
+    .lv-card-head h5 i { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: rgba(185,167,121,.11); color: #B9A779; font-size: .85rem; }
+    .count-chip { display: inline-flex; align-items: center; gap: 7px; padding: 7px 16px; border-radius: 999px; color: #B9A779; background: rgba(185,167,121,.09); border: 1px solid rgba(185,167,121,.28); font-size: .74rem; font-weight: 800; }
 
     .campaign-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
-    .campaign-table thead th { background: #FAF9FE; color: #6E6A86; font-size: .72rem; font-weight: 800; letter-spacing: .02em; padding: 13px 14px; border-bottom: 1px solid #ECEAF6; white-space: nowrap; }
+    .campaign-table thead th { background: #FAF9FE; color: #6E6A86; font-size: .72rem; font-weight: 800; letter-spacing: .02em; padding: 13px 14px; border-bottom: 1px solid #DFD9C2; white-space: nowrap; }
     .campaign-table td { padding: 13px 14px; border-bottom: 1px dashed #F3F1FA; vertical-align: middle; }
     .campaign-table tbody tr:last-child td { border-bottom: 0; }
     .campaign-table tbody tr { transition: background .18s ease; }
     .campaign-table tbody tr:hover td { background: #FBFAFE; }
 
     .camp-title { display: flex; align-items: center; gap: 10px; }
-    .camp-icon { flex: 0 0 36px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px; color: #6153E4; background: rgba(97,83,228,.11); font-size: .9rem; }
+    .camp-icon { flex: 0 0 36px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px; color: #B9A779; background: rgba(185,167,121,.11); font-size: .9rem; }
     .camp-name { color: var(--brand-night); font-weight: 700; font-size: .82rem; }
 
-    .dept-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 13px; border-radius: 999px; color: #0E8F88; background: rgba(23,176,167,.09); border: 1px solid rgba(23,176,167,.28); font-size: .72rem; font-weight: 700; }
+    .dept-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 13px; border-radius: 999px; color: #988561; background: rgba(185,167,121,.09); border: 1px solid rgba(185,167,121,.28); font-size: .72rem; font-weight: 700; }
     .evaluator-cell { display: inline-flex; align-items: center; gap: 8px; color: #4A4560; font-size: .78rem; font-weight: 600; }
-    .evaluator-dot { flex: 0 0 26px; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: linear-gradient(135deg, #17B0A7, #0E8F88); font-size: .62rem; font-weight: 800; }
+    .evaluator-dot { flex: 0 0 26px; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: linear-gradient(135deg, #B9A779, #988561); font-size: .62rem; font-weight: 800; }
     .date-cell { white-space: nowrap; color: #4A4560; font-size: .78rem; }
-    .date-cell i { color: #8B7FF2; margin-inline-end: 6px; }
+    .date-cell i { color: #D8CBA6; margin-inline-end: 6px; }
 
-    .completion-badge { display: inline-grid; place-items: center; min-width: 58px; padding: 6px 14px; border-radius: 999px; color: #6153E4; background: rgba(97,83,228,.1); border: 1px solid rgba(97,83,228,.3); font-family: 'Courier New', monospace; font-size: .76rem; font-weight: 800; }
+    .completion-badge { display: inline-grid; place-items: center; min-width: 58px; padding: 6px 14px; border-radius: 999px; color: #B9A779; background: rgba(185,167,121,.1); border: 1px solid rgba(185,167,121,.3); font-family: 'Courier New', monospace; font-size: .76rem; font-weight: 800; }
 
-    .detail-btn { display: inline-flex; align-items: center; gap: 7px; padding: 7px 18px; border-radius: 999px; color: #6153E4; background: #fff; border: 1px solid rgba(97,83,228,.35); font-size: .74rem; font-weight: 800; text-decoration: none; transition: all .2s ease; }
-    .detail-btn:hover { color: #fff; background: linear-gradient(135deg, #6153E4, #8B7FF2); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(97,83,228,.3); }
+    .detail-btn { display: inline-flex; align-items: center; gap: 7px; padding: 7px 18px; border-radius: 999px; color: #B9A779; background: #fff; border: 1px solid rgba(185,167,121,.35); font-size: .74rem; font-weight: 800; text-decoration: none; transition: all .2s ease; }
+    .detail-btn:hover { color: #fff; background: linear-gradient(135deg, #B9A779, #D8CBA6); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(185,167,121,.3); }
+
+    .draft-panel { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; padding: 15px 20px; border: 1px solid #DFD9C2; border-radius: 14px; background: #FBFBFE; transition: border-color .2s ease, background .2s ease; }
+    .draft-panel:hover { border-color: #D8D3F0; background: #FBFAFE; }
+    .draft-title { display: flex; align-items: center; gap: 10px; flex: 1 1 240px; min-width: 220px; color: var(--brand-night); font-weight: 800; font-size: .82rem; }
+    .draft-title i { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; color: #988561; background: rgba(152,133,97,.13); font-size: .85rem; }
+    .draft-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .q-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 13px; border-radius: 999px; color: #B9A779; background: rgba(185,167,121,.08); border: 1px solid rgba(185,167,121,.24); font-size: .72rem; font-weight: 700; }
+    .draft-date { display: inline-flex; align-items: center; gap: 6px; color: #9B95B5; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+    .draft-date i { color: #C9C3E3; }
 
     .empty-row { padding: 54px 20px !important; color: #9B95B5; text-align: center; font-size: .86rem; }
     .empty-row i { display: block; margin-bottom: 10px; font-size: 1.5rem; color: #C9C3E3; }
+
+    .btn-draft-outline { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 20px; border-radius: 12px; color: #fff !important; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.26); font-size: .84rem; font-weight: 800; text-decoration: none; backdrop-filter: blur(6px); transition: all .2s ease; }
+    .btn-draft-outline:hover { color: #fff !important; background: rgba(255,255,255,.24); }
+    .hero-actions { display: flex; flex-direction: column; align-items: stretch; gap: 10px; min-width: 200px; }
+
+    .draft-modal-head { display: flex; align-items: center; gap: 12px; }
+    .draft-modal-head i { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: rgba(152,133,97,.14); color: #988561; font-size: 1rem; }
+    .draft-modal-head h6 { margin: 0; font-weight: 800; color: var(--brand-night); }
+    .draft-modal-head small { color: #9B95B5; font-weight: 600; }
+    .dd-item { border: 1px solid #DFD9C2; border-radius: 14px; transition: border-color .2s ease, box-shadow .2s ease; }
+    .dd-item:hover { border-color: #D8D3F0; box-shadow: 0 8px 18px rgba(0,38,35,.05); }
+    .dd-title { display: flex; align-items: center; gap: 10px; color: var(--brand-night); font-weight: 800; font-size: .84rem; }
+    .dd-title i { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; color: #988561; background: rgba(152,133,97,.13); font-size: .8rem; flex-shrink: 0; }
+    .dd-depts { display: flex; flex-wrap: wrap; gap: 6px; }
+    .dd-dept-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 999px; color: #988561; background: rgba(185,167,121,.08); border: 1px solid rgba(185,167,121,.24); font-size: .7rem; font-weight: 700; }
+    .dd-btn-outline { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; color: #B9A779; background: #fff; border: 1px solid rgba(185,167,121,.35); font-size: .74rem; font-weight: 800; text-decoration: none; transition: all .2s ease; }
+    .dd-btn-outline:hover { color: #fff; background: linear-gradient(135deg, #B9A779, #D8CBA6); border-color: transparent; }
+    .dd-btn-danger { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; color: #B02345; background: #fff; border: 1px solid rgba(176,35,69,.3); font-size: .74rem; font-weight: 800; text-decoration: none; transition: all .2s ease; }
+    .dd-btn-danger:hover { color: #fff; background: #B02345; border-color: transparent; }
+    .dd-date { font-size: .7rem; color: #9B95B5; font-weight: 600; }
 </style>
 {% endblock %}
 
@@ -71,7 +100,13 @@
                 <h1>تبويبة تقييم الأداء</h1>
                 <p>مراجعة حملات التقييم ونسبة إنجازها لكل قسم.</p>
             </div>
-            <a href="{% url 'add_evaluation' %}" class="btn-gold-solid"><i class="fa-solid fa-plus"></i> إضافة تقييم</a>
+            <div class="hero-actions">
+                <a href="{% url 'add_evaluation' %}" class="btn-gold-solid justify-content-center"><i class="fa-solid fa-plus"></i> إضافة تقييم</a>
+                <button type="button" class="btn-draft-outline justify-content-center" data-bs-toggle="modal" data-bs-target="#draftsModal">
+                    <i class="fa-solid fa-file-lines"></i> مسوداتي
+                    {% if drafts %}<span style="padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.22);font-size:.7rem;font-weight:800;">{{ drafts|length }}</span>{% endif %}
+                </button>
+            </div>
         </div>
         <div class="perf-chips mt-4">
             <span class="chip"><i class="fa-solid fa-flag-checkered"></i> {{ campaigns|length }} حملة تقييم</span>
@@ -142,6 +177,65 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<!-- مسوداتي modal -->
+<div class="modal fade" id="draftsModal" tabindex="-1" aria-labelledby="draftsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content" style="border-radius:18px;">
+            <div class="modal-header border-0 pb-0" style="padding:20px 22px 0;">
+                <div class="draft-modal-head">
+                    <i class="fa-solid fa-file-lines"></i>
+                    <div>
+                        <h6 id="draftsModalLabel">مسوداتي</h6>
+                        <small>تقييمات محفوظة كمسودة لم تكتمل بعد — {{ drafts|length }} مسودة</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+            </div>
+            <div class="modal-body p-3" style="padding:16px 22px 20px;">
+                {% if drafts %}
+                <div class="d-flex flex-column gap-2">
+                    {% for draft in drafts %}
+                    <div class="dd-item p-3">
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <div class="dd-title flex-grow-1">
+                                <i class="fa-solid fa-file-pen"></i>
+                                <span>{{ draft.title }}</span>
+                            </div>
+                            <span class="dd-date"><i class="fa-regular fa-clock"></i> آخر تحديث {{ draft.updated_at|date:'Y-m-d H:i' }}</span>
+                        </div>
+                        <div class="dd-depts mt-2">
+                            {% for department in draft.departments.all %}
+                            <span class="dd-dept-chip"><i class="fa-solid fa-building"></i> {{ department.name }}</span>
+                            {% empty %}
+                            <span class="dd-dept-chip text-muted">بدون أقسام</span>
+                            {% endfor %}
+                        </div>
+                        <div class="d-flex gap-2 mt-3">
+                            <a href="{% url 'draft_edit' draft.pk %}" class="dd-btn-outline" aria-label="تعديل مسودة {{ draft.title }}">
+                                <i class="fa-solid fa-pen-to-square"></i> تعديل / متابعة
+                            </a>
+                            <form method="post" action="{% url 'draft_delete' draft.pk %}" class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف مسودة «{{ draft.title }}»؟');">
+                                {% csrf_token %}
+                                <button type="submit" class="dd-btn-danger" aria-label="حذف مسودة {{ draft.title }}"><i class="fa-solid fa-trash-can"></i> حذف</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-row py-4" style="color:#9B95B5;text-align:center;">
+                    <i class="fa-regular fa-file-lines" style="font-size:1.5rem;color:#C9C3E3;"></i><br>
+                    لا توجد مسودات محفوظة بعد. ابدأ بإضافة تقييم واحفظه كمسودة.
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer border-0" style="padding:0 22px 20px;">
+                <button type="button" class="dd-btn-outline" data-bs-dismiss="modal" style="border-color:#E7E3F5;color:#6E6A86;"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+            </div>
         </div>
     </div>
 </div>

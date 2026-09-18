@@ -5,22 +5,22 @@
 
 {% block extra_css %}
 <style>
-    .slip-page { --line:#ECEAF6; --muted:#6E6A86; }
+    .slip-page { --line:#DFD9C2; --muted:#6E6A86; }
 
     /* ===== Theme: HR Admin / Superuser (Violet) ===== */
     .pf-violet {
-        --tone:#6153E4; --tone-deep:#4A3AB8; --strong:#4433C9;
-        --ring:rgba(97,83,228,.16);
-        --tile-bg:rgba(97,83,228,.11); --tile-fg:#4A3AB8;
-        --line-soft:#DCD6F5; --track:#EFEDFA; --head:#1A1338;
-        --grad-1:linear-gradient(90deg,#4A3AB8,#8B7FF2);
-        --grad-2:linear-gradient(90deg,#0B6B70,#17B0A7);
-        --grad-3:linear-gradient(90deg,#E89A5D,#F2B44C);
+        --tone:#B9A779; --tone-deep:#7A6F4A; --strong:#988561;
+        --ring:rgba(185,167,121,.16);
+        --tile-bg:rgba(185,167,121,.11); --tile-fg:#7A6F4A;
+        --line-soft:#E0D7BF; --track:#F2EDE0; --head:#002623;
+        --grad-1:linear-gradient(90deg,#7A6F4A,#D8CBA6);
+        --grad-2:linear-gradient(90deg,#988561,#B9A779);
+        --grad-3:linear-gradient(90deg,#988561,#B9A779);
         --hero-bg:
-            radial-gradient(520px 260px at 88% 0%, rgba(23,176,167,.35), transparent 65%),
-            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
-            linear-gradient(120deg,#1B1442 0%,#4A3AB8 55%,#6153E4 100%);
-        --hero-shadow:0 20px 44px rgba(27,20,66,.35);
+            radial-gradient(520px 260px at 88% 0%, rgba(185,167,121,.35), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(185,167,121,.22), transparent 60%),
+            linear-gradient(120deg,#002623 0%,#7A6F4A 55%,#B9A779 100%);
+        --hero-shadow:0 20px 44px rgba(0,38,35,.35);
     }
 
     /* ===== Theme: Manager (Green) ===== */
@@ -28,31 +28,31 @@
         --tone:#14A374; --tone-deep:#0E5C43; --strong:#0F8A60;
         --ring:rgba(20,163,116,.16);
         --tile-bg:rgba(20,163,116,.12); --tile-fg:#0F8A60;
-        --line-soft:#CBE7DA; --track:#EAF5EF; --head:#12271E;
+        --line-soft:#E0D7BF; --track:#F2EDE0; --head:#002623;
         --grad-1:linear-gradient(90deg,#0E8A5F,#3FC98F);
-        --grad-2:linear-gradient(90deg,#0B6B70,#17B0A7);
-        --grad-3:linear-gradient(90deg,#E89A5D,#F2B44C);
+        --grad-2:linear-gradient(90deg,#988561,#B9A779);
+        --grad-3:linear-gradient(90deg,#988561,#B9A779);
         --hero-bg:
             radial-gradient(520px 260px at 88% 0%, rgba(56,224,160,.30), transparent 65%),
-            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
+            radial-gradient(420px 240px at 8% 100%, rgba(185,167,121,.22), transparent 60%),
             linear-gradient(120deg,#0B1F17 0%,#0E5C43 55%,#14A374 100%);
-        --hero-shadow:0 20px 44px rgba(11,31,23,.35);
+        --hero-shadow:0 20px 44px rgba(0,38,35,.35);
     }
 
     /* ===== Theme: Employee (Blue) ===== */
     .pf-blue {
-        --tone:#3B82F6; --tone-deep:#1E40AF; --strong:#1D4ED8;
-        --ring:rgba(59,130,246,.16);
-        --tile-bg:rgba(59,130,246,.12); --tile-fg:#1D4ED8;
-        --line-soft:#C9DAF8; --track:#EAF1FC; --head:#101A38;
-        --grad-1:linear-gradient(90deg,#1D4ED8,#60A5FA);
-        --grad-2:linear-gradient(90deg,#0284C7,#38BDF8);
-        --grad-3:linear-gradient(90deg,#E89A5D,#F2B44C);
+        --tone:#B9A779; --tone-deep:#988561; --strong:#988561;
+        --ring:rgba(185,167,121,.16);
+        --tile-bg:rgba(185,167,121,.12); --tile-fg:#988561;
+        --line-soft:#E2D8BE; --track:#F4EFE3; --head:#002623;
+        --grad-1:linear-gradient(90deg,#988561,#D8CBA6);
+        --grad-2:linear-gradient(90deg,#988561,#B9A779);
+        --grad-3:linear-gradient(90deg,#988561,#B9A779);
         --hero-bg:
-            radial-gradient(520px 260px at 88% 0%, rgba(56,189,248,.30), transparent 65%),
-            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
-            linear-gradient(120deg,#0A1128 0%,#1E40AF 55%,#3B82F6 100%);
-        --hero-shadow:0 20px 44px rgba(10,17,40,.35);
+            radial-gradient(520px 260px at 88% 0%, rgba(185,167,121,.30), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(185,167,121,.22), transparent 60%),
+            linear-gradient(120deg,#002623 0%,#988561 55%,#B9A779 100%);
+        --hero-shadow:0 20px 44px rgba(0,38,35,.35);
     }
 
     /* ===== Hero ===== */
@@ -108,9 +108,9 @@
         display:grid; place-items:center; font-size:.88rem;
     }
     .mi-emerald { background:rgba(20,163,116,.12); color:#0F8A60; }
-    .mi-teal { background:rgba(23,176,167,.13); color:#0E8F88; }
-    .mi-gold { background:rgba(242,180,76,.18); color:#C08A25; }
-    .mi-sky { background:rgba(59,130,246,.12); color:#1D4ED8; }
+    .mi-teal { background:rgba(185,167,121,.13); color:#988561; }
+    .mi-gold { background:rgba(185,167,121,.18); color:#988561; }
+    .mi-sky { background:rgba(185,167,121,.12); color:#988561; }
     .mi-danger { background:rgba(220,53,69,.1); color:#C0392B; }
     .mi-muted { background:var(--track); color:#9AA0B5; }
     .mr-name { font-weight:700; color:#45516B; font-size:.87rem; }
@@ -119,7 +119,7 @@
     .mf-emerald { background:var(--grad-1); }
     .mf-teal { background:var(--grad-2); }
     .mf-gold { background:var(--grad-3); }
-    .mf-sky { background:linear-gradient(90deg,#1D4ED8,#60A5FA); }
+    .mf-sky { background:linear-gradient(90deg,#988561,#D8CBA6); }
     .mr-pct { font-size:.72rem; font-weight:700; color:var(--muted); margin-top:4px; }
     .mr-value { margin-inline-start:auto; text-align:left; flex-shrink:0; }
     .mr-value b { font-weight:800; color:var(--head); font-size:.95rem; letter-spacing:.3px; }
@@ -225,12 +225,12 @@
     .btn-outline-soft:hover { border-color:var(--tone); color:var(--strong) !important; background:var(--tile-bg); }
     .btn-gold-solid {
         display:inline-flex; align-items:center; justify-content:center; gap:8px;
-        background:linear-gradient(135deg,#F2B44C,#E89A5D);
+        background:linear-gradient(135deg,#B9A779,#988561);
         color:#3D2A05 !important; border:none; border-radius:12px;
         padding:.62rem 1.25rem; font-weight:800; font-size:.88rem;
         transition:transform .22s ease, box-shadow .22s ease;
     }
-    .btn-gold-solid:hover { transform:translateY(-2px); box-shadow:0 12px 26px rgba(242,180,76,.4); }
+    .btn-gold-solid:hover { transform:translateY(-2px); box-shadow:0 12px 26px rgba(185,167,121,.4); }
 
     @media (max-width:767px) { .slip-hero { padding:22px 20px; } }
 
@@ -264,7 +264,7 @@
                 {% if payroll.status == 'PAID' %}
                 <span class="hero-chip" style="background:rgba(63,201,143,.25);"><i class="fa-solid fa-circle-check"></i> مدفوع</span>
                 {% else %}
-                <span class="hero-chip" style="background:rgba(242,180,76,.28);"><i class="fa-solid fa-hourglass-half"></i> بانتظار الدفع</span>
+                <span class="hero-chip" style="background:rgba(185,167,121,.28);"><i class="fa-solid fa-hourglass-half"></i> بانتظار الدفع</span>
                 {% endif %}
                 <span class="hero-chip"><i class="fa-regular fa-calendar"></i> صادرة في {{ payroll.created_at|date:"j/n/Y" }}</span>
             </div>
@@ -288,7 +288,7 @@
                 <div class="pt-2">
                     <div class="fact-row"><i class="fa-solid fa-id-badge"></i><span class="fk">رقم الموظف</span><span class="fv">EMP-{{ payroll.employee.employee_number|default:'N/A' }}</span></div>
                     <div class="fact-row"><i class="fa-regular fa-calendar-days"></i><span class="fk">فترة الراتب</span><span class="fv">{{ month_name }} {{ payroll.year }}</span></div>
-                    <div class="fact-row"><i class="fa-solid fa-circle-info"></i><span class="fk">الحالة</span><span class="fv">{% if payroll.status == 'PAID' %}<span style="color:#0F8A60;"><span class="pulse-dot d-inline-block me-1"></span>مدفوع</span>{% else %}<span style="color:#C08A25;">معلق</span>{% endif %}</span></div>
+                    <div class="fact-row"><i class="fa-solid fa-circle-info"></i><span class="fk">الحالة</span><span class="fv">{% if payroll.status == 'PAID' %}<span style="color:#0F8A60;"><span class="pulse-dot d-inline-block me-1"></span>مدفوع</span>{% else %}<span style="color:#988561;">معلق</span>{% endif %}</span></div>
                 </div>
             </div>
             <div class="panel mt-3">

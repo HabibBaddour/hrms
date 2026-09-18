@@ -111,6 +111,33 @@ class QuestionCategory(models.Model):
         return self.name
 
 
+class EvaluationDraft(models.Model):
+    """مسودة تقييم غير مكتملة تُحفظ لاحقاً ثم تنشر عند الاكتمال."""
+
+    title = models.CharField(max_length=200, verbose_name='عنوان التقييم')
+    departments = models.ManyToManyField(
+        'departments.Department',
+        blank=True,
+        related_name='performance_drafts',
+        verbose_name='الأقسام المستهدفة',
+    )
+    questions = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name='الأسئلة',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='آخر تحديث')
+
+    class Meta:
+        ordering = ('-updated_at',)
+        verbose_name = 'مسودة تقييم'
+        verbose_name_plural = 'مسودات التقييم'
+
+    def __str__(self):
+        return f'مسودة: {self.title}'
+
+
 class PerformanceQuestion(models.Model):
     """سؤال تقييم مرتبط بمحور محدد وبسجل التقييم الرئيسي."""
 
@@ -139,6 +166,21 @@ class PerformanceQuestion(models.Model):
         null=True,
         blank=True,
         verbose_name='التقييم',
+    )
+    is_na = models.BooleanField(
+        default=False,
+        verbose_name='غير قابل للتقييم',
+        help_text='سؤال إعلامي لا يُحتسب ضمن درجات التقييم.',
+    )
+    tag = models.CharField(
+        max_length=10,
+        choices=(
+            ('essential', 'أساسي'),
+            ('target', 'مستهدف'),
+        ),
+        blank=True,
+        default='',
+        verbose_name='وسم المهارة',
     )
 
     class Meta:

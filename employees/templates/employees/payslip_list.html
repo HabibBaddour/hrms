@@ -7,15 +7,15 @@
 {% block extra_css %}
 <style>
     .psl-page {
-        --tone:#6153E4; --tone-deep:#4A3AB8; --head:#1A1338;
-        --line:#ECEAF6; --muted:#6E6A86;
+        --tone:#B9A779; --tone-deep:#7A6F4A; --head:#002623;
+        --line:#DFD9C2; --muted:#6E6A86;
         --earn:#0F9D62; --ded:#D64545;
     }
     .pf-green.psl-page, .psl-page.pf-green {
-        --tone:#14A374; --tone-deep:#0E5C43; --head:#12271E;
+        --tone:#14A374; --tone-deep:#0E5C43; --head:#002623;
     }
     .pf-blue.psl-page, .psl-page.pf-blue {
-        --tone:#3B82F6; --tone-deep:#1E40AF; --head:#101A38;
+        --tone:#B9A779; --tone-deep:#988561; --head:#002623;
     }
 
     /* ===== Summary strip ===== */
@@ -43,7 +43,7 @@
         display: grid;
         place-items: center;
         font-size: 1.15rem;
-        background: var(--tile-bg, rgba(97,83,228,.12));
+        background: var(--tile-bg, rgba(185,167,121,.12));
         color: var(--tone);
     }
     .psl-kpi .kpi-label { color: var(--muted); font-size: .76rem; font-weight: 700; }
@@ -107,7 +107,7 @@
         background: linear-gradient(135deg, var(--tone-deep), var(--tone));
         color: #fff;
         line-height: 1.15;
-        box-shadow: 0 10px 20px rgba(60,42,160,.25);
+        box-shadow: 0 10px 20px rgba(152,133,97,.25);
     }
     .psl-month b { font-size: 1.05rem; font-weight: 900; }
     .psl-month span { font-size: .66rem; font-weight: 700; opacity: .85; }
@@ -138,7 +138,7 @@
         background: linear-gradient(135deg, var(--tone), var(--tone-deep));
         text-decoration: none;
         transition: transform .25s ease, box-shadow .25s ease;
-        box-shadow: 0 8px 18px rgba(60,42,160,.22);
+        box-shadow: 0 8px 18px rgba(152,133,97,.22);
         white-space: nowrap;
     }
     .btn-view:hover { color: #fff; transform: translateY(-1px); }
@@ -165,6 +165,128 @@
     .psl-empty i { font-size: 2rem; opacity: .55; display: block; margin-bottom: 10px; }
     .psl-empty p { margin: 0; font-weight: 700; font-size: .9rem; }
 
+    /* ===== Toolbar / Advance button ===== */
+    .btn-advance {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        background: linear-gradient(135deg, var(--tone-deep), var(--tone));
+        color: #fff !important; border: none; border-radius: 12px;
+        padding: .72rem 1.4rem; font-weight: 800; font-size: .9rem;
+        box-shadow: 0 10px 22px rgba(152,133,97,.25);
+        transition: transform .22s ease, box-shadow .22s ease;
+        white-space: nowrap;
+    }
+    .btn-advance:hover { color: #fff !important; transform: translateY(-2px); box-shadow: 0 14px 28px rgba(152,133,97,.32); }
+    .btn-advance:disabled { opacity: .65; transform: none; box-shadow: none; }
+
+    /* ===== Advance request modal ===== */
+    .advance-modal .modal-content { border-radius: 18px; overflow: hidden; }
+    .advance-modal .modal-header {
+        background:
+            radial-gradient(420px 200px at 85% -30%, rgba(185,167,121,.35), transparent 60%),
+            linear-gradient(120deg, #002623, #7A6F4A 55%, #B9A779);
+        color: #fff;
+    }
+    .advance-modal .modal-title { color: #fff; font-weight: 800; }
+    .advance-modal .btn-close { filter: invert(1) grayscale(1) brightness(2); }
+
+    /* ===== Top pill tabs (matching attendance style) ===== */
+    .schedule-tabs { gap: 8px; margin-bottom: 22px !important; }
+    .schedule-tabs .nav-link {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 9px 22px; border-radius: 999px; font-weight: 800; font-size: .88rem;
+        color: #6E6A86; background: #F1EEFA; border: 1px solid transparent;
+        transition: all .2s ease;
+    }
+    .schedule-tabs .nav-link:hover { color: #B9A779; background: #ECE7FA; }
+    .schedule-tabs .nav-link.active {
+        color: #fff; background: linear-gradient(135deg, #B9A779, #D8CBA6);
+        box-shadow: 0 10px 22px rgba(185,167,121,.35);
+    }
+    .tab-content > .tab-pane { outline: none; }
+
+    /* ===== Advances table ===== */
+    .psl-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    .psl-table thead th {
+        background: #FAF9FE; color: #6E6A86;
+        font-size: .72rem; font-weight: 800; letter-spacing: .02em;
+        padding: 13px 14px; border-bottom: 1px solid var(--line); white-space: nowrap;
+    }
+    .psl-table tbody td {
+        padding: 13px 14px; border-bottom: 1px dashed var(--line);
+        vertical-align: middle; color: #45516B;
+    }
+    .psl-table tbody tr:last-child td { border-bottom: 0; }
+    .psl-table tbody tr:hover td { background: rgba(185,167,121,.04); }
+    .psl-table .t-bignum { font-weight: 800; color: var(--head); font-variant-numeric: tabular-nums; }
+    .psl-table .t-muted { color: var(--muted); font-size: .74rem; font-weight: 600; }
+
+    /* ===== Advances action bar ===== */
+    .adv-actions {
+        display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+        gap: 12px; margin-bottom: 20px;
+    }
+
+    /* ===== Dark mode ===== */
+    body.dark-mode .psl-page {
+        --head: #f8fafc;
+        --muted: #94a3b8;
+        --line: #334155;
+        --line-soft: #38405a;
+    }
+    body.dark-mode .psl-kpi,
+    body.dark-mode .psl-card {
+        background: #1e293b;
+        border-color: #334155;
+    }
+    body.dark-mode .psl-card-head h2,
+    body.dark-mode .psl-main .psl-name,
+    body.dark-mode .t-bignum { color: var(--head); }
+    body.dark-mode .psl-month { box-shadow: none; }
+    body.dark-mode .schedule-tabs .nav-link { color: #b6b2d6; background: #26314b; }
+    body.dark-mode .schedule-tabs .nav-link:hover { color: #c7bfff; background: #2b3a5c; }
+    body.dark-mode .schedule-tabs .nav-link.active {
+        color: #fff; background: linear-gradient(135deg, #B9A779, #D8CBA6); box-shadow: none;
+    }
+    body.dark-mode .psl-table thead th { background: #1e293b; color: var(--muted); border-color: #334155; }
+    body.dark-mode .psl-table tbody td { border-color: #334155; color: #e2e8f0; }
+    body.dark-mode .psl-table tbody tr:hover td { background: #26314b; }
+    body.dark-mode .advance-modal .input-group-text {
+        background: #334155; color: #f8fafc; border-color: #475569;
+    }
+
+    /* ===== STRICT DARK THEME OVERRIDES (green #002623 + gold accents) ===== */
+    .psl-kpi {
+        background-color: #002623 !important;
+        border: 1px solid #988561 !important;
+    }
+    .psl-kpi .kpi-icon {
+        color: #b9a779 !important;
+        background-color: rgba(185, 167, 121, 0.14) !important;
+    }
+    .psl-kpi .kpi-label {
+        color: #988561 !important;
+    }
+    .psl-kpi .kpi-value,
+    .psl-kpi .kpi-value small {
+        color: #b9a779 !important;
+        font-weight: bold !important;
+    }
+    .psl-empty { color: #988561 !important; }
+    .psl-card .psl-net .lbl { color: #988561 !important; }
+    .psl-card .psl-net .val { color: #b9a779 !important; font-weight: bold !important; }
+    .psl-card .psl-table thead th {
+        background-color: #0b2f2b !important;
+        color: #b9a779 !important;
+        border-color: rgba(185, 167, 121, 0.22) !important;
+    }
+    .psl-card .psl-table tbody td {
+        color: #e8dfc8 !important;
+        border-color: rgba(185, 167, 121, 0.22) !important;
+    }
+    .psl-card .psl-table tbody tr:hover td { background: rgba(185, 167, 121, 0.10) !important; }
+    .psl-table .t-bignum { color: #b9a779 !important; }
+    .psl-table .t-muted { color: #988561 !important; }
+
     @media (max-width: 575.98px) {
         .psl-net, .psl-actions { margin-inline-start: 70px; }
     }
@@ -174,69 +296,319 @@
 {% block content %}
 <div class="psl-page">
 
-    <div class="psl-strip">
-        <div class="psl-kpi">
-            <div class="kpi-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-            <div>
-                <div class="kpi-label">عدد القسائم</div>
-                <div class="kpi-value">{{ payslips_count }}</div>
-            </div>
-        </div>
-        <div class="psl-kpi">
-            <div class="kpi-icon"><i class="fas fa-wallet"></i></div>
-            <div>
-                <div class="kpi-label">إجمالي صافي الراتب</div>
-                <div class="kpi-value">{{ total_net_salary|default:"0.00"|floatformat:2 }} <small>$</small></div>
-            </div>
-        </div>
-        <div class="psl-kpi">
-            <div class="kpi-icon"><i class="fas fa-building"></i></div>
-            <div>
-                <div class="kpi-label">القسم</div>
-                <div class="kpi-value" style="font-size:1.05rem">{{ user_department|default:'—' }}</div>
-            </div>
-        </div>
-    </div>
+    <!-- Tab navigation -->
+    <ul class="nav nav-pills schedule-tabs" id="payslipTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab != 'advances' %}active{% endif %}"
+                    id="tab-btn-payslips" data-bs-toggle="pill"
+                    data-bs-target="#tab-payslips" type="button" role="tab"
+                    aria-controls="tab-payslips" aria-selected="{% if active_tab != 'advances' %}true{% else %}false{% endif %}">
+                <i class="fas fa-receipt"></i> قسائم الراتب
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'advances' %}active{% endif %}"
+                    id="tab-btn-advances" data-bs-toggle="pill"
+                    data-bs-target="#tab-advances" type="button" role="tab"
+                    aria-controls="tab-advances" aria-selected="{% if active_tab == 'advances' %}true{% else %}false{% endif %}">
+                <i class="fas fa-hand-holding-dollar"></i> السلف والقروض
+                {% if advances_active_count %}
+                <span style="background:#fff;color:#B9A779;border-radius:999px;font-size:.68rem;font-weight:900;padding:2px 8px;margin-inline-start:4px;min-width:20px;text-align:center;">{{ advances_active_count }}</span>
+                {% endif %}
+            </button>
+        </li>
+    </ul>
 
-    <div class="psl-card">
-        <div class="psl-card-head">
-            <h2><i class="fas fa-receipt" style="color:var(--tone)"></i> قسائم الرواتب</h2>
-            <span class="psl-count">{{ count }} قسيمة</span>
-        </div>
+    <!-- Tab content -->
+    <div class="tab-content pt-1">
 
-        <div class="psl-rows">
-            {% for p in payslips %}
-            <div class="psl-row">
-                <div class="psl-month">
-                    <b>{{ p.month_name|slice:':3' }}</b>
-                    <span>{{ p.year }}</span>
+        <!-- ===== Tab 1: Payslips ===== -->
+        <div class="tab-pane fade {% if active_tab != 'advances' %}show active{% endif %}" id="tab-payslips" role="tabpanel">
+
+            <div class="psl-strip">
+                <div class="psl-kpi">
+                    <div class="kpi-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <div>
+                        <div class="kpi-label">الراتب الأساسي</div>
+                        <div class="kpi-value">{{ basic_salary|floatformat:2 }} <small>$</small></div>
+                    </div>
                 </div>
-                <div class="psl-main">
-                    {% if is_hr %}
-                    <div class="psl-name"><i class="fas fa-user"></i>{{ p.employee.get_full_name|default:p.employee.user.username }}</div>
-                    <div class="psl-sub"><i class="fas fa-id-badge"></i> رقم الموظف: {{ p.employee.employee_number|default:'—' }}</div>
+                <div class="psl-kpi">
+                    <div class="kpi-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div>
+                        <div class="kpi-label">إجمالي التأمينات</div>
+                        <div class="kpi-value">{{ total_insurance|floatformat:2 }} <small>$</small></div>
+                        <div style="font-size: .7rem; color: #988561; margin-top: 2px;">14% (اجتماعي + صحي)</div>
+                    </div>
+                </div>
+                <div class="psl-kpi">
+                    <div class="kpi-icon"><i class="fas fa-minus-circle"></i></div>
+                    <div>
+                        <div class="kpi-label">إجمالي الخصومات</div>
+                        <div class="kpi-value">{{ total_deductions|floatformat:2 }} <small>$</small></div>
+                        <div style="font-size: .7rem; color: #988561; margin-top: 2px;">تأمينات + أقساط السلف</div>
+                    </div>
+                </div>
+                <div class="psl-kpi">
+                    <div class="kpi-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                    <div>
+                        <div class="kpi-label">الصافي المقبوض</div>
+                        <div class="kpi-value" style="color: #b9a779 !important; font-weight: bold !important;">{{ net_take_home_salary|floatformat:2 }} <small>$</small></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="psl-card">
+                <div class="psl-card-head">
+                    <h2><i class="fas fa-receipt" style="color:var(--tone)"></i> قسائم الرواتب</h2>
+                    <span class="psl-count">{{ count }} قسيمة</span>
+                </div>
+                <div class="psl-rows">
+                    {% for p in payslips %}
+                    <div class="psl-row">
+                        <div class="psl-month">
+                            <b>{{ p.month_name|slice:':3' }}</b>
+                            <span>{{ p.year }}</span>
+                        </div>
+                        <div class="psl-main">
+                            {% if is_hr %}
+                            <div class="psl-name"><i class="fas fa-user"></i>{{ p.employee.get_full_name|default:p.employee.user.username }}</div>
+                            <div class="psl-sub"><i class="fas fa-id-badge"></i> رقم الموظف: {{ p.employee.employee_number|default:'—' }}</div>
+                            {% else %}
+                            <div class="psl-name"><i class="fas fa-calendar-alt"></i> {{ p.month_name }} {{ p.year }}</div>
+                            <div class="psl-sub"><i class="fas fa-hashtag"></i> رقم القسيمة: {{ p.id }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="psl-net">
+                            <span class="lbl">صافي الراتب</span>
+                            <span class="val">{{ p.net_salary|floatformat:2 }} $</span>
+                        </div>
+                        <div class="psl-actions">
+                            <a href="{% url 'employees:payslip_pdf' p.pk %}" class="btn-pdf-q" title="تحميل PDF"><i class="fas fa-file-pdf"></i></a>
+                            <a href="{% url 'employees:payslip_detail' p.pk %}" class="btn-view"><i class="fas fa-eye"></i> عرض التفاصيل</a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="psl-empty">
+                        <i class="fas fa-folder-open"></i>
+                        <p>لا توجد قسائم رواتب بعد في هذا النظام الديناميكي.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Tab 2: Salary Advances ===== -->
+        <div class="tab-pane fade {% if active_tab == 'advances' %}show active{% endif %}" id="tab-advances" role="tabpanel">
+
+            <div class="adv-actions">
+                <div>
+                    <h2 style="font-size:1rem;font-weight:800;color:var(--head);margin:0 0 4px 0;">
+                        <i class="fas fa-hand-holding-dollar" style="color:var(--tone);"></i> طلبات السلف المالية
+                    </h2>
+                    <p style="color:var(--muted);font-weight:600;font-size:.82rem;margin:0;">
+                        تتبع طلبات السلف والسداد المستقبلي
+                    </p>
+                </div>
+                <a href="{% url 'employees:advance_request' %}" class="btn-advance">
+                    <i class="fa-solid fa-plus"></i> طلب سلفة مالية
+                </a>
+            </div>
+
+            <div class="psl-strip">
+                <div class="psl-kpi">
+                    <div class="kpi-icon"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <div class="kpi-label">طلبات نشطة</div>
+                        <div class="kpi-value">{{ advances_active_count }}</div>
+                    </div>
+                </div>
+                <div class="psl-kpi">
+                    <div class="kpi-icon"><i class="fas fa-coins"></i></div>
+                    <div>
+                        <div class="kpi-label">إجمالي المطلوب</div>
+                        <div class="kpi-value">{{ advances_total_requested|default:"0.00"|floatformat:2 }} <small>$</small></div>
+                    </div>
+                </div>
+                <div class="psl-kpi">
+                    <div class="kpi-icon"><i class="fas fa-piggy-bank"></i></div>
+                    <div>
+                        <div class="kpi-label">المتبقي للسداد</div>
+                        <div class="kpi-value">{{ advances_total_remaining|default:"0.00"|floatformat:2 }} <small>$</small></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="psl-card">
+                <div class="psl-card-head">
+                    <h2><i class="fas fa-table" style="color:var(--tone)"></i> سجل طلبات السلف</h2>
+                    <span class="psl-count">{{ salary_advances|length }} طلب</span>
+                </div>
+                <div class="psl-rows" style="padding:0;">
+                    {% if salary_advances %}
+                    <table class="psl-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>المبلغ</th>
+                                <th>المدة</th>
+                                <th>الاستقطاع الشهري</th>
+                                <th>المتبقي</th>
+                                <th>التاريخ</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in salary_advances %}
+                            <tr>
+                                <td class="t-muted">{{ a.id }}</td>
+                                <td class="t-bignum">{{ a.amount|floatformat:2 }} $</td>
+                                <td>{% if a.months == 1 %}شهر واحد{% elif a.months == 2 %}شهران{% else %}{{ a.months }} شهور{% endif %}</td>
+                                <td>{{ a.monthly_deduction|floatformat:2 }} $</td>
+                                <td class="t-bignum">{{ a.remaining_balance|floatformat:2 }} $</td>
+                                <td class="t-muted">{{ a.created_at|date:'j/n/Y' }}</td>
+                                <td>
+                                    {% if a.status == 'APPROVED' %}
+                                    <span class="adv-status st-approved"><i class="fa-solid fa-circle-check"></i> مقبولة</span>
+                                    {% elif a.status == 'REJECTED' %}
+                                    <span class="adv-status st-rejected"><i class="fa-solid fa-circle-xmark"></i> مرفوضة</span>
+                                    {% else %}
+                                    <span class="adv-status st-pending"><i class="fa-solid fa-clock"></i> معلقة</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                     {% else %}
-                    <div class="psl-name"><i class="fas fa-calendar-alt"></i> {{ p.month_name }} {{ p.year }}</div>
-                    <div class="psl-sub"><i class="fas fa-hashtag"></i> رقم القسيمة: {{ p.id }}</div>
+                    <div class="psl-empty" style="padding:40px 20px;">
+                        <i class="fas fa-hand-holding-dollar"></i>
+                        <p>لا توجد طلبات سلفة حالية.</p>
+                    </div>
                     {% endif %}
                 </div>
-                <div class="psl-net">
-                    <span class="lbl">صافي الراتب</span>
-                    <span class="val">{{ p.net_salary|floatformat:2 }} $</span>
-                </div>
-                <div class="psl-actions">
-                    <a href="{% url 'employees:payslip_pdf' p.pk %}" class="btn-pdf-q" title="تحميل PDF"><i class="fas fa-file-pdf"></i></a>
-                    <a href="{% url 'employees:payslip_detail' p.pk %}" class="btn-view"><i class="fas fa-eye"></i> عرض التفاصيل</a>
-                </div>
             </div>
-            {% empty %}
-            <div class="psl-empty">
-                <i class="fas fa-folder-open"></i>
-                <p>لا توجد قسائم رواتب بعد في هذا النظام الديناميكي.</p>
-            </div>
-            {% endfor %}
         </div>
-    </div>
+
+    </div><!-- /tab-content -->
 
 </div>
+
+<!-- ===== Salary advance request modal ===== -->
+<div class="modal fade advance-modal" id="salaryAdvanceModal" tabindex="-1" aria-labelledby="salaryAdvanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header">
+                <h5 class="modal-title" id="salaryAdvanceModalLabel">
+                    <i class="fa-solid fa-hand-holding-dollar me-2"></i>طلب سلفة مالية
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+            </div>
+            <form method="post" action="{% url 'salary_advance_apply' %}" id="salary-advance-form">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold" style="color:var(--head);">مبلغ السلفة المطلوب</label>
+                            <div class="input-group">
+                                <input type="number" name="amount" id="adv-amount" class="form-control"
+                                       min="1" step="0.01" required placeholder="مثال: 500.00" dir="ltr">
+                                <span class="input-group-text">$</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold" style="color:var(--head);">مدة السداد بالشهور</label>
+                            <select name="months" id="adv-months" class="form-select" required>
+                                <option value="" disabled selected>اختر المدة...</option>
+                                <option value="1">شهر واحد</option>
+                                <option value="2">شهران</option>
+                                <option value="3">3 شهور</option>
+                                <option value="4">4 شهور</option>
+                                <option value="5">5 شهور</option>
+                                <option value="6">6 شهور</option>
+                                <option value="7">7 شهور</option>
+                                <option value="8">8 شهور</option>
+                                <option value="9">9 شهور</option>
+                                <option value="10">10 شهور</option>
+                                <option value="11">11 شهراً</option>
+                                <option value="12">12 شهراً (سنة)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold" style="color:var(--head);">الاستقطاع الشهري المقترح</label>
+                            <div class="input-group">
+                                <input type="text" id="adv-monthly" class="form-control" readonly
+                                       value="0.00 $" dir="ltr"
+                                       style="font-weight:800; text-align:left; font-variant-numeric:tabular-nums;">
+                                <span class="input-group-text">$/شهرياً</span>
+                            </div>
+                            <small class="text-muted d-block mt-1"><i class="fa-solid fa-circle-info me-1"></i>يُحتسب تلقائياً: المبلغ ÷ عدد الشهور</small>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold" style="color:var(--head);" for="adv-reason">سبب طلب السلفة</label>
+                            <textarea name="reason" id="adv-reason" class="form-control" rows="3" required
+                                      placeholder="اشرح سبب طلب السلفة المالية..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-xmark me-1"></i>إلغاء
+                    </button>
+                    <button type="submit" class="btn-advance" id="adv-submit-btn">
+                        <i class="fa-solid fa-paper-plane me-1"></i>إرسال الطلب
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const amountInput = document.getElementById('adv-amount');
+    const monthsSelect = document.getElementById('adv-months');
+    const monthlyInput = document.getElementById('adv-monthly');
+    const submitBtn = document.getElementById('adv-submit-btn');
+    const form = document.getElementById('salary-advance-form');
+
+    function calcMonthly() {
+        const amount = parseFloat(amountInput.value) || 0;
+        const months = parseInt(monthsSelect.value, 10) || 1;
+        const perMonth = months > 0 ? amount / months : 0;
+        monthlyInput.value = perMonth.toFixed(2) + ' $';
+    }
+
+    amountInput.addEventListener('input', calcMonthly);
+    monthsSelect.addEventListener('change', calcMonthly);
+    calcMonthly();
+
+    form.addEventListener('submit', function () {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>جاري الإرسال...';
+    });
+
+    /* ===== Tab activation from URL (?tab=) ===== */
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeTab = urlParams.get('tab');
+
+    if (activeTab === 'payslips' || activeTab === 'advances') {
+        const targetBtn = document.getElementById('tab-btn-' + activeTab);
+        if (targetBtn && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+            bootstrap.Tab.getOrCreateInstance(targetBtn).show();
+        }
+    }
+
+    document.querySelectorAll('#payslipTabs .nav-link').forEach(function (btn) {
+        btn.addEventListener('shown.bs.tab', function () {
+            const key = this.id.replace('tab-btn-', '');
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', key);
+            history.replaceState({}, '', url);
+        });
+    });
+});
+</script>
 {% endblock %}

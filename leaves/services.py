@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.db.models import Max, Q
 from django.urls import reverse
 from django.utils import timezone
@@ -34,26 +33,26 @@ def _leave_balance(employee):
     return total, used, remaining
 
 
-def _department_managers(employee):
-    department_id = employee.department_id or getattr(employee.position, 'department_id', None)
-    if not department_id:
-        return Employee.objects.none()
-    return Employee.objects.select_related('user', 'position').filter(
-        Q(department_id=department_id) | Q(position__department_id=department_id),
-        position__role='Manager',
-        user__is_active=True,
-    ).exclude(user_id=employee.user_id)
-
-
-def _hr_users():
-    return User.objects.filter(
-        Q(groups__name__iexact='HR') | Q(employee_profile__position__role='HR Admin'),
-        is_active=True,
-    ).distinct()
+def get_department_manager(department):
+    """إرجاع المدير الوحيد للقسم (الحقل الصريح إن وُجد، وإلا دور 'Manager')."""
+    if department is None:
+        return None
+    if getattr(department, 'manager_id', None):
+        return department.manager
+    return (
+        Employee.objects.select_related('user', 'position')
+        .filter(
+            Q(department_id=department.id) | Q(position__department_id=department.id),
+            position__role='Manager',
+            user__is_active=True,
+        )
+        .order_by('id')
+        .first()
+    )
 
 
 def notify_leave_submitted(leave, actor=None):
-    """Notify department managers and HR after a leave is successfully created."""
+    """Notify the employee's department manager after a leave is successfully created."""
     employee = leave.employee
     actor = actor or getattr(employee, 'user', None)
     employee_name = employee.get_full_name()
@@ -74,8 +73,9 @@ def notify_leave_submitted(leave, actor=None):
         f'للقبول أو الرفض، اختر القرار من صفحة المراجعة.'
     )
 
-    manager_users = [manager.user for manager in _department_managers(employee) if manager.user]
-    for manager_user in manager_users:
+    manager = get_department_manager(department)
+    manager_user = getattr(manager, 'user', None)
+    if manager_user and (not actor or manager_user.id != actor.id):
         SystemNotification.create_notification(
             recipient=manager_user,
             actor=actor,
@@ -84,25 +84,13 @@ def notify_leave_submitted(leave, actor=None):
             message=f'قام الموظف {employee_name} بتقديم طلب إجازة جديد',
             target=leave,
         )
-        if actor and actor.id != manager_user:
+        if actor:
             InternalMessage.objects.create(
                 sender=actor,
                 recipient=manager_user,
                 subject=f'طلب إجازة جديد: {employee_name}',
                 body=body,
             )
-
-    for hr_user in _hr_users():
-        if actor and hr_user.id == actor.id:
-            continue
-        SystemNotification.create_notification(
-            recipient=hr_user,
-            actor=actor,
-            verb='submitted',
-            notification_type='LEAVE',
-            message=f'قام الموظف {employee_name} بتقديم طلب إجازة موجهة إلى مدير قسم {department_name}',
-            target=leave,
-        )
 
 
 def notify_leave_status_changed(leave, actor=None):

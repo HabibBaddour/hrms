@@ -8,10 +8,12 @@ Django==6.0.7
 django-crispy-forms==2.7
 django-filter==26.1
 django-widget-tweaks==1.5.1
+et_xmlfile==2.0.0
 fonttools==4.63.0
 joblib==1.5.3
 narwhals==2.24.0
 numpy==2.5.1
+openpyxl==3.1.5
 pandas==3.0.3
 pillow==12.3.0
 psycopg2-binary==2.9.12

@@ -1,55 +1,61 @@
 {% extends 'base.html' %}
 
-{% block title %}دليل الموظفين | HRMS{% endblock %}
-{% block page_title %}دليل الموظفين{% endblock %}
+{% block title %}فريقي | HRMS{% endblock %}
+{% block page_title %}فريقي{% endblock %}
 
 {% block extra_css %}
 <style>
     .dir-hero { position: relative; overflow: hidden; border-radius: 22px; padding: 26px 30px 22px; color: #fff; margin-bottom: 26px;
         background:
-            radial-gradient(520px 260px at 90% -10%, rgba(23, 176, 167, 0.35), transparent 65%),
-            radial-gradient(420px 240px at 5% 110%, rgba(242, 180, 76, 0.22), transparent 60%),
-            linear-gradient(120deg, #1B1442 0%, #4A3AB8 55%, #6153E4 100%);
-        box-shadow: 0 20px 44px rgba(21, 17, 48, 0.35); }
+            radial-gradient(520px 260px at 90% -10%, rgba(185,167,121,0.35), transparent 65%),
+            radial-gradient(420px 240px at 5% 110%, rgba(185,167,121,0.22), transparent 60%),
+            linear-gradient(120deg, #002623 0%, #7A6F4A 55%, #B9A779 100%);
+        box-shadow: 0 20px 44px rgba(0,38,35,0.35); }
     .dir-hero h1 { margin: 0 0 6px; font-size: clamp(1.45rem, 2.2vw, 1.9rem); font-weight: 800; }
     .dir-hero p { margin: 0; color: rgba(255,255,255,.78); font-size: .88rem; }
     .dir-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.2); font-size: .75rem; font-weight: 700; }
-    .btn-gold-solid { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 20px; border-radius: 12px; background: linear-gradient(135deg, #F2B44C, #E89A5D); color: #241A05 !important; font-weight: 800; font-size: .86rem; border: 0; text-decoration: none; box-shadow: 0 10px 24px rgba(232,154,93,.35); transition: transform .22s ease, filter .22s ease; }
+    .btn-gold-solid { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 20px; border-radius: 12px; background: linear-gradient(135deg, #B9A779, #988561); color: #241A05 !important; font-weight: 800; font-size: .86rem; border: 0; text-decoration: none; box-shadow: 0 10px 24px rgba(152,133,97,.35); transition: transform .22s ease, filter .22s ease; }
     .btn-gold-solid:hover { transform: translateY(-2px); filter: brightness(1.05); }
     .bg-opacity-20 { --bs-bg-opacity: .2; }
     .dir-chips { display: flex; flex-wrap: wrap; gap: 10px; }
     .dir-chips .chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); font-size: .82rem; font-weight: 700; backdrop-filter: blur(6px); }
-    .chip-gold { background: rgba(242,180,76,.28) !important; border-color: rgba(242,180,76,.5) !important; }
+    .chip-gold { background: rgba(185,167,121,.28) !important; border-color: rgba(185,167,121,.5) !important; }
 
-    .dir-panel { padding: 20px 22px; border-radius: 18px; background: #fff; border: 1px solid #ECEAF6; box-shadow: 0 10px 26px rgba(15,23,42,.05); margin-bottom: 22px; }
+    /* ----- view toggle ----- */
+    .view-toggle { display: inline-flex; gap: 6px; padding: 5px; border-radius: 14px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.16); backdrop-filter: blur(6px); }
+    .vt-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 10px; color: rgba(255,255,255,.85); text-decoration: none; font-size: .78rem; font-weight: 800; transition: all .2s ease; }
+    .vt-btn:hover { color: #fff; background: rgba(255,255,255,.14); }
+    .vt-btn.active { color: #241A05; background: linear-gradient(135deg, #B9A779, #988561); box-shadow: 0 8px 18px rgba(152,133,97,.4); }
+
+    .dir-panel { padding: 20px 22px; border-radius: 18px; background: #fff; border: 1px solid #DFD9C2; box-shadow: 0 10px 26px rgba(15,23,42,.05); margin-bottom: 22px; }
     .filter-form { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; }
     .search-field { display: flex; align-items: center; flex: 1 1 240px; gap: 9px; min-height: 42px; padding: 0 13px; border: 1px solid #E7E3F5; border-radius: 11px; color: #9B95B5; background: #FAF9FE; transition: border-color .2s ease, box-shadow .2s ease; }
-    .search-field:focus-within { border-color: #8B7FF2; box-shadow: 0 0 0 3px rgba(97,83,228,.14); }
+    .search-field:focus-within { border-color: #D8CBA6; box-shadow: 0 0 0 3px rgba(185,167,121,.14); }
     .search-field input { width: 100%; border: 0; outline: 0; color: #2B2545; background: transparent; font: inherit; font-size: .82rem; }
     .search-field input::placeholder { color: #B4AECD; }
     .filter-form select { min-height: 42px; padding: 0 30px 0 12px; border: 1px solid #E7E3F5; border-radius: 11px; outline: 0; color: #4A4560; background: #fff; font: inherit; font-size: .78rem; cursor: pointer; }
-    .filter-form select:focus { border-color: #8B7FF2; box-shadow: 0 0 0 3px rgba(97,83,228,.14); }
-    .apply-button { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 20px; border: 0; border-radius: 11px; color: #fff; background: linear-gradient(135deg, #6153E4, #8B7FF2); font-size: .84rem; font-weight: 800; cursor: pointer; box-shadow: 0 8px 18px rgba(97,83,228,.28); transition: transform .2s ease, filter .2s ease; }
+    .filter-form select:focus { border-color: #D8CBA6; box-shadow: 0 0 0 3px rgba(185,167,121,.14); }
+    .apply-button { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 20px; border: 0; border-radius: 11px; color: #fff; background: linear-gradient(135deg, #B9A779, #D8CBA6); font-size: .84rem; font-weight: 800; cursor: pointer; box-shadow: 0 8px 18px rgba(185,167,121,.28); transition: transform .2s ease, filter .2s ease; }
     .apply-button:hover { transform: translateY(-2px); filter: brightness(1.07); }
     .reset-link { padding: 9px 6px; color: #9B95B5; text-decoration: none; font-size: .78rem; font-weight: 700; }
     .reset-link:hover { color: #DC2626; }
 
-    .dir-card { overflow: hidden; border: 1px solid #ECEAF6; border-radius: 18px; background: #fff; box-shadow: 0 14px 34px rgba(21,17,48,.06); }
+    .dir-card { overflow: hidden; border: 1px solid #DFD9C2; border-radius: 18px; background: #fff; box-shadow: 0 14px 34px rgba(0,38,35,.06); }
     .table-scroll { overflow-x: auto; }
     .directory-table { width: 100%; min-width: 900px; border-collapse: collapse; font-size: .8rem; }
-    .directory-table thead th { background: #FAF9FE; color: #6E6A86; font-size: .72rem; font-weight: 800; letter-spacing: .02em; padding: 14px; border-bottom: 1px solid #ECEAF6; white-space: nowrap; }
+    .directory-table thead th { background: #FAF9FE; color: #6E6A86; font-size: .72rem; font-weight: 800; letter-spacing: .02em; padding: 14px; border-bottom: 1px solid #DFD9C2; white-space: nowrap; }
     .directory-table td { padding: 13px 14px; border-bottom: 1px dashed #F3F1FA; vertical-align: middle; }
     .directory-table tbody tr:last-child td { border-bottom: 0; }
     .directory-table tbody tr { transition: background .18s ease; }
     .directory-table tbody tr:hover td { background: #FBFAFE; }
 
     .employee-name { display: flex; align-items: center; gap: 11px; min-width: 0; }
-    .employee-name img, .avatar { flex: 0 0 40px; width: 40px; height: 40px; border-radius: 12px; object-fit: cover; box-shadow: 0 6px 14px rgba(21,17,48,.16); }
-    .avatar { display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, #6153E4, #17B0A7); font-size: .95rem; }
+    .employee-name img, .avatar { flex: 0 0 40px; width: 40px; height: 40px; border-radius: 12px; object-fit: cover; box-shadow: 0 6px 14px rgba(0,38,35,.16); }
+    .avatar { display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, #B9A779, #B9A779); font-size: .95rem; }
     .employee-copy { min-width: 0; }
     .employee-copy strong { display: block; color: var(--brand-night); font-size: .84rem; overflow-wrap: anywhere; }
     .inline-id { display: inline; color: #B4AECD; font-size: .66rem; font-weight: 600; }
-    .employee-email { display: block; margin-top: 3px; color: #0E8F88; font-family: monospace; font-size: .7rem; overflow-wrap: anywhere; }
+    .employee-email { display: block; margin-top: 3px; color: #988561; font-family: monospace; font-size: .7rem; overflow-wrap: anywhere; }
 
     .position-title { display: block; max-width: 190px; color: #2B2545; font-size: .8rem; font-weight: 700; overflow-wrap: anywhere; }
     .department-name { display: block; margin-top: 3px; color: #9B95B5; font-size: .72rem; }
@@ -57,20 +63,71 @@
     .role-stack { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
     .badge, .contract-badge { padding: 4px 11px; border-radius: 999px; border: 1px solid transparent; font-size: .68rem; font-weight: 800; line-height: 1.35; }
     .badge-red { color: #B91C1C; background: rgba(220,38,38,.09); border-color: rgba(220,38,38,.28); }
-    .badge-manager { color: #6153E4; background: rgba(97,83,228,.1); border-color: rgba(97,83,228,.3); }
-    .badge-blue { color: #0E8F88; background: rgba(23,176,167,.11); border-color: rgba(23,176,167,.32); }
+    .badge-manager { color: #B9A779; background: rgba(185,167,121,.1); border-color: rgba(185,167,121,.3); }
+    .badge-blue { color: #988561; background: rgba(185,167,121,.11); border-color: rgba(185,167,121,.32); }
     .badge-employee { color: #4A4560; background: #F1EEFA; border-color: #E4E1FB; }
-    .contract-badge { color: #8E3D74; background: rgba(142,61,116,.09); border-color: rgba(142,61,116,.26); }
-    .muted-contract { color: #9B95B5; background: #F6F4FB; border-color: #ECEAF6; }
+    .contract-badge { color: #988561; background: rgba(152,133,97,.09); border-color: rgba(152,133,97,.26); }
+    .muted-contract { color: #9B95B5; background: #F1ECDD; border-color: #DFD9C2; }
 
-    .salary { white-space: nowrap; color: #0E8F88; font-family: 'Courier New', monospace; font-weight: 800; font-size: .84rem; }
+    .salary { white-space: nowrap; color: #988561; font-family: 'Courier New', monospace; font-weight: 800; font-size: .84rem; }
 
     .actions { display: flex; gap: 7px; white-space: nowrap; }
-    .actions a { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 10px; color: #6153E4; background: transparent; border: 1px solid rgba(97,83,228,.3); transition: all .18s ease; }
-    .actions a:hover { color: #fff; background: linear-gradient(135deg, #6153E4, #8B7FF2); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(97,83,228,.3); }
+    .actions a { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 10px; color: #B9A779; background: transparent; border: 1px solid rgba(185,167,121,.3); transition: all .18s ease; }
+    .actions a:hover { color: #fff; background: linear-gradient(135deg, #B9A779, #D8CBA6); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(185,167,121,.3); }
 
     .empty-row { padding: 54px 20px !important; color: #9B95B5; text-align: center; font-size: .86rem; }
     .empty-row i { display: block; margin-bottom: 10px; font-size: 1.5rem; color: #C9C3E3; }
+
+    /* ----- radial org chart ----- */
+    .org-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+    .org-meta h2 { margin: 0; color: #2B2545; font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+    .org-meta h2 i { color: #B9A779; }
+    .org-meta .org-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .org-meta .org-chip { display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border-radius: 999px; font-size: .76rem; font-weight: 800; }
+    .org-chip-soft { color: #B9A779; background: rgba(185,167,121,.09); border: 1px solid rgba(185,167,121,.25); }
+    .org-chip-gold { color: #988561; background: rgba(185,167,121,.16); border: 1px solid rgba(185,167,121,.45); }
+
+    .org-scroll { overflow-x: auto; }
+    .org-shell { position: relative; width: 1100px; height: 760px; margin: 0 auto; background: #fff; border: 1px solid #DFD9C2; border-radius: 22px; box-shadow: 0 18px 40px rgba(0,38,35,.06); overflow: hidden; }
+    .org-svg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
+    .org-orbit { fill: none; stroke: rgba(185,167,121,.18); stroke-width: 1; stroke-dasharray: 5 7; }
+    .org-reticle { fill: none; stroke: rgba(185,167,121,.35); stroke-width: 1.5; stroke-dasharray: 2 5; }
+    .org-link { stroke: #b9a779; stroke-width: 2; stroke-dasharray: 4,4; opacity: .9; }
+
+    .org-node { position: absolute; width: 150px; display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 2; text-align: center; transition: transform .2s ease; }
+    .org-node:hover { transform: translateY(-3px); }
+    .org-avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; box-shadow: 0 8px 18px rgba(185,167,121,.35); display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 1.15rem; background: linear-gradient(135deg, #B9A779, #B9A779); overflow: hidden; flex: 0 0 auto; }
+    .org-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .org-name { font-size: .72rem; font-weight: 800; color: #2B2545; line-height: 1.25; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .org-node.org-manager { width: 170px; z-index: 3; }
+    .org-manager .org-avatar { width: 78px; height: 78px; border: 3px solid #B9A779; box-shadow: 0 12px 26px rgba(152,133,97,.45); background: linear-gradient(135deg, #B9A779, #988561); color: #241A05; font-size: 1.5rem; }
+    .org-role-badge { padding: 4px 12px; border-radius: 999px; background: linear-gradient(135deg, #B9A779, #988561); color: #241A05; font-size: .62rem; font-weight: 800; box-shadow: 0 6px 14px rgba(152,133,97,.35); white-space: nowrap; }
+    .org-manager .org-name { font-size: .84rem; }
+
+    .org-tip { position: absolute; left: 50%; transform: translateX(-50%); width: max-content; max-width: 250px; background: #002623; color: #fff; padding: 10px 14px 12px; border-radius: 12px; font-size: .72rem; line-height: 1.6; text-align: right; opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; box-shadow: 0 14px 30px rgba(0,38,35,.35); z-index: 20; border: 1px solid rgba(255,255,255,.12); }
+    .org-node[data-side="below"] .org-tip { top: calc(100% + 10px); }
+    .org-node[data-side="above"] .org-tip { bottom: calc(100% + 10px); }
+    .org-node:hover .org-tip { opacity: 1; }
+    .org-tip strong { display: block; color: #B9A779; font-size: .8rem; margin-bottom: 2px; }
+    .org-tip small { display: block; color: rgba(255,255,255,.72); }
+    .org-tip small b { color: #fff; font-weight: 700; }
+
+    /* ----- team tree styling override ----- */
+    .org-chart-container { background: #002623 !important; border: 1px solid #b9a779 !important; }
+    .org-meta h2,
+    .org-meta h2 i,
+    .org-meta .org-chip { color: #b9a779 !important; }
+    .org-chart-container .org-name { color: #edebe0 !important; font-weight: bold !important; max-width: 150px; }
+    .org-chart-container .org-role-badge { background: #002623 !important; color: #edebe0 !important; }
+    .org-chart-container .org-avatar,
+    .org-chart-container .org-manager .org-avatar { width: 90px !important; height: 90px !important; border: 3px solid #b9a779 !important; border-radius: 50% !important; box-shadow: 0 12px 26px rgba(185,167,121,.42); }
+    .org-chart-container .org-node:not(.org-manager) .org-avatar { background-color: #988561 !important; background-image: none !important; color: #edebe0 !important; }
+    .org-chart-container .org-node { width: 150px; }
+    .org-chart-container .org-node.org-manager { width: 170px; }
+
+    .org-empty { padding: 70px 20px; text-align: center; color: #9B95B5; }
+    .org-empty i { display: block; margin-bottom: 12px; font-size: 2rem; color: #C9C3E3; }
 
     @media (max-width: 700px) {
         .directory-table { font-size: .74rem; }
@@ -88,12 +145,16 @@
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
                 <span class="dir-eyebrow"><i class="fa-solid fa-users"></i> إدارة الموارد البشرية</span>
-                <h1>دليل الموظفين</h1>
-                <p>كل أفراد الفريق في مساحة واحدة قابلة للبحث والفرز.</p>
+                <h1>{% if is_team_manager %}فريقي{% else %}دليل الموظفين{% endif %}</h1>
+                <p>{% if is_team_manager %}كل أعضاء فريقك في شجرة تنظيمية تفاعلية.{% else %}كل أفراد الفريق في مساحة واحدة قابلة للبحث والفرز.{% endif %}</p>
             </div>
             <div class="d-flex flex-wrap align-items-center gap-2">
+                <div class="view-toggle">
+                    <a href="{% url 'employees:employee_list' %}?{% for k, v in request.GET.items %}{% if k != 'view' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}view=chart" class="vt-btn {% if chart_mode == 'chart' %}active{% endif %}"><i class="fa-solid fa-diagram-project"></i> شجرة تنظيمية</a>
+                    <a href="{% url 'employees:employee_list' %}?{% for k, v in request.GET.items %}{% if k != 'view' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}view=table" class="vt-btn {% if chart_mode == 'table' %}active{% endif %}"><i class="fa-solid fa-table-list"></i> جدول</a>
+                </div>
                 <span class="badge bg-white bg-opacity-20 text-white px-3 py-2 rounded-pill"><i class="fa-solid fa-user-group me-1"></i> {{ total_employees }} موظف معروض</span>
-                <a href="{% url 'employees:add_employee_wizard' %}" class="btn btn-warning fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-user-plus me-1"></i> تعيين موظف جديد</a>
+                {% if not is_team_manager %}<a href="{% url 'employees:add_employee_wizard' %}" class="btn btn-warning fw-bold px-3 py-2 rounded-pill"><i class="fa-solid fa-user-plus me-1"></i> تعيين موظف جديد</a>{% endif %}
             </div>
         </div>
         {% if request.GET.search or request.GET.department or request.GET.role or request.GET.contract_type %}
@@ -103,6 +164,111 @@
         {% endif %}
     </section>
 
+    {% if chart_mode == 'chart' %}
+    <section class="org-meta">
+        <h2><i class="fa-solid fa-sitemap"></i> الفريق التنظيمي{% if chart_manager.department %} — {{ chart_manager.department.name }}{% endif %}</h2>
+        <div class="org-chips">
+            <span class="org-chip org-chip-soft"><i class="fa-solid fa-user-group"></i> {{ chart_members|length }} عضو في الفريق</span>
+            <span class="org-chip org-chip-gold"><i class="fa-solid fa-crown"></i> {{ chart_manager.get_full_name }}</span>
+        </div>
+    </section>
+
+    <div class="org-scroll">
+        <div class="org-shell org-chart-container">
+            <svg class="org-svg" viewBox="0 0 1100 760">
+                <defs>
+                    <linearGradient id="orgLinkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#B9A779"/>
+                        <stop offset="100%" stop-color="#B9A779"/>
+                    </linearGradient>
+                </defs>
+                <circle class="org-orbit" cx="550" cy="370" r="310"/>
+                <circle class="org-orbit" cx="550" cy="370" r="210"/>
+                <circle class="org-reticle" cx="550" cy="370" r="110"/>
+                <g class="org-links" aria-hidden="true"></g>
+            </svg>
+
+            <div class="org-node org-manager manager-node" data-is-manager="true" style="left: 465px; top: 325px;">
+                <span class="org-avatar manager-avatar">
+                    {% if chart_manager.get_profile_picture_url %}<img src="{{ chart_manager.get_profile_picture_url }}" alt="{{ chart_manager.get_full_name }}">{% else %}<i class="fa-solid fa-user-tie"></i>{% endif %}
+                </span>
+                <span class="org-role-badge"><i class="fa-solid fa-crown"></i> مدير القسم</span>
+                <span class="org-name">{{ chart_manager.get_full_name }}</span>
+            </div>
+
+            {% for m in chart_members %}
+            <div class="org-node member-node" data-manager-id="{{ m.manager_id }}" data-side="{% if m.y <= chart_center.y %}below{% else %}above{% endif %}" style="left: {{ m.x|add:-75 }}px; top: {{ m.y|add:-45 }}px;">
+                <span class="org-avatar member-avatar">
+                    {% if m.photo %}<img src="{{ m.photo }}" alt="{{ m.name }}">{% else %}{{ m.initial }}{% endif %}
+                </span>
+                <span class="org-name">{{ m.name }}</span>
+                <span class="org-tip">
+                    <strong>{{ m.name }}</strong>
+                    <small><b>المسمى:</b> {{ m.job_title }}</small>
+                    {% if m.role %}<small><b>الدور:</b> {{ m.role }}</small>{% endif %}
+                    {% if m.email %}<small><b>البريد:</b> {{ m.email }}</small>{% endif %}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+        (() => {
+            const chart = document.querySelector('.org-chart-container');
+            if (!chart) return;
+
+            const svgContainer = chart.querySelector('.org-svg');
+            const links = chart.querySelector('.org-links');
+            const managerEl = chart.querySelector('.manager-node, .center-node, [data-is-manager="true"]');
+            const memberEls = chart.querySelectorAll('.member-node, .team-member, .node-avatar');
+            if (!svgContainer || !links || !managerEl) return;
+
+            const drawLinks = () => {
+                const containerRect = svgContainer.getBoundingClientRect();
+                const viewBox = svgContainer.viewBox.baseVal;
+                if (!containerRect.width || !containerRect.height || !viewBox.width || !viewBox.height) return;
+
+                const managerRect = managerEl.getBoundingClientRect();
+                const scaleX = viewBox.width / containerRect.width;
+                const scaleY = viewBox.height / containerRect.height;
+                const mX = (managerRect.left + managerRect.width / 2 - containerRect.left) * scaleX;
+                const mY = (managerRect.top + managerRect.height / 2 - containerRect.top) * scaleY;
+
+                links.replaceChildren();
+                memberEls.forEach((member) => {
+                    if (member === managerEl) return;
+                    const memberRect = member.getBoundingClientRect();
+                    const eX = (memberRect.left + memberRect.width / 2 - containerRect.left) * scaleX;
+                    const eY = (memberRect.top + memberRect.height / 2 - containerRect.top) * scaleY;
+                    if (![mX, mY, eX, eY].every(Number.isFinite)) return;
+
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', String(mX));
+                    line.setAttribute('y1', String(mY));
+                    line.setAttribute('x2', String(eX));
+                    line.setAttribute('y2', String(eY));
+                    line.setAttribute('stroke', '#b9a779');
+                    line.setAttribute('stroke-width', '2');
+                    line.setAttribute('stroke-dasharray', '4,4');
+                    links.appendChild(line);
+                });
+            };
+
+            document.addEventListener('DOMContentLoaded', drawLinks, { once: true });
+            window.addEventListener('load', drawLinks, { once: true });
+            window.addEventListener('resize', drawLinks);
+            drawLinks();
+        })();
+    </script>
+    {% elif request.GET.view == 'chart' %}
+    <section class="dir-panel">
+        <div class="org-empty">
+            <i class="fa-solid fa-diagram-project"></i>
+            <p>لتظهر لك الشجرة التنظيمية، اختر قسمًا من الجدول أولًا ثم انتقل إلى عرض الشجرة.</p>
+            <a href="{% url 'employees:employee_list' %}?view=table&{% for k, v in request.GET.items %}{% if k != 'view' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}" class="btn-gold-solid" style="margin-top:14px;"><i class="fa-solid fa-arrow-right"></i> العودة إلى الجدول</a>
+        </div>
+    </section>
+    {% else %}
     <section class="dir-panel">
         <form method="get" class="filter-form">
             <label class="search-field"><i class="fa-solid fa-magnifying-glass"></i><input type="search" name="search" placeholder="بحث بالاسم أو البريد..." value="{{ request.GET.search|default:'' }}"></label>
@@ -157,5 +323,6 @@
             </table>
         </div>
     </section>
+    {% endif %}
 </div>
 {% endblock %}

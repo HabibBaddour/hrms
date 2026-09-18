@@ -339,7 +339,7 @@ def employee_dashboard(request):
 
     if employee_profile:
         pending_leaves = LeaveRequest.objects.filter(employee=employee_profile, status='PENDING').count()
-        recent_leaves = LeaveRequest.objects.filter(employee=employee_profile).order_by('-created_at')[:5]
+        recent_leaves = LeaveRequest.objects.filter(employee=employee_profile).order_by('-created_at')[:3]
 
         try:
             leave_balance = employee_profile.get_annual_leave_balance()
@@ -377,11 +377,6 @@ def employee_dashboard(request):
             my_leave_breakdown.append({'label': label, 'count': count})
     max_my_leave_count = max((item['count'] for item in my_leave_breakdown), default=0)
 
-    balance_breakdown = [
-        {'label': 'السنوية المتبقية', 'count': annual_remaining, 'total': 11},
-        {'label': 'المرضية المتبقية', 'count': sick_remaining, 'total': 11},
-        {'label': 'الطارئة المتبقية', 'count': emergency_remaining, 'total': 11},
-    ]
     context = {
         'pending_leaves': pending_leaves,
         'leave_balance': leave_balance,
@@ -392,7 +387,6 @@ def employee_dashboard(request):
         'sick_remaining': sick_remaining,
         'emergency_remaining': emergency_remaining,
         'total_leave_remaining': total_leave_remaining,
-        'balance_breakdown': balance_breakdown,
         'unread_notifications': unread_notifications,
         'my_evaluations': my_evaluations,
         'evaluations_completed': evaluations_completed,

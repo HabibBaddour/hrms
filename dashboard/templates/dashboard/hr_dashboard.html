@@ -14,10 +14,10 @@
         padding: 28px 30px;
         color: #fff;
         background:
-            radial-gradient(520px 260px at 88% 0%, rgba(23, 176, 167, 0.35), transparent 65%),
-            radial-gradient(420px 240px at 8% 100%, rgba(242, 180, 76, 0.22), transparent 60%),
-            linear-gradient(120deg, #1B1442 0%, #4A3AB8 55%, #6153E4 100%);
-        box-shadow: 0 20px 44px rgba(21, 17, 48, 0.35);
+            radial-gradient(520px 260px at 88% 0%, rgba(185,167,121,0.35), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(185,167,121,0.22), transparent 60%),
+            linear-gradient(120deg, #002623 0%, #7A6F4A 55%, #B9A779 100%);
+        box-shadow: 0 20px 44px rgba(0,38,35,0.35);
         margin-bottom: 26px;
     }
     .hero-band h4 { margin: 0 0 6px; font-weight: 800; }
@@ -42,7 +42,7 @@
         padding: 22px;
         border-radius: 18px;
         background: #fff;
-        border: 1px solid #ECEAF6;
+        border: 1px solid #DFD9C2;
         text-decoration: none;
         box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
         transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
@@ -55,10 +55,10 @@
         background: var(--accent);
     }
     .stat-card:hover { transform: translateY(-5px); box-shadow: 0 22px 42px rgba(15, 23, 42, 0.13); border-color: var(--accent-solid); }
-    .stat-violet { --accent: linear-gradient(90deg, #6153E4, #8B7FF2); --accent-solid: rgba(97, 83, 228, 0.5); --tile: rgba(97, 83, 228, 0.12); --tone: #5A4DD6; }
-    .stat-teal   { --accent: linear-gradient(90deg, #0B6B70, #17B0A7); --accent-solid: rgba(23, 176, 167, 0.5); --tile: rgba(23, 176, 167, 0.13); --tone: #0E8F88; }
-    .stat-gold   { --accent: linear-gradient(90deg, #F2B44C, #E89A5D); --accent-solid: rgba(217, 154, 43, 0.55); --tile: rgba(242, 180, 76, 0.18); --tone: #C08A25; }
-    .stat-plum   { --accent: linear-gradient(90deg, #8E3D74, #E89A5D); --accent-solid: rgba(142, 61, 116, 0.5); --tile: rgba(142, 61, 116, 0.12); --tone: #8E3D74; }
+    .stat-violet { --accent: linear-gradient(90deg, #B9A779, #D8CBA6); --accent-solid: rgba(185,167,121,0.5); --tile: rgba(185,167,121,0.12); --tone: #5A4DD6; }
+    .stat-teal   { --accent: linear-gradient(90deg, #988561, #B9A779); --accent-solid: rgba(185,167,121,0.5); --tile: rgba(185,167,121,0.13); --tone: #988561; }
+    .stat-gold   { --accent: linear-gradient(90deg, #B9A779, #988561); --accent-solid: rgba(152,133,97,0.55); --tile: rgba(185,167,121,0.18); --tone: #988561; }
+    .stat-plum   { --accent: linear-gradient(90deg, #988561, #988561); --accent-solid: rgba(152,133,97,0.5); --tile: rgba(152,133,97,0.12); --tone: #988561; }
 
     .stat-tile {
         width: 52px; height: 52px;
@@ -72,7 +72,7 @@
     .stat-card:hover .stat-tile { transform: scale(1.08) rotate(-4deg); }
     .stat-value { font-size: 2rem; font-weight: 800; color: var(--brand-night); line-height: 1.15; }
     .stat-label { color: #6E6A86; font-size: 0.85rem; font-weight: 600; margin-bottom: 0; }
-    .stat-sub { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 4px 11px; border-radius: 999px; background: #F6F4FB; color: #6E6A86; font-size: 0.74rem; font-weight: 700; }
+    .stat-sub { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 4px 11px; border-radius: 999px; background: #F1ECDD; color: #6E6A86; font-size: 0.74rem; font-weight: 700; }
     .stat-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; color: var(--tone); font-size: 0.78rem; font-weight: 700; }
     .stat-link i { transition: transform 0.25s ease; }
     .stat-card:hover .stat-link i { transform: translateX(-4px); }
@@ -94,7 +94,7 @@
         padding: 16px 18px;
         border-radius: 16px;
         background: #fff;
-        border: 1px solid #ECEAF6;
+        border: 1px solid #DFD9C2;
         text-decoration: none;
         box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
         transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
@@ -104,45 +104,45 @@
     .action-tile .act-icon { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; font-size: 1.1rem; color: #fff; background: var(--grad); flex-shrink: 0; }
     .action-tile b { display: block; color: var(--brand-night); font-size: 0.92rem; }
     .action-tile small { color: #6E6A86; font-size: 0.75rem; }
-    .act-violet { --tone: #6153E4; --grad: linear-gradient(135deg, #6153E4, #8B7FF2); }
-    .act-teal { --tone: #17B0A7; --grad: linear-gradient(135deg, #0B6B70, #17B0A7); }
-    .act-gold { --tone: #D99A2B; --grad: linear-gradient(135deg, #E89A5D, #F2B44C); }
-    .act-plum { --tone: #8E3D74; --grad: linear-gradient(135deg, #8E3D74, #C96D8A); }
+    .act-violet { --tone: #B9A779; --grad: linear-gradient(135deg, #B9A779, #D8CBA6); }
+    .act-teal { --tone: #B9A779; --grad: linear-gradient(135deg, #988561, #B9A779); }
+    .act-gold { --tone: #D99A2B; --grad: linear-gradient(135deg, #988561, #B9A779); }
+    .act-plum { --tone: #988561; --grad: linear-gradient(135deg, #988561, #B9A779); }
     .soon-badge { font-size: 0.62rem; background: #F2B44C33; color: #A87A1E; border-radius: 999px; padding: 2px 8px; font-weight: 700; }
 
     .panel {
         padding: 22px;
         border-radius: 18px;
         background: #fff;
-        border: 1px solid #ECEAF6;
+        border: 1px solid #DFD9C2;
         box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
         height: 100%;
     }
     .panel-title { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--brand-night); font-size: 1rem; margin-bottom: 18px; }
-    .panel-title i { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: rgba(97, 83, 228, 0.12); color: #6153E4; font-size: 0.9rem; }
+    .panel-title i { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: rgba(185,167,121,0.12); color: #B9A779; font-size: 0.9rem; }
 
     .bar-row { margin-bottom: 14px; }
     .bar-row:last-child { margin-bottom: 0; }
     .bar-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.83rem; font-weight: 700; color: #4A4560; }
     .bar-track { height: 9px; border-radius: 999px; background: #F1EEFA; overflow: hidden; }
     .bar-fill { height: 100%; border-radius: 999px; width: 0; transition: width 1s ease; }
-    .bar-count { min-width: 30px; text-align: center; font-size: 0.75rem; color: #fff; background: #6153E4; padding: 2px 9px; border-radius: 999px; }
-    .bf-1 { background: linear-gradient(90deg, #6153E4, #8B7FF2); } .bc-1 { background: #6153E4; }
-    .bf-2 { background: linear-gradient(90deg, #0B6B70, #17B0A7); } .bc-2 { background: #0E8F88; }
-    .bf-3 { background: linear-gradient(90deg, #E89A5D, #F2B44C); } .bc-3 { background: #D99A2B; }
-    .bf-4 { background: linear-gradient(90deg, #8E3D74, #C96D8A); } .bc-4 { background: #8E3D74; }
-    .bf-5 { background: linear-gradient(90deg, #4A3AB8, #6153E4); } .bc-5 { background: #4A3AB8; }
+    .bar-count { min-width: 30px; text-align: center; font-size: 0.75rem; color: #fff; background: #B9A779; padding: 2px 9px; border-radius: 999px; }
+    .bf-1 { background: linear-gradient(90deg, #B9A779, #D8CBA6); } .bc-1 { background: #B9A779; }
+    .bf-2 { background: linear-gradient(90deg, #988561, #B9A779); } .bc-2 { background: #988561; }
+    .bf-3 { background: linear-gradient(90deg, #988561, #B9A779); } .bc-3 { background: #D99A2B; }
+    .bf-4 { background: linear-gradient(90deg, #988561, #B9A779); } .bc-4 { background: #988561; }
+    .bf-5 { background: linear-gradient(90deg, #7A6F4A, #B9A779); } .bc-5 { background: #7A6F4A; }
 
     .activity-item { display: flex; gap: 13px; padding: 13px 4px; border-bottom: 1px dashed #EEEAF8; text-decoration: none; border-radius: 12px; transition: background 0.2s ease; }
     .activity-item:last-child { border-bottom: 0; }
     .activity-item:hover { background: #FAF9FE; }
     .activity-item:hover .act-bubble { transform: scale(1.07); }
     .act-bubble { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 0.9rem; flex-shrink: 0; color: var(--tone); background: var(--tone-bg); transition: transform 0.2s ease; }
-    .tn-violet { --tone: #6153E4; --tone-bg: rgba(97, 83, 228, 0.12); }
-    .tn-indigo { --tone: #4A3AB8; --tone-bg: rgba(74, 58, 184, 0.12); }
-    .tn-teal { --tone: #0E8F88; --tone-bg: rgba(23, 176, 167, 0.13); }
-    .tn-gold { --tone: #C08A25; --tone-bg: rgba(242, 180, 76, 0.18); }
-    .tn-plum { --tone: #8E3D74; --tone-bg: rgba(142, 61, 116, 0.12); }
+    .tn-violet { --tone: #B9A779; --tone-bg: rgba(185,167,121,0.12); }
+    .tn-indigo { --tone: #7A6F4A; --tone-bg: rgba(152,133,97,0.12); }
+    .tn-teal { --tone: #988561; --tone-bg: rgba(185,167,121,0.13); }
+    .tn-gold { --tone: #988561; --tone-bg: rgba(185,167,121,0.18); }
+    .tn-plum { --tone: #988561; --tone-bg: rgba(152,133,97,0.12); }
     .activity-title { font-weight: 700; color: #2B2545; font-size: 0.87rem; margin-bottom: 2px; }
     .activity-text { color: #6E6A86; font-size: 0.8rem; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .activity-time { font-size: 0.72rem; color: #9B95B5; white-space: nowrap; }
@@ -150,7 +150,7 @@
     .side-row { display: flex; align-items: center; gap: 12px; padding: 11px 4px; border-bottom: 1px dashed #EEEAF8; }
     .side-row:last-child { border-bottom: 0; }
     .days-chip { margin-inline-start: auto; font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
-    .dc-warn { background: rgba(242, 180, 76, 0.18); color: #A87A1E; }
+    .dc-warn { background: rgba(185,167,121,0.18); color: #A87A1E; }
     .dc-danger { background: rgba(220, 38, 38, 0.12); color: #DC2626; }
     .empty-mini { text-align: center; padding: 22px 10px; color: #9B95B5; font-size: 0.84rem; }
     .empty-mini i { display: block; font-size: 1.6rem; margin-bottom: 8px; opacity: 0.6; }
@@ -222,25 +222,25 @@
     <div class="row g-4 mb-4">
         <div class="col-sm-6 col-xl-3">
             <div class="mini-kpi">
-                <i class="fa-solid fa-star" style="background: rgba(242,180,76,.18); color: #C08A25;"></i>
+                <i class="fa-solid fa-star" style="background: rgba(185,167,121,.18); color: #988561;"></i>
                 <div><b>{{ avg_performance }} / 5</b><span>متوسط الأداء ({{ evaluation_count }} تقييم)</span></div>
             </div>
         </div>
         <div class="col-sm-6 col-xl-3">
             <div class="mini-kpi">
-                <i class="fa-solid fa-file-contract" style="background: rgba(97,83,228,.12); color: #6153E4;"></i>
+                <i class="fa-solid fa-file-contract" style="background: rgba(185,167,121,.12); color: #B9A779;"></i>
                 <div><b>{{ contracts_soon|length }}</b><span>عقود تنتهي خلال 60 يوماً</span></div>
             </div>
         </div>
         <div class="col-sm-6 col-xl-3">
             <div class="mini-kpi">
-                <i class="fa-solid fa-cake-candles" style="background: rgba(23,176,167,.13); color: #0E8F88;"></i>
+                <i class="fa-solid fa-cake-candles" style="background: rgba(185,167,121,.13); color: #988561;"></i>
                 <div><b>{{ birthdays|length }}</b><span>أعياد ميلاد خلال {{ month_name }}</span></div>
             </div>
         </div>
         <div class="col-sm-6 col-xl-3">
             <div class="mini-kpi">
-                <i class="fa-solid fa-wand-magic-sparkles" style="background: rgba(142,61,116,.12); color: #8E3D74;"></i>
+                <i class="fa-solid fa-wand-magic-sparkles" style="background: rgba(152,133,97,.12); color: #988561;"></i>
                 <div><b>{{ ai_flagged }}</b><span>توصيات ML بانتظار المراجعة</span></div>
             </div>
         </div>
@@ -313,7 +313,7 @@
             <div class="panel">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <div class="panel-title mb-0"><i class="fa-solid fa-clock-rotate-left"></i> النشاط الأخير</div>
-                    <a href="{% url 'core:notification_list' %}" class="text-decoration-none fw-bold" style="font-size: 0.78rem; color: #6153E4;">عرض الكل</a>
+                    <a href="{% url 'core:notification_list' %}" class="text-decoration-none fw-bold" style="font-size: 0.78rem; color: #B9A779;">عرض الكل</a>
                 </div>
                 {% if recent_activities %}
                     {% for activity in recent_activities %}

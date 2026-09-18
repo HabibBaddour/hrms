@@ -5,6 +5,30 @@ from django.db import models
 from django.utils import timezone
 
 
+def format_duration_text(total_seconds):
+    """Format a duration into a readable Arabic string (e.g. '4 ساعات و 47 دقيقة')."""
+    total_minutes = int(total_seconds // 60)
+    hours, minutes = divmod(total_minutes, 60)
+
+    def unit(value, one, two, few, many):
+        if value == 1:
+            return one
+        if value == 2:
+            return two
+        if 3 <= value <= 10:
+            return few
+        return many
+
+    hour_word = unit(hours, 'ساعة', 'ساعتان', 'ساعات', 'ساعة')
+    minute_word = unit(minutes, 'دقيقة', 'دقيقتان', 'دقائق', 'دقيقة')
+
+    if hours and minutes:
+        return f'{hours} {hour_word} و {minutes} {minute_word}'
+    if minutes:
+        return f'{minutes} {minute_word}'
+    return f'{hours} {hour_word}'
+
+
 class AttendanceLog(models.Model):
     STATUS_PRESENT = 'حاضر'
     STATUS_LATE = 'تأخير'
@@ -64,6 +88,10 @@ class AttendanceLog(models.Model):
         hours = total_seconds // 3600
         minutes = (total_seconds % 3600) // 60
         return f'{hours:02d}:{minutes:02d}'
+
+    @property
+    def working_hours_readable(self):
+        return format_duration_text(self.working_hours.total_seconds())
 
     @staticmethod
     def record_checkin(user):

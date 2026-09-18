@@ -1,6 +1,6 @@
 import csv
 from datetime import datetime
-from io import StringIO
+from io import BytesIO, StringIO
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -9,12 +9,15 @@ from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Font, PatternFill
+from openpyxl.utils import get_column_letter
 
 from departments.models import Department
 from .models import LeaveRequest
 from employees.models import Employee
 from .ml_engine import is_peak_period, predict_leave_approval
-from .services import deduplicate_leave_queryset, notify_leave_status_changed, notify_leave_submitted
+from .services import deduplicate_leave_queryset, get_department_manager, notify_leave_status_changed, notify_leave_submitted
 
 
 def _employee_search_query(search_query):
@@ -40,8 +43,75 @@ def _employee_search_query(search_query):
     return q
 
 
-@login_required
-def leave_list(request):
+def _render_leave_requests_excel(leaves):
+    """Build a real .xlsx spreadsheet from a filtered leave request queryset."""
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = 'طلبات الإجازات'
+
+    headers = [
+        'رقم الطلب', 'الموظف', 'رقم الموظف', 'القسم', 'المسمى الوظيفي',
+        'نوع الإجازة', 'تاريخ البداية', 'تاريخ النهاية', 'عدد الأيام',
+        'الحالة', 'توصية الذكاء الاصطناعي', 'نسبة الثقة', 'تاريخ التقديم',
+    ]
+    header_fill = PatternFill(start_color='4A3AB8', end_color='4A3AB8', fill_type='solid')
+    header_font = Font(bold=True, color='FFFFFF', size=11)
+    for column, header in enumerate(headers, start=1):
+        cell = sheet.cell(row=1, column=column, value=header)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+
+    status_labels = {
+        'PENDING': 'معلق',
+        'APPROVED': 'مقبول',
+        'REJECTED': 'مرفوض',
+    }
+    ai_labels = {
+        'APPROVED': 'موصى بالقبول',
+        'REJECTED': 'موصى بالرفض',
+        'PENDING': 'قيد التحليل',
+    }
+
+    for row_index, leave in enumerate(leaves, start=2):
+        department = getattr(leave.employee.department, 'name', '-') if leave.employee.department else '-'
+        position = getattr(leave.employee.position, 'title', '') if leave.employee.position else ''
+        row = [
+            leave.pk,
+            leave.employee.get_full_name(),
+            getattr(leave.employee, 'employee_number', '') or '',
+            department,
+            position or '-',
+            leave.get_leave_type_display(),
+            leave.start_date.strftime('%Y-%m-%d'),
+            leave.end_date.strftime('%Y-%m-%d'),
+            leave.total_days,
+            status_labels.get(leave.status, leave.status),
+            ai_labels.get(leave.ai_prediction, leave.ai_prediction),
+            f'{leave.ai_confidence}%',
+            leave.created_at.strftime('%Y-%m-%d %H:%M') if leave.created_at else '',
+        ]
+        for column, value in enumerate(row, start=1):
+            sheet.cell(row=row_index, column=column, value=value)
+
+    for column in range(1, len(headers) + 1):
+        sheet.column_dimensions[get_column_letter(column)].width = 16
+    sheet.freeze_panes = 'A2'
+
+    buffer = BytesIO()
+    workbook.save(buffer)
+    buffer.seek(0)
+    response = HttpResponse(
+        buffer.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = 'attachment; filename="leave_requests.xlsx"'
+    return response
+
+
+def _leave_list_context(request):
+    """تجمع سياق قائمة طلبات الإجازات (يُستخدم في صفحة الإجازات نفسها
+    وفي تبويب 'الإجازات' المدمج داخل صفحة جدول الدوام والإجازات)."""
     employee_profile = getattr(request.user, 'employee_profile', None)
     position_role = getattr(getattr(employee_profile, 'position', None), 'role', '')
     can_view_all = (
@@ -60,7 +130,6 @@ def leave_list(request):
     leave_type = request.GET.get('leave_type')
     status = request.GET.get('status')
     search_query = request.GET.get('q', '').strip()
-    export_excel = request.GET.get('export') == 'excel'
 
     departments = Department.objects.order_by('name')
     role_choices = [
@@ -142,7 +211,39 @@ def leave_list(request):
 
     leaves = deduplicate_leave_queryset(leaves)
 
-    if export_excel and can_view_all:
+    return {
+        'leaves': leaves,
+        'filtered_count': leaves.count(),
+        'pending_count': leaves.filter(status='PENDING').count(),
+        'approved_count': leaves.filter(status='APPROVED').count(),
+        'rejected_count': leaves.filter(status='REJECTED').count(),
+        'employees': employees,
+        'can_view_all': can_view_all,
+        'is_privileged': can_view_all or is_department_manager,
+        'departments': departments,
+        'roles': role_choices,
+        'selected_department': dept_id,
+        'selected_role': role,
+        'selected_leave_type': leave_type,
+        'selected_status': status,
+        'search_query': search_query,
+    }
+
+
+@login_required
+def leave_list(request):
+    context = _leave_list_context(request)
+    leaves = context['leaves']
+    employees = context['employees']
+    can_view_all = context['can_view_all']
+
+    export_balances = request.GET.get('export') == 'excel'
+    export_leaves = request.GET.get('export') == 'leaves'
+
+    if export_leaves:
+        return _render_leave_requests_excel(leaves)
+
+    if export_balances and can_view_all:
         csv_buffer = StringIO()
         writer = csv.writer(csv_buffer)
         writer.writerow(['Employee ID', 'Full Name', 'Department', 'Role', 'Annual Balance', 'Total Annual Days'])
@@ -164,24 +265,8 @@ def leave_list(request):
         response['Content-Disposition'] = 'attachment; filename="employee_leave_balances.csv"'
         return response
 
-    return render(request, 'leaves/leave_list.html', {
-        'leaves': leaves,
-        'filtered_count': leaves.count(),
-        'pending_count': leaves.filter(status='PENDING').count(),
-        'approved_count': leaves.filter(status='APPROVED').count(),
-        'rejected_count': leaves.filter(status='REJECTED').count(),
-        'employees': employees,
-        'can_view_all': can_view_all,
-        'is_privileged': can_view_all or is_department_manager,
-        'departments': departments,
-        'roles': role_choices,
-        'selected_department': dept_id,
-        'selected_role': role,
-        'selected_leave_type': leave_type,
-        'selected_status': status,
-        'search_query': search_query,
-        'export_excel': export_excel,
-    })
+    context['export_leaves'] = export_leaves
+    return render(request, 'leaves/leave_list.html', context)
 
 
 def _can_review_leave(request, leave):
@@ -337,39 +422,40 @@ def analyze_leave_ai(request):
     })
 
 
+def _apply_leave_context(request):
+    """سياق نموذج تقديم طلب إجازة (يُستخدم في صفحته المستقلة والتبويب المدمج)."""
+    employee = getattr(request.user, 'employee_profile', None)
+    recent_leaves = []
+    if employee:
+        recent_leaves = list(
+            LeaveRequest.objects.filter(employee=employee)
+            .order_by('-created_at')[:4]
+        )
+    return {
+        'employee': employee,
+        'today': timezone.localdate(),
+        'recent_leaves': recent_leaves,
+        'annual_left': employee.leave_remaining('ANNUAL') if employee else None,
+        'sick_left': employee.leave_remaining('SICK') if employee else None,
+        'emergency_left': employee.leave_remaining('EMERGENCY') if employee else None,
+        'annual_quota': employee.leave_quota('ANNUAL') if employee else None,
+        'sick_quota': employee.leave_quota('SICK') if employee else None,
+        'emergency_quota': employee.leave_quota('EMERGENCY') if employee else None,
+        'next': _safe_next_url(request),
+    }
+
+
+def _safe_next_url(request):
+    """العودة الآمنة (نفس المضيف) إلى صفحة المصدر بعد إرسال الطلب."""
+    next_url = request.POST.get('next') or request.GET.get('next')
+    if next_url and url_has_allowed_host_and_scheme(
+            next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return next_url
+    return None
+
+
 @login_required
 def apply_leave(request):
-    def _context():
-        employee = getattr(request.user, 'employee_profile', None)
-        recent_leaves = []
-        type_balances = []
-        if employee:
-            recent_leaves = list(
-                LeaveRequest.objects.filter(employee=employee)
-                .order_by('-created_at')[:4]
-            )
-            for code, label, icon in [
-                ('ANNUAL', 'سنوية', 'fa-umbrella-beach'),
-                ('SICK', 'مرضية', 'fa-notes-medical'),
-                ('EMERGENCY', 'طارئة', 'fa-bolt'),
-            ]:
-                type_balances.append({
-                    'code': code,
-                    'label': label,
-                    'icon': icon,
-                    'remaining': employee.leave_remaining(code),
-                    'total': employee.leave_quota(code),
-                })
-        return {
-            'employee': employee,
-            'today': timezone.localdate(),
-            'recent_leaves': recent_leaves,
-            'type_balances': type_balances,
-            'annual_left': employee.leave_remaining('ANNUAL') if employee else None,
-            'sick_left': employee.leave_remaining('SICK') if employee else None,
-            'emergency_left': employee.leave_remaining('EMERGENCY') if employee else None,
-        }
-
     if request.method == 'POST':
         leave_type = request.POST.get('leave_type')
         start_date = request.POST.get('start_date')
@@ -382,18 +468,18 @@ def apply_leave(request):
             end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
         except (TypeError, ValueError):
             messages.error(request, '???? ????? ?????? ????? ?????? ??????.')
-            return render(request, 'leaves/apply_leave.html', _context())
+            return render(request, 'leaves/apply_leave.html', _apply_leave_context(request))
 
         if end_date < start_date:
             messages.error(request, 'يجب أن يكون تاريخ النهاية بعد تاريخ البداية.')
-            return render(request, 'leaves/apply_leave.html', _context())
+            return render(request, 'leaves/apply_leave.html', _apply_leave_context(request))
 
         if attachment:
             allowed = ('.pdf', '.jpg', '.jpeg', '.png')
             ext = getattr(attachment, 'name', '') or ''
             if not ext.lower().endswith(allowed):
                 messages.error(request, 'صيغة المرفق غير مدعومة. يُسمح فقط بملفات PDF أو JPG أو PNG.')
-                return render(request, 'leaves/apply_leave.html', _context())
+                return render(request, 'leaves/apply_leave.html', _apply_leave_context(request))
 
         employee = getattr(request.user, 'employee_profile', None)
 
@@ -406,7 +492,7 @@ def apply_leave(request):
             ).exists()
             if overlapping_request:
                 messages.error(request, 'يوجد طلب إجازة مسجل بالفعل لهذا الموظف خلال هذه الفترة.')
-                return render(request, 'leaves/apply_leave.html', _context())
+                return render(request, 'leaves/apply_leave.html', _apply_leave_context(request))
 
             leave = LeaveRequest.objects.create(
                 employee=employee,
@@ -420,29 +506,22 @@ def apply_leave(request):
             predict_leave_status(leave)
             notify_leave_submitted(leave, actor=request.user)
             messages.success(request, 'تم تقديم طلب الإجازة بنجاح. سيتم مراجعته من قبل الإدارة.')
-            return redirect('leaves:leave_list')
+            return redirect(_safe_next_url(request) or 'leaves:leave_list')
 
         messages.error(request, 'يجب ربط حسابك بملف موظف قبل تقديم طلب الإجازة.')
 
-    return render(request, 'leaves/apply_leave.html', _context())
+    return render(request, 'leaves/apply_leave.html', _apply_leave_context(request))
 
 
 @login_required
 def _can_decide_leave(request, leave):
-    """هل يملك المستخدم صلاحية قبول/رفض هذا الطلب؟ (HR فقط أو مدير قسم الموظف صاحب الطلب)"""
+    """هل يملك المستخدم صلاحية قبول/رفض هذا الطلب؟ فقط مدير قسم الموظف صاحب الطلب."""
     employee_profile = getattr(request.user, 'employee_profile', None)
-    is_hr = (
-        request.user.is_superuser or request.user.is_staff or
-        getattr(getattr(employee_profile, 'position', None), 'role', '').lower() == 'hr admin' or
-        request.user.groups.filter(name='HR').exists()
-    )
-    if is_hr:
-        return True
-    return bool(
-        employee_profile and
-        employee_profile.department_id == leave.employee.department_id and
-        getattr(employee_profile.position, 'role', '') == 'Manager'
-    )
+    if not employee_profile:
+        return False
+    department = leave.employee.department or getattr(leave.employee.position, 'department', None)
+    manager = get_department_manager(department)
+    return bool(manager and manager.pk == employee_profile.pk)
 
 
 def _decision_redirect(request):

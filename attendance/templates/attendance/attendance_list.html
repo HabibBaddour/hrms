@@ -6,30 +6,95 @@
 {% block extra_css %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 <style>
-    .attendance-card { border-radius: 18px; overflow: hidden; box-shadow: 0 14px 34px rgba(21, 17, 48, .06); }
+    .attendance-card { border-radius: 18px; overflow: hidden; box-shadow: 0 14px 34px rgba(0,38,35,.06); }
     .attendance-header {
         border-bottom: 1px solid #e2e8f0;
-        background: linear-gradient(135deg, #f8fafc 0%, #eef4ff 100%);
+        background: linear-gradient(135deg, #f8fafc 0%, #F2EDE0 100%);
     }
     .attendance-toolbar {
         background: #f8fafc;
         border-bottom: 1px solid #e2e8f0;
     }
     .attendance-toolbar .btn { border-radius: 9px; }
-    .attendance-tablewrap { direction: rtl; text-align: center; max-height: 560px; overflow-y: auto; }
+    .attendance-tablewrap { direction: rtl; text-align: center; }
     .attendance-table { --bs-table-border-color: #d8dee9; margin-bottom: 0; white-space: nowrap; }
     .attendance-time {
         font-family: Consolas, "Courier New", monospace;
         font-size: .9rem; direction: ltr; unicode-bidi: embed;
         display: inline-block; color: #334155; font-weight: 600;
     }
-    .attendance-hours { font-family: Consolas, "Courier New", monospace; font-weight: 700; color: #4338ca; }
+    .attendance-hours { font-family: Consolas, "Courier New", monospace; font-weight: 700; color: #AB9C74; }
 
     .calendar-card { min-height: 480px; }
     .calendar-day { height: 90px; cursor: pointer; vertical-align: top; text-align: right; padding: 8px !important; }
     .calendar-day:hover { background-color: #f8f9fa; }
     .day-number { font-weight: bold; font-size: 14px; }
     .empty-day { background-color: #fdfdfd; }
+
+    .team-calendar-card {
+        background: #002623;
+        border: 1px solid rgba(185, 167, 121, 0.35);
+        box-shadow: 0 18px 42px rgba(0, 38, 35, 0.18);
+    }
+    .team-calendar-table {
+        background: #002623;
+        color: #edebe0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .team-calendar-table thead th {
+        background: rgba(15, 43, 41, 0.98);
+        color: #b9a779;
+        border-color: rgba(185, 167, 121, 0.42);
+        font-weight: 800;
+        font-size: 0.8rem;
+    }
+    .team-calendar-table td {
+        background: rgba(0, 38, 35, 0.78);
+        border-color: rgba(185, 167, 121, 0.28);
+        color: #edebe0;
+        padding: 0.6rem 0.35rem;
+        cursor: pointer;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .team-calendar-table td:hover {
+        box-shadow: inset 0 0 0 1px rgba(185, 167, 121, 0.8);
+        transform: translateY(-1px);
+    }
+    .team-calendar-table .empty-day {
+        background: rgba(237, 235, 224, 0.02);
+        cursor: default;
+    }
+    .team-day-number {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: #edebe0;
+        margin-bottom: 0.35rem;
+    }
+    .team-day-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 58px;
+        border-radius: 999px;
+        padding: 0.18rem 0.5rem;
+        font-size: 0.72rem;
+        font-weight: 900;
+        line-height: 1.6;
+        border: 1px solid rgba(185, 167, 121, 0.32);
+        background: rgba(185, 167, 121, 0.12);
+        color: #002623;
+        margin-bottom: 0.25rem;
+    }
+    .team-day-pill.high { background: #b9a779; color: #002623; }
+    .team-day-pill.medium { background: rgba(185, 167, 121, 0.18); color: #edebe0; }
+    .team-day-pill.low { background: rgba(15, 23, 42, 0.5); color: #edebe0; border-color: rgba(185, 167, 121, 0.42); }
+    .team-day-meta {
+        font-size: 0.62rem;
+        color: #d7d3c5;
+    }
+    .team-day-meta strong { color: #f4efe6; }
 
     .stat-card { border-radius: 14px; }
     .chart-box { position: relative; height: 300px; }
@@ -38,81 +103,517 @@
         background: #f1f5f9; color: #475569;
         font-weight: 800; font-size: .76rem; letter-spacing: .02em;
     }
-    .roster-table { --bs-table-hover-bg: #eef4ff; }
+    .roster-table { --bs-table-hover-bg: #F2EDE0; }
     .day-details-modal .roster-tablewrap { max-height: 55vh; overflow-y: auto; }
     @media (max-width: 767px) { .attendance-toolbar { justify-content: center; } }
+
+    .schedule-tabs { gap: 8px; }
+    .schedule-tabs .nav-link {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 9px 22px; border-radius: 999px; font-weight: 800; font-size: .88rem;
+        color: #edebe0; background: #002623; border: 1px solid #988561; transition: all .2s ease;
+    }
+    .schedule-tabs .nav-link:hover { color: #b9a779; background: #0b2f2b; border-color: #b9a779; }
+    .schedule-tabs .nav-link.active {
+        color: #002623; background: #edebe0; border-color: #b9a779;
+        box-shadow: 0 10px 22px rgba(185,167,121,.35);
+    }
+
+    .lv-panel { padding: 20px 22px; border-radius: 18px; background: #fff; border: 1px solid #DFD9C2; box-shadow: 0 10px 26px rgba(15,23,42,.05); margin-bottom: 22px; }
+    .lv-panel label { color: #6E6A86; font-size: .74rem; font-weight: 700; margin-bottom: 5px; }
+    .lv-panel .form-control, .lv-panel .form-select { min-height: 43px; border-radius: 12px; border-color: #E7E3F5; transition: border-color .2s ease, box-shadow .2s ease; }
+    .lv-panel .form-control:focus, .lv-panel .form-select:focus { border-color: #D8CBA6; box-shadow: 0 0 0 3px rgba(185,167,121,.14); }
+    .btn-violet-solid { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 40px; border: 0; border-radius: 10px; color: #fff; background: linear-gradient(135deg, #B9A779, #D8CBA6); font-size: .84rem; font-weight: 800; box-shadow: 0 8px 18px rgba(185,167,121,.28); transition: transform .2s ease, filter .2s ease; }
+    .btn-violet-solid:hover { transform: translateY(-2px); filter: brightness(1.07); color: #fff; }
+    .btn-primary-solid { display: inline-flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 24px; border-radius: 14px; background: linear-gradient(135deg, #B9A779, #D8CBA6); color: #fff !important; font-weight: 800; font-size: .9rem; border: 0; text-decoration: none; box-shadow: 0 12px 26px rgba(185,167,121,.35); transition: transform .25s ease, box-shadow .25s ease, filter .25s ease; }
+    .btn-primary-solid:hover { transform: translateY(-2px) scale(1.02); color: #fff !important; background: linear-gradient(135deg, #988561, #B9A779); box-shadow: 0 18px 40px rgba(185,167,121,.5); filter: brightness(1.06); }
+    .btn-primary-solid i { transition: transform .25s ease; }
+    .btn-primary-solid:hover i { transform: rotate(-8deg) scale(1.12); }
+    .reset-chip { display: inline-flex; align-items: center; gap: 7px; padding: 7px 16px; border-radius: 999px; color: #DC2626; background: rgba(220,38,38,.07); border: 1px solid rgba(220,38,38,.22); font-size: .76rem; font-weight: 800; text-decoration: none; transition: all .2s ease; }
+    .reset-chip:hover { background: rgba(220,38,38,.13); color: #B91C1C; }
+
+    .lv-card { overflow: hidden; border: 1px solid #DFD9C2; border-radius: 18px; background: #fff; box-shadow: 0 14px 34px rgba(0,38,35,.06); }
+    .lv-card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 18px 20px 14px; border-bottom: 1px solid #F0EDFA; }
+    .lv-card-head h5 { display: flex; align-items: center; gap: 10px; margin: 0; color: var(--brand-night); font-size: .98rem; font-weight: 800; }
+    .lv-card-head h5 i { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: rgba(185,167,121,.11); color: #B9A779; font-size: .85rem; }
+    .lv-card-head p { margin: 0; color: #9B95B5; font-size: .75rem; }
+
+    .leaves-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+    .leaves-table thead th { background: #FAF9FE; color: #6E6A86; font-size: .72rem; font-weight: 800; letter-spacing: .02em; padding: 13px 14px; border-bottom: 1px solid #DFD9C2; white-space: nowrap; }
+    .leaves-table td { padding: 13px 14px; border-bottom: 1px dashed #F3F1FA; vertical-align: middle; }
+    .leaves-table tbody tr:last-child td { border-bottom: 0; }
+    .leaves-table tbody tr { transition: background .18s ease; }
+    .leaves-table tbody tr:hover td { background: #FBFAFE; }
+
+    .emp-cell { display: flex; align-items: center; gap: 10px; }
+    .emp-bubble { flex: 0 0 36px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px; color: #fff; font-weight: 800; font-size: .9rem; box-shadow: 0 6px 14px rgba(0,38,35,.16); }
+    .av-violet { background: linear-gradient(135deg,#B9A779,#D8CBA6); }
+    .av-teal { background: linear-gradient(135deg,#B9A779,#988561); }
+    .av-gold { background: linear-gradient(135deg,#B9A779,#988561); color:#241A05; }
+    .av-plum { background: linear-gradient(135deg,#988561,#D8CBA6); }
+    .emp-name { color: var(--brand-night); font-weight: 700; font-size: .82rem; }
+    .emp-id { display: block; color: #9B95B5; font-size: .68rem; font-weight: 600; margin-top: 2px; }
+
+    .type-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 13px; border-radius: 999px; font-size: .72rem; font-weight: 800; }
+    .type-ANNUAL { color: #988561; background: rgba(185,167,121,.11); border: 1px solid rgba(185,167,121,.3); }
+    .type-SICK { color: #988561; background: rgba(185,167,121,.15); border: 1px solid rgba(185,167,121,.4); }
+    .type-UNPAID { color: #4A4560; background: #F1EEFA; border: 1px solid #E4E1FB; }
+    .type-EMERGENCY { color: #B91C1C; background: rgba(220,38,38,.08); border: 1px solid rgba(220,38,38,.25); }
+
+    .date-range { white-space: nowrap; color: #4A4560; font-size: .78rem; font-weight: 600; }
+    .date-range i { color: #D8CBA6; margin-inline-end: 6px; }
+
+    .ai-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 14px; border-radius: 999px; font-size: .72rem; font-weight: 800; border: 1px solid transparent; white-space: nowrap; }
+    .ai-approved { color: #988561; background: rgba(185,167,121,.11); border-color: rgba(185,167,121,.32); }
+    .ai-rejected { color: #B91C1C; background: rgba(220,38,38,.08); border-color: rgba(220,38,38,.25); }
+    .ai-waiting { color: #6E6A86; background: #F1ECDD; border-color: #E4E1FB; }
+
+    .status-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 999px; font-size: .72rem; font-weight: 800; border: 1px solid transparent; }
+    .st-pending { color: #B4540A; background: rgba(185,167,121,.16); border-color: rgba(185,167,121,.45); }
+    .st-pending i { animation: pulse-dot 1.6s ease infinite; }
+    .st-approved { color: #988561; background: rgba(185,167,121,.11); border-color: rgba(185,167,121,.3); }
+    .st-rejected { color: #B91C1C; background: rgba(220,38,38,.08); border-color: rgba(220,38,38,.25); }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+    .view-btn { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 11px; color: #B9A779; background: rgba(185,167,121,.09); border: 1px solid rgba(185,167,121,.25); text-decoration: none; transition: all .2s ease; }
+    .view-btn:hover { color: #fff; background: linear-gradient(135deg, #B9A779, #D8CBA6); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(185,167,121,.3); }
+    .act-cell { display: inline-flex; align-items: center; gap: 8px; }
+
+    .req-cell { display: flex; flex-direction: column; gap: 2px; }
+    .req-id { color: var(--brand-night); font-weight: 800; font-size: .82rem; }
+    .req-date { color: #9B95B5; font-size: .7rem; font-weight: 600; }
+
+    .empty-row { padding: 54px 20px !important; color: #9B95B5; text-align: center; font-size: .86rem; }
+    .empty-row i { display: block; margin-bottom: 10px; font-size: 1.5rem; color: #C9C3E3; }
+
+    .export-btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 18px; border-radius: 999px; color: #988561; background: rgba(185,167,121,.09); border: 1px solid rgba(185,167,121,.3); font-size: .76rem; font-weight: 800; text-decoration: none; transition: all .2s ease; }
+    .export-btn:hover { color: #fff; background: linear-gradient(135deg, #B9A779, #988561); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(185,167,121,.3); }
+    .balance-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; color: #2B2545; background: #F1ECDD; border: 1px solid #E4E1FB; font-size: .74rem; font-weight: 800; white-space: nowrap; }
+    .balance-bar { height: 9px; border-radius: 999px; background: #F1EEFA; overflow: hidden; min-width: 120px; }
+    .balance-bar > div { height: 100%; border-radius: 999px; transition: width .6s ease; }
+    .bar-ok { background: linear-gradient(90deg, #B9A779, #988561); }
+    .bar-low { background: linear-gradient(90deg, #F87171, #DC2626); }
+    .balance-types { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: .72rem; font-weight: 700; }
+    .bt-annual { color: #988561; } .bt-sick { color: #988561; } .bt-emergency { color: #E11D48; }
+
+    .ldm-cover { position: relative; overflow: hidden; border-radius: 14px; padding: 16px 18px; color: #fff; background: linear-gradient(120deg,#002623,#7A6F4A 60%,#B9A779); margin: -14px -16px 14px; }
+    .ldm-cover h5 { margin: 0; font-weight: 800; }
+    .ldm-cover small { opacity: .85; }
+    .ldm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .ldm-grid .lbl { color:#6E6A86; font-size:.7rem; font-weight:700; display:block; margin-bottom:3px; }
+    .ldm-grid .val { color:var(--brand-night,#002623); font-size:.86rem; font-weight:800; }
+    .ldm-reason { background:#FAF9FE; border:1px solid #DFD9C2; border-radius:12px; padding:12px; font-size:.85rem; line-height:1.7; color:#4A4560; white-space:pre-wrap; margin-top:14px; }
+    .ldm-ai { margin-top:14px; }
+
+    /* ================================================================
+       STRICT TABLE & FILTER OVERRIDES (exact spec)
+       Rows: #edebe0, text: #988561 — ALL rows regardless of status.
+       Header / filter bar: #002623, text: #b9a779. Borders: #002623.
+       ================================================================ */
+    .attendance-toolbar {
+        background-color: #002623 !important;
+        border-bottom: 1px solid #b9a779 !important;
+    }
+    .attendance-toolbar label {
+        color: #b9a779 !important;
+    }
+    .attendance-toolbar select,
+    .attendance-toolbar select option {
+        background-color: #002623 !important;
+        color: #b9a779 !important;
+        font-weight: bold !important;
+        border: 1px solid #b9a779 !important;
+    }
+    .attendance-table thead tr,
+    .attendance-table thead th {
+        background-color: #002623 !important;
+        color: #b9a779 !important;
+        font-weight: bold !important;
+        border: 1px solid #002623 !important;
+        vertical-align: middle !important;
+    }
+    .attendance-table tbody tr,
+    .attendance-table tbody td {
+        background-color: #edebe0 !important;
+        color: #988561 !important;
+        font-weight: bold !important;
+        border: 1px solid #002623 !important;
+        vertical-align: middle !important;
+    }
+    /* Uniform text inside all cells (time & hour spans) */
+    .attendance-table .attendance-time,
+    .attendance-table .attendance-hours {
+        color: #988561 !important;
+        font-weight: bold !important;
+    }
+
+    .personal-filter {
+        display: flex;
+        align-items: end;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+        padding: 12px;
+        background: #002623;
+        border: 1px solid #988561;
+        border-radius: 10px;
+    }
+    .personal-filter label {
+        display: block;
+        margin-bottom: 4px;
+        color: #b9a779;
+        font-size: .78rem;
+        font-weight: 700;
+    }
+    .personal-filter select {
+        min-width: 130px;
+        padding: 6px 10px;
+        background: #edebe0;
+        border: 1px solid #988561;
+        border-radius: 6px;
+        color: #002623;
+        font-weight: 700;
+    }
+    .personal-filter button {
+        padding: 7px 16px;
+        background: #b9a779;
+        border: 1px solid #b9a779;
+        border-radius: 6px;
+        color: #002623;
+        font-weight: 700;
+    }
+
+    /* ================================================================
+       STRICT SCOPED TABLE STYLING FOR EMPLOYEE ATTENDANCE PAGE ONLY
+       Overrides the above rules ONLY for employee attendance container
+       ================================================================ */
+    .employee-attendance-container .attendance-table tbody td,
+    .employee-attendance-container .attendance-table tbody td *,
+    .employee-attendance-container .attendance-table tbody td .attendance-time,
+    .employee-attendance-container .attendance-table tbody td .attendance-hours,
+    .employee-attendance-container .attendance-table tbody td .badge,
+    .employee-attendance-container .attendance-table tbody td .badge *,
+    .employee-attendance-container .attendance-table tbody td span,
+    .employee-attendance-container .attendance-table tbody td span *,
+    .employee-attendance-container .attendance-table tbody td i,
+    .employee-attendance-container .attendance-table tbody td i * {
+        color: #002623 !important;
+        font-weight: bold !important;
+        opacity: 1 !important;
+    }
+
+    /* Force badge colors to be overridden in default state */
+    .employee-attendance-container .attendance-table tbody td .badge.text-success,
+    .employee-attendance-container .attendance-table tbody td .badge.text-success *,
+    .employee-attendance-container .attendance-table tbody td .badge.text-warning,
+    .employee-attendance-container .attendance-table tbody td .badge.text-warning *,
+    .employee-attendance-container .attendance-table tbody td .badge.text-danger,
+    .employee-attendance-container .attendance-table tbody td .badge.text-danger *,
+    .employee-attendance-container .attendance-table tbody td .badge.text-info,
+    .employee-attendance-container .attendance-table tbody td .badge.text-info *,
+    .employee-attendance-container .attendance-table tbody td .badge.text-secondary,
+    .employee-attendance-container .attendance-table tbody td .badge.text-secondary * {
+        color: #002623 !important;
+    }
+
+    .employee-attendance-container .attendance-table tbody tr,
+    .employee-attendance-container .attendance-table tbody td {
+        background-color: #edebe0 !important;
+    }
+
+    .employee-attendance-container .attendance-table tbody tr:hover,
+    .employee-attendance-container .attendance-table tbody tr:hover td {
+        background-color: #b9a779 !important;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    .employee-attendance-container .attendance-table tbody tr:hover td,
+    .employee-attendance-container .attendance-table tbody tr:hover td *,
+    .employee-attendance-container .attendance-table tbody tr:hover td .attendance-time,
+    .employee-attendance-container .attendance-table tbody tr:hover td .attendance-hours,
+    .employee-attendance-container .attendance-table tbody tr:hover td .badge,
+    .employee-attendance-container .attendance-table tbody tr:hover td .badge *,
+    .employee-attendance-container .attendance-table tbody tr:hover td span,
+    .employee-attendance-container .attendance-table tbody tr:hover td span *,
+    .employee-attendance-container .attendance-table tbody tr:hover td i,
+    .employee-attendance-container .attendance-table tbody tr:hover td i * {
+        color: #002623 !important;
+    }
+
+    /* Force badge colors to be overridden during hover */
+    .employee-attendance-container .attendance-table tbody tr:hover td .badge.text-success,
+    .employee-attendance-container .attendance-table tbody tr:hover td .badge.text-success *,
+    .employee-attendance-container .attendance-table tbody tr:hover td .badge.text-warning,
+    .employee-attendance-container .attendance-table tbody tr:hover td .badge.text-warning *,
+    .employee-attendance-container .attendance-table tbody tr:hover td .badge.text-danger,
+    .employee-attendance-container .attendance-table tbody tr:hover td .badge.text-danger *,
+    .employee-attendance-container .attendance-table tbody tr:hover td .badge.text-info,
+    .employee-attendance-container .attendance-table tbody tr:hover td .badge.text-info *,
+    .employee-attendance-container .attendance-table tbody tr:hover td .badge.text-secondary,
+    .employee-attendance-container .attendance-table tbody tr:hover td .badge.text-secondary * {
+        color: #002623 !important;
+    }
+
+    /* RTL filter dropdowns ("كل الشهور" / "السنة" / "كل السنوات") —
+       arrow placed on the LEFT, custom padding so it never overlaps text */
+    .attendance-toolbar select,
+    .attendance-toolbar .form-select {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        background-color: #002623 !important;
+        color: #b9a779 !important;
+        font-weight: bold !important;
+        border: 1px solid #b9a779 !important;
+        border-radius: 8px !important;
+        text-align-last: center !important;
+        text-align: center !important;
+        padding: 4px 12px 4px 28px !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23b9a779' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+        background-size: 14px 10px !important;
+        background-position: left 10px center !important;
+        background-repeat: no-repeat !important;
+    }
+
+    /* ================================================================
+       DARK BRAND OVERRIDES FOR TEAM DAILY ATTENDANCE MODAL ONLY
+       ================================================================ */
+    .day-details-modal .modal-content {
+        background-color: #002623 !important;
+        border: 1px solid #b9a779 !important;
+        border-radius: 16px !important;
+        color: #edebe0 !important;
+        box-shadow: 0 18px 42px rgba(0, 38, 35, 0.35) !important;
+    }
+    .day-details-modal .modal-header {
+        background-color: #002623 !important;
+        border-bottom: 1px solid rgba(185, 167, 121, 0.25) !important;
+        color: #edebe0 !important;
+    }
+    .day-details-modal .modal-title {
+        color: #b9a779 !important;
+        font-weight: bold !important;
+    }
+    .day-details-modal .btn-close {
+        filter: invert(72%) sepia(21%) saturate(566%) brightness(88%) contrast(87%) !important;
+        opacity: 1 !important;
+        color: #b9a779 !important;
+        font-size: 1.2rem !important;
+    }
+    .day-details-modal .roster-tablewrap {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+    .day-details-modal .roster-table thead th,
+    .day-details-modal .roster-table thead tr {
+        background-color: #00332f !important;
+        color: #b9a779 !important;
+        border-bottom: 1px solid #b9a779 !important;
+        font-weight: 600 !important;
+    }
+    .day-details-modal .roster-table tbody tr,
+    .day-details-modal .roster-table tbody td,
+    .day-details-modal .roster-table tbody td * {
+        background-color: transparent !important;
+        color: #edebe0 !important;
+        border-bottom: 1px solid rgba(185, 167, 121, 0.2) !important;
+    }
+    .day-details-modal .roster-table tbody tr:hover,
+    .day-details-modal .roster-table tbody tr:hover td,
+    .day-details-modal .roster-table tbody tr:hover td * {
+        background-color: rgba(185, 167, 121, 0.08) !important;
+        color: #edebe0 !important;
+    }
+    .day-details-modal .roster-table td strong,
+    .day-details-modal .roster-table td .fw-bold,
+    .day-details-modal .roster-table td .employee-name,
+    .day-details-modal .roster-table td .emp-name {
+        color: #edebe0 !important;
+        font-weight: bold !important;
+    }
+    .day-details-modal .roster-table td small,
+    .day-details-modal .roster-table td .text-muted,
+    .day-details-modal .roster-table td .role-subtitle {
+        color: #988561 !important;
+        font-size: 0.85rem !important;
+    }
+    .day-details-modal .roster-table td:nth-child(2),
+    .day-details-modal .roster-table td:nth-child(3),
+    .day-details-modal .roster-table td:nth-child(2) *,
+    .day-details-modal .roster-table td:nth-child(3) *,
+    .day-details-modal .roster-table td:nth-child(2) .attendance-time,
+    .day-details-modal .roster-table td:nth-child(3) .attendance-time,
+    .day-details-modal .roster-table td:nth-child(2) span,
+    .day-details-modal .roster-table td:nth-child(3) span {
+        color: #edebe0 !important;
+        font-family: monospace, sans-serif !important;
+    }
+    .day-details-modal .badge,
+    .day-details-modal .badge * {
+        font-weight: 600 !important;
+    }
+    .day-details-modal .badge.bg-success,
+    .day-details-modal .badge.bg-success-subtle,
+    .day-details-modal .badge.text-success {
+        background-color: rgba(40, 167, 69, 0.2) !important;
+        color: #51cf66 !important;
+        border: 1px solid #51cf66 !important;
+    }
+    .day-details-modal .badge.bg-danger,
+    .day-details-modal .badge.bg-danger-subtle,
+    .day-details-modal .badge.text-danger {
+        background-color: rgba(220, 53, 69, 0.2) !important;
+        color: #ff6b6b !important;
+        border: 1px solid #ff6b6b !important;
+    }
+    .day-details-modal .badge.bg-warning,
+    .day-details-modal .badge.bg-warning-subtle,
+    .day-details-modal .badge.text-warning {
+        background-color: rgba(255, 193, 7, 0.18) !important;
+        color: #ffd76a !important;
+        border: 1px solid #ffd76a !important;
+    }
+    .day-details-modal .badge.bg-secondary,
+    .day-details-modal .badge.bg-secondary-subtle,
+    .day-details-modal .badge.text-secondary {
+        background-color: rgba(185, 167, 121, 0.1) !important;
+        color: #988561 !important;
+        border: 1px solid #988561 !important;
+    }
+    .day-details-modal .badge.bg-info,
+    .day-details-modal .badge.bg-info-subtle,
+    .day-details-modal .badge.text-info {
+        background-color: #b9a779 !important;
+        color: #002623 !important;
+        border: 1px solid #b9a779 !important;
+        font-weight: bold !important;
+    }
+    .day-details-modal .modal-body {
+        background-color: #002623 !important;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid px-3 px-lg-4 py-4">
 
-    {% if view_role == 'HR' %}
-    <!-- ================= HR VIEW: CHARTS & ANALYTICS ================= -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-        <div>
-            <h4 class="fw-bold mb-1 text-dark">لوحة تحليلات الحضور والإجازات</h4>
-            <small class="text-muted">نظرة شاملة على نسب الحضور وتوزيع الإجازات المعتمدة لكل الأقسام</small>
-        </div>
-        <a href="?export=excel" class="btn btn-sm btn-success"><i class="fa-solid fa-file-excel me-1"></i>تصدير Excel</a>
-    </div>
+    <!-- Schedule & Leaves tab switcher -->
+    <ul class="nav nav-pills schedule-tabs mb-4" id="scheduleTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'personal' %}active{% endif %}" id="personal-tab" data-bs-toggle="pill" data-bs-target="#tab-personal" type="button" role="tab" aria-controls="tab-personal" aria-selected="{% if active_tab == 'personal' %}true{% else %}false{% endif %}">
+                <i class="fa-solid fa-calendar-check"></i> جدول دوامي
+            </button>
+        </li>
+        {% if view_role == 'MANAGER' %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'team' %}active{% endif %}" id="team-tab" data-bs-toggle="pill" data-bs-target="#tab-team" type="button" role="tab" aria-controls="tab-team" aria-selected="{% if active_tab == 'team' %}true{% else %}false{% endif %}">
+                <i class="fa-solid fa-users"></i> سجل دوام الفريق
+            </button>
+        </li>
+        {% endif %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'leaves' %}active{% endif %}" id="leaves-tab" data-bs-toggle="pill" data-bs-target="#tab-leaves" type="button" role="tab" aria-controls="tab-leaves" aria-selected="false">
+                <i class="fa-solid fa-calendar-days"></i> الإجازات
+            </button>
+        </li>
+    </ul>
 
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm p-3 stat-card">
-                <div class="d-flex align-items-center gap-3">
-                    <span class="rounded-3 p-3" style="background:#eef2ff;"><i class="fa-solid fa-building text-primary"></i></span>
-                    <div>
-                        <div class="text-muted small">عدد الأقسام</div>
-                        <div class="fs-4 fw-bold">{{ dept_count|default:0 }}</div>
+    <div class="tab-content" id="scheduleTabContent">
+        <!-- ===== Tab: جدول دوامي (Personal Schedule) ===== -->
+        <div class="tab-pane fade {% if active_tab == 'personal' %}show active{% endif %}" id="tab-personal" role="tabpanel" aria-labelledby="personal-tab" tabindex="0">
+            <div class="employee-attendance-container">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+                <div>
+                    <h4 class="fw-bold mb-1 text-dark">سجل دوامي الشخصي</h4>
+                    <small class="text-muted">جدول شهري كامل لحضورك مع تفاصيل الدخول والخروج</small>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2">
+                        <i class="fa-solid fa-clock me-1"></i> إجمالي ساعات العمل: {{ total_working_hours_text|default:"0 ساعة" }}
+                    </span>
+                    <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2">
+                        <i class="fa-solid fa-calendar-check me-1"></i> أيام الحضور: {{ days_present|default:0 }}
+                    </span>
+                </div>
+            </div>
+
+            <form method="get" class="personal-filter" aria-label="فلترة سجل الدوام الشخصي">
+                <input type="hidden" name="tab" value="personal">
+                <div>
+                    <label for="personal-year">السنة</label>
+                    <select id="personal-year" name="year">
+                        {% for year in available_years %}
+                        <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="personal-month">الشهر</label>
+                    <select id="personal-month" name="month">
+                        {% for number, name in months_list %}
+                        <option value="{{ number }}" {% if selected_month == number %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit">تطبيق الفلتر</button>
+            </form>
+
+            <div class="card border-0 shadow-sm attendance-card">
+                <div class="card-body p-0">
+                    <div class="table-responsive attendance-tablewrap">
+                        <table class="table table-hover table-striped table-bordered align-middle text-center attendance-table mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">اسم اليوم</th>
+                                    <th scope="col">التاريخ</th>
+                                    <th scope="col">توقيت الدخول</th>
+                                    <th scope="col">توقيت الخروج</th>
+                                    <th scope="col">إجمالي ساعات العمل</th>
+                                    <th scope="col">الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in attendance_rows %}
+                                <tr {% if row.is_today %}style="background-color: #f0e6d8 !important; border: 2px solid #b9a779;"{% endif %}>
+                                    <td class="fw-semibold">{{ row.day_name }}</td>
+                                    <td>{{ row.date|date:"Y-m-d" }}</td>
+                                    <td><span class="attendance-time">{{ row.check_in|date:"h:i A"|default:"--:--" }}</span></td>
+                                    <td><span class="attendance-time">{{ row.check_out|date:"h:i A"|default:"--:--" }}</span></td>
+                                    <td class="attendance-hours">{% if row.working_hours_readable %}{{ row.working_hours_readable }}{% else %}—{% endif %}</td>
+                                    <td>
+                                        {% if row.check_in or row.check_out or row.status %}
+                                            {% if row.status == 'حاضر' %}
+                                            <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2"><i class="fa-solid fa-circle-check me-1"></i>حاضر</span>
+                                            {% elif row.status == 'تأخير' %}
+                                            <span class="badge rounded-pill bg-warning-subtle text-warning px-3 py-2"><i class="fa-solid fa-clock me-1"></i>متأخر</span>
+                                            {% elif row.status == 'غائب' %}
+                                            <span class="badge rounded-pill bg-danger-subtle text-danger px-3 py-2"><i class="fa-solid fa-circle-xmark me-1"></i>غائب</span>
+                                            {% else %}
+                                            <span class="badge rounded-pill bg-secondary-subtle text-secondary px-3 py-2">{{ row.status }}</span>
+                                            {% endif %}
+                                        {% elif row.is_friday %}
+                                        <span class="badge rounded-pill bg-info-subtle text-info px-3 py-2"><i class="fa-solid fa-mug-hot me-1"></i>عطلة أسبوعية</span>
+                                        {% elif row.is_future %}
+                                        <span class="badge rounded-pill bg-secondary-subtle text-secondary px-3 py-2"><i class="fa-solid fa-hourglass-start me-1"></i>قادم</span>
+                                        {% elif row.is_today %}
+                                        <span class="badge rounded-pill bg-light text-secondary px-3 py-2"><i class="fa-solid fa-hourglass-half me-1"></i>لم يُسجل بعد</span>
+                                        {% else %}
+                                        <span class="badge rounded-pill bg-danger-subtle text-danger px-3 py-2"><i class="fa-solid fa-circle-xmark me-1"></i>غائب</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm p-3 stat-card">
-                <div class="d-flex align-items-center gap-3">
-                    <span class="rounded-3 p-3" style="background:#dcfce7;"><i class="fa-solid fa-user-check text-success"></i></span>
-                    <div>
-                        <div class="text-muted small">الحضور اليوم ({{ today_iso }})</div>
-                        <div class="fs-4 fw-bold">{{ today_present|default:0 }} <small class="text-muted fs-6">من {{ today_total|default:0 }}</small></div>
-                    </div>
-                </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm p-3 stat-card">
-                <div class="d-flex align-items-center gap-3">
-                    <span class="rounded-3 p-3" style="background:#fef3c7;"><i class="fa-solid fa-umbrella-beach text-warning"></i></span>
-                    <div>
-                        <div class="text-muted small">إجازات معتمدة (كلياً)</div>
-                        <div class="fs-4 fw-bold">{{ leave_values|length }} أنواع</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="row g-4">
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm p-3">
-                <h5 class="fw-bold mb-3">نسبة الحضور لكل قسم (%)</h5>
-                <div class="chart-box">
-                    <canvas id="deptAttendanceChart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm p-3">
-                <h5 class="fw-bold mb-3">توزيع الإجازات والحضور اليومي</h5>
-                <div class="chart-box">
-                    <canvas id="leaveDistributionChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {% elif view_role == 'MANAGER' %}
+        <!-- ===== Tab: سجل دوام الفريق (Team Schedule) - Manager Only ===== -->
+        {% if view_role == 'MANAGER' %}
+        <div class="tab-pane fade {% if active_tab == 'team' %}show active{% elif active_tab != 'personal' and active_tab != 'leaves' %}show active{% endif %}" id="tab-team" role="tabpanel" aria-labelledby="team-tab" tabindex="0">
     <!-- ================= MANAGER VIEW: INTERACTIVE TEAM CALENDAR ================= -->
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
         <div>
@@ -129,7 +630,7 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm p-4 calendar-card">
+    <div class="card border-0 shadow-sm p-4 calendar-card team-calendar-card">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <button class="btn btn-outline-primary btn-sm" id="managerPrevMonth"><i class="bi bi-chevron-right"></i> الشهر السابق</button>
             <h4 class="fw-bold mb-0" id="managerMonthTitle">{{ team_month_data.0.date|slice:":7"|default:manager_month }}</h4>
@@ -137,112 +638,245 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table table-bordered text-center align-middle" style="table-layout: fixed;">
-                <thead class="table-light">
+            <table class="table table-bordered text-center align-middle team-calendar-table" style="table-layout: fixed;">
+                <thead>
                     <tr>
-                        <th style="width: 14.28%;">الأحد</th>
-                        <th style="width: 14.28%;">الأثنين</th>
-                        <th style="width: 14.28%;">الثلاثاء</th>
-                        <th style="width: 14.28%;">الأربعاء</th>
-                        <th style="width: 14.28%;">الخميس</th>
-                        <th style="width: 14.28%;">الجمعة</th>
-                        <th style="width: 14.28%;">السبت</th>
+                        <th style="width:14.28%;">الأحد</th>
+                        <th style="width:14.28%;">الإثنين</th>
+                        <th style="width:14.28%;">الثلاثاء</th>
+                        <th style="width:14.28%;">الأربعاء</th>
+                        <th style="width:14.28%;">الخميس</th>
+                        <th style="width:14.28%;">الجمعة</th>
+                        <th style="width:14.28%;">السبت</th>
                     </tr>
                 </thead>
                 <tbody id="managerCalendarBody"></tbody>
             </table>
         </div>
-        <small class="text-muted mt-2 d-block"><i class="bi bi-hand-index-thumb me-1"></i>اضغط على أي يوم لعرض قائمة الأعضاء وتفاصيل دوامهم وإجازاتهم.</small>
+        <small class="text-muted mt-2 d-block"><i class="bi bi-hand-index-thumb me-1"></i>اضغط على أي يوم لعرض تفاصيل حضور الفريق لهذا التاريخ.</small>
     </div>
 
     {{ team_month_data|json_script:"teamMonthData" }}
-
-    {% else %}
-    <!-- ================= EMPLOYEE VIEW: PERSONAL LOG ================= -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-        <div>
-            <h4 class="fw-bold mb-1 text-dark">سجل دوامي الشخصي</h4>
-            <small class="text-muted">سجل حضورك الشخصي مع تفاصيل الدخول والخروج</small>
         </div>
-        <div class="d-flex align-items-center gap-2 flex-wrap">
-            <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2">
-                <i class="fa-solid fa-calendar-check me-1"></i> أيام الحضور: {{ days_present|default:0 }}
-            </span>
-            <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2">
-                <i class="fa-solid fa-clock me-1"></i> إجمالي الساعات: {{ total_working_hours|default:0 }} ساعة
-            </span>
+        {% endif %}
         </div>
-    </div>
 
-    <div class="card border-0 shadow-sm attendance-card">
-        <form method="get" class="attendance-toolbar d-flex flex-wrap align-items-center gap-2 px-4 py-3">
-            <div class="d-flex flex-wrap align-items-center gap-2">
-                <label for="att_month" class="form-label small fw-semibold text-muted mb-0"><i class="fa-solid fa-calendar-days me-1"></i>الشهر</label>
-                <select name="month" id="att_month" class="form-select form-select-sm w-auto">
-                    <option value="">كل الشهور</option>
-                    {% for number, name in month_options %}<option value="{{ number }}" {% if selected_month == number|stringformat:"s" %}selected{% endif %}>{{ name }}</option>{% endfor %}
-                </select>
-                <label for="att_year" class="form-label small fw-semibold text-muted mb-0">السنة</label>
-                <select name="year" id="att_year" class="form-select form-select-sm w-auto">
-                    <option value="">كل السنوات</option>
-                    {% for year_value in year_options %}<option value="{{ year_value }}" {% if selected_year == year_value|stringformat:"s" %}selected{% endif %}>{{ year_value }}</option>{% endfor %}
-                </select>
-                <button type="submit" class="btn btn-sm btn-primary"><i class="fa-solid fa-filter me-1"></i>تصفية</button>
-                <a href="{% url 'attendance:attendance_list' %}" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-rotate-left me-1"></i>الكل</a>
-            </div>
-            <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
-                <a href="?{% if selected_month %}month={{ selected_month }}&{% endif %}{% if selected_year %}year={{ selected_year }}&{% endif %}export=excel" class="btn btn-sm btn-success"><i class="fa-solid fa-file-excel me-1"></i>تصدير Excel</a>
-                <a href="?{% if selected_month %}month={{ selected_month }}&{% endif %}{% if selected_year %}year={{ selected_year }}&{% endif %}export=pdf" class="btn btn-sm btn-danger"><i class="fa-solid fa-file-pdf me-1"></i>تصدير PDF</a>
-            </div>
-        </form>
-        <div class="card-body p-0">
-            <div class="table-responsive attendance-tablewrap">
-                <table class="table table-hover table-striped table-bordered align-middle text-center attendance-table mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th scope="col">اسم اليوم</th>
-                            <th scope="col">التاريخ</th>
-                            <th scope="col">توقيت الدخول</th>
-                            <th scope="col">توقيت الخروج</th>
-                            <th scope="col">إجمالي ساعات العمل</th>
-                            <th scope="col">الحالة</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for log in attendance_logs %}
-                        <tr>
-                            <td class="fw-semibold text-dark">{{ log.day_name }}</td>
-                            <td class="text-muted">{{ log.date|date:"Y-m-d" }}</td>
-                            <td><span class="attendance-time">{{ log.check_in|date:"h:i A"|default:"--:--" }}</span></td>
-                            <td><span class="attendance-time">{{ log.check_out|date:"h:i A"|default:"--:--" }}</span></td>
-                            <td class="attendance-hours">{{ log.get_working_hours }} ساعة</td>
-                            <td>
-                                {% if log.status == 'حاضر' %}
-                                <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2"><i class="fa-solid fa-circle-check me-1"></i>حاضر</span>
-                                {% elif log.status == 'تأخير' %}
-                                <span class="badge rounded-pill bg-warning-subtle text-warning px-3 py-2"><i class="fa-solid fa-clock me-1"></i>متأخر</span>
-                                {% elif log.status == 'غائب' %}
-                                <span class="badge rounded-pill bg-danger-subtle text-danger px-3 py-2"><i class="fa-solid fa-circle-xmark me-1"></i>غائب</span>
-                                {% elif log.status == 'إجازة' %}
-                                <span class="badge rounded-pill bg-info-subtle text-info px-3 py-2"><i class="fa-solid fa-umbrella-beach me-1"></i>إجازة</span>
-                                {% else %}
-                                <span class="badge rounded-pill bg-secondary-subtle text-secondary px-3 py-2">{{ log.status }}</span>
+        <!-- ================= LEAVES TAB ================= -->
+        <div class="tab-pane fade {% if active_tab == 'leaves' %}show active{% endif %}" id="tab-leaves" role="tabpanel" aria-labelledby="leaves-tab" tabindex="0">
+
+            <form method="get" class="lv-panel">
+                <input type="hidden" name="tab" value="leaves">
+                <div class="row g-2 align-items-end">
+                    {% if is_privileged %}
+                    <div class="col-lg-2 col-md-6">
+                        <label for="leave_q">بحث الموظف</label>
+                        <input type="text" name="q" id="leave_q" class="form-control" value="{{ request.GET.q|default:'' }}" placeholder="الاسم أو رقم الهوية">
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <label for="leave_department">القسم</label>
+                        <select name="department" id="leave_department" class="form-select">
+                            <option value="">جميع الأقسام</option>
+                            {% for department in departments %}<option value="{{ department.id }}" {% if request.GET.department == department.id|stringformat:'s' %}selected{% endif %}>{{ department.name }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <label for="leave_role">الدور</label>
+                        <select name="role" id="leave_role" class="form-select">
+                            <option value="">جميع الأدوار</option>
+                            {% for role_code, role_label in roles %}<option value="{{ role_code }}" {% if request.GET.role == role_code %}selected{% endif %}>{{ role_label }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <label for="leave_type_select">نوع الإجازة</label>
+                        <select name="leave_type" id="leave_type_select" class="form-select">
+                            <option value="">كل الأنواع</option>
+                            <option value="ANNUAL" {% if request.GET.leave_type == 'ANNUAL' %}selected{% endif %}>سنوية</option>
+                            <option value="SICK" {% if request.GET.leave_type == 'SICK' %}selected{% endif %}>مرضية</option>
+                            <option value="UNPAID" {% if request.GET.leave_type == 'UNPAID' %}selected{% endif %}>بدون راتب</option>
+                            <option value="EMERGENCY" {% if request.GET.leave_type == 'EMERGENCY' %}selected{% endif %}>طارئة</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <label for="leave_status">الحالة</label>
+                        <select name="status" id="leave_status" class="form-select">
+                            <option value="">كل الحالات</option>
+                            <option value="PENDING" {% if request.GET.status == 'PENDING' %}selected{% endif %}>معلق</option>
+                            <option value="APPROVED" {% if request.GET.status == 'APPROVED' %}selected{% endif %}>مقبول</option>
+                            <option value="REJECTED" {% if request.GET.status == 'REJECTED' %}selected{% endif %}>مرفوض</option>
+                            <option value="RECOMMENDED_AI" {% if request.GET.status == 'RECOMMENDED_AI' %}selected{% endif %}>موصى به من الذكاء الاصطناعي</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <button type="submit" class="btn-violet-solid mb-2"><i class="fa-solid fa-sliders"></i> تطبيق</button>
+                        <a href="{% url 'leaves:apply_leave' %}?next={% url 'attendance:attendance_list' %}?tab=leaves" class="btn-primary-solid d-inline-flex align-items-center justify-content-center gap-2" style="width:100%;min-height:40px;border-radius:10px;text-decoration:none;">
+                            <i class="fa-solid fa-plus"></i> تقديم طلب إجازة
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="col-lg-4 col-md-6">
+                        <label for="leave_type_select">نوع الإجازة</label>
+                        <select name="leave_type" id="leave_type_select" class="form-select">
+                            <option value="">كل الأنواع</option>
+                            <option value="ANNUAL" {% if request.GET.leave_type == 'ANNUAL' %}selected{% endif %}>سنوية</option>
+                            <option value="SICK" {% if request.GET.leave_type == 'SICK' %}selected{% endif %}>مرضية</option>
+                            <option value="UNPAID" {% if request.GET.leave_type == 'UNPAID' %}selected{% endif %}>بدون راتب</option>
+                            <option value="EMERGENCY" {% if request.GET.leave_type == 'EMERGENCY' %}selected{% endif %}>طارئة</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <label for="leave_status">الحالة</label>
+                        <select name="status" id="leave_status" class="form-select">
+                            <option value="">كل الحالات</option>
+                            <option value="PENDING" {% if request.GET.status == 'PENDING' %}selected{% endif %}>معلق</option>
+                            <option value="APPROVED" {% if request.GET.status == 'APPROVED' %}selected{% endif %}>مقبول</option>
+                            <option value="REJECTED" {% if request.GET.status == 'REJECTED' %}selected{% endif %}>مرفوض</option>
+                            <option value="RECOMMENDED_AI" {% if request.GET.status == 'RECOMMENDED_AI' %}selected{% endif %}>موصى به من الذكاء الاصطناعي</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <button type="submit" class="btn-violet-solid mb-2"><i class="fa-solid fa-sliders"></i> تطبيق</button>
+                        <a href="{% url 'leaves:apply_leave' %}?next={% url 'attendance:attendance_list' %}?tab=leaves" class="btn-primary-solid d-inline-flex align-items-center justify-content-center gap-2" style="width:100%;min-height:40px;border-radius:10px;text-decoration:none;">
+                            <i class="fa-solid fa-plus"></i> تقديم طلب إجازة
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% if request.GET.q or request.GET.department or request.GET.role or request.GET.leave_type or request.GET.status %}
+                <div class="mt-3 d-flex justify-content-end">
+                    <a href="{% url 'attendance:attendance_list' %}?tab=leaves" class="reset-chip"><i class="fa-solid fa-xmark"></i> مسح الفلاتر</a>
+                </div>
+                {% endif %}
+            </form>
+
+            <div class="lv-card mb-4">
+                <div class="lv-card-head">
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                        <h5 class="mb-0"><i class="fa-solid fa-list-check"></i> قائمة الطلبات</h5>
+                        <p class="mb-0">{{ filtered_count }} نتيجة</p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="{% url 'leaves:leave_list' %}?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}export=leaves" class="export-btn"><i class="fa-solid fa-file-excel"></i> تصدير Excel</a>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="leaves-table">
+                        <thead>
+                            <tr>
+                                {% if is_privileged %}<th>الموظف</th>{% endif %}
+                                <th>رقم الطلب / التاريخ</th>
+                                <th>نوع الإجازة</th>
+                                <th>من - إلى</th>
+                                <th>توصية الذكاء الاصطناعي (ML)</th>
+                                <th>حالة الطلب</th>
+                                <th class="text-center">الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for leave in leaves %}
+                            <tr>
+                                {% if is_privileged %}
+                                <td>
+                                    <div class="emp-cell">
+                                        <span class="emp-bubble {% cycle 'av-violet' 'av-teal' 'av-gold' 'av-plum' %}">{{ leave.employee.get_full_name|default:leave.employee|slice:":1" }}</span>
+                                        <div>
+                                            <span class="emp-name">{{ leave.employee.get_full_name|default:leave.employee }}</span>
+                                            <span class="emp-id">#{{ leave.employee_id }}</span>
+                                        </div>
+                                    </div>
+                                </td>
                                 {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-5">
-                                <i class="fa-solid fa-calendar-xmark me-2"></i>لا توجد سجلات حضور حتى الآن.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                                <td>
+                                    <div class="req-cell">
+                                        <span class="req-id">#{{ leave.pk }}</span>
+                                        <span class="req-date">{{ leave.created_at|date:"j/n/Y" }}</span>
+                                    </div>
+                                </td>
+                                <td><span class="type-chip type-{{ leave.leave_type }}"><i class="fa-solid {% if leave.leave_type == 'ANNUAL' %}fa-umbrella-beach{% elif leave.leave_type == 'SICK' %}fa-notes-medical{% elif leave.leave_type == 'UNPAID' %}fa-money-bill-wave{% else %}fa-bolt{% endif %}"></i> {{ leave.get_leave_type_display|default:leave.leave_type }}</span></td>
+                                <td><span class="date-range"><i class="fa-regular fa-calendar"></i>{{ leave.start_date }} ← {{ leave.end_date }}</span></td>
+                                <td>
+                                    {% if leave.ai_prediction == 'APPROVED' %}
+                                        <span class="ai-chip ai-approved"><i class="fa-solid fa-robot"></i> موصى بالقبول ({{ leave.ai_confidence }}%)</span>
+                                    {% elif leave.ai_prediction == 'REJECTED' %}
+                                        <span class="ai-chip ai-rejected"><i class="fa-solid fa-robot"></i> موصى بالرفض ({{ leave.ai_confidence }}%)</span>
+                                    {% else %}
+                                        <span class="ai-chip ai-waiting"><i class="fa-solid fa-spinner"></i> قيد التحليل</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if leave.status == 'PENDING' %}
+                                        <span class="status-chip st-pending"><i class="fa-solid fa-hourglass-half"></i> معلق</span>
+                                    {% elif leave.status == 'APPROVED' %}
+                                        <span class="status-chip st-approved"><i class="fa-solid fa-circle-check"></i> مقبول</span>
+                                    {% else %}
+                                        <span class="status-chip st-rejected"><i class="fa-solid fa-circle-xmark"></i> مرفوض</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <div class="act-cell">
+                                        <button type="button" class="view-btn js-leave-view" data-id="{{ leave.pk }}" title="عرض التفاصيل" data-bs-toggle="tooltip" data-bs-placement="top">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="7" class="empty-row"><i class="fa-regular fa-calendar-xmark"></i> لا توجد طلبات إجازة مسجلة.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
+            {% if can_view_all %}
+            <div class="lv-card mb-4">
+                <div class="lv-card-head">
+                    <h5><i class="fa-solid fa-wallet" style="background:rgba(185,167,121,.11);color:#988561;"></i> أرصدة الموظفين</h5>
+                    <a href="{% url 'leaves:leave_list' %}?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}export=excel" class="export-btn"><i class="fa-solid fa-file-excel"></i> تصدير Excel</a>
+                </div>
+                <div class="px-3 pb-2 pt-3 small" style="color:#9B95B5;">الرصيد الإجمالي 33 يوم موزّع على 3 فئات (سنوية/مرضية/طارئة) ويُخصم تلقائياً حسب نوع الإجازة المقبولة.</div>
+                <div class="table-responsive">
+                    <table class="leaves-table">
+                        <thead>
+                            <tr>
+                                <th>الموظف</th>
+                                <th>القسم</th>
+                                <th>الرصيد الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for employee in employees %}
+                            {% with remaining=employee.total_leave_remaining total=employee.TOTAL_LEAVE_ALLOWANCE %}
+                            <tr>
+                                <td>
+                                    <div class="emp-cell">
+                                        <span class="emp-bubble {% cycle 'av-teal' 'av-violet' 'av-plum' 'av-gold' %}">{{ employee.get_full_name|default:employee|slice:":1" }}</span>
+                                        <span class="emp-name">{{ employee.get_full_name }}</span>
+                                    </div>
+                                </td>
+                                <td><span class="date-range"><i class="fa-solid fa-building"></i>{{ employee.department|default:"-" }}</span></td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                                        <span class="balance-badge"><i class="fa-solid fa-coins" style="color:#988561;"></i> {{ remaining }} / {{ total }} يوم</span>
+                                        <div class="balance-bar flex-grow-1"><div class="{% if remaining <= 5 %}bar-low{% else %}bar-ok{% endif %}" style="width: {% widthratio remaining total 100 %}%;" aria-valuenow="{{ remaining }}" aria-valuemin="0" aria-valuemax="{{ total }}"></div></div>
+                                    </div>
+                                    <div class="balance-types">
+                                        <span class="bt-annual"><i class="fa-solid fa-umbrella-beach me-1"></i>سنوية: {{ employee.annual_remaining }}/11</span>
+                                        <span class="bt-sick"><i class="fa-solid fa-notes-medical me-1"></i>مرضية: {{ employee.sick_remaining }}/11</span>
+                                        <span class="bt-emergency"><i class="fa-solid fa-bolt me-1"></i>طارئة: {{ employee.emergency_remaining }}/11</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endwith %}
+                            {% empty %}
+                            <tr><td colspan="3" class="empty-row"><i class="fa-solid fa-users-slash"></i> لا يوجد موظفون مسجلون.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
 
     <!-- Shared day-details modal (consumed by the Manager calendar) -->
     <div class="modal fade day-details-modal" id="dayDetailsModal" tabindex="-1" aria-hidden="true">
@@ -271,6 +905,22 @@
             </div>
         </div>
     </div>
+
+    <!-- ===== Leave request details modal (merged leaves tab) ===== -->
+    <div class="modal fade" id="leaveDetailModal" tabindex="-1" aria-labelledby="leaveDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:18px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="leaveDetailModalLabel">تفاصيل طلب الإجازة</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                </div>
+                <div class="modal-body px-4 pb-4 pt-3" id="ldmBody">
+                    <div class="text-center py-4 text-muted"><i class="fa-solid fa-spinner fa-spin me-1"></i> جارٍ تحميل التفاصيل...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
 
@@ -288,7 +938,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 datasets: [{
                     label: 'نسبة الحضور %',
                     data: {{ dept_rates|safe }},
-                    backgroundColor: '#0d6efd',
+                    backgroundColor: '#B9A779',
                     borderRadius: 8
                 }]
             },
@@ -307,7 +957,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 labels: {{ leave_labels|safe }},
                 datasets: [{
                     data: {{ leave_values|safe }},
-                    backgroundColor: ['#f59e0b', '#8b5cf6', '#64748b', '#f97316']
+                    backgroundColor: ['#988561', '#D8CBA6', '#64748b', '#f97316']
                 }]
             },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
@@ -321,7 +971,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const teamMonthUrl = "{% url 'attendance:team_month_api' %}";
     const monthNames = ["كانون الثاني", "شباط", "آذار", "نيسان", "أيار", "حزيران", "تموز", "آب", "أيلول", "تشرين الأول", "تشرين الثاني", "كانون الأول"];
     let currentDate = new Date();
-    if (currentDate.getMonth() === 11) { currentDate = new Date(currentDate.getFullYear(), 11, 1); }
     const initialMonth = "{{ manager_month|default:'2026-01' }}";
     const parts = initialMonth.split('-').map(Number);
     currentDate = new Date(parts[0], parts[1] - 1, 1);
@@ -333,6 +982,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderGrid(daysMap) {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
+        const totalTeamCount = Number({{ team_members_count|default:0 }}) || 1;
         document.getElementById('managerMonthTitle').innerText = monthTitle(currentDate);
 
         const firstDay = new Date(year, month, 1).getDay();
@@ -353,23 +1003,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     hasDate = true;
                     const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+                    const info = daysMap[key] || {};
+                    const dailyPct = Number(info.daily_pct ?? (Number(info.present_count ?? info.present ?? 0) / totalTeamCount) * 100);
+                    const badgeClass = dailyPct >= 85 ? 'high' : dailyPct >= 50 ? 'medium' : 'low';
+                    const absentNames = Array.isArray(info.absent_employees) ? info.absent_employees.filter(Boolean) : [];
+                    const tooltipText = absentNames.length ? `غياب: ${absentNames.join(', ')}` : 'لا يوجد غياب';
+
                     cell.classList.add('calendar-day');
-                    const info = daysMap[key];
-                    let badges = '<span class="text-muted" style="font-size:11px;">—</span>';
-                    if (info) {
-                        const chips = [];
-                        if (info.present) chips.push(`<span class="badge bg-success-subtle text-success w-100 mb-1" style="font-size:9px;">${info.present} حاضر</span>`);
-                        if (info.late || info.absent) chips.push(`<span class="badge bg-danger-subtle text-danger w-100 mb-1" style="font-size:9px;">${info.late + info.absent} غائب/متأخر</span>`);
-                        if (info.leave) chips.push(`<span class="badge bg-warning-subtle text-warning w-100 mb-1" style="font-size:9px;">${info.leave} إجازة</span>`);
-                        badges = chips.length ? chips.join('') : badges;
-                    }
                     cell.innerHTML = `
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="day-number">${date}</span>
-                        </div>
-                        <div class="mt-2">${badges}</div>
+                        <div class="team-day-number">${date}</div>
+                        <div class="team-day-pill ${badgeClass}">${Math.round(dailyPct)}%</div>
+                        <div class="team-day-meta"><strong>${info.present_count ?? info.present ?? 0}</strong> / ${totalTeamCount}</div>
                     `;
+                    cell.setAttribute('title', tooltipText);
                     cell.setAttribute('onclick', `openDayDetails('${key}')`);
+                    cell.style.cursor = 'pointer';
                     date++;
                 }
                 row.appendChild(cell);
@@ -406,7 +1054,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     window.openDayDetails = function (dateStr) {
-        document.getElementById('selectedDateTitle').innerText = 'تفاصيل الدوام والإجازات - ' + dateStr;
+        document.getElementById('selectedDateTitle').innerText = 'تفاصيل دوام الفريق - ' + dateStr;
         fetch(`{% url 'attendance:day_details_api' %}?date=${dateStr}`)
             .then(function (res) { return res.json(); })
             .then(function (data) {
@@ -459,4 +1107,79 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 {% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('tab') === 'leaves') {
+        var tabBtn = document.querySelector('#scheduleTabs button[data-bs-target="#tab-leaves"]');
+        if (tabBtn && typeof bootstrap !== 'undefined') {
+            bootstrap.Tab.getOrCreateInstance(tabBtn).show();
+        }
+    }
+    document.querySelectorAll('#scheduleTabs [data-bs-toggle="pill"]').forEach(function (btn) {
+        btn.addEventListener('shown.bs.tab', function () {
+            window.dispatchEvent(new Event('resize'));
+        });
+    });
+});
+
+(function () {
+    function escapeHtml(s) {
+        if (s === null || s === undefined) return '';
+        return String(s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    var detailModal = document.getElementById('leaveDetailModal');
+
+    document.querySelectorAll('.js-leave-view').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-id');
+            var body = document.getElementById('ldmBody');
+            body.innerHTML = '<div class="text-center py-4 text-muted"><i class="fa-solid fa-spinner fa-spin me-1"></i> جارٍ تحميل التفاصيل...</div>';
+            if (detailModal) { bootstrap.Modal.getOrCreateInstance(detailModal).show(); }
+
+            fetch('{% url "leaves:leave_list" %}' + 'leave/' + id + '/', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            }).then(function (r) { return r.json(); }).then(function (data) {
+                if (!data.success) { throw new Error('فشل التحميل'); }
+                var l = data.leave;
+                var aiHtml;
+                if (l.ai_prediction_code === 'APPROVED') {
+                    aiHtml = '<span class="ai-chip ai-approved"><i class="fa-solid fa-thumbs-up"></i> موصى بالقبول (' + l.ai_confidence + '%)</span>';
+                } else if (l.ai_prediction_code === 'REJECTED') {
+                    aiHtml = '<span class="ai-chip ai-rejected"><i class="fa-solid fa-thumbs-down"></i> موصى بالرفض (' + l.ai_confidence + '%)</span>';
+                } else {
+                    aiHtml = '<span class="ai-chip ai-waiting"><i class="fa-solid fa-spinner"></i> قيد التحليل</span>';
+                }
+                var statusHtml;
+                if (l.status_code === 'PENDING') { statusHtml = '<span class="status-chip st-pending"><i class="fa-solid fa-hourglass-half"></i> معلق</span>'; }
+                else if (l.status_code === 'APPROVED') { statusHtml = '<span class="status-chip st-approved"><i class="fa-solid fa-circle-check"></i> مقبول</span>'; }
+                else { statusHtml = '<span class="status-chip st-rejected"><i class="fa-solid fa-circle-xmark"></i> مرفوض</span>'; }
+
+                body.innerHTML =
+                    '<div class="ldm-cover">' +
+                        '<h5>' + escapeHtml(l.employee_name) + '</h5>' +
+                        '<small>رقم الموظف: ' + escapeHtml(l.employee_id) + ' &nbsp;•&nbsp; ' + escapeHtml(l.leave_type) + '</small>' +
+                    '</div>' +
+                    '<div class="ldm-grid">' +
+                        '<div><span class="lbl">نوع الإجازة</span><span class="val">' + escapeHtml(l.leave_type) + '</span></div>' +
+                        '<div><span class="lbl">الحالة</span><span class="val">' + statusHtml + '</span></div>' +
+                        '<div><span class="lbl">من</span><span class="val">' + escapeHtml(l.start_date) + '</span></div>' +
+                        '<div><span class="lbl">إلى</span><span class="val">' + escapeHtml(l.end_date) + '</span></div>' +
+                        '<div><span class="lbl">عدد الأيام</span><span class="val">' + escapeHtml(l.total_days) + ' يوم</span></div>' +
+                        '<div><span class="lbl">تاريخ التقديم</span><span class="val">' + escapeHtml(l.created_at) + '</span></div>' +
+                    '</div>' +
+                    '<div class="ldm-ai">' + aiHtml + '</div>' +
+                    (l.reason ? '<div class="ldm-reason"><strong>سبب الإجازة:</strong><br>' + escapeHtml(l.reason) + '</div>' : '') +
+                    (l.attachment_url ? '<div class="mt-3"><a href="' + escapeHtml(l.attachment_url) + '" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-paperclip me-1"></i> المرفق</a></div>' : '');
+            }).catch(function () {
+                body.innerHTML = '<div class="text-center py-4 text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> تعذّر تحميل التفاصيل.</div>';
+            });
+        });
+    });
+})();
+</script>
 {% endblock %}

@@ -90,6 +90,27 @@ class EvaluationDispatchForm(forms.Form):
             ] or ['']
             for category in self.categories
         }
+        self.category_scales = {
+            category.code: [
+                value.strip()
+                for value in self.data.getlist(f'scale_{category.code}')
+            ] or [5]
+            for category in self.categories
+        }
+        self.category_nas = {
+            category.code: [
+                raw.strip() == '1'
+                for raw in self.data.getlist(f'na_{category.code}')
+            ] or [False]
+            for category in self.categories
+        }
+        self.category_tags = {
+            category.code: [
+                value.strip()
+                for value in self.data.getlist(f'tag_{category.code}')
+            ] or ['']
+            for category in self.categories
+        }
         if self.is_bound:
             self.question_values = [
                 value.strip()

@@ -55,6 +55,8 @@ class Employee(models.Model):
     emergency_contact = models.CharField(max_length=100, null=True, blank=True, verbose_name="جهة الاتصال الطارئة")
     emergency_contact_phone = models.CharField(max_length=20, null=True, blank=True)
     emergency_phone = models.CharField(max_length=20, null=True, blank=True, verbose_name="رقم هاتف الطوارئ")
+    personal_email = models.EmailField(max_length=254, null=True, blank=True, verbose_name="البريد الإلكتروني الشخصي")
+    phone_secondary = models.CharField(max_length=20, null=True, blank=True, verbose_name="رقم الهاتف الإضافي / الطوارئ")
 
     def save(self, *args, **kwargs):
         if self.employee_number is None:

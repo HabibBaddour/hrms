@@ -1,0 +1,541 @@
+{% extends 'base.html' %}
+
+{% block title %}طلب سلفة مالية | HRMS{% endblock %}
+{% block page_title %}طلب سلفة مالية{% endblock %}
+
+{% block extra_css %}
+<style>
+    .advance-form-page {
+        background-color: #002623 !important;
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .advance-form-container {
+        background-color: #002623 !important;
+        border: 1px solid #988561 !important;
+        border-radius: 18px;
+        padding: 2rem;
+        box-shadow: 0 20px 44px rgba(0, 38, 35, 0.35);
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .advance-form-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #988561 !important;
+    }
+
+    .advance-form-header h2 {
+        color: #b9a779 !important;
+        font-weight: bold;
+        margin: 0 0 0.5rem 0;
+        font-size: 1.5rem;
+    }
+
+    .advance-form-header p {
+        color: #988561 !important;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.75rem 1.5rem;
+        background-color: #988561 !important;
+        color: #002623 !important;
+        font-weight: bold;
+        border: none;
+        border-radius: 12px;
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .back-button:hover {
+        background-color: #b9a779 !important;
+        transform: translateY(-2px);
+    }
+
+    .form-label {
+        color: #b9a779 !important;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control,
+    .form-select {
+        background-color: #edebe0 !important;
+        color: #002623 !important;
+        font-weight: bold;
+        border: 1px solid #b9a779 !important;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        background-color: #edebe0 !important;
+        color: #002623 !important;
+        border-color: #b9a779 !important;
+        box-shadow: 0 0 0 0.25rem rgba(185, 167, 121, 0.25);
+    }
+
+    .form-control::placeholder {
+        color: #6b5a3a !important;
+        font-weight: normal;
+    }
+
+    .form-control:disabled {
+        background-color: #d4c9b0 !important;
+        color: #4a4530 !important;
+    }
+
+    .submit-button {
+        background-color: #b9a779 !important;
+        color: #002623 !important;
+        font-weight: bold;
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 2rem;
+        font-size: 1rem;
+        width: 100%;
+        transition: all 0.2s ease;
+        box-shadow: 0 10px 22px rgba(185, 167, 121, 0.25);
+    }
+
+    .submit-button:hover {
+        background-color: #988561 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px rgba(152, 133, 97, 0.32);
+    }
+
+    .cancel-button {
+        background-color: transparent;
+        color: #b9a779 !important;
+        font-weight: bold;
+        border: 1px solid #b9a779 !important;
+        border-radius: 12px;
+        padding: 1rem 2rem;
+        font-size: 1rem;
+        width: 100%;
+        transition: all 0.2s ease;
+    }
+
+    .cancel-button:hover {
+        background-color: rgba(185, 167, 121, 0.1) !important;
+    }
+
+    .form-check-input {
+        background-color: #edebe0 !important;
+        border-color: #b9a779 !important;
+    }
+
+    .form-check-input:checked {
+        background-color: #b9a779 !important;
+        border-color: #b9a779 !important;
+    }
+
+    .input-group-text {
+        background-color: #b9a779 !important;
+        color: #002623 !important;
+        font-weight: bold;
+        border: 1px solid #988561 !important;
+    }
+
+    .help-text {
+        color: #988561 !important;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    .required-star {
+        color: #dc2626;
+    }
+
+    .policy-side-card {
+        background-color: #002623 !important;
+        border: 1px solid #b9a779 !important;
+        border-radius: 18px;
+        padding: 1.5rem;
+        height: 100%;
+    }
+
+    .policy-card-header h4 {
+        color: #b9a779 !important;
+        font-weight: bold;
+        margin: 0 0 1rem 0;
+        font-size: 1.1rem;
+        border-bottom: 1px solid #b9a779 !important;
+        padding-bottom: 0.75rem;
+    }
+
+    .policy-card-content {
+        color: #edebe0 !important;
+    }
+
+    .policy-card-content p {
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .policy-points {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .policy-points li {
+        position: relative;
+        padding-right: 1.5rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+
+    .policy-points li::before {
+        content: '✓';
+        position: absolute;
+        right: 0;
+        color: #b9a779 !important;
+        font-weight: bold;
+    }
+
+    .agreement-card {
+        background-color: rgba(185, 167, 121, 0.1);
+        border: 1px solid #b9a779 !important;
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
+    .agreement-card .form-check-label {
+        color: #b9a779 !important;
+        font-weight: bold;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+        .advance-form-container {
+            padding: 1.5rem;
+        }
+        
+        .policy-side-card {
+            margin-top: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="advance-form-page">
+    <div class="container">
+        <div class="advance-form-container">
+            <!-- Back Button -->
+            <a href="{% url 'employees:payslip_list' %}?tab=advances" class="back-button">
+                <i class="fa-solid fa-arrow-right"></i>
+                عودة لكشف الراتب
+            </a>
+
+            <!-- Form Header -->
+            <div class="advance-form-header">
+                <h2><i class="fa-solid fa-hand-holding-dollar"></i> طلب سلفة مالية</h2>
+                <p>يرجى ملء النموذج أدناه ببيانات السلفة المالية المطلوبة</p>
+            </div>
+
+            <!-- Advance Request Form -->
+            <form method="post" id="advance-request-form">
+                {% csrf_token %}
+                
+                <div class="row g-4">
+                    <!-- Right Column: Main Form (col-lg-8) -->
+                    <div class="col-lg-8">
+                        <div class="row g-4">
+                            <!-- المبلغ المطلوب -->
+                            <div class="col-md-6">
+                                <label for="amount" class="form-label">
+                                    المبلغ المطلوب <span class="required-star">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" 
+                                           name="amount" 
+                                           id="amount" 
+                                           class="form-control" 
+                                           min="1" 
+                                           step="0.01" 
+                                           max="{{ max_advance|floatformat:2 }}"
+                                           required 
+                                           placeholder="مثال: 500.00" 
+                                           dir="ltr"
+                                           data-max-advance="{{ max_advance|floatformat:2 }}"
+                                           data-employee-salary="{{ employee_salary|floatformat:2 }}">
+                                    <span class="input-group-text">$</span>
+                                </div>
+                                <small class="help-text">أدخل المبلغ المطلوب بالدولار الأمريكي (الحد الأقصى: {{ max_advance|floatformat:2 }} $)</small>
+                                <div id="amount-error" class="text-danger" style="font-size: 0.85rem; margin-top: 0.25rem; display: none;"></div>
+                            </div>
+
+                            <!-- نوع السلفة -->
+                            <div class="col-md-6">
+                                <label for="advance_type" class="form-label">
+                                    نوع السلفة <span class="required-star">*</span>
+                                </label>
+                                <select name="advance_type" id="advance_type" class="form-select" required>
+                                    <option value="" disabled selected>اختر نوع السلفة...</option>
+                                    <option value="emergency">سلفة طارئة</option>
+                                    <option value="marriage">سلفة زواج</option>
+                                    <option value="medical">سلفة علاجية</option>
+                                    <option value="personal">سلفة شخصية</option>
+                                    <option value="periodic">سلفة احتياجات دورية</option>
+                                </select>
+                            </div>
+
+                            <!-- عدد أشهر التقسيط -->
+                            <div class="col-md-6">
+                                <label for="months" class="form-label">
+                                    عدد أشهر التقسيط <span class="required-star">*</span>
+                                </label>
+                                <select name="months" id="months" class="form-select" required>
+                                    <option value="" disabled selected>اختر مدة التقسيط...</option>
+                                    <!-- Options will be populated dynamically by JavaScript -->
+                                </select>
+                                <small class="help-text">سيتم تحديث الخيارات بناءً على المبلغ المطلوب</small>
+                            </div>
+
+                            <!-- القسط الشهري الخصمي -->
+                            <div class="col-md-6">
+                                <label for="monthly_deduction" class="form-label">
+                                    القسط الشهري الخصمي
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" 
+                                           id="monthly_deduction" 
+                                           class="form-control" 
+                                           readonly 
+                                           value="0.00" 
+                                           dir="ltr"
+                                           style="font-weight: 800; text-align: left; font-variant-numeric: tabular-nums;">
+                                    <span class="input-group-text">$/شهرياً</span>
+                                </div>
+                                <small class="help-text">يُحتسب تلقائياً: المبلغ ÷ عدد الشهور</small>
+                            </div>
+
+                            <!-- تاريخ بداية الخصم -->
+                            <div class="col-md-6">
+                                <label for="deduction_start_date" class="form-label">
+                                    تاريخ بداية الخصم <span class="required-star">*</span>
+                                </label>
+                                <input type="date" 
+                                       name="deduction_start_date" 
+                                       id="deduction_start_date" 
+                                       class="form-control" 
+                                       required>
+                                <small class="help-text">سيبدأ الخصم من كشف الراتب للشهر المحدد</small>
+                            </div>
+
+                            <!-- سبب / مبرر الطلب -->
+                            <div class="col-12">
+                                <label for="reason" class="form-label">
+                                    سبب / مبرر الطلب <span class="required-star">*</span>
+                                </label>
+                                <textarea name="reason" 
+                                          id="reason" 
+                                          class="form-control" 
+                                          rows="4" 
+                                          required
+                                          placeholder="اشرح بالتفصيل سبب طلب السلفة المالية والغرض منها..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Left Column: Policy Side Card (col-lg-4) -->
+                    <div class="col-lg-4">
+                        <div class="policy-side-card">
+                            <div class="policy-card-header">
+                                <h4><i class="fa-solid fa-book-open"></i> اللائحة الداخلية والسياسات</h4>
+                            </div>
+                            <div class="policy-card-content">
+                                <p>وفق اللائحة الداخلية للشركة، بجميع الشروط والأحكام المتعلقة بالسلف المالية:</p>
+                                <ul class="policy-points">
+                                    <li>الحد الأقصى للسلفة: 3 أضعاف الراتب الأساسي</li>
+                                    <li>الحد الأدنى لفترة السداد: شهر واحد</li>
+                                    <li>الحد الأقصى لفترة السداد: 12 شهر</li>
+                                    <li>يتم الخصم تلقائياً من الراتب الشهري</li>
+                                    <li>يجب الحصول على موافقة المدير المباشر</li>
+                                    <li>يحق للشركة رفض الطلب دون بيان الأسباب</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Full-width Bottom Section: Agreement -->
+                    <div class="col-12">
+                        <div class="agreement-card">
+                            <div class="form-check">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       id="policy_agreement" 
+                                       name="policy_agreement" 
+                                       required>
+                                <label class="form-check-label" for="policy_agreement">
+                                    أقر بأنه يتم خصم القسط المستحق تلقائياً من الراتب الشهري وفق اللائحة الداخلية للشركة، وأتعهد بالالتزام بجميع الشروط والأحكام المتعلقة بالسلف المالية.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons Section -->
+                    <div class="col-12">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <button type="submit" class="submit-button" id="submit-btn">
+                                    <i class="fa-solid fa-paper-plane"></i> إرسال طلب السلفة
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{% url 'employees:payslip_list' %}?tab=advances" class="cancel-button d-block text-center">
+                                    <i class="fa-solid fa-xmark"></i> إلغاء
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const amountInput = document.getElementById('amount');
+    const monthsSelect = document.getElementById('months');
+    const monthlyDeductionInput = document.getElementById('monthly_deduction');
+    const deductionStartDateInput = document.getElementById('deduction_start_date');
+    const submitBtn = document.getElementById('submit-btn');
+    const form = document.getElementById('advance-request-form');
+    const amountErrorDiv = document.getElementById('amount-error');
+
+    // Get salary values from data attributes
+    const employeeSalary = parseFloat(amountInput.dataset.employeeSalary) || 0;
+    const maxAdvance = parseFloat(amountInput.dataset.maxAdvance) || 0;
+
+    // Set default deduction start date to next month
+    function setDefaultDeductionDate() {
+        const today = new Date();
+        const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+        const year = nextMonth.getFullYear();
+        const month = String(nextMonth.getMonth() + 1).padStart(2, '0');
+        const day = String(nextMonth.getDate()).padStart(2, '0');
+        deductionStartDateInput.value = `${year}-${month}-${day}`;
+    }
+
+    // Validate amount against max advance (3x salary)
+    function validateAmount() {
+        const amount = parseFloat(amountInput.value) || 0;
+        
+        if (amount > maxAdvance && maxAdvance > 0) {
+            amountErrorDiv.textContent = `المبلغ يتجاوز الحد الأقصى المسموح به (3 أضعاف الراتب: ${maxAdvance.toFixed(2)} $)`;
+            amountErrorDiv.style.display = 'block';
+            amountInput.style.borderColor = '#dc2626';
+            return false;
+        } else {
+            amountErrorDiv.style.display = 'none';
+            amountInput.style.borderColor = '#b9a779';
+            return true;
+        }
+    }
+
+    // Populate installment months based on amount thresholds
+    function populateInstallmentMonths() {
+        const amount = parseFloat(amountInput.value) || 0;
+        const currentValue = monthsSelect.value;
+        
+        // Clear existing options except the default
+        monthsSelect.innerHTML = '<option value="" disabled selected>اختر مدة التقسيط...</option>';
+        
+        let allowedMonths = [];
+        
+        // Condition 1: Amount < employee_salary
+        if (amount < employeeSalary) {
+            allowedMonths = [1, 2, 3, 4, 5, 6, 9, 12];
+        }
+        // Condition 2: employee_salary <= Amount < employee_salary * 2
+        else if (amount >= employeeSalary && amount < employeeSalary * 2) {
+            allowedMonths = [2, 3, 4, 5, 6, 9, 12];
+        }
+        // Condition 3: employee_salary * 2 <= Amount <= employee_salary * 3
+        else if (amount >= employeeSalary * 2 && amount <= employeeSalary * 3) {
+            allowedMonths = [3, 4, 5, 6, 9, 12];
+        }
+        // If amount exceeds max, don't show any options
+        else if (amount > employeeSalary * 3) {
+            allowedMonths = [];
+        }
+        // Default fallback
+        else {
+            allowedMonths = [1, 2, 3, 4, 5, 6, 9, 12];
+        }
+        
+        // Add options to select
+        allowedMonths.forEach(months => {
+            const option = document.createElement('option');
+            option.value = months;
+            option.textContent = `${months} شهر`;
+            monthsSelect.appendChild(option);
+        });
+        
+        // Try to restore previous value if it's still valid
+        if (currentValue && allowedMonths.includes(parseInt(currentValue))) {
+            monthsSelect.value = currentValue;
+        }
+        
+        // Recalculate monthly deduction
+        calculateMonthlyDeduction();
+    }
+
+    // Calculate monthly deduction
+    function calculateMonthlyDeduction() {
+        const amount = parseFloat(amountInput.value) || 0;
+        const months = parseInt(monthsSelect.value, 10) || 1;
+        const monthlyDeduction = months > 0 ? amount / months : 0;
+        monthlyDeductionInput.value = monthlyDeduction.toFixed(2);
+    }
+
+    // Event listeners
+    amountInput.addEventListener('input', function() {
+        validateAmount();
+        populateInstallmentMonths();
+    });
+    
+    monthsSelect.addEventListener('change', calculateMonthlyDeduction);
+
+    // Form submission handling
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            return;
+        }
+
+        // Validate amount before submission
+        if (!validateAmount()) {
+            e.preventDefault();
+            amountInput.focus();
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...';
+    });
+
+    // Initialize
+    setDefaultDeductionDate();
+    populateInstallmentMonths();
+});
+</script>
+{% endblock %}

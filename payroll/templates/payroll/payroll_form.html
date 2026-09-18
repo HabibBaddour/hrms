@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    .pf-page { --pf-bg:#0f172a; --pf-card:#1e293b; --pf-card-2:#263449; --pf-border:#334155; --pf-text:#f8fafc; --pf-muted:#94a3b8; --pf-accent:#8b7ff2; --pf-gold:#f2b44c; }
+    .pf-page { --pf-bg:#0f172a; --pf-card:#1e293b; --pf-card-2:#002623; --pf-border:#334155; --pf-text:#f8fafc; --pf-muted:#94a3b8; --pf-accent:#D8CBA6; --pf-gold:#B9A779; }
 
     .pf-holder { background:var(--pf-bg); min-height:calc(100vh - 90px); }
     .pf-card { background:var(--pf-card); border:1px solid var(--pf-border); border-radius:18px; box-shadow:0 18px 40px rgba(3,7,18,.45); padding:22px; }
@@ -17,7 +17,7 @@
         background:#0f172a !important; border:1px solid #334155 !important; color:#e2e8f0 !important;
         border-radius:10px; font-weight:700; min-height:42px;
     }
-    .pf-field .form-control:focus, .pf-field .form-select:focus { border-color:var(--pf-accent) !important; box-shadow:0 0 0 3px rgba(139,127,242,.18); }
+    .pf-field .form-control:focus, .pf-field .form-select:focus { border-color:var(--pf-accent) !important; box-shadow:0 0 0 3px rgba(216,203,166,.18); }
     .pf-num-prefix { position:relative; }
     .pf-num-prefix .form-control { padding-left:40px; }
     .pf-num-prefix .pf-currency {
@@ -27,15 +27,15 @@
     .pf-field .errorlist { list-style:none; margin:5px 0 0; padding:0; color:#fda4af; font-size:.78rem; font-weight:600; }
     .pf-field .errorlist:empty { display:none; }
 
-    .pf-section-earn i { background:rgba(16,185,129,.14); color:#34d399; }
+    .pf-section-earn i { background:rgba(185,167,121,.14); color:#34d399; }
     .pf-section-ded i { background:rgba(244,63,94,.13); color:#fb7185; }
-    .pf-section-pay i { background:rgba(242,180,76,.15); color:#f2b44c; }
+    .pf-section-pay i { background:rgba(185,167,121,.15); color:#B9A779; }
 
     .pf-divider { border-bottom:1px dashed var(--pf-border); margin:18px 0; }
 
     /* Live calculator */
     .pf-calc {
-        background:linear-gradient(135deg,#263449,#1e293b);
+        background:linear-gradient(135deg,#002623,#1e293b);
         border:1px solid var(--pf-border); border-radius:20px; padding:20px 24px;
         box-shadow:0 20px 44px rgba(3,7,18,.5);
     }
@@ -46,13 +46,13 @@
     .pf-calc-value.pf-neg { color:#fb7185; }
     .pf-calc-value.pf-net { color:var(--pf-gold); font-size:1.9rem; }
     .pf-net-bar { height:8px; border-radius:999px; background:#0f172a; overflow:hidden; margin-top:12px; }
-    .pf-net-fill { height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#f2b44c,#e89a5d); transition:width .45s ease; }
+    .pf-net-fill { height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#B9A779,#988561); transition:width .45s ease; }
 
     .pf-btn-save {
         display:inline-flex; align-items:center; justify-content:center; gap:10px;
-        background:linear-gradient(135deg,#f2b44c,#e89a5d); color:#3d2a05 !important;
+        background:linear-gradient(135deg,#B9A779,#988561); color:#3d2a05 !important;
         border:none; border-radius:14px; padding:.85rem 2rem; font-weight:800; font-size:.95rem;
-        box-shadow:0 14px 28px rgba(232,154,93,.35); transition:transform .2s ease, filter .2s ease;
+        box-shadow:0 14px 28px rgba(152,133,97,.35); transition:transform .2s ease, filter .2s ease;
         width:100%;
     }
     .pf-btn-save:hover { transform:translateY(-2px); filter:brightness(1.05); }
@@ -64,7 +64,7 @@
 <div class="container-fluid py-4 pf-page">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
-            <h4 class="mb-1 text-dark" style="font-weight:800; color:#1e293b;"><i class="fa-solid fa-file-invoice-dollar me-2" style="color:#8b7ff2;"></i>إضافة مسير / كشف راتب جديد</h4>
+            <h4 class="mb-1 text-dark" style="font-weight:800; color:#1e293b;"><i class="fa-solid fa-file-invoice-dollar me-2" style="color:#D8CBA6;"></i>إضافة مسير / كشف راتب جديد</h4>
             <p class="mb-0" style="color:#94a3b8; font-size:.86rem;">أدخل مكونات الراتب ويتم احتساب إجمالي المستحقات والخصومات وصافي الراتب تلقائياً لحظة الكتابة</p>
         </div>
         <a href="{% url 'payroll_dashboard' %}" class="btn btn-outline-secondary btn-sm px-3">
@@ -104,7 +104,7 @@
                 </div>
                 <div class="col-lg-6 pf-field d-flex align-items-end">
                     <div class="filter-hint w-100" style="color:#64748b; font-size:.78rem; font-weight:600;">
-                        <i class="fa-solid fa-hand-pointer me-1" style="color:#8b7ff2;"></i>
+                        <i class="fa-solid fa-hand-pointer me-1" style="color:#D8CBA6;"></i>
                         صفِّ الموظفين حسب القسم أو الدور، وعند اختيار موظف سيُملأ الراتب الأساسي تلقائياً من ملفه.
                     </div>
                 </div>
@@ -234,7 +234,7 @@
                     <div class="pf-calc-value pf-neg" id="pfNetDed">0.00 $</div>
                 </div>
                 <div class="pf-calc-cell">
-                    <div class="pf-calc-label"><i class="fa-solid fa-wallet" style="color:#f2b44c;"></i> صافي الراتب المستحق</div>
+                    <div class="pf-calc-label"><i class="fa-solid fa-wallet" style="color:#B9A779;"></i> صافي الراتب المستحق</div>
                     <div class="pf-calc-value pf-net" id="pfNetResult">0.00 $</div>
                     <div class="pf-net-bar"><div class="pf-net-fill" id="pfNetFill"></div></div>
                 </div>
@@ -308,8 +308,8 @@ document.addEventListener('DOMContentLoaded', function () {
             opt.disabled = !show;
             opt.hidden = !show;
         });
-        if (departmentFilter) { departmentFilter.style.borderColor = deptVal ? '#8b7ff2' : '#334155'; }
-        if (roleFilter) { roleFilter.style.borderColor = roleVal ? '#8b7ff2' : '#334155'; }
+        if (departmentFilter) { departmentFilter.style.borderColor = deptVal ? '#D8CBA6' : '#334155'; }
+        if (roleFilter) { roleFilter.style.borderColor = roleVal ? '#D8CBA6' : '#334155'; }
     }
     window.applyFilters = applyFilters;
 

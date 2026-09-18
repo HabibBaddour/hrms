@@ -1,7 +1,7 @@
 from django import forms
 
 from employees.models import Employee
-from .models import Payroll
+from .models import Payroll, SalaryAdvance
 
 
 MONTH_CHOICES = (
@@ -9,6 +9,40 @@ MONTH_CHOICES = (
     (5, 'مايو'), (6, 'يونيو'), (7, 'يوليو'), (8, 'أغسطس'),
     (9, 'سبتمبر'), (10, 'أكتوبر'), (11, 'نوفمبر'), (12, 'ديسمبر'),
 )
+
+ADVANCE_MONTHS_CHOICES = tuple((m, f'{m} شهور') for m in range(1, 13))
+
+
+class SalaryAdvanceForm(forms.ModelForm):
+    """نموذج طلب سلفة مالية: المبلغ + مدة السداد + السبب."""
+
+    class Meta:
+        model = SalaryAdvance
+        fields = ('amount', 'months', 'reason')
+        widgets = {
+            'amount': forms.NumberInput(attrs={
+                'min': '1',
+                'step': '0.01',
+                'placeholder': 'مثال: 500.00',
+            }),
+            'months': forms.Select(choices=ADVANCE_MONTHS_CHOICES),
+            'reason': forms.Textarea(attrs={
+                'rows': 3,
+                'placeholder': 'اشرح سبب طلب السلفة المالية...',
+            }),
+        }
+
+    def clean_amount(self):
+        amount = self.cleaned_data.get('amount')
+        if amount is not None and amount <= 0:
+            raise forms.ValidationError('يجب أن يكون مبلغ السلفة أكبر من صفر.')
+        return amount
+
+    def clean_months(self):
+        months = self.cleaned_data.get('months')
+        if months is not None and not (1 <= months <= 12):
+            raise forms.ValidationError('مدة السداد يجب أن تكون بين شهر واحد و 12 شهراً.')
+        return months
 
 
 class PayrollForm(forms.ModelForm):

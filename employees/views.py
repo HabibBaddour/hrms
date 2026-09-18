@@ -10,10 +10,32 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.template.loader import render_to_string
 from decimal import Decimal
+import math
 from .models import Employee, Contract, Payslip, PayslipEarning, PayslipDeduction
 from .forms import ContractLifecycleForm
+from payroll.models import SalaryAdvance
 from departments.models import Department, Position
 from core.notification_utils import notify_employee_created
+
+
+def _resolve_department_manager(department):
+    """إرجاع مدير القسم (الحقل الصريح أو عبر دور 'Manager' كخطة بديلة)."""
+    if department is None:
+        return None
+    manager = getattr(department, 'manager', None)
+    if manager and manager.pk:
+        return manager
+    return (
+        Employee.objects.select_related('user', 'position')
+        .filter(
+            Q(department_id=department.pk) | Q(position__department_id=department.pk),
+            position__role='Manager',
+            user__is_active=True,
+        )
+        .order_by('id')
+        .first()
+    )
+
 
 @login_required
 def employee_list(request):
@@ -95,7 +117,59 @@ def employee_list(request):
         roles = Position.ROLE_CHOICES
     else:
         roles = [('Employee', 'موظف'), ('Manager', 'مدير'), ('HR Admin', 'مسؤول موارد بشرية')]
-    
+
+    # ---------- Radial org chart mode ----------
+    view_mode = request.GET.get('view', '')
+    chart_mode = 'chart' if (view_mode == 'chart' or (not view_mode and is_manager)) else 'table'
+
+    chart_manager = None
+    chart_members = []
+    chart_center = {'x': 550, 'y': 370}
+    chart_radius = 310
+
+    if chart_mode == 'chart':
+        if is_manager:
+            chart_manager = getattr(request.user, 'employee_profile', None)
+        else:
+            dept_for_chart = None
+            if department_id:
+                dept_for_chart = Department.objects.filter(pk=department_id.strip()).first()
+            chart_manager = _resolve_department_manager(dept_for_chart)
+
+        if chart_manager is None:
+            chart_mode = 'table'
+        else:
+            if is_manager and chart_manager.department_id:
+                members = list(
+                    Employee.objects.filter(
+                        department_id=chart_manager.department_id,
+                    )
+                    .exclude(pk=chart_manager.pk)
+                    .select_related('user', 'position')
+                )
+            else:
+                members = list(
+                    employees.exclude(pk=chart_manager.pk).select_related('user', 'position')
+                )
+            n = len(members)
+            for i, emp in enumerate(members):
+                if n <= 1:
+                    angle = -math.pi / 2
+                else:
+                    angle = -math.pi / 2 + 2 * math.pi * i / n
+                chart_members.append({
+                    'id': emp.pk,
+                    'manager_id': chart_manager.pk,
+                    'name': emp.get_full_name(),
+                    'initial': (emp.get_full_name() or '؟')[0],
+                    'job_title': emp.position.title if emp.position else '—',
+                    'role': emp.position.role if emp.position else 'Employee',
+                    'email': emp.user.email if emp.user else '',
+                    'photo': emp.get_profile_picture_url(),
+                    'x': round(chart_center['x'] + chart_radius * math.cos(angle), 1),
+                    'y': round(chart_center['y'] + chart_radius * math.sin(angle), 1),
+                })
+
     context = {
         'employees': employees,
         'total_employees': employees.count(),
@@ -104,6 +178,13 @@ def employee_list(request):
         'roles': roles,
         'sort_by': sort_by if sort_by in sort_mapping else 'id',
         'order': order,
+        'view_mode': view_mode,
+        'chart_mode': chart_mode,
+        'chart_manager': chart_manager,
+        'chart_members': chart_members,
+        'chart_center': chart_center,
+        'chart_radius': chart_radius,
+        'is_team_manager': is_manager,
     }
     
     return render(request, 'employees/employee_list.html', context)
@@ -455,6 +536,26 @@ def user_profile(request):
     except Exception:
         pass
 
+    # Calculate total leave balance
+    total_leave_balance = employee.total_leave_remaining
+
+    # Calculate financial deductions
+    from decimal import Decimal
+    basic_salary = employee.salary or Decimal('0')
+    allowances = Decimal('0')  # Can be updated if allowances field exists
+    
+    # Social Insurance: 9% of basic salary
+    social_insurance = basic_salary * Decimal('0.09')
+    
+    # Health Insurance: 5% of basic salary
+    health_insurance = basic_salary * Decimal('0.05')
+    
+    # Total Deductions
+    total_deductions = social_insurance + health_insurance
+    
+    # Net Estimated Salary
+    net_salary = basic_salary + allowances - total_deductions
+
     if request.method == 'POST':
         if request.POST.get('form_name') == 'account':
             return _update_account(request)
@@ -468,6 +569,8 @@ def user_profile(request):
         date_of_birth = request.POST.get('date_of_birth')
         address = (request.POST.get('address') or '').strip()
         primary_phone = (request.POST.get('primary_phone') or '').strip()
+        phone_secondary = (request.POST.get('phone_secondary') or '').strip()
+        personal_email = (request.POST.get('personal_email') or '').strip()
 
         if date_of_birth:
             employee.date_of_birth = date_of_birth
@@ -478,29 +581,14 @@ def user_profile(request):
         if primary_phone:
             employee.phone = primary_phone
 
+        employee.phone_secondary = phone_secondary or None
+        employee.personal_email = personal_email or None
+
+        national_id = (request.POST.get('national_id') or '').strip()
+        if national_id:
+            employee.national_id = national_id
+
         employee.save()
-
-        employee.phone_numbers.all().delete()
-        phone_values = []
-        for key in sorted(request.POST.keys()):
-            if key.startswith('phone_') and key != 'phone_':
-                value = (request.POST.get(key) or '').strip()
-                if value:
-                    phone_values.append(value)
-
-        if primary_phone:
-            phone_values = [primary_phone] + [p for p in phone_values if p != primary_phone]
-
-        seen = set()
-        for index, value in enumerate(phone_values):
-            if value in seen:
-                continue
-            seen.add(value)
-            employee.phone_numbers.create(
-                number=value,
-                label='Mobile' if index == 0 else f'Phone {index + 1}',
-                is_primary=(index == 0),
-            )
 
         if not primary_phone and employee.phone:
             employee.phone = ''
@@ -513,9 +601,12 @@ def user_profile(request):
         'employee': employee,
         'contract': contract,
         'user': request.user,
-        'phone_numbers': list(employee.phone_numbers.all()) or [
-            {'number': employee.phone or '', 'label': 'Mobile', 'is_primary': True}
-        ],
+        'total_leave_balance': total_leave_balance,
+        'health_insurance': health_insurance,
+        'social_insurance': social_insurance,
+        'total_deductions': total_deductions,
+        'net_salary': net_salary,
+        'allowances': allowances,
     }
     return render(request, 'employees/profile.html', context)
 
@@ -527,9 +618,9 @@ def _update_account(request):
         return None
 
     email = (request.POST.get('email') or '').strip()
-    current_password = request.POST.get('current_password') or ''
-    new_password = request.POST.get('new_password') or ''
-    confirm_password = request.POST.get('confirm_password') or ''
+    current_password = request.POST.get('old_password') or ''
+    new_password = request.POST.get('new_password1') or ''
+    confirm_password = request.POST.get('new_password2') or ''
 
     if not current_password:
         messages.error(request, "أدخل كلمة السر الحالية لتأكيد هويتك.")
@@ -765,6 +856,54 @@ def payslip_list_view(request):
         ),
         'is_hr': _is_hr_user(user),
     }
+
+    if employee is not None:
+        salary_advances = list(
+            SalaryAdvance.objects.filter(employee=employee).order_by('-created_at', '-id')
+        )
+    else:
+        salary_advances = []
+
+    context['salary_advances'] = salary_advances
+    active_advances = [adv for adv in salary_advances if adv.status != 'REJECTED']
+    context['advances_active_count'] = len(active_advances)
+    context['advances_total_requested'] = sum(
+        adv.amount for adv in active_advances
+    ) if active_advances else Decimal('0.00')
+    context['advances_total_remaining'] = sum(
+        adv.remaining_balance for adv in active_advances
+    ) if active_advances else Decimal('0.00')
+    context['active_tab'] = 'advances' if request.GET.get('tab') == 'advances' else 'payslips'
+
+    # Calculate financial summary for stat cards
+    basic_salary = Decimal(str(employee.salary)) if employee and employee.salary else Decimal('0')
+    allowances = Decimal('0')  # Can be updated if allowances field exists
+    
+    # Social Insurance: 9% of basic salary
+    social_insurance = basic_salary * Decimal('0.09')
+    
+    # Health Insurance: 5% of basic salary
+    health_insurance = basic_salary * Decimal('0.05')
+    
+    # Total Insurance (14%)
+    total_insurance = social_insurance + health_insurance
+    
+    # Calculate active advances deduction
+    active_advances_deduction = sum(
+        adv.monthly_deduction for adv in active_advances if adv.status == 'APPROVED'
+    ) if active_advances else Decimal('0')
+    
+    # Total Deductions
+    total_deductions = total_insurance + active_advances_deduction
+    
+    # Net Take Home Salary
+    net_take_home_salary = basic_salary + allowances - total_deductions
+    
+    context['basic_salary'] = basic_salary
+    context['total_insurance'] = total_insurance
+    context['total_deductions'] = total_deductions
+    context['net_take_home_salary'] = net_take_home_salary
+
     return render(request, 'employees/payslip_list.html', context)
 
 
@@ -909,3 +1048,100 @@ def export_payslip_pdf(request, payslip_id):
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+
+
+@login_required(login_url='login')
+def advance_request_view(request):
+    """عرض صفحة طلب سلفة مالية مخصصة."""
+    employee = getattr(request.user, 'employee_profile', None)
+    if employee is None:
+        messages.error(request, 'تعذر العثور على ملفك الوظيفي. تواصل مع الإدارة.')
+        return redirect('employees:payslip_list')
+
+    # Get employee salary for validation
+    employee_salary = Decimal('0.00')
+    contract = getattr(employee, 'contract', None) if employee else None
+    if contract and contract.salary:
+        employee_salary = contract.salary
+
+    context = {
+        'employee_salary': employee_salary,
+        'max_advance': employee_salary * 3 if employee_salary else Decimal('0.00'),
+    }
+
+    if request.method == 'POST':
+        from payroll.models import SalaryAdvance
+        from datetime import datetime
+
+        amount = request.POST.get('amount')
+        advance_type = request.POST.get('advance_type')
+        months = request.POST.get('months')
+        deduction_start_date = request.POST.get('deduction_start_date')
+        reason = request.POST.get('reason')
+        policy_agreement = request.POST.get('policy_agreement')
+
+        # Validation
+        if not all([amount, advance_type, months, deduction_start_date, reason, policy_agreement]):
+            messages.error(request, 'يرجى ملء جميع الحقول المطلوبة.')
+            return render(request, 'employees/advance_request.html', context)
+
+        try:
+            amount = Decimal(amount)
+            months = int(months)
+            if amount <= 0 or months <= 0:
+                raise ValueError('Invalid amount or months')
+
+            # Backend validation: Max advance amount (3x salary)
+            if amount > employee_salary * 3:
+                messages.error(
+                    request,
+                    f'المبلغ المطلوب يقتصر على 3 أضعاف الراتب كحد أقصى (الحد الأقصى: {employee_salary * 3:.2f} $)'
+                )
+                return render(request, 'employees/advance_request.html', context)
+
+            # Backend validation: Minimum months based on amount
+            min_allowed_months = 1
+            if amount >= employee_salary * 2:
+                min_allowed_months = 3
+            elif amount >= employee_salary:
+                min_allowed_months = 2
+
+            if months < min_allowed_months:
+                messages.error(
+                    request,
+                    f'الحد الأدنى لعدد الأشهر لهذا المبلغ هو {min_allowed_months} شهر'
+                )
+                return render(request, 'employees/advance_request.html', context)
+
+            # Parse date
+            try:
+                parsed_date = datetime.strptime(deduction_start_date, '%Y-%m-%d').date()
+            except ValueError:
+                messages.error(request, 'يرجى إدخال تاريخ صحيح.')
+                return render(request, 'employees/advance_request.html', context)
+
+        except (ValueError, TypeError):
+            messages.error(request, 'يرجى إدخال قيم صحيحة للمبلغ وعدد الأشهر.')
+            return render(request, 'employees/advance_request.html', context)
+
+        # Create salary advance
+        try:
+            advance = SalaryAdvance.objects.create(
+                employee=employee,
+                amount=amount,
+                advance_type=advance_type,
+                months=months,
+                deduction_start_date=parsed_date,
+                reason=reason,
+                status='PENDING'
+            )
+            messages.success(
+                request,
+                f'تم إرسال طلب السلفة بمبلغ {amount} $ لفترة {months} شهر بنجاح.'
+            )
+            return redirect('employees:payslip_list')
+        except Exception as e:
+            messages.error(request, f'حدث خطأ أثناء حفظ الطلب: {str(e)}')
+            return render(request, 'employees/advance_request.html', context)
+
+    return render(request, 'employees/advance_request.html', context)

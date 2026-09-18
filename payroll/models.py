@@ -2,6 +2,71 @@ from decimal import Decimal
 
 from django.db import models
 
+class SalaryAdvance(models.Model):
+    """طلب سلفة مالية مع جدولة استقطاعات شهرية تلقائية."""
+    STATUS_CHOICES = (
+        ('PENDING', 'معلقة'),
+        ('APPROVED', 'مقبولة'),
+        ('REJECTED', 'مرفوضة'),
+    )
+
+    ADVANCE_TYPE_CHOICES = (
+        ('emergency', 'سلفة طارئة'),
+        ('marriage', 'سلفة زواج'),
+        ('medical', 'سلفة علاجية'),
+        ('personal', 'سلفة شخصية'),
+        ('periodic', 'سلفة احتياجات دورية'),
+    )
+
+    employee = models.ForeignKey(
+        'employees.Employee',
+        on_delete=models.CASCADE,
+        related_name='salary_advances',
+        verbose_name='الموظف',
+    )
+    amount = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name='مبلغ السلفة المطلوب'
+    )
+    advance_type = models.CharField(
+        max_length=20, choices=ADVANCE_TYPE_CHOICES, default='personal',
+        verbose_name='نوع السلفة'
+    )
+    months = models.PositiveIntegerField(verbose_name='مدة السداد بالشهور')
+    monthly_deduction = models.DecimalField(
+        max_digits=10, decimal_places=2, default=Decimal('0.00'),
+        verbose_name='الاستقطاع الشهري',
+    )
+    deduction_start_date = models.DateField(
+        verbose_name='تاريخ بداية الخصم', null=True, blank=True
+    )
+    paid_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, default=Decimal('0.00'),
+        verbose_name='المبلغ المسدد',
+    )
+    reason = models.TextField(verbose_name='سبب طلب السلفة')
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default='PENDING', verbose_name='الحالة'
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ التقديم')
+
+    class Meta:
+        verbose_name = 'طلب سلفة مالية'
+        verbose_name_plural = 'طلبات السلف المالية'
+        ordering = ['-created_at', '-id']
+
+    def save(self, *args, **kwargs):
+        if self.amount is not None and self.months:
+            self.monthly_deduction = self.amount / Decimal(self.months)
+        super().save(*args, **kwargs)
+
+    @property
+    def remaining_balance(self):
+        return (self.amount or Decimal('0.00')) - (self.paid_amount or Decimal('0.00'))
+
+    def __str__(self):
+        return f"سلفة {self.employee} - {self.amount} $ ({self.get_status_display()})"
+
+
 class Payroll(models.Model):
     # تم استبدال الاستيراد المباشر بـ 'employees.Employee' كنص لمنع خطأ Import عند الإقلاع
     employee = models.ForeignKey('employees.Employee', on_delete=models.CASCADE, related_name='payrolls', verbose_name="الموظف")

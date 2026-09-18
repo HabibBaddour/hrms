@@ -5,19 +5,19 @@
 
 {% block extra_css %}
 <style>
-    .settings-page { --line:#ECEAF6; --muted:#6E6A86; }
+    .settings-page { --line:#DFD9C2; --muted:#6E6A86; }
 
     /* ===== Theme: HR Admin / Superuser (Violet) ===== */
     .pf-violet {
-        --tone:#6153E4; --tone-deep:#4A3AB8; --strong:#4433C9;
-        --ring:rgba(97,83,228,.16);
-        --tile-bg:rgba(97,83,228,.11); --tile-fg:#4A3AB8;
-        --line-soft:#DCD6F5; --track:#EFEDFA; --head:#1A1338;
+        --tone:#B9A779; --tone-deep:#7A6F4A; --strong:#988561;
+        --ring:rgba(185,167,121,.16);
+        --tile-bg:rgba(185,167,121,.11); --tile-fg:#7A6F4A;
+        --line-soft:#E0D7BF; --track:#F2EDE0; --head:#002623;
         --hero-bg:
-            radial-gradient(520px 260px at 88% 0%, rgba(23,176,167,.35), transparent 65%),
-            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
-            linear-gradient(120deg,#1B1442 0%,#4A3AB8 55%,#6153E4 100%);
-        --hero-shadow:0 20px 44px rgba(27,20,66,.35);
+            radial-gradient(520px 260px at 88% 0%, rgba(185,167,121,.35), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(185,167,121,.22), transparent 60%),
+            linear-gradient(120deg,#002623 0%,#7A6F4A 55%,#B9A779 100%);
+        --hero-shadow:0 20px 44px rgba(0,38,35,.35);
     }
 
     /* ===== Theme: Manager (Green) ===== */
@@ -25,25 +25,25 @@
         --tone:#14A374; --tone-deep:#0E5C43; --strong:#0F8A60;
         --ring:rgba(20,163,116,.16);
         --tile-bg:rgba(20,163,116,.12); --tile-fg:#0F8A60;
-        --line-soft:#CBE7DA; --track:#EAF5EF; --head:#12271E;
+        --line-soft:#E0D7BF; --track:#F2EDE0; --head:#002623;
         --hero-bg:
             radial-gradient(520px 260px at 88% 0%, rgba(56,224,160,.30), transparent 65%),
-            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
+            radial-gradient(420px 240px at 8% 100%, rgba(185,167,121,.22), transparent 60%),
             linear-gradient(120deg,#0B1F17 0%,#0E5C43 55%,#14A374 100%);
-        --hero-shadow:0 20px 44px rgba(11,31,23,.35);
+        --hero-shadow:0 20px 44px rgba(0,38,35,.35);
     }
 
     /* ===== Theme: Employee (Blue) ===== */
     .pf-blue {
-        --tone:#3B82F6; --tone-deep:#1E40AF; --strong:#1D4ED8;
-        --ring:rgba(59,130,246,.16);
-        --tile-bg:rgba(59,130,246,.12); --tile-fg:#1D4ED8;
-        --line-soft:#C9DAF8; --track:#EAF1FC; --head:#101A38;
+        --tone:#B9A779; --tone-deep:#988561; --strong:#988561;
+        --ring:rgba(185,167,121,.16);
+        --tile-bg:rgba(185,167,121,.12); --tile-fg:#988561;
+        --line-soft:#E2D8BE; --track:#F4EFE3; --head:#002623;
         --hero-bg:
-            radial-gradient(520px 260px at 88% 0%, rgba(56,189,248,.30), transparent 65%),
-            radial-gradient(420px 240px at 8% 100%, rgba(242,180,76,.22), transparent 60%),
-            linear-gradient(120deg,#0A1128 0%,#1E40AF 55%,#3B82F6 100%);
-        --hero-shadow:0 20px 44px rgba(10,17,40,.35);
+            radial-gradient(520px 260px at 88% 0%, rgba(185,167,121,.30), transparent 65%),
+            radial-gradient(420px 240px at 8% 100%, rgba(185,167,121,.22), transparent 60%),
+            linear-gradient(120deg,#002623 0%,#988561 55%,#B9A779 100%);
+        --hero-shadow:0 20px 44px rgba(0,38,35,.35);
     }
 
     /* ===== Hero ===== */
@@ -152,9 +152,9 @@
         display:grid; place-items:center; font-size:1.05rem;
         background:linear-gradient(135deg,var(--tone-deep),var(--tone)); color:#fff;
     }
-    .ql-gold { background:linear-gradient(135deg,#E89A5D,#F2B44C) !important; }
-    .ql-teal { background:linear-gradient(135deg,#0B6B70,#17B0A7) !important; }
-    .ql-plum { background:linear-gradient(135deg,#8E3D74,#C96D8A) !important; }
+    .ql-gold { background:linear-gradient(135deg,#988561,#B9A779) !important; }
+    .ql-teal { background:linear-gradient(135deg,#988561,#B9A779) !important; }
+    .ql-plum { background:linear-gradient(135deg,#988561,#B9A779) !important; }
     .ql-tile b { display:block; color:var(--head); font-size:.9rem; }
     .ql-tile small { color:var(--muted); font-size:.75rem; }
 

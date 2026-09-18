@@ -6,16 +6,16 @@
 
 {% block extra_css %}
 <style>
-    .profile-page { --line:#ECEAF6; --muted:#6E6A86; }
+    .profile-page { --line:#DFD9C2; --muted:#6E6A86; }
 
     /* ===== Theme: HR Admin / Superuser (Violet Brand) ===== */
     .pf-violet {
-        --tone:#6153E4; --tone-deep:#4A3AB8; --strong:#4433C9;
-        --ring:rgba(97,83,228,.16);
-        --tile-bg:rgba(97,83,228,.11); --tile-fg:#4A3AB8;
-        --kpi-border:#DCD6F5; --track:#EFEDFA;
-        --head:#1A1338;
-        --cta-a:#F3F1FF; --cta-b:#FDF4E7;
+        --tone:#B9A779; --tone-deep:#7A6F4A; --strong:#988561;
+        --ring:rgba(185,167,121,.16);
+        --tile-bg:rgba(185,167,121,.11); --tile-fg:#7A6F4A;
+        --kpi-border:#E0D7BF; --track:#F2EDE0;
+        --head:#002623;
+        --cta-a:#F6F1E4; --cta-b:#FDF4E7;
     }
 
     /* ===== Theme: Manager (Green) ===== */
@@ -23,19 +23,19 @@
         --tone:#14A374; --tone-deep:#0E5C43; --strong:#0F8A60;
         --ring:rgba(20,163,116,.16);
         --tile-bg:rgba(20,163,116,.12); --tile-fg:#0F8A60;
-        --kpi-border:#CBE7DA; --track:#EAF5EF;
-        --head:#12271E;
-        --cta-a:#EFFAF4; --cta-b:#FDF4E7;
+        --kpi-border:#E0D7BF; --track:#F2EDE0;
+        --head:#002623;
+        --cta-a:#F2EDE0; --cta-b:#FDF4E7;
     }
 
     /* ===== Theme: Employee (Blue) ===== */
     .pf-blue {
-        --tone:#3B82F6; --tone-deep:#1E40AF; --strong:#1D4ED8;
-        --ring:rgba(59,130,246,.16);
-        --tile-bg:rgba(59,130,246,.12); --tile-fg:#1D4ED8;
-        --kpi-border:#C9DAF8; --track:#EAF1FC;
-        --head:#101A38;
-        --cta-a:#F0F6FF; --cta-b:#FDF4E7;
+        --tone:#B9A779; --tone-deep:#988561; --strong:#988561;
+        --ring:rgba(185,167,121,.16);
+        --tile-bg:rgba(185,167,121,.12); --tile-fg:#988561;
+        --kpi-border:#E2D8BE; --track:#F4EFE3;
+        --head:#002623;
+        --cta-a:#F4EFE3; --cta-b:#FDF4E7;
     }
 
     /* ===== Layout: single-view / no page scroll ===== */
@@ -128,11 +128,11 @@
         transition: color .3s ease, background .3s ease, transform .3s ease,
                     box-shadow .3s ease, text-shadow .3s ease, border-color .3s ease;
     }
-    #tab-personal   { --acc: #2563eb; --acc-soft: rgba(37, 99, 235, .12); }
-    #tab-job        { --acc: #4f46e5; --acc-soft: rgba(79, 70, 229, .12); }
-    #tab-financial  { --acc: #059669; --acc-soft: rgba(5, 150, 105, .12); }
-    #tab-contract   { --acc: #d97706; --acc-soft: rgba(217, 119, 6, .12); }
-    #tab-account    { --acc: #0d9488; --acc-soft: rgba(13, 148, 136, .12); }
+    #tab-personal   { --acc: #B9A779; --acc-soft: rgba(185,167,121,.12); }
+    #tab-job        { --acc: #988561; --acc-soft: rgba(79, 70, 229, .12); }
+    #tab-financial  { --acc: #059669; --acc-soft: rgba(152,133,97,.12); }
+    #tab-contract   { --acc: #B9A779; --acc-soft: rgba(217, 119, 6, .12); }
+    #tab-account    { --acc: #0d9488; --acc-soft: rgba(185,167,121,.12); }
     .profile-tabs .nav-link:hover {
         color: var(--acc);
         background: #fff;
@@ -215,7 +215,32 @@
         border-color: var(--tone);
         box-shadow: 0 0 0 4px var(--ring);
     }
-    .profile-page textarea.form-control { height: auto; resize: vertical; border-radius: 14px; }
+
+    /* ===== Compact personal-details form (no vertical scroll) ===== */
+    .profile-page .form-control-sm {
+        height: 36px;
+        min-height: 36px;
+        border-radius: 10px;
+        font-size: .85rem;
+        padding: .4rem .7rem;
+    }
+    .profile-page .f-label.small { font-size: .74rem; margin-bottom: 4px !important; }
+    .personal-details-form .pf-field { gap: 2px; }
+    .personal-details-form input[readonly] {
+        background: #F5F3FB;
+        cursor: default;
+    }
+    .personal-details-form .pf-input-lite {
+        background-color: #FAF9FE;
+        border-color: #E7E3F4;
+        box-shadow: inset 0 1px 2px rgba(15, 23, 42, .04);
+        color: #2A2547;
+    }
+    .personal-details-form .pf-input-lite:focus {
+        background-color: #fff;
+        border-color: var(--tone);
+        box-shadow: 0 0 0 4px var(--ring), var(--bs-box-shadow-sm);
+    }
 
     /* ===== Responsive field grid ===== */
     .pf-grid {
@@ -355,30 +380,8 @@
         box-shadow: 0 0 0 5px var(--tile-bg);
         margin: 0 auto;
     }
-    .phone-list .input-group { border-radius: 12px; }
-    .phone-list .form-control { border-start-end-radius: 0; border-end-end-radius: 0; }
 
-    /* ===== Account tab: password visibility toggle ===== */
-    .password-toggle { border-radius: 14px; }
-    .password-toggle .form-control { border-start-end-radius: 0; border-end-end-radius: 0; }
-    .password-toggle .btn {
-        height: 44px;
-        width: 46px;
-        flex: 0 0 auto;
-        display: grid;
-        place-items: center;
-        border-radius: 14px;
-        border-start-start-radius: 0;
-        border-end-start-radius: 0;
-        border: 1.5px solid #E3E0F0;
-        border-inline-start: 0;
-        background: #FAF9FE;
-        color: #8B85A8;
-    }
-    .password-toggle .btn:hover { color: var(--tone); background: var(--tile-bg); }
-    .password-toggle input.form-control[readonly] { background: #FAF9FE; }
-
-    /* ===== Account tab: icon-prefixed readonly fields ===== */
+/* ===== Account tab: icon-prefixed fields ===== */
     .pf-icongroup { border-radius: 14px; }
     .pf-icongroup .input-group-text {
         border-radius: 14px;
@@ -390,51 +393,396 @@
     }
     .pf-icongroup .form-control {
         border-start-start-radius: 0;
-        border-end-start-radius: 0;
+        border-end-end-radius: 0;
     }
     .profile-page input.form-control[readonly] { background: #FAF9FE; cursor: default; }
 
-    /* ===== Account tab: collapsible password reset section ===== */
-    .password-reset-section {
-        max-height: 0;
-        overflow: hidden;
-        opacity: 0;
-        transform: translateY(-8px);
-        transition: max-height .5s ease, opacity .4s ease, transform .4s ease;
-    }
-    .password-reset-section.open {
-        max-height: 560px;
-        opacity: 1;
-        transform: translateY(0);
-    }
-    .reset-heading {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        font-weight: 800;
-        color: var(--head);
-        font-size: .92rem;
-        margin: 6px 0 16px;
-        padding-bottom: 12px;
-        border-bottom: 1px dashed var(--line);
-    }
-    .reset-heading i {
-        width: 32px;
-        height: 32px;
-        border-radius: 9px;
-        display: grid;
-        place-items: center;
-        background: var(--tile-bg);
-        color: var(--tile-fg);
-        font-size: .85rem;
-    }
-    .reset-password-btn { align-self: center; }
+    /* ===== Account tab: password reset column ===== */
+    .reset-password-btn { align-self: flex-start; }
     .reset-password-btn .reset-chevron {
         transition: transform .35s ease;
         margin-inline-start: 2px;
         font-size: .72rem;
     }
     .reset-password-btn.active .reset-chevron { transform: rotate(180deg); }
+
+    /* ===== COLOR OVERRIDES ===== */
+    
+    /* 1. TOP USER HEADER CARD */
+    .profile-header {
+        background-color: #002623 !important;
+        border-color: #988561 !important;
+    }
+    .header-name {
+        color: #988561 !important;
+        font-weight: bold !important;
+    }
+    .header-sub {
+        color: #b9a779 !important;
+    }
+    .avatar-btn img {
+        border: 3px solid #b9a779 !important;
+        border-radius: 50%;
+    }
+    .avatar-btn .avatar-initial {
+        border: 3px solid #b9a779 !important;
+        border-radius: 50%;
+    }
+
+    /* 2. NAVIGATION TABS */
+    .profile-tabs .nav-link {
+        background-color: #002623 !important;
+        color: #edebe0 !important;
+    }
+    .profile-tabs .nav-link:hover {
+        background-color: #edebe0 !important;
+        color: #002623 !important;
+    }
+    .profile-tabs .nav-link.active {
+        background-color: #edebe0 !important;
+        color: #002623 !important;
+        font-weight: bold !important;
+    }
+
+    /* 3. TAB CONTENT CARD & INPUT FIELDS */
+    .panel {
+        background-color: #002623 !important;
+        border-color: #988561 !important;
+    }
+    .panel-title {
+        color: #edebe0 !important;
+    }
+    .f-label {
+        color: #edebe0 !important;
+        font-weight: bold !important;
+    }
+    .ro-value {
+        background-color: #edebe0 !important;
+        border: 1px solid #988561 !important;
+        color: #002623 !important;
+        font-weight: bold !important;
+    }
+    .profile-page .form-control,
+    .profile-page .form-select {
+        background-color: #edebe0 !important;
+        border: 1px solid #988561 !important;
+        color: #002623 !important;
+        font-weight: bold !important;
+    }
+    .profile-page .form-control:focus,
+    .profile-page .form-select:focus {
+        background-color: #edebe0 !important;
+        border-color: #988561 !important;
+        color: #002623 !important;
+    }
+    .profile-page input.form-control[readonly] {
+        background-color: #edebe0 !important;
+        border: 1px solid #988561 !important;
+        color: #002623 !important;
+        font-weight: bold !important;
+    }
+    .pf-icongroup .input-group-text {
+        background-color: #edebe0 !important;
+        border-color: #988561 !important;
+        color: #002623 !important;
+    }
+    .personal-details-form .pf-input-lite {
+        background-color: #edebe0 !important;
+        border-color: #988561 !important;
+        color: #002623 !important;
+        font-weight: bold !important;
+    }
+    .personal-details-form .pf-input-lite:focus {
+        background-color: #edebe0 !important;
+        border-color: #988561 !important;
+        color: #002623 !important;
+    }
+    .personal-details-form input[readonly] {
+        background-color: #edebe0 !important;
+        border-color: #988561 !important;
+        color: #002623 !important;
+        font-weight: bold !important;
+    }
+    .note-hr {
+        background-color: rgba(185, 167, 121, 0.1) !important;
+        border-color: #988561 !important;
+        color: #b9a779 !important;
+    }
+    .cta-panel {
+        background-color: #002623 !important;
+        border-color: #988561 !important;
+    }
+    .kpi-tile {
+        background-color: rgba(185, 167, 121, 0.12) !important;
+        color: #988561 !important;
+    }
+
+    /* ===== ICON POSITIONING FIX FOR RTL ===== */
+    
+    /* 1. Input container relative wrapper */
+    .input-group,
+    .form-group,
+    .pf-field {
+        position: relative !important;
+        display: block;
+        width: 100%;
+    }
+
+    /* 2. Absolute icon positioning (RTL compatible) */
+    .input-group-text i,
+    .pf-icongroup .input-group-text i {
+        position: absolute !important;
+        left: 15px !important;
+        right: auto !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        color: #002623 !important;
+        z-index: 10 !important;
+        pointer-events: none;
+    }
+
+    /* 3. Input padding adjustment */
+    .profile-page .form-control,
+    .profile-page input[type="text"],
+    .profile-page input[type="password"],
+    .profile-page input[type="email"],
+    .profile-page input[type="date"],
+    .profile-page input[type="tel"],
+    .profile-page .form-select {
+        padding-left: 45px !important;
+        padding-right: 15px !important;
+        background-color: #edebe0 !important;
+        color: #002623 !important;
+        border: 1px solid #988561 !important;
+    }
+
+    /* Fix for input-group-text positioning */
+    .pf-icongroup .input-group-text {
+        position: absolute !important;
+        left: 0 !important;
+        right: auto !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        border-radius: 14px 0 0 14px !important;
+        border-right: none !important;
+        border-left: 1px solid #988561 !important;
+        z-index: 5 !important;
+    }
+
+    .pf-icongroup .form-control {
+        padding-left: 45px !important;
+        padding-right: 15px !important;
+        border-radius: 14px !important;
+    }
+
+    /* ===== CONTRACT TAB STYLING ===== */
+    .contract-header-card {
+        background-color: #002623 !important;
+        border: 1px solid #b9a779 !important;
+        border-radius: 18px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    .contract-title {
+        color: #b9a779 !important;
+        font-weight: bold;
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    .contract-parties {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    .party-section {
+        background-color: rgba(185, 167, 121, 0.08);
+        border: 1px solid #988561;
+        border-radius: 12px;
+        padding: 1.25rem;
+    }
+    .party-title {
+        color: #b9a779 !important;
+        font-weight: bold;
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+        border-bottom: 1px solid #988561;
+        padding-bottom: 0.5rem;
+    }
+    .party-content {
+        color: #edebe0 !important;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+    .party-content strong {
+        color: #b9a779 !important;
+    }
+    .contract-section {
+        background-color: #002623 !important;
+        border: 1px solid #988561;
+        border-radius: 14px;
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+    .contract-section-header {
+        background-color: rgba(185, 167, 121, 0.15);
+        border-bottom: 1px solid #988561;
+        padding: 1rem 1.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+    .contract-section-header:hover {
+        background-color: rgba(185, 167, 121, 0.25);
+    }
+    .section-title {
+        color: #b9a779 !important;
+        font-weight: bold;
+        font-size: 1rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .section-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background-color: rgba(185, 167, 121, 0.2);
+        display: grid;
+        place-items: center;
+        color: #b9a779;
+    }
+    .section-toggle {
+        color: #b9a779;
+        transition: transform 0.3s ease;
+    }
+    .contract-section[aria-expanded="true"] .section-toggle {
+        transform: rotate(180deg);
+    }
+    .contract-section-body {
+        padding: 1.5rem;
+        display: none;
+    }
+    .contract-section[aria-expanded="true"] .contract-section-body {
+        display: block;
+    }
+    .contract-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px dashed rgba(185, 167, 121, 0.3);
+    }
+    .contract-item:last-child {
+        border-bottom: none;
+    }
+    .contract-label {
+        color: #edebe0 !important;
+        font-size: 0.9rem;
+    }
+    .contract-value {
+        color: #b9a779 !important;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    .contract-text {
+        color: #edebe0 !important;
+        font-size: 0.9rem;
+        line-height: 1.7;
+        margin-bottom: 0.75rem;
+    }
+    .contract-text strong {
+        color: #b9a779 !important;
+    }
+    .contract-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #988561;
+    }
+    .contract-btn {
+        background-color: #b9a779 !important;
+        color: #002623 !important;
+        border: none;
+        border-radius: 12px;
+        padding: 0.85rem 2rem;
+        font-weight: bold;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+    .contract-btn:hover {
+        background-color: #988561 !important;
+        transform: translateY(-2px);
+    }
+    @media (max-width: 768px) {
+        .contract-parties {
+            grid-template-columns: 1fr;
+        }
+        .contract-actions {
+            flex-direction: column;
+        }
+        .contract-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* ===== PRINT STYLES ===== */
+    @media print {
+        body * { visibility: hidden; }
+        #official-contract-document, #official-contract-document * { visibility: visible; }
+        #official-contract-document {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            color: #000 !important;
+            background: #fff !important;
+        }
+        .no-print, .sidebar, .top-navbar, .btn { display: none !important; }
+        .contract-section-body { display: block !important; }
+        .contract-section-header { cursor: default !important; }
+        .section-toggle { display: none !important; }
+        .contract-header-card {
+            background-color: #fff !important;
+            border: 1px solid #000 !important;
+        }
+        .contract-title { color: #000 !important; }
+        .party-section {
+            background-color: #fff !important;
+            border: 1px solid #000 !important;
+        }
+        .party-title { color: #000 !important; border-bottom-color: #000 !important; }
+        .party-content { color: #000 !important; }
+        .party-content strong { color: #000 !important; }
+        .contract-section {
+            background-color: #fff !important;
+            border: 1px solid #000 !important;
+        }
+        .contract-section-header {
+            background-color: #fff !important;
+            border-bottom-color: #000 !important;
+        }
+        .section-title { color: #000 !important; }
+        .section-icon {
+            background-color: #f0f0f0 !important;
+            color: #000 !important;
+        }
+        .contract-label { color: #000 !important; }
+        .contract-value { color: #000 !important; }
+        .contract-text { color: #000 !important; }
+        .contract-text strong { color: #000 !important; }
+    }
 </style>
 {% endblock %}
 
@@ -509,64 +857,64 @@
 
         <!-- ===== Tab 1: البيانات الشخصية ===== -->
         <div class="tab-pane fade show active" id="pane-personal" role="tabpanel" aria-labelledby="tab-personal">
-            <div class="panel tab-inner">
-                <form method="post">
+            <div class="panel tab-inner p-4">
+                <form method="post" class="personal-details-form">
                     {% csrf_token %}
-                    <div class="pf-grid">
-                        <div class="pf-field">
-                            <label class="f-label">الاسم الكامل</label>
-                            <div class="ro-value"><i class="fa-solid fa-user" style="color:var(--tile-fg);"></i>{{ employee.get_full_name|default:user.get_full_name|default:user.username }}</div>
-                        </div>
-                        <div class="pf-field">
-                            <label for="date_of_birth" class="f-label">تاريخ الميلاد</label>
-                            <input type="date" class="form-control" id="date_of_birth" name="date_of_birth"
-                                   value="{% if employee.date_of_birth %}{{ employee.date_of_birth|date:'Y-m-d' }}{% endif %}">
-                        </div>
-                        <div class="pf-field">
-                            <label class="f-label">البريد الإلكتروني</label>
-                            <div class="ro-value"><i class="fa-solid fa-envelope" style="color:var(--tile-fg);"></i>{{ user.email|default:"غير محدد" }}</div>
-                        </div>
-                        <div class="pf-field">
-                            <label for="primary_phone" class="f-label">رقم الهاتف الرئيسي</label>
-                            <input type="tel" class="form-control" id="primary_phone" name="primary_phone"
-                                   value="{{ employee.phone|default:'' }}" placeholder="05xxxxxxxx">
-                        </div>
-                        <div class="pf-field">
-                            <label class="f-label">الرقم الوطني / جواز السفر</label>
-                            <div class="ro-value mono">{{ employee.national_id|default:"غير محدد" }}</div>
-                        </div>
-                        <div class="pf-field">
-                            <label class="f-label">أرقام الهاتف الإضافية</label>
-                            <div id="phone-list" class="phone-list w-100">
-                                {% for phone in phone_numbers %}
-                                    {% if not phone.is_primary %}
-                                        <div class="input-group mb-2 phone-item">
-                                            <input type="tel" class="form-control" name="phone_{{ forloop.counter }}" value="{{ phone.number }}" placeholder="رقم هاتف إضافي">
-                                            <button type="button" class="btn btn-ghost-danger remove-phone" aria-label="Remove phone"><i class="fa-solid fa-trash-can me-1"></i>حذف</button>
-                                        </div>
-                                    {% endif %}
-                                {% empty %}
-                                    <div class="input-group mb-2 phone-item">
-                                        <input type="tel" class="form-control" name="phone_1" placeholder="رقم هاتف إضافي">
-                                        <button type="button" class="btn btn-ghost-danger remove-phone" aria-label="Remove phone"><i class="fa-solid fa-trash-can me-1"></i>حذف</button>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                            <button type="button" id="add-phone" class="btn-tone-outline mt-1" style="align-self:flex-start; padding:.4rem .95rem; font-size:.8rem;">
-                                <i class="fa-solid fa-plus me-1"></i>إضافة رقم هاتف
-                            </button>
-                        </div>
-                        <div class="pf-field wide">
-                            <label for="address" class="f-label">العنوان</label>
-                            <textarea class="form-control" id="address" name="address" rows="3" placeholder="اكتب عنوانك الحالي">{{ employee.address|default:'' }}</textarea>
-                        </div>
-                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-10">
+                            <div class="row g-3">
 
-                    <div class="pf-actions">
-                        <small class="pf-note"><i class="fa-solid fa-shield-halved" style="color:var(--tile-fg);"></i>بياناتك محمية وتُستخدم لأغراض الموارد البشرية فقط</small>
-                        <button type="submit" class="btn-tone">
-                            <i class="fa-solid fa-floppy-disk"></i> حفظ التعديلات
-                        </button>
+                                <!-- Column 1: Full Name, DOB, National ID -->
+                                <div class="col-md-6">
+                                    <div class="pf-field mb-2">
+                                        <label for="full_name" class="f-label small mb-1"><i class="fa-solid fa-user me-1" style="color:var(--tile-fg);"></i>الاسم الكامل</label>
+                                        <input type="text" id="full_name" name="full_name" class="form-control form-control-sm shadow-sm pf-input-lite"
+                                               value="{{ employee.get_full_name|default:user.get_full_name|default:user.username }}" readonly>
+                                    </div>
+
+                                    <div class="pf-field mb-2">
+                                        <label for="date_of_birth" class="f-label small mb-1"><i class="fa-solid fa-calendar-days me-1" style="color:var(--tile-fg);"></i>تاريخ الميلاد</label>
+                                        <input type="date" id="date_of_birth" name="date_of_birth" class="form-control form-control-sm shadow-sm pf-input-lite"
+                                               value="{% if employee.date_of_birth %}{{ employee.date_of_birth|date:'Y-m-d' }}{% endif %}">
+                                    </div>
+
+                                    <div class="pf-field mb-2">
+                                        <label for="national_id" class="f-label small mb-1"><i class="fa-solid fa-id-card me-1" style="color:var(--tile-fg);"></i>الرقم الوطني / جواز السفر</label>
+                                        <input type="text" id="national_id" name="national_id" class="form-control form-control-sm shadow-sm pf-input-lite"
+                                               value="{{ employee.national_id|default:'' }}" placeholder="11 رقماً">
+                                    </div>
+                                </div>
+
+                                <!-- Column 2: Primary Phone, Personal Email, Address -->
+                                <div class="col-md-6">
+                                    <div class="pf-field mb-2">
+                                        <label for="primary_phone" class="f-label small mb-1"><i class="fa-solid fa-phone me-1" style="color:var(--tile-fg);"></i>رقم الهاتف الرئيسي</label>
+                                        <input type="tel" id="primary_phone" name="primary_phone" class="form-control form-control-sm shadow-sm pf-input-lite"
+                                               value="{{ employee.phone|default:'' }}" placeholder="05xxxxxxxx" maxlength="10" pattern="[0-9]{10}" inputmode="numeric">
+                                    </div>
+
+                                    <div class="pf-field mb-2">
+                                        <label for="personal_email" class="f-label small mb-1"><i class="fa-solid fa-envelope me-1" style="color:var(--tile-fg);"></i>البريد الإلكتروني الشخصي</label>
+                                        <input type="email" id="personal_email" name="personal_email" class="form-control form-control-sm shadow-sm pf-input-lite"
+                                               value="{{ employee.personal_email|default:'' }}" placeholder="you@example.com" dir="ltr">
+                                    </div>
+
+                                    <div class="pf-field mb-2">
+                                        <label for="address" class="f-label small mb-1"><i class="fa-solid fa-location-dot me-1" style="color:var(--tile-fg);"></i>العنوان الحالي</label>
+                                        <input type="text" id="address" name="address" class="form-control form-control-sm shadow-sm pf-input-lite"
+                                               value="{{ employee.address|default:'' }}" placeholder="اكتب عنوانك الحالي">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Footer: save + privacy badge on the same row -->
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3 pt-3" style="border-top:1px dashed var(--line);">
+                                <small class="pf-note mb-0"><i class="fa-solid fa-shield-halved" style="color:var(--tile-fg);"></i>بياناتك محمية وتُستخدم لأغراض الموارد البشرية فقط</small>
+                                <button type="submit" class="btn-tone" style="margin-inline-start:auto;">
+                                    <i class="fa-solid fa-floppy-disk"></i> حفظ التعديلات
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -576,32 +924,38 @@
         <div class="tab-pane fade" id="pane-job" role="tabpanel" aria-labelledby="tab-job">
             <div class="panel tab-inner">
                 <div class="panel-title"><i class="fa-solid fa-briefcase"></i> البيانات الوظيفية</div>
-                <div class="pf-grid">
-                    <div class="pf-field">
-                        <label class="f-label">القسم</label>
-                        <div class="ro-value">{{ employee.department.name|default:"غير محدد" }}</div>
-                    </div>
-                    <div class="pf-field">
-                        <label class="f-label">المسمى الوظيفي</label>
-                        <div class="ro-value">{{ employee.position.title|default:"غير محدد" }}</div>
-                    </div>
-                    <div class="pf-field">
-                        <label class="f-label">الدور</label>
-                        <div class="ro-value">{{ employee.position.role|default:"غير محدد" }}</div>
-                    </div>
-                    <div class="pf-field">
-                        <label class="f-label">رقم الموظف</label>
-                        <div class="ro-value mono">EMP-{{ employee.employee_number|default:"N/A" }}</div>
-                    </div>
-                    <div class="pf-field">
-                        <label class="f-label">نوع العقد</label>
-                        <div class="ro-value">
-                            {% if contract %}{{ contract.get_contract_type_display }}{% if contract.status == 'ACTIVE' %} <span class="badge-active ms-1"><span class="pulse-dot"></span>نشط</span>{% endif %}{% else %}غير محدد{% endif %}
+                <div class="row g-3">
+                    <!-- Column 1: Department, Job Title, Role -->
+                    <div class="col-md-6">
+                        <div class="pf-field mb-2">
+                            <label class="f-label">القسم</label>
+                            <div class="ro-value"><i class="fa-solid fa-sitemap me-2" style="color:var(--tile-fg);"></i>{{ employee.department.name|default:"غير محدد" }}</div>
+                        </div>
+                        <div class="pf-field mb-2">
+                            <label class="f-label">المسمى الوظيفي</label>
+                            <div class="ro-value"><i class="fa-solid fa-briefcase me-2" style="color:var(--tile-fg);"></i>{{ employee.position.title|default:"غير محدد" }}</div>
+                        </div>
+                        <div class="pf-field mb-2">
+                            <label class="f-label">الدور</label>
+                            <div class="ro-value"><i class="fa-solid fa-user-tag me-2" style="color:var(--tile-fg);"></i>{{ employee.position.role|default:"غير محدد" }}</div>
                         </div>
                     </div>
-                    <div class="pf-field">
-                        <label class="f-label">تاريخ التعيين</label>
-                        <div class="ro-value">{% if contract %}{{ contract.start_date|date:"Y/m/d" }}{% else %}غير محدد{% endif %}</div>
+                    <!-- Column 2: Employee ID, Contract Type, Hire Date -->
+                    <div class="col-md-6">
+                        <div class="pf-field mb-2">
+                            <label class="f-label">رقم الموظف</label>
+                            <div class="ro-value mono"><i class="fa-solid fa-hashtag me-2" style="color:var(--tile-fg);"></i>EMP-{{ employee.employee_number|default:"N/A" }}</div>
+                        </div>
+                        <div class="pf-field mb-2">
+                            <label class="f-label">نوع العقد</label>
+                            <div class="ro-value">
+                                {% if contract %}<i class="fa-solid fa-file-contract me-2" style="color:var(--tile-fg);"></i>{{ contract.get_contract_type_display }}{% if contract.status == 'ACTIVE' %} <span class="badge-active ms-1"><span class="pulse-dot"></span>نشط</span>{% endif %}{% else %}غير محدد{% endif %}
+                            </div>
+                        </div>
+                        <div class="pf-field mb-2">
+                            <label class="f-label">تاريخ التعيين</label>
+                            <div class="ro-value"><i class="fa-solid fa-calendar-check me-2" style="color:var(--tile-fg);"></i>{% if contract %}{{ contract.start_date|date:"Y/m/d" }}{% else %}غير محدد{% endif %}</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -614,11 +968,27 @@
                 <div class="pf-grid" style="max-width:720px;">
                     <div class="pf-field">
                         <label class="f-label">الراتب الأساسي</label>
-                        <div class="ro-value mono">{% if contract %}{{ contract.salary }} ${% else %}غير محدد{% endif %}</div>
+                        <div class="ro-value mono">{{ employee.salary|default:0 }} $</div>
                     </div>
                     <div class="pf-field">
                         <label class="f-label">البدلات</label>
-                        <div class="ro-value" style="color:var(--muted);">غير محدد</div>
+                        <div class="ro-value mono">{{ allowances|default:0 }} $</div>
+                    </div>
+                    <div class="pf-field">
+                        <label class="f-label">التأمين الاجتماعي (9%)</label>
+                        <div class="ro-value mono">{{ social_insurance|default:0 }} $</div>
+                    </div>
+                    <div class="pf-field">
+                        <label class="f-label">التأمين الصحي (5%)</label>
+                        <div class="ro-value mono">{{ health_insurance|default:0 }} $</div>
+                    </div>
+                    <div class="pf-field">
+                        <label class="f-label">إجمالي الخصومات</label>
+                        <div class="ro-value mono" style="color: #dc2626;">{{ total_deductions|default:0 }} $</div>
+                    </div>
+                    <div class="pf-field">
+                        <label class="f-label">صافي الراتب التقديري</label>
+                        <div class="ro-value mono" style="color: #b9a779; font-weight: bold;">{{ net_salary|default:0 }} $</div>
                     </div>
                     <div class="pf-field wide">
                         {% if not user.is_staff and employee.position.role != 'HR Admin' %}
@@ -635,37 +1005,232 @@
         <!-- ===== Tab 4: العقد الرسمي ===== -->
         <div class="tab-pane fade" id="pane-contract" role="tabpanel" aria-labelledby="tab-contract">
             <div class="tab-inner">
-                <div class="cta-panel" style="max-width:560px; margin:0 auto;">
-                    <span class="kpi-tile mb-3" style="width:56px; height:56px; font-size:1.3rem;"><i class="fa-solid fa-file-contract"></i></span>
-                    <h5 class="fw-bold mb-1" style="color:var(--head);">العقد الرسمي</h5>
-                    <p class="mb-3" style="color:var(--muted); font-size:.84rem;">عرض وطباعة النسخة المعتمدة من العقد</p>
-
-                    {% if contract %}
-                        <div class="pf-grid w-100" style="max-width:420px; margin-bottom:18px; text-align:right;">
-                            <div class="pf-field">
-                                <label class="f-label">نوع العقد</label>
-                                <div class="ro-value">{{ contract.get_contract_type_display }}</div>
-                            </div>
-                            <div class="pf-field">
-                                <label class="f-label">حالة العقد</label>
-                                <div class="ro-value">{% if contract.status == 'ACTIVE' %}نشط{% else %}غير نشط{% endif %}</div>
-                            </div>
-                            <div class="pf-field">
-                                <label class="f-label">تاريخ البدء</label>
-                                <div class="ro-value">{{ contract.start_date|date:"Y/m/d" }}</div>
-                            </div>
-                            <div class="pf-field">
-                                <label class="f-label">الراتب</label>
-                                <div class="ro-value mono">{{ contract.salary }} $</div>
+                {% if contract %}
+                <div id="official-contract-document">
+                <!-- Contract Header & Metadata Card -->
+                <div class="contract-header-card">
+                    <h2 class="contract-title">
+                        <i class="fa-solid fa-file-contract me-2"></i>
+                        عقد عمل رسمي - وثيقة رقم HRMS-CONTRACT-{{ employee.id }}
+                    </h2>
+                    
+                    <div class="contract-parties">
+                        <!-- الطرف الأول: الشركة -->
+                        <div class="party-section">
+                            <h4 class="party-title">
+                                <i class="fa-solid fa-building me-2"></i>الطرف الأول (الشركة)
+                            </h4>
+                            <div class="party-content">
+                                <p><strong>اسم الشركة الرسمي:</strong> شركة HRMS للموارد البشرية</p>
+                                <p><strong>الرقم الضريبي:</strong> 300123456789</p>
+                                <p><strong>العنوان:</strong> الرياض، المملكة العربية السعودية</p>
+                                <p><strong>رقم السجل التجاري:</strong> 1010123456</p>
                             </div>
                         </div>
-                        <a href="{% url 'employees:contract_print' employee.pk %}" class="btn-tone text-decoration-none">
-                            <i class="fa-solid fa-print"></i> عرض وطباعة العقد
-                        </a>
-                    {% else %}
-                        <span style="color:var(--muted); font-weight:600; font-size:.85rem;">لا يوجد عقد مسجل</span>
-                    {% endif %}
+                        
+                        <!-- الطرف الثاني: الموظف -->
+                        <div class="party-section">
+                            <h4 class="party-title">
+                                <i class="fa-solid fa-user me-2"></i>الطرف الثاني (الموظف)
+                            </h4>
+                            <div class="party-content">
+                                <p><strong>الاسم الكامل:</strong> {{ employee.get_full_name|default:user.get_full_name|default:user.username }}</p>
+                                <p><strong>الرقم الوطني/الهوية:</strong> {{ employee.national_id|default:"غير محدد" }}</p>
+                                <p><strong>المسمى الوظيفي:</strong> {{ employee.position.title|default:"غير محدد" }}</p>
+                                <p><strong>القسم:</strong> {{ employee.department.name|default:"غير محدد" }}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Contract Sections (Accordion) -->
+                
+                <!-- البند الأول: بيانات الوظيفة والراتب -->
+                <div class="contract-section" aria-expanded="true" id="section-position">
+                    <div class="contract-section-header" onclick="toggleContractSection('section-position')">
+                        <h4 class="section-title">
+                            <div class="section-icon"><i class="fa-solid fa-briefcase"></i></div>
+                            البند الأول: بيانات الوظيفة والراتب
+                        </h4>
+                        <i class="fa-solid fa-chevron-down section-toggle"></i>
+                    </div>
+                    <div class="contract-section-body">
+                        <div class="contract-item">
+                            <span class="contract-label">نوع العقد</span>
+                            <span class="contract-value">{{ contract.get_contract_type_display }}</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">تاريخ بداية العقد</span>
+                            <span class="contract-value">{{ contract.start_date|date:"Y/m/d" }}</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">تاريخ نهاية العقد</span>
+                            <span class="contract-value">{% if contract.end_date %}{{ contract.end_date|date:"Y/m/d" }}{% else %}عقد غير محدد المدة{% endif %}</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">الراتب الأساسي</span>
+                            <span class="contract-value">{{ contract.salary }} $</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">البدلات المقررة</span>
+                            <span class="contract-value">بدل سكن، بدل مواصلات، بدل هاتف</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">موعد صرف الراتب الشهري</span>
+                            <span class="contract-value">آخر كل شهر ميلادي</span>
+                        </div>
+                        <p class="contract-text mt-3">
+                            <strong>ملاحظة:</strong> الراتب الأساسي والبدلات المقررة خاضعة لضريبة الدخل والتأمينات الاجتماعية وفقاً للأنظمة المعمول بها في المملكة.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- البند الثاني: نظام الحضور والدوام -->
+                <div class="contract-section" aria-expanded="false" id="section-attendance">
+                    <div class="contract-section-header" onclick="toggleContractSection('section-attendance')">
+                        <h4 class="section-title">
+                            <div class="section-icon"><i class="fa-solid fa-clock"></i></div>
+                            البند الثاني: نظام الحضور والدوام والتأخير
+                        </h4>
+                        <i class="fa-solid fa-chevron-down section-toggle"></i>
+                    </div>
+                    <div class="contract-section-body">
+                        <div class="contract-item">
+                            <span class="contract-label">ساعات الدوام الرسمية</span>
+                            <span class="contract-value">8 ساعات يومياً (48 ساعة أسبوعياً)</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">أوقات الدوام</span>
+                            <span class="contract-value">8:00 ص - 5:00 م</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">فترة السماح بالتأخير</span>
+                            <span class="contract-value">15 دقيقة يومياً</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">آلية خصم التأخير</span>
+                            <span class="contract-value">خصم من الراتب الأساسي</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">وسيلة إثبات الدوام</span>
+                            <span class="contract-value">نظام البصمة الإلكترونية</span>
+                        </div>
+                        <p class="contract-text mt-3">
+                            <strong>سياسة الغياب:</strong> الغياب بدون إذن مسبق يعتبر مخالفة تأديبية ويعرض الموظف للجزاءات المنصوص عليها في اللائحة الداخلية.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- البند الثالث: الإجازات والسلف المالية -->
+                <div class="contract-section" aria-expanded="false" id="section-leaves">
+                    <div class="contract-section-header" onclick="toggleContractSection('section-leaves')">
+                        <h4 class="section-title">
+                            <div class="section-icon"><i class="fa-solid fa-calendar-days"></i></div>
+                            البند الثالث: الإجازات والسلف المالية
+                        </h4>
+                        <i class="fa-solid fa-chevron-down section-toggle"></i>
+                    </div>
+                    <div class="contract-section-body">
+                        <div class="contract-item">
+                            <span class="contract-label">رصيد الإجازات السنوية الكلي</span>
+                            <span class="contract-value">{{ total_leave_balance }} يوم</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">الحد الأقصى للسلفة</span>
+                            <span class="contract-value">3 أضعاف الراتب الأساسي</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">فترة سداد السلفة</span>
+                            <span class="contract-value">تصل إلى 12 شهراً</span>
+                        </div>
+                        <p class="contract-text mt-3">
+                            <strong>شروط السلف المالية:</strong> يحق للموظف طلب سلفة مالية بحد أقصى 3 أضعاف الراتب الأساسي، على أن يتم سدادها على أقساط شهرية لا تتجاوز 12 شهراً، مع خصم القسط تلقائياً من الراتب الشهري.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- البند الرابع: المكافآت والحوافز والتأمينات -->
+                <div class="contract-section" aria-expanded="false" id="section-bonuses">
+                    <div class="contract-section-header" onclick="toggleContractSection('section-bonuses')">
+                        <h4 class="section-title">
+                            <div class="section-icon"><i class="fa-solid fa-gift"></i></div>
+                            البند الرابع: المكافآت والحوافز والتأمينات
+                        </h4>
+                        <i class="fa-solid fa-chevron-down section-toggle"></i>
+                    </div>
+                    <div class="contract-section-body">
+                        <div class="contract-item">
+                            <span class="contract-label">سياسة التقييم الدوري</span>
+                            <span class="contract-value">ربع سنوي</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">مكافأة الأداء المتميز</span>
+                            <span class="contract-value">حتى شهر راتب</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">نسبة التأمين الاجتماعي</span>
+                            <span class="contract-value">9% من الراتب الأساسي</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">التأمين الصحي</span>
+                            <span class="contract-value">{% if health_insurance_amount %}{{ health_insurance_amount }} $ (5% من الراتب الأساسي){% else %}5% من الراتب الأساسي{% endif %}</span>
+                        </div>
+                        <p class="contract-text mt-3">
+                            <strong>سياسة المكافآت:</strong> تمنح المكافآت بناءً على التقييم الدوري للأداء والالتزام بالأهداف المحددة، مع مراعاة مدة الخدمة والإسهامات في تطوير العمل.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- البند الخامس: الأحكام العامة وسرية المعلومات -->
+                <div class="contract-section" aria-expanded="false" id="section-general">
+                    <div class="contract-section-header" onclick="toggleContractSection('section-general')">
+                        <h4 class="section-title">
+                            <div class="section-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                            البند الخامس: الأحكام العامة وسرية المعلومات
+                        </h4>
+                        <i class="fa-solid fa-chevron-down section-toggle"></i>
+                    </div>
+                    <div class="contract-section-body">
+                        <div class="contract-item">
+                            <span class="contract-label">فترة التجربة</span>
+                            <span class="contract-value">3 أشهر</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">فترة الإشعار للإنهاء</span>
+                            <span class="contract-value">30 يوم</span>
+                        </div>
+                        <div class="contract-item">
+                            <span class="contract-label">سرية المعلومات</span>
+                            <span class="contract-value">إلزامية طوال مدة العقد وبعده</span>
+                        </div>
+                        <p class="contract-text mt-3">
+                            <strong>اتفاقية عدم الإفصاح (NDA):</strong> يتعهد الموظف بالمحافظة على سرية جميع المعلومات والبيانات المتعلقة بالشركة، وعدم الإفصاح عنها لأي طرف ثالث دون موافقة كتابية مسبقة من الإدارة.
+                        </p>
+                        <p class="contract-text">
+                            <strong>الإنهاء المبكر:</strong> يحق لأي من الطرفين إنهاء العقد خلال فترة التجربة بإشعار 15 يوماً، وبعد فترة التجربة بإشعار 30 يوماً.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="contract-actions no-print">
+                    <button onclick="printContract()" class="contract-btn">
+                        <i class="fa-solid fa-print"></i>
+                        طباعة نسخة العقد PDF
+                    </button>
+                    <a href="{% url 'employees:contract_print' employee.pk %}" class="contract-btn">
+                        <i class="fa-solid fa-download"></i>
+                        تحميل نسخة معتمدة
+                    </a>
+                </div>
+                </div>
+                {% else %}
+                <div class="panel tab-inner text-center py-5">
+                    <i class="fa-solid fa-file-contract" style="font-size: 4rem; color: #988561; margin-bottom: 1.5rem;"></i>
+                    <h4 style="color: #b9a779; margin-bottom: 1rem;">لا يوجد عقد مسجل</h4>
+                    <p style="color: #edebe0;">يرجى التواصل مع قسم الموارد البشرية لإنشاء عقد العمل الرسمي</p>
+                </div>
+                {% endif %}
             </div>
         </div>
 
@@ -676,77 +1241,63 @@
                     {% csrf_token %}
                     <input type="hidden" name="form_name" value="account">
 
-                    <!-- ===== Default state: read-only identity + masked password ===== -->
-                    <div class="pf-grid" style="max-width:760px;">
-                        <div class="pf-field">
-                            <label for="account-username" class="f-label">اسم المستخدم</label>
-                            <div class="input-group pf-icongroup">
-                                <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-                                <input type="text" id="account-username" class="form-control" value="{{ user.username }}" readonly>
-                            </div>
-                        </div>
-                        <div class="pf-field">
-                            <label for="account-email" class="f-label">البريد الإلكتروني</label>
-                            <div class="input-group pf-icongroup">
-                                <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-                                <input type="email" id="account-email" name="email" class="form-control" value="{{ user.email|default:'' }}" readonly>
-                            </div>
-                        </div>
-                        <div class="pf-field">
-                            <label for="masked_password" class="f-label">كلمة السر الحالية</label>
-                            <div class="input-group password-toggle">
-                                <input type="password" id="masked_password" class="form-control" value="••••••••" readonly>
-                                <button type="button" class="btn toggle-password" data-target="masked_password" aria-label="إظهار كلمة السر"><i class="fa-solid fa-eye"></i></button>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="row g-4 align-items-start">
 
-                    <div class="pf-actions" style="border-top:0; margin-top:16px;">
-                        <button type="button" id="btn-reset-password" class="btn-tone-outline reset-password-btn" aria-expanded="false">
-                            <i class="fa-solid fa-lock"></i>
-                            <span class="reset-label">إعادة تعيين كلمة المرور</span>
-                            <i class="fa-solid fa-chevron-down reset-chevron"></i>
-                        </button>
-                    </div>
+                        <!-- ===== Column 1: always visible ===== -->
+                        <div class="col-md-6">
+                            <div class="pf-field mb-2">
+                                <label for="account-username" class="f-label small">اسم المستخدم</label>
+                                <div class="input-group input-group-sm pf-icongroup">
+                                    <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                                    <input type="text" id="account-username" class="form-control form-control-sm" value="{{ user.username }}" readonly>
+                                </div>
+                            </div>
+                            <div class="pf-field mb-2">
+                                <label for="account-email" class="f-label small">البريد الإلكتروني</label>
+                                <div class="input-group input-group-sm pf-icongroup">
+                                    <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                                    <input type="email" id="account-email" name="email" class="form-control form-control-sm" value="{{ user.email|default:'' }}" readonly>
+                                </div>
+                            </div>
+                            <div class="pf-field mb-2">
+                                <label for="masked_password" class="f-label small">كلمة السر الحالية</label>
+                                <div class="input-group input-group-sm pf-icongroup">
+                                    <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                                    <input type="password" id="masked_password" class="form-control form-control-sm" value="********" readonly>
+                                </div>
+                            </div>
+                            <button type="button" id="btn-reset-password" class="btn-tone-outline btn-sm reset-password-btn" aria-expanded="false" aria-controls="password-reset-column">
+                                <i class="fa-solid fa-lock"></i>
+                                <span class="reset-label">إعادة تعيين كلمة المرور</span>
+                                <i class="fa-solid fa-chevron-down reset-chevron"></i>
+                            </button>
+                        </div>
 
-                    <!-- ===== Collapsible: full password change form ===== -->
-                    <div id="password-reset-section" class="password-reset-section" aria-hidden="true">
-                        <div class="reset-heading">
-                            <i class="fa-solid fa-shield-halved"></i> تغيير كلمة المرور
-                        </div>
-                        <div class="pf-grid" style="max-width:760px;">
-                            <div class="pf-field">
-                                <label for="current_password" class="f-label">كلمة المرور الحالية</label>
-                                <div class="input-group password-toggle">
-                                    <input type="password" id="current_password" name="current_password" class="form-control" autocomplete="current-password">
-                                    <button type="button" class="btn toggle-password" data-target="current_password" aria-label="إظهار كلمة السر"><i class="fa-solid fa-eye"></i></button>
+                        <!-- ===== Column 2: hidden by default, revealed on reset click ===== -->
+                        <div id="password-reset-column" class="col-md-6 d-none" aria-hidden="true">
+                            <div class="pf-field mb-2">
+                                <label for="old_password" class="f-label small">أدخل كلمة السر الحالية للتأكيد</label>
+                                <div class="input-group input-group-sm pf-icongroup">
+                                    <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                                    <input type="password" id="old_password" name="old_password" class="form-control form-control-sm" autocomplete="current-password" placeholder="كلمة السر الحالية للتأكيد">
                                 </div>
                             </div>
-                            <div class="pf-field">
-                                <label for="new_password" class="f-label">كلمة المرور الجديدة</label>
-                                <div class="input-group password-toggle">
-                                    <input type="password" id="new_password" name="new_password" class="form-control" autocomplete="new-password">
-                                    <button type="button" class="btn toggle-password" data-target="new_password" aria-label="إظهار كلمة السر"><i class="fa-solid fa-eye"></i></button>
+                            <div class="pf-field mb-2">
+                                <label for="new_password1" class="f-label small">كلمة المرور الجديدة</label>
+                                <div class="input-group input-group-sm pf-icongroup">
+                                    <span class="input-group-text"><i class="fa-solid fa-key"></i></span>
+                                    <input type="password" id="new_password1" name="new_password1" class="form-control form-control-sm" autocomplete="new-password">
                                 </div>
                             </div>
-                            <div class="pf-field">
-                                <label for="confirm_password" class="f-label">تأكيد كلمة المرور الجديدة</label>
-                                <div class="input-group password-toggle">
-                                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" autocomplete="new-password">
-                                    <button type="button" class="btn toggle-password" data-target="confirm_password" aria-label="إظهار كلمة السر"><i class="fa-solid fa-eye"></i></button>
+                            <div class="pf-field mb-2">
+                                <label for="new_password2" class="f-label small">تأكيد كلمة المرور الجديدة</label>
+                                <div class="input-group input-group-sm pf-icongroup">
+                                    <span class="input-group-text"><i class="fa-solid fa-check-double"></i></span>
+                                    <input type="password" id="new_password2" name="new_password2" class="form-control form-control-sm" autocomplete="new-password">
                                 </div>
                             </div>
-                            <div class="pf-field wide">
-                                <div class="note-hr mt-1">
-                                    <i class="fa-solid fa-shield-halved mt-1"></i>
-                                    <span>استخدم 8 رموز أو أكثر وأضف أحرفاً وأرقاماً وعلامات لقوة أفضل.</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pf-actions">
-                            <p class="pf-note mb-0"><i class="fa-solid fa-user-lock" style="color:var(--tile-fg);"></i>لوحة بيانات الحساب وجلسة الدخول</p>
-                            <button type="submit" class="btn-tone">
-                                <i class="fa-solid fa-key"></i> حفظ كلمة المرور الجديدة
+                            <button type="submit" class="btn-tone btn-sm w-100">
+                                <i class="fa-solid fa-key"></i> حفظ كلمة السر الجديدة
                             </button>
                         </div>
                     </div>
@@ -790,59 +1341,50 @@
 
 {% block extra_js %}
 <script>
-const phoneList = document.getElementById('phone-list');
-const addPhoneBtn = document.getElementById('add-phone');
-
-if (addPhoneBtn) {
-    addPhoneBtn.addEventListener('click', function () {
-        const count = phoneList.querySelectorAll('.phone-item').length + 1;
-        const wrapper = document.createElement('div');
-        wrapper.className = 'input-group mb-2 phone-item';
-        wrapper.innerHTML = `
-            <input type="tel" class="form-control" name="phone_${count}" placeholder="رقم هاتف إضافي">
-            <button type="button" class="btn btn-ghost-danger remove-phone" aria-label="Remove phone"><i class="fa-solid fa-trash-can me-1"></i>حذف</button>
-        `;
-        phoneList.appendChild(wrapper);
+const resetBtn = document.getElementById('btn-reset-password');
+const resetColumn = document.getElementById('password-reset-column');
+if (resetBtn && resetColumn) {
+    resetBtn.addEventListener('click', function () {
+        const isHidden = resetColumn.classList.contains('d-none');
+        resetColumn.classList.toggle('d-none', !isHidden);
+        this.classList.toggle('active', isHidden);
+        this.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+        resetColumn.setAttribute('aria-hidden', isHidden ? 'false' : 'true');
+        const label = this.querySelector('.reset-label');
+        if (label) label.textContent = isHidden ? 'إخفاء نموذج كلمة المرور' : 'إعادة تعيين كلمة المرور';
+        const icon = this.querySelector('i:first-child');
+        if (icon) icon.className = isHidden ? 'fa-solid fa-lock-open' : 'fa-solid fa-lock';
+        if (isHidden) {
+            const first = resetColumn.querySelector('input');
+            if (first) window.setTimeout(function () { first.focus(); }, 60);
+        }
     });
 }
 
-document.addEventListener('click', function (event) {
-    const target = event.target.closest('.remove-phone');
-    if (target) {
-        const row = target.closest('.phone-item');
-        if (row) {
-            row.remove();
-        }
+// Contract section toggle function
+function toggleContractSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        const isExpanded = section.getAttribute('aria-expanded') === 'true';
+        section.setAttribute('aria-expanded', !isExpanded);
     }
-});
+}
 
-document.querySelectorAll('.toggle-password').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-        const input = document.getElementById(this.dataset.target);
-        if (!input) return;
-        const isPassword = input.type === 'password';
-        input.type = isPassword ? 'text' : 'password';
-        this.querySelector('i').className = isPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+// Print contract function
+function printContract() {
+    // Expand all sections before printing
+    const sections = document.querySelectorAll('.contract-section');
+    sections.forEach(section => {
+        section.setAttribute('aria-expanded', 'true');
     });
-});
-
-const resetBtn = document.getElementById('btn-reset-password');
-const resetSection = document.getElementById('password-reset-section');
-if (resetBtn && resetSection) {
-    resetBtn.addEventListener('click', function () {
-        const open = resetSection.classList.toggle('open');
-        this.classList.toggle('active', open);
-        this.setAttribute('aria-expanded', open ? 'true' : 'false');
-        resetSection.setAttribute('aria-hidden', open ? 'false' : 'true');
-        const label = this.querySelector('.reset-label');
-        if (label) label.textContent = open ? 'إخفاء نموذج كلمة المرور' : 'إعادة تعيين كلمة المرور';
-        const icon = this.querySelector('i:first-child');
-        if (icon) icon.className = open ? 'fa-solid fa-lock-open' : 'fa-solid fa-lock';
-        if (open) {
-            const first = resetSection.querySelector('input');
-            if (first) window.setTimeout(function () { first.focus(); }, 480);
-        }
-    });
+    
+    // Trigger print dialog
+    window.print();
+    
+    // Restore original state after print (optional)
+    // sections.forEach(section => {
+    //     section.setAttribute('aria-expanded', 'false');
+    // });
 }
 </script>
 {% endblock %}

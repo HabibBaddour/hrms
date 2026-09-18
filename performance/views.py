@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, QueryDict
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.utils.dateparse import parse_date
@@ -9,8 +9,27 @@ from types import SimpleNamespace
 
 from departments.models import Department
 from employees.models import Employee
-from performance.models import PerformanceEvaluation, PerformanceQuestion
+from performance.models import PerformanceEvaluation, PerformanceQuestion, EvaluationDraft
 from .forms import EvaluationDispatchForm, PerformanceEvaluationForm
+
+
+def _parse_scale(raw_value, default=5):
+    """Coerce a question scale value into a sane 1..10 integer."""
+    try:
+        scale = int(raw_value)
+    except (TypeError, ValueError):
+        scale = default
+    return scale if 1 <= scale <= 10 else default
+
+
+def _parse_tag(raw_value):
+    """Normalize an essential/target skill tag keyword into its stored value."""
+    normalized = (raw_value or '').strip().lower()
+    if normalized in {'essential', 'أساسي', 'اساسي', 'essential skill'}:
+        return 'essential'
+    if normalized in {'target', 'مستهدف', 'target skill'}:
+        return 'target'
+    return ''
 
 
 def _get_dynamic_overall_score(evaluation):
@@ -33,6 +52,21 @@ def _format_score(score):
     return f'{score:.2f}'.rstrip('0').rstrip('.')
 
 
+def _grade_label(score):
+    """Translate a 1-5 score into a readable performance grade label."""
+    if score is None:
+        return '—'
+    if score >= 4.5:
+        return 'ممتاز'
+    if score >= 3.5:
+        return 'جيد جداً'
+    if score >= 2.5:
+        return 'جيد'
+    if score >= 1.5:
+        return 'مقبول'
+    return 'ضعيف'
+
+
 def _campaign_key(evaluation):
     """Identify one dispatch campaign from the fields shared by its records."""
     return (
@@ -41,6 +75,20 @@ def _campaign_key(evaluation):
         evaluation.evaluator_id,
         evaluation.evaluation_date,
     )
+
+
+def _get_evaluator_role(evaluator):
+    """Return the human-readable role/title of the evaluator if available."""
+    if evaluator is None:
+        return 'غير محدد'
+    position = getattr(evaluator, 'position', None)
+    role = getattr(position, 'role', '')
+    title = getattr(position, 'title', '')
+    if title:
+        return title
+    if role:
+        return role
+    return 'مدير قسم'
 
 
 def _build_campaigns(evaluations):
@@ -56,6 +104,8 @@ def _build_campaigns(evaluations):
             record.status == 'COMPLETED'
             for record in records
         )
+        total_count = len(records)
+        status = 'COMPLETED' if completed_count == total_count else 'IN_PROGRESS'
         campaigns.append(SimpleNamespace(
             campaign_id=min(record.pk for record in records),
             title=first_record.title,
@@ -68,10 +118,14 @@ def _build_campaigns(evaluations):
                 or first_record.evaluator.user.username
                 if first_record.evaluator else 'غير محدد'
             ),
+            evaluator_role=_get_evaluator_role(first_record.evaluator),
             created_date=first_record.evaluation_date,
             completed_count=completed_count,
-            total_count=len(records),
-            completion_display=f'{completed_count}/{len(records)}',
+            total_count=total_count,
+            completion_display=f'{completed_count}/{total_count}',
+            status=status,
+            status_display='مكتملة' if status == 'COMPLETED' else 'قيد التنفيذ',
+            completion_percent=round(completed_count / total_count * 100) if total_count else 0,
         ))
     return campaigns
 
@@ -127,6 +181,7 @@ def performance_dashboard(request):
     context = {
         'campaigns': _build_campaigns(campaign_records),
         'departments': Department.objects.all().order_by('name'),
+        'drafts': EvaluationDraft.objects.order_by('-updated_at'),
         'selected_title': selected_title,
         'selected_department': selected_department,
         'selected_created_at': selected_created_at,
@@ -159,10 +214,14 @@ def campaign_detail(request, campaign_id):
             final_score = dynamic_score if dynamic_score is not None else evaluation.overall_score
             evaluation.final_score = final_score
             evaluation.score_display = _format_score(final_score)
+            evaluation.score_percent = round((final_score / 5) * 100)
+            evaluation.grade_display = _grade_label(final_score)
             evaluation.status_display = 'مكتمل'
         else:
             evaluation.final_score = None
             evaluation.score_display = 'لم يقيّم بعد'
+            evaluation.score_percent = None
+            evaluation.grade_display = '—'
             evaluation.status_display = 'لم يقيّم بعد'
 
     campaign = _build_campaigns(campaign_evaluations)[0]
@@ -212,15 +271,26 @@ def _get_department_evaluator(department):
     )
 
 
-def _render_dispatch_form(request, form):
+def _render_dispatch_form(request, form, draft=None):
     categories = getattr(form, 'categories', [])
-    tab_builders = [
-        {
+    tab_builders = []
+    for category in categories:
+        values = getattr(form, 'category_values', {}).get(category.code, [''])
+        scales = getattr(form, 'category_scales', {}).get(category.code, [5])
+        nas = getattr(form, 'category_nas', {}).get(category.code, [False])
+        tags = getattr(form, 'category_tags', {}).get(category.code, [''])
+        tab_builders.append({
             'category': category,
-            'values': getattr(form, 'category_values', {}).get(category.code, ['']),
-        }
-        for category in categories
-    ]
+            'rows': [
+                (
+                    value,
+                    _parse_scale(scales[index]) if index < len(scales) else 5,
+                    bool(nas[index]) if index < len(nas) else False,
+                    tags[index] if index < len(tags) else '',
+                )
+                for index, value in enumerate(values)
+            ],
+        })
     active_type = (
         form.data.get('evaluation_type')
         if getattr(form, 'data', None) else ''
@@ -233,7 +303,85 @@ def _render_dispatch_form(request, form):
         'categories': categories,
         'tab_builders': tab_builders,
         'active_type': active_type,
+        'draft': draft,
     })
+
+
+def _build_draft_questions(raw_post, categories):
+    """Build the question schema used by saved drafts from raw POST data."""
+    questions = []
+    for category in categories:
+        texts = raw_post.getlist(f'questions_{category.code}')
+        scales = raw_post.getlist(f'scale_{category.code}')
+        nas = raw_post.getlist(f'na_{category.code}')
+        tags = raw_post.getlist(f'tag_{category.code}')
+        for index, text in enumerate(texts):
+            text = text.strip()
+            if not text:
+                continue
+            questions.append({
+                'category': category.code,
+                'text': text,
+                'max_rating': _parse_scale(scales[index] if index < len(scales) else 5),
+                'na': nas[index] == '1' if index < len(nas) else False,
+                'tag': _parse_tag(tags[index] if index < len(tags) else ''),
+            })
+    return questions
+
+
+def _save_evaluation_draft(request):
+    """Persist an unfinished evaluation campaign so it can be continued later."""
+    form = EvaluationDispatchForm(request.POST or None)
+    title = request.POST.get('title', '').strip()
+    if not title:
+        form.add_error('title', 'أدخل عنواناً للتقييم قبل الحفظ كمسودة.')
+        return _render_dispatch_form(request, form)
+
+    questions = _build_draft_questions(request.POST, form.categories)
+    department_ids = [value for value in request.POST.getlist('departments') if value.isdigit()]
+    departments = Department.objects.filter(id__in=department_ids).order_by('name')
+
+    draft_id = request.POST.get('draft_id', '')
+    draft = EvaluationDraft.objects.filter(pk=draft_id).first() if draft_id.isdigit() else None
+    if draft is None:
+        draft = EvaluationDraft.objects.create(title=title, questions=questions)
+    else:
+        draft.title = title
+        draft.questions = questions
+        draft.save(update_fields=['title', 'questions'])
+    draft.departments.set(departments)
+
+    messages.success(request, 'تم حفظ التقييم كمسودة. يمكنك متابعة إعداده ونشره لاحقاً.')
+    return redirect('performance_dashboard')
+
+
+@login_required(login_url='login')
+def draft_edit(request, pk):
+    """Reopen a saved draft with all its questions, scales, and departments."""
+    draft = get_object_or_404(EvaluationDraft, pk=pk)
+    data = QueryDict(mutable=True)
+    data['title'] = draft.title
+    data['evaluation_type'] = 'COMPETENCIES'
+    for department in draft.departments.all():
+        data.appendlist('departments', str(department.pk))
+    for question in draft.questions or []:
+        data.appendlist(f'questions_{question.get("category")}', question.get('text', ''))
+        data.appendlist(f'scale_{question.get("category")}', str(question.get('max_rating', 5)))
+        data.appendlist(f'na_{question.get("category")}', '1' if question.get('na') else '0')
+        data.appendlist(f'tag_{question.get("category")}', question.get('tag', '') or '')
+    form = EvaluationDispatchForm(data)
+    return _render_dispatch_form(request, form, draft=draft)
+
+
+@login_required(login_url='login')
+def draft_delete(request, pk):
+    """Delete a saved evaluation draft permanently."""
+    draft = get_object_or_404(EvaluationDraft, pk=pk)
+    if request.method == 'POST':
+        draft.delete()
+        messages.success(request, 'تم حذف المسودة بنجاح.')
+        return redirect('performance_dashboard')
+    return redirect('performance_dashboard')
 
 
 def get_manager_pending_evaluations(employee_profile):
@@ -252,6 +400,9 @@ def get_manager_pending_evaluations(employee_profile):
 
 @login_required(login_url='login')
 def add_evaluation(request):
+    if request.method == 'POST' and request.POST.get('action') == 'draft':
+        return _save_evaluation_draft(request)
+
     form = EvaluationDispatchForm(request.POST or None)
     if not form.is_valid():
         return _render_dispatch_form(request, form)
@@ -264,15 +415,28 @@ def add_evaluation(request):
     category_map = {category.code: category for category in form.categories}
     question_rows = []
     question_schema = []
+    post_data = form.data
     for category in form.categories:
-        for text in form.cleaned_questions_by_category.get(category.code, []):
+        raw_texts = post_data.getlist(f'questions_{category.code}')
+        scales = post_data.getlist(f'scale_{category.code}')
+        nas = post_data.getlist(f'na_{category.code}')
+        tags = post_data.getlist(f'tag_{category.code}')
+        for index, raw_text in enumerate(raw_texts):
+            text = raw_text.strip()
+            if not text:
+                continue
+            is_na = nas[index] == '1' if index < len(nas) else False
+            tag = _parse_tag(tags[index] if index < len(tags) else '')
+            max_rating = _parse_scale(scales[index] if index < len(scales) else 5)
             question_schema.append({
                 'category': category.code,
                 'text': text,
-                'max_rating': 5,
+                'max_rating': max_rating,
                 'rating': None,
+                'na': is_na,
+                'tag': tag,
             })
-            question_rows.append((category, text))
+            question_rows.append((category, text, max_rating, is_na, tag))
 
     main_type = next(
         (
@@ -328,13 +492,15 @@ def add_evaluation(request):
                     question_schema=question_schema,
                 )
                 evaluation.departments.add(department)
-                for order, (category, text) in enumerate(question_rows, start=1):
+                for order, (category, text, max_rating, is_na, tag) in enumerate(question_rows, start=1):
                     PerformanceQuestion.objects.create(
                         evaluation=evaluation,
                         category=category,
                         text=text,
-                        max_score=5,
+                        max_score=max_rating,
                         order=order,
+                        is_na=is_na,
+                        tag=tag,
                     )
                 created_count += 1
 
@@ -377,22 +543,24 @@ def evaluation_detail(request, pk):
                 return HttpResponseForbidden('لا تملك صلاحية تعبئة هذا التقييم.')
             ratings = request.POST.getlist('rating')
             updated_questions = []
-            for index, question in enumerate(evaluation.question_schema or []):
+            rating_index = 0
+            for question in evaluation.question_schema or []:
+                if question.get('na'):
+                    updated_questions.append({**question, 'rating': None})
+                    continue
                 try:
-                    rating = int(ratings[index])
+                    rating = int(ratings[rating_index])
                 except (IndexError, TypeError, ValueError):
                     rating = 0
+                rating_index += 1
                 if rating < 1 or rating > question.get('max_rating', 5):
                     return _render_evaluation_detail(
                         request,
                         evaluation,
-                        form_error='أدخل تقييماً بين 1 و5 لكل سؤال.',
+                        form_error=f'أدخل تقييماً بين 1 و{question.get("max_rating", 5)} لكل سؤال.',
                         can_fill=can_fill,
                     )
-                updated_questions.append({
-                    **question,
-                    'rating': rating,
-                })
+                updated_questions.append({**question, 'rating': rating})
             evaluation.question_schema = updated_questions
             question_records = list(evaluation.questions.order_by('order', 'pk'))
             for index, question_record in enumerate(question_records):
@@ -413,6 +581,34 @@ def evaluation_detail(request, pk):
     return _render_evaluation_detail(request, evaluation, can_fill=can_fill)
 
 
+def _question_items(evaluation):
+    """Normalize an evaluation's questions for display (schema dicts or records)."""
+    items = []
+    if evaluation.question_schema:
+        for question in evaluation.question_schema:
+            max_rating = question.get('max_rating') or 5
+            items.append({
+                'text': question.get('text', ''),
+                'max_rating': max_rating,
+                'rating': question.get('rating'),
+                'na': bool(question.get('na')),
+                'tag': question.get('tag', ''),
+                'score_range': range(1, max_rating + 1),
+            })
+    else:
+        for record in evaluation.questions.select_related('category').order_by('order', 'pk'):
+            max_rating = record.max_score or 5
+            items.append({
+                'text': record.text,
+                'max_rating': max_rating,
+                'rating': record.rating,
+                'na': record.is_na,
+                'tag': record.tag,
+                'score_range': range(1, max_rating + 1),
+            })
+    return items
+
+
 def _render_evaluation_detail(request, evaluation, *, can_fill=False, form_error=''):
     history = PerformanceEvaluation.objects.filter(
         employee=evaluation.employee
@@ -422,6 +618,7 @@ def _render_evaluation_detail(request, evaluation, *, can_fill=False, form_error
         'history': history,
         'can_fill': can_fill,
         'dynamic_overall_score': _get_dynamic_overall_score(evaluation),
+        'display_questions': _question_items(evaluation),
         'form_error': form_error,
         **_get_performance_navigation(request),
     })
