@@ -17,8 +17,8 @@ from departments.models import Department
 from .models import LeaveRequest
 from employees.models import Employee
 from .ml_engine import is_peak_period, predict_leave_approval
+from .ml.predictor import predict_leave
 from .services import deduplicate_leave_queryset, get_department_manager, notify_leave_status_changed, notify_leave_submitted
-
 
 def _employee_search_query(search_query):
     q = Q()
@@ -586,33 +586,18 @@ def reject_leave(request, pk):
 
 def predict_leave_status(leave_instance):
     """
-    توليد توصية الذكاء الاصطناعي لطلب إجازة مسجّل (تُحفظ في ai_prediction/ai_confidence).
+    توليد توصية الذكاء الاصطناعي باستخدام Random Forest
+    لطلب إجازة مسجّل، مع حفظ التوصية ونسبة الثقة.
     """
     try:
-        employee = leave_instance.employee
-        remaining = employee.leave_remaining(leave_instance.leave_type)
+        result = predict_leave(leave_instance)
 
-        dept_conflicts = 0
-        if employee.department_id:
-            dept_conflicts = LeaveRequest.objects.filter(
-                employee__department_id=employee.department_id,
-                status='APPROVED',
-                start_date__lte=leave_instance.end_date,
-                end_date__gte=leave_instance.start_date,
-            ).exclude(employee=employee).count()
+        leave_instance.ai_prediction = result['prediction']
+        leave_instance.ai_confidence = result['confidence']
 
-        notice_days = (leave_instance.start_date - timezone.localdate()).days
-        result = predict_leave_approval(
-            requested_days=leave_instance.total_days,
-            remaining_balance=remaining,
-            dept_conflicts=dept_conflicts,
-            is_peak=is_peak_period(leave_instance.start_date, leave_instance.end_date),
-            notice_days=notice_days,
-            leave_type=leave_instance.leave_type,
+        leave_instance.save(
+            update_fields=['ai_prediction', 'ai_confidence']
         )
 
-        leave_instance.ai_prediction = 'APPROVED' if result['probability'] >= 55 else 'REJECTED'
-        leave_instance.ai_confidence = round(result['probability'], 1)
-        leave_instance.save(update_fields=['ai_prediction', 'ai_confidence'])
     except Exception as exc:
         print(f"ML Prediction Error: {exc}")
