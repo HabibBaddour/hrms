@@ -317,6 +317,19 @@
                 {% endif %}
             </button>
         </li>
+        {% if is_manager %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'team_advances' %}active{% endif %}"
+                    id="tab-btn-team-advances" data-bs-toggle="pill"
+                    data-bs-target="#tab-team-advances" type="button" role="tab"
+                    aria-controls="tab-team-advances" aria-selected="{% if active_tab == 'team_advances' %}true{% else %}false{% endif %}">
+                <i class="fas fa-users"></i> طلبات سلف الفريق
+                {% if team_advances_pending_count %}
+                <span style="background:#fff;color:#B9A779;border-radius:999px;font-size:.68rem;font-weight:900;padding:2px 8px;margin-inline-start:4px;min-width:20px;text-align:center;">{{ team_advances_pending_count }}</span>
+                {% endif %}
+            </button>
+        </li>
+        {% endif %}
     </ul>
 
     <!-- Tab content -->
@@ -410,9 +423,16 @@
                         تتبع طلبات السلف والسداد المستقبلي
                     </p>
                 </div>
-                <a href="{% url 'employees:advance_request' %}" class="btn-advance">
-                    <i class="fa-solid fa-plus"></i> طلب سلفة مالية
-                </a>
+                <div class="d-flex gap-2 flex-wrap">
+                    {% if is_manager %}
+                    <a href="?tab=team_advances" class="btn btn-sm" style="background-color: #002623; border: 1px solid #b9a779; color: #b9a779; border-radius: 8px; padding: 10px 16px; font-weight: 700; text-decoration: none; white-space: nowrap;">
+                        <i class="fa-solid fa-users me-1"></i> طلبات سلف الفريق
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'employees:advance_request' %}" class="btn-advance">
+                        <i class="fa-solid fa-plus"></i> طلب سلفة مالية
+                    </a>
+                </div>
             </div>
 
             <div class="psl-strip">
@@ -489,6 +509,84 @@
                 </div>
             </div>
         </div>
+
+        <!-- ===== Tab 3: Team Advances (Manager Only) ===== -->
+        {% if is_manager %}
+        <div class="tab-pane fade {% if active_tab == 'team_advances' %}show active{% endif %}" id="tab-team-advances" role="tabpanel">
+
+            <div class="adv-actions">
+                <div>
+                    <h2 style="font-size:1rem;font-weight:800;color:var(--head);margin:0 0 4px 0;">
+                        <i class="fas fa-users" style="color:var(--tone);"></i> طلبات سلف الفريق
+                    </h2>
+                    <p style="color:var(--muted);font-weight:600;font-size:.82rem;margin:0;">
+                        إدارة طلبات السلف من أعضاء فريقك
+                    </p>
+                </div>
+            </div>
+
+            <div class="psl-card">
+                <div class="psl-card-head">
+                    <h2><i class="fas fa-table" style="color:var(--tone)"></i> سجل طلبات السلف للفريق</h2>
+                    <span class="psl-count">{{ team_advances|length }} طلب</span>
+                </div>
+                <div class="psl-rows" style="padding:0;">
+                    {% if team_advances %}
+                    <table class="psl-table">
+                        <thead>
+                            <tr>
+                                <th>اسم الموظف</th>
+                                <th>المبلغ</th>
+                                <th>التاريخ</th>
+                                <th>السبب</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in team_advances %}
+                            <tr>
+                                <td class="t-bignum">{{ a.employee.get_full_name|default:a.employee.user.username }}</td>
+                                <td class="t-bignum">{{ a.amount|floatformat:2 }} $</td>
+                                <td class="t-muted">{{ a.created_at|date:'j/n/Y' }}</td>
+                                <td class="t-muted">{{ a.reason|truncatechars:30 }}</td>
+                                <td>
+                                    {% if a.status == 'APPROVED' %}
+                                    <span class="adv-status st-approved"><i class="fa-solid fa-circle-check"></i> مقبولة</span>
+                                    {% elif a.status == 'REJECTED' %}
+                                    <span class="adv-status st-rejected"><i class="fa-solid fa-circle-xmark"></i> مرفوضة</span>
+                                    {% else %}
+                                    <span class="adv-status st-pending"><i class="fa-solid fa-clock"></i> معلقة</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if a.status == 'PENDING' %}
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'employees:approve_advance' a.id %}" class="btn btn-sm" style="background-color: #2e7d32; color: white; border: none; border-radius: 6px; padding: 6px 12px; font-weight: 700; text-decoration: none;" onclick="return confirm('هل أنت متأكد من قبول طلب السلفة؟')">
+                                            <i class="fa-solid fa-check"></i> قبول
+                                        </a>
+                                        <a href="{% url 'employees:reject_advance' a.id %}" class="btn btn-sm" style="background-color: #ff6b6b; color: white; border: none; border-radius: 6px; padding: 6px 12px; font-weight: 700; text-decoration: none;" onclick="return confirm('هل أنت متأكد من رفض طلب السلفة؟')">
+                                            <i class="fa-solid fa-xmark"></i> رفض
+                                        </a>
+                                    </div>
+                                    {% else %}
+                                    <span class="t-muted">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="psl-empty" style="padding:40px 20px;">
+                        <i class="fas fa-users"></i>
+                        <p>لا توجد طلبات سلفة من فريقك حالياً.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
     </div><!-- /tab-content -->
 
@@ -594,7 +692,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const urlParams = new URLSearchParams(window.location.search);
     const activeTab = urlParams.get('tab');
 
-    if (activeTab === 'payslips' || activeTab === 'advances') {
+    if (activeTab === 'payslips' || activeTab === 'advances' || activeTab === 'team_advances') {
         const targetBtn = document.getElementById('tab-btn-' + activeTab);
         if (targetBtn && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
             bootstrap.Tab.getOrCreateInstance(targetBtn).show();

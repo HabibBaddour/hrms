@@ -7,9 +7,9 @@
 <style>
     :root { --brand-night:#002623; --brand-primary:#B9A779; --brand-primary-soft:#D8CBA6; --brand-teal:#B9A779; --brand-teal-deep:#988561; --brand-gold:#B9A779; --brand-surface:#F1ECDD; }
 
-    .msg-hero { position:relative; overflow:hidden; border-radius:22px; padding:26px 30px 22px; color:#fff; margin-bottom:26px; background: radial-gradient(520px 260px at 90% -10%, rgba(185,167,121,.35), transparent 65%), radial-gradient(420px 240px at 5% 110%, rgba(185,167,121,.22), transparent 60%), linear-gradient(120deg,#002623 0%,#7A6F4A 55%,#B9A779 100%); box-shadow:0 20px 44px rgba(0,38,35,.35); }
-    .msg-hero h1 { margin:0 0 6px; font-size:clamp(1.45rem,2.2vw,1.9rem); font-weight:800; }
-    .msg-hero p { margin:0; color:rgba(255,255,255,.78); font-size:.88rem; }
+    .msg-hero { position:relative; overflow:hidden; border-radius:22px; padding:26px 30px 22px; color:#002623; margin-bottom:26px; background: radial-gradient(520px 260px at 90% -10%, rgba(185,167,121,.35), transparent 65%), radial-gradient(420px 240px at 5% 110%, rgba(185,167,121,.22), transparent 60%), linear-gradient(120deg,#002623 0%,#7A6F4A 55%,#B9A779 100%); box-shadow:0 20px 44px rgba(0,38,35,.35); }
+    .msg-hero h1 { margin:0 0 6px; font-size:clamp(1.45rem,2.2vw,1.9rem); font-weight:800; color:#002623; }
+    .msg-hero p { margin:0; color:#002623; font-size:.88rem; }
     .msg-eyebrow { display:inline-flex; align-items:center; gap:8px; margin-bottom:8px; padding:5px 14px; border-radius:999px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.2); font-size:.75rem; font-weight:700; }
     .btn-gold-solid { display:inline-flex; align-items:center; gap:8px; min-height:42px; padding:0 20px; border-radius:12px; background:linear-gradient(135deg,#B9A779,#988561); color:#241A05; font-weight:800; font-size:.86rem; border:0; box-shadow:0 10px 24px rgba(152,133,97,.35); transition:transform .22s ease, filter .22s ease; }
     .btn-gold-solid:hover { transform:translateY(-2px); filter:brightness(1.05); color:#241A05; }
@@ -17,12 +17,14 @@
     .msg-chips .chip { display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:999px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); font-size:.82rem; font-weight:700; backdrop-filter:blur(6px); }
     .chip-unread { background:rgba(185,167,121,.28) !important; border-color:rgba(185,167,121,.5) !important; }
 
-    .msg-card { border-radius:18px; overflow:hidden; border:1px solid #DFD9C2; box-shadow:0 14px 34px rgba(0,38,35,.06) !important; }
+    .msg-card { border-radius:18px; overflow:hidden; border:none !important; box-shadow:none !important; }
 
-    .message-filters { padding:18px 20px 16px; background:#fff; border-top:0; border-bottom:1px solid #F0EDFA; }
-    .message-filters label { display:block; margin-bottom:5px; color:#6E6A86; font-size:.74rem; font-weight:700; }
-    .message-filters .form-control, .message-filters .form-select { min-height:40px; border-radius:10px; border-color:#E7E3F5; }
-    .message-filters .form-control:focus, .message-filters .form-select:focus { border-color:#D8CBA6; box-shadow:0 0 0 3px rgba(185,167,121,.15); }
+    .message-filters { padding:18px 20px 16px; background:#002623 !important; border:none !important; }
+    .message-filters label { display:block; margin-bottom:5px; color:#b9a779 !important; font-size:.74rem; font-weight:700; border:none !important; }
+    .message-filters .form-control, .message-filters .form-select { min-height:40px; border-radius:8px !important; border:1px solid #988561 !important; background:#002623 !important; color:#edebe0 !important; outline:none !important; box-shadow:none !important; appearance: none !important; -webkit-appearance: none !important; }
+    .message-filters .form-control:focus, .message-filters .form-select:focus { border-color:#988561 !important; outline:none !important; box-shadow:none !important; }
+    .message-filters input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6) sepia(0.5) saturate(1.5) hue-rotate(10deg) brightness(0.9); cursor: pointer; }
+    .message-filters input[type="date"]::-webkit-calendar-picker-indicator:hover { filter: invert(0.6) sepia(0.5) saturate(1.5) hue-rotate(10deg) brightness(1); }
     .folder-pills .btn { border-radius:999px; font-weight:700; font-size:.8rem; padding-inline:16px; transition:transform .2s ease, box-shadow .2s ease; }
     .folder-pills .btn:hover { transform:translateY(-2px); }
     .folder-pills .btn-primary { background:linear-gradient(135deg,#B9A779,#D8CBA6); border-color:transparent; box-shadow:0 6px 14px rgba(185,167,121,.28); }
@@ -30,32 +32,35 @@
     .folder-pills .btn-outline-primary:hover { background:#F1ECDD; color:#7A6F4A; border-color:#C9C3E3; }
     .folder-pills .badge { background:#F1EEFA !important; color:#7A6F4A !important; font-weight:800; }
     .folder-pills .btn-primary .badge { background:rgba(255,255,255,.92) !important; color:#7A6F4A !important; }
-    .message-filters form .btn-primary { background:linear-gradient(135deg,#B9A779,#D8CBA6); border:0; box-shadow:0 6px 14px rgba(185,167,121,.25); }
+    .message-filters form .btn-primary { background:linear-gradient(135deg,#B9A779,#D8CBA6); border:0; box-shadow:0 6px 14px rgba(185,167,121,.25); color:#002623 !important; }
     .message-filters form .btn-primary:hover { filter:brightness(1.07); }
     .message-filters .btn-outline-secondary { border-color:#E7E3F5; color:#6E6A86; }
 
     .msd { position:relative; }
-    .msd .form-select { cursor:pointer; min-height:40px; border-radius:10px; border-color:#E7E3F5; color:#2B2545; font-size:.85rem; white-space:nowrap; }
-    .msd .form-select:focus { border-color:#D8CBA6; box-shadow:0 0 0 3px rgba(185,167,121,.15); }
-    .msd-menu { display:none; position:absolute; top:calc(100% + 4px); inset-inline-start:0; z-index:1060; min-width:100%; width:max-content; max-width:280px; padding:6px; background:#fff; border:1px solid #E7E3F5; border-radius:12px; box-shadow:0 14px 34px rgba(0,38,35,.14); max-height:250px; overflow-y:auto; }
+    .msd button.form-select { cursor:pointer; min-height:40px; border-radius:8px !important; border:1px solid #988561 !important; color:#edebe0 !important; font-size:.85rem; white-space:nowrap; background:#002623 !important; padding: 0 40px 0 14px !important; direction: rtl !important; text-align: center !important; position: relative; display: flex; align-items: center; justify-content: center; }
+    .msd button.form-select .msd-caret { display: none !important; }
+    .msd button.form-select::after { content: ''; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #988561; }
+    .msd button.form-select [data-msd-label] { flex: 1; text-align: center; }
+    .msd button.form-select:focus { border-color:#b9a779 !important; outline:none !important; box-shadow:none !important; }
+    .msd-menu { display:none; position:absolute; top:calc(100% + 4px); inset-inline-start:0; z-index:1060; min-width:100%; width:max-content; max-width:280px; padding:6px; background:#001a18; border:1px solid #b9a779 !important; border-radius:12px; box-shadow:0 14px 34px rgba(0,38,35,.14); max-height:250px; overflow-y:auto; }
     .msd.open .msd-menu { display:block; }
     .msd.open .msd-caret { transform:rotate(180deg); }
-    .msd-caret { transition:transform .2s ease; font-size:.7rem; color:#9B95B5; }
-    .msd-item { display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:.82rem; color:#3A3552; transition:background .15s ease; }
-    .msd-item:hover { background:#F1ECDD; }
+    .msd-caret { transition:transform .2s ease; font-size:.7rem; color:#b9a779; }
+    .msd-item { display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:.82rem; color:#edebe0; transition:background .15s ease; }
+    .msd-item:hover { background:rgba(185,167,121,0.1); }
     .msd-item input { cursor:pointer; accent-color:#B9A779; }
-    .msd-all-row { border-bottom:1px solid #F0EDFA; margin-bottom:4px; font-weight:700; color:#6E6A86; white-space:nowrap; }
+    .msd-all-row { border-bottom:1px solid #b9a779 !important; margin-bottom:4px; font-weight:700; color:#b9a779; white-space:nowrap; }
     body.dark-mode .msd-menu { background:#172033; border-color:#334155; }
     body.dark-mode .msd-item { color:#e2e8f0; }
     body.dark-mode .msd-item:hover { background:#1e293b; }
     body.dark-mode .msd-all-row { border-color:#334155; }
 
-    .messages-table thead th { background:#FAF9FE; color:#6E6A86; font-size:.72rem; font-weight:800; letter-spacing:.02em; border-bottom:1px solid #DFD9C2; padding-block:13px; }
-    .messages-table td { border-color:#F3F1FA; }
+    .messages-table thead th { background:#002623 !important; color:#b9a779 !important; font-size:.72rem; font-weight:800; letter-spacing:.02em; border-bottom:1px solid #988561 !important; padding-block:13px; }
+    .messages-table td { border-color:#988561 !important; background-color:#002623 !important; color:#edebe0 !important; }
     .messages-table tbody tr { transition:background .18s ease; }
-    .messages-table tbody tr:hover td { background:#FBFAFE; }
-    .messages-table tbody tr.table-primary td { background:#FAF9FE !important; }
-    .messages-table tbody tr.table-primary td:first-child { box-shadow:inset -3px 0 0 #B9A779; }
+    .messages-table tbody tr:hover td { background-color:rgba(0,38,35,0.8) !important; }
+    .messages-table tbody tr.table-primary td { background-color:rgba(0,38,35,0.9) !important; }
+    .messages-table tbody tr.table-primary td:first-child { box-shadow:inset -3px 0 0 #b9a779; }
 
     .msg-avatar { flex:0 0 38px; width:38px; height:38px; display:grid; place-items:center; border-radius:12px; color:#fff; font-weight:800; font-size:.95rem; box-shadow:0 6px 14px rgba(0,38,35,.16); }
     .av-violet { background:linear-gradient(135deg,#B9A779,#D8CBA6); }
@@ -134,16 +139,24 @@
     /* --- Inbox dark-theme override matching the provided mock --- */
     .message-filters {
         background-color: #002623 !important;
-        border: 1px solid #988561 !important;
+        border: none !important;
         color: #b9a779 !important;
     }
     .message-filters label,
-    .message-filters .form-label,
+    .message-filters .form-label {
+        background-color: #002623 !important;
+        color: #b9a779 !important;
+        border: none !important;
+    }
     .message-filters .form-control,
     .message-filters .form-select,
     .message-filters input,
     .message-filters select,
-    .message-filters .msd button.form-select,
+    .message-filters .msd button.form-select {
+        background-color: #002623 !important;
+        color: #edebe0 !important;
+        border: 1px solid #988561 !important;
+    }
     .message-filters .msd .msd-menu,
     .message-filters .msd .msd-item,
     .message-filters .btn,
@@ -153,7 +166,7 @@
     .message-filters .form-select::placeholder {
         background-color: #002623 !important;
         color: #b9a779 !important;
-        border: 1px solid #988561 !important;
+        border: 1px solid #b9a779 !important;
     }
     .message-filters .form-control::placeholder,
     .message-filters .form-select::placeholder,
@@ -286,17 +299,17 @@
                 <a href="?status=read{% if preserve_query %}&{{ preserve_query }}{% endif %}" class="btn btn-sm {% if active_status == 'read' %}btn-primary{% else %}btn-outline-primary{% endif %}">مقروءة <span class="badge bg-white text-primary ms-1">{{ filter_counts.read }}</span></a>
             </div>
             <form method="get" class="d-flex align-items-end gap-2 flex-wrap flex-md-nowrap">
-                <div class="flex-grow-1" style="min-width:180px; max-width:300px;">
+                <div style="min-width:180px; max-width:300px;">
                     <label for="message_search" class="form-label small fw-semibold mb-1">بحث</label>
-                    <input type="search" class="form-control" id="message_search" name="q" value="{{ search_query }}" placeholder="ابحث في الموضوع أو المرسل...">
+                    <input type="search" id="message_search" name="q" value="{{ search_query }}" placeholder="ابحث في الموضوع أو المرسل..." style="width:100%; min-height:40px; border-radius:8px; border:1px solid #988561; background:#002623; color:#edebe0; outline:none; box-shadow:none; padding: 8px 12px; font-size:0.875rem;">
                 </div>
                 <div style="min-width:150px;">
                     <label for="date_from" class="form-label small fw-semibold mb-1">من تاريخ</label>
-                    <input type="date" class="form-control" id="date_from" name="date_from" value="{{ date_from }}">
+                    <input type="date" id="date_from" name="date_from" value="{{ date_from }}" style="width:100%; min-height:40px; border-radius:8px; border:1px solid #988561; background:#002623; color:#edebe0; outline:none; box-shadow:none; padding: 8px 12px; font-size:0.875rem;">
                 </div>
                 <div style="min-width:150px;">
                     <label for="date_to" class="form-label small fw-semibold mb-1">إلى تاريخ</label>
-                    <input type="date" class="form-control" id="date_to" name="date_to" value="{{ date_to }}">
+                    <input type="date" id="date_to" name="date_to" value="{{ date_to }}" style="width:100%; min-height:40px; border-radius:8px; border:1px solid #988561; background:#002623; color:#edebe0; outline:none; box-shadow:none; padding: 8px 12px; font-size:0.875rem;">
                 </div>
                 <div class="msd" data-msd style="min-width:180px; max-width:230px;">
                     <label for="department_msd_toggle" class="form-label small fw-semibold mb-1">القسم</label>
@@ -370,11 +383,11 @@
                         {% endif %}
                     </td>
                     <td class="text-center row-actions">
-                        <button type="button" class="btn btn-sm btn-light border read-message-button" title="عرض التفاصيل" data-bs-toggle="modal" data-bs-target="#messageReaderModal" data-message-id="{{ message.id }}" data-subject="{{ message.subject|striptags }}" data-sender="{{ message.sender.get_full_name|default:message.sender.username }}" data-recipient="{{ message.recipient.get_full_name|default:message.recipient.username }}" data-date="{{ message.created_at|date:'Y-m-d H:i' }}" data-read="{% if message.is_read %}مقروءة{% else %}غير مقروءة{% endif %}" data-can-analytics="{% if message.sender == request.user or request.user.is_superuser or user_role == 'HR Admin' or user_role == 'HR' %}true{% else %}false{% endif %}">
-                            <i class="fa-solid fa-eye" style="color:#B9A779;"></i>
+                        <button type="button" class="btn btn-sm btn-light border read-message-button" title="عرض التفاصيل" data-bs-toggle="modal" data-bs-target="#messageReaderModal" data-message-id="{{ message.id }}" data-subject="{{ message.subject|striptags }}" data-sender="{{ message.sender.get_full_name|default:message.sender.username }}" data-recipient="{{ message.recipient.get_full_name|default:message.recipient.username }}" data-date="{{ message.created_at|date:'Y-m-d H:i' }}" data-read="{% if message.is_read %}مقروءة{% else %}غير مقروءة{% endif %}" data-can-analytics="{% if message.sender == request.user or request.user.is_superuser or user_role == 'HR Admin' or user_role == 'HR' %}true{% else %}false{% endif %}" style="color: #B9A779; background: rgba(185, 167, 121, 0.1); border: 1px solid rgba(185, 167, 121, 0.3); border-radius: 6px; padding: 6px 10px;">
+                            <i class="fa-solid fa-eye"></i>
                         </button>
-                        <a href="{% url 'message_delete' message.id %}" class="btn btn-sm btn-light border" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذه الرسالة؟')">
-                            <i class="fa-solid fa-trash text-danger"></i>
+                        <a href="{% url 'message_delete' message.id %}" class="btn btn-sm delete-message-btn" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذه الرسالة؟')" style="color: #ff6b6b; background: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.3); border-radius: 6px; padding: 6px 10px; text-decoration: none;">
+                            <i class="fas fa-trash"></i>
                         </a>
                     </td>
                 </tr>

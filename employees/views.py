@@ -904,7 +904,112 @@ def payslip_list_view(request):
     context['total_deductions'] = total_deductions
     context['net_take_home_salary'] = net_take_home_salary
 
+    # Check if user is a manager
+    is_manager = user.groups.filter(name='Manager').exists()
+    if not is_manager:
+        employee_profile = getattr(user, 'employee_profile', None)
+        position = getattr(employee_profile, 'position', None) if employee_profile else None
+        if position and getattr(position, 'role', None) == 'Manager':
+            is_manager = True
+    context['is_manager'] = is_manager
+
+    # Get team advances for managers
+    if is_manager and employee:
+        manager_department = getattr(employee, 'department', None)
+        if manager_department:
+            team_advances = list(
+                SalaryAdvance.objects.filter(
+                    employee__department=manager_department
+                ).select_related('employee__user').order_by('-created_at', '-id')
+            )
+            context['team_advances'] = team_advances
+            context['team_advances_pending_count'] = len([adv for adv in team_advances if adv.status == 'PENDING'])
+        else:
+            context['team_advances'] = []
+            context['team_advances_pending_count'] = 0
+    else:
+        context['team_advances'] = []
+        context['team_advances_pending_count'] = 0
+
+    # Handle team_advances tab
+    if request.GET.get('tab') == 'team_advances':
+        context['active_tab'] = 'team_advances'
+
     return render(request, 'employees/payslip_list.html', context)
+
+
+@login_required(login_url='login')
+def approve_advance_request(request, advance_id):
+    """قبول طلب سلفة مالية من قبل المدير"""
+    advance = get_object_or_404(SalaryAdvance, id=advance_id)
+    
+    # Check if user is a manager
+    is_manager = request.user.groups.filter(name='Manager').exists()
+    if not is_manager:
+        employee_profile = getattr(request.user, 'employee_profile', None)
+        position = getattr(employee_profile, 'position', None) if employee_profile else None
+        if position and getattr(position, 'role', None) == 'Manager':
+            is_manager = True
+    
+    if not is_manager:
+        messages.error(request, 'ليس لديك صلاحية قبول طلبات السلف.')
+        return redirect('employees:payslip_list')
+    
+    # Check if the advance is from the same department
+    manager_employee = getattr(request.user, 'employee_profile', None)
+    if not manager_employee or not manager_employee.department:
+        messages.error(request, 'لا يمكن تحديد قسمك.')
+        return redirect('employees:payslip_list')
+    
+    if advance.employee.department != manager_employee.department:
+        messages.error(request, 'ليس لديك صلاحية قبول طلبات من أقسام أخرى.')
+        return redirect('employees:payslip_list')
+    
+    if advance.status != 'PENDING':
+        messages.warning(request, 'تمت معالجة هذا الطلب بالفعل.')
+        return redirect('employees:payslip_list')
+    
+    advance.status = 'APPROVED'
+    advance.save()
+    messages.success(request, 'تم قبول طلب السلفة بنجاح.')
+    return redirect('employees:payslip_list')
+
+
+@login_required(login_url='login')
+def reject_advance_request(request, advance_id):
+    """رفض طلب سلفة مالية من قبل المدير"""
+    advance = get_object_or_404(SalaryAdvance, id=advance_id)
+    
+    # Check if user is a manager
+    is_manager = request.user.groups.filter(name='Manager').exists()
+    if not is_manager:
+        employee_profile = getattr(request.user, 'employee_profile', None)
+        position = getattr(employee_profile, 'position', None) if employee_profile else None
+        if position and getattr(position, 'role', None) == 'Manager':
+            is_manager = True
+    
+    if not is_manager:
+        messages.error(request, 'ليس لديك صلاحية رفض طلبات السلف.')
+        return redirect('employees:payslip_list')
+    
+    # Check if the advance is from the same department
+    manager_employee = getattr(request.user, 'employee_profile', None)
+    if not manager_employee or not manager_employee.department:
+        messages.error(request, 'لا يمكن تحديد قسمك.')
+        return redirect('employees:payslip_list')
+    
+    if advance.employee.department != manager_employee.department:
+        messages.error(request, 'ليس لديك صلاحية رفض طلبات من أقسام أخرى.')
+        return redirect('employees:payslip_list')
+    
+    if advance.status != 'PENDING':
+        messages.warning(request, 'تمت معالجة هذا الطلب بالفعل.')
+        return redirect('employees:payslip_list')
+    
+    advance.status = 'REJECTED'
+    advance.save()
+    messages.success(request, 'تم رفض طلب السلفة.')
+    return redirect('employees:payslip_list')
 
 
 @login_required(login_url='login')

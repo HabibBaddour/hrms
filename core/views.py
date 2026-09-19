@@ -102,3 +102,34 @@ def mark_all_read(request):
         return JsonResponse({'success': True})
     
     return redirect('core:notification_list')
+
+
+@login_required
+@require_POST
+def delete_notification(request, notification_id):
+    """حذف إشعار محدد"""
+    try:
+        notification = SystemNotification.objects.get(id=notification_id, recipient=request.user)
+        notification.delete()
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'success'})
+        
+        return redirect('core:notification_list')
+    except SystemNotification.DoesNotExist:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'message': 'Notification not found'}, status=404)
+        
+        return redirect('core:notification_list')
+
+
+@login_required
+@require_POST
+def clear_all_notifications(request):
+    """حذف جميع إشعارات المستخدم"""
+    SystemNotification.objects.filter(recipient=request.user).delete()
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'status': 'success', 'message': 'All notifications cleared'})
+    
+    return redirect('core:notification_list')

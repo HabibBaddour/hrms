@@ -10,7 +10,7 @@
         overflow: hidden;
         border-radius: 20px;
         padding: 26px 28px 22px;
-        color: #fff;
+        color: #002623;
         margin-bottom: 22px;
         background:
             radial-gradient(520px 260px at 90% -10%, rgba(185,167,121,0.35), transparent 65%),
@@ -18,8 +18,8 @@
             linear-gradient(120deg, #002623 0%, #7A6F4A 55%, #B9A779 100%);
         box-shadow: 0 20px 44px rgba(0,38,35,0.35);
     }
-    .notif-hero h1 { margin: 0 0 6px; font-size: clamp(1.45rem, 2.2vw, 1.9rem); font-weight: 800; }
-    .notif-hero p { margin: 0; color: rgba(255,255,255,.78); font-size: .88rem; }
+    .notif-hero h1 { margin: 0 0 6px; font-size: clamp(1.45rem, 2.2vw, 1.9rem); font-weight: 800; color: #002623; }
+    .notif-hero p { margin: 0; color: #002623; font-size: .88rem; }
     .notif-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.2); font-size: .75rem; font-weight: 700; }
     .notif-chips { display: flex; flex-wrap: wrap; gap: 10px; }
     .notif-chips .chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); font-size: .82rem; font-weight: 700; backdrop-filter: blur(6px); }
@@ -72,20 +72,115 @@
         height: 42px !important;
         width: 100%;
         border-radius: 11px;
-        border: 1.5px solid #E7E3F4;
-        background: #FAFAFE;
+        border: none !important;
+        background: transparent !important;
         padding: 0 14px;
         font-size: .86rem;
-        color: #2B2545;
+        color: #edebe0 !important;
         transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+        box-shadow: none !important;
     }
     .filter-input:focus {
         outline: none;
-        background: #fff;
-        border-color: #B9A779;
-        box-shadow: 0 0 0 4px rgba(185,167,121,0.14);
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
     }
-    .filter-input::placeholder { color: #ADA7C4; }
+    .filter-input::placeholder { color: #988561 !important; }
+    input.custom-filter-input {
+        height: 42px !important;
+        width: 100% !important;
+        border-radius: 11px !important;
+        border: 1px solid #b9a779 !important;
+        border-style: solid !important;
+        border-width: 1px !important;
+        background: #001a18 !important;
+        padding: 0 14px !important;
+        font-size: .86rem !important;
+        color: #edebe0 !important;
+        box-sizing: border-box !important;
+        display: block !important;
+        outline: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+    }
+    select.custom-filter-input {
+        height: 42px !important;
+        width: 100% !important;
+        border-radius: 11px !important;
+        border: 1px solid #b9a779 !important;
+        border-style: solid !important;
+        border-width: 1px !important;
+        background: #001a18 !important;
+        padding: 0 40px 0 14px !important;
+        font-size: .86rem !important;
+        color: #edebe0 !important;
+        box-sizing: border-box !important;
+        display: block !important;
+        outline: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        direction: ltr !important;
+    }
+    select.custom-filter-input option {
+        direction: rtl !important;
+        text-align: right !important;
+    }
+    input.custom-filter-input:focus,
+    select.custom-filter-input:focus {
+        border-color: #b9a779 !important;
+        border-style: solid !important;
+        border-width: 1px !important;
+        box-shadow: 0 0 0 4px rgba(185,167,121,0.14) !important;
+        outline: none !important;
+    }
+    input.custom-filter-input::placeholder,
+    select.custom-filter-input::placeholder {
+        color: #988561 !important;
+    }
+    #notification-search {
+        border: 1px solid #b9a779 !important;
+        border-style: solid !important;
+        border-width: 1px !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+    .filter-field > input,
+    .filter-field > select {
+        border: 1px solid #b9a779 !important;
+        border-style: solid !important;
+        border-width: 1px !important;
+        box-shadow: none !important;
+        outline: none !important;
+        border-image: none !important;
+        border-radius: 11px !important;
+        border-top: 1px solid #b9a779 !important;
+        border-right: 1px solid #b9a779 !important;
+        border-bottom: 1px solid #b9a779 !important;
+        border-left: 1px solid #b9a779 !important;
+    }
+    .filter-field > input::before,
+    .filter-field > input::after,
+    .filter-field > select::before,
+    .filter-field > select::after {
+        display: none !important;
+        content: none !important;
+    }
+    .filter-field > input:focus,
+    .filter-field > select:focus {
+        border: 1px solid #b9a779 !important;
+        border-style: solid !important;
+        border-width: 1px !important;
+        box-shadow: 0 0 0 4px rgba(185,167,121,0.14) !important;
+        outline: none !important;
+        border-top: 1px solid #b9a779 !important;
+        border-right: 1px solid #b9a779 !important;
+        border-bottom: 1px solid #b9a779 !important;
+        border-left: 1px solid #b9a779 !important;
+    }
 
     .btn-dept-solid-violet { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 0 20px; border-radius: 11px; background: linear-gradient(135deg, #B9A779, #D8CBA6); color: #fff; font-weight: 700; font-size: .85rem; border: 0; white-space: nowrap; box-shadow: 0 8px 20px rgba(185,167,121,.32); transition: transform .2s ease, filter .2s ease; }
     .btn-dept-solid-violet:hover { color: #fff; transform: translateY(-2px); filter: brightness(1.07); }
@@ -197,24 +292,37 @@
         background-color: rgba(185, 167, 121, 0.14) !important;
         color: #b9a779 !important;
     }
-    .filter-form-container,
-    .filter-form-container .filter-field label,
-    .filter-form-container .filter-field input,
-    .filter-form-container .filter-field select,
-    .filter-form-container .filter-field .filter-input,
-    .filter-form-container .filter-field .filter-input::placeholder,
-    .filter-form-container .filter-input,
-    .filter-form-container select,
-    .filter-form-container input {
-        background-color: #001a18 !important;
-        color: #edebe0 !important;
-        border: 1px solid #b9a779 !important;
+    .filter-form-container {
+        background-color: #002623 !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 1rem !important;
     }
-    .filter-form-container .filter-field label,
-    .filter-form-container .filter-field label i,
-    .filter-form-container .filter-field .filter-input::placeholder,
-    .filter-form-container .filter-field input::placeholder,
-    .filter-form-container .filter-field select::placeholder {
+    .filter-form-container .filter-field {
+        border: 0 !important;
+        border-width: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        outline: none !important;
+    }
+    .filter-form-container .filter-field label {
+        background-color: transparent !important;
+        border: 0 !important;
+        border-width: 0 !important;
+        box-shadow: none !important;
+        color: #988561 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        outline: none !important;
+    }
+    .filter-form-container .filter-field label i {
         color: #988561 !important;
     }
     .notif-count-pill,
@@ -266,6 +374,44 @@
     .unread-dot {
         background: #b9a779 !important;
         box-shadow: 0 0 0 3px rgba(185, 167, 121, 0.2);
+    }
+    .delete-notif-btn {
+        background: transparent !important;
+        border: none !important;
+        color: #988561 !important;
+        cursor: pointer !important;
+        padding: 8px !important;
+        border-radius: 8px !important;
+        transition: all 0.2s ease !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    .delete-notif-btn:hover {
+        color: #ff6b6b !important;
+        background: rgba(255, 107, 107, 0.1) !important;
+    }
+    .btn-delete-all {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        min-height: 42px !important;
+        padding: 0 20px !important;
+        border-radius: 12px !important;
+        background: transparent !important;
+        color: #ff6b6b !important;
+        font-weight: 800 !important;
+        font-size: .86rem !important;
+        border: 1px solid #ff6b6b !important;
+        cursor: pointer !important;
+        text-decoration: none !important;
+        white-space: nowrap !important;
+        transition: all 0.2s ease !important;
+    }
+    .btn-delete-all:hover {
+        background: rgba(255, 107, 107, 0.1) !important;
+        color: #ff6b6b !important;
     }
 
     .notification-type { flex: 0 0 44px; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 13px; font-size: 1rem; flex-shrink: 0; }
@@ -368,6 +514,9 @@
                 {% if unread_count %}
                 <button type="button" onclick="markAllRead()" class="btn-gold-solid" id="mark-all-read-btn"><i class="fa-solid fa-check-double"></i> تحديد الكل كقراءة</button>
                 {% endif %}
+                {% if total_count %}
+                <button type="button" onclick="clearAllNotifications()" class="btn-delete-all"><i class="fa-solid fa-trash-alt"></i> حذف الكل</button>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -389,15 +538,15 @@
     </div>
 
     <form method="get" class="mb-4">
-        <div class="filter-form-container {% if user_role != 'Employee' %}has-type-field{% endif %} p-3 bg-white rounded-3 shadow-sm border">
+        <div class="filter-form-container {% if user_role != 'Employee' %}has-type-field{% endif %}">
             <div class="filter-field">
                 <label for="notification-search"><i class="fa-solid fa-magnifying-glass"></i> بحث</label>
-                <input id="notification-search" name="q" type="search" value="{{ filter_values.q }}" class="form-control filter-input" placeholder="ابحث في نص الإشعار أو المرسل">
+                <input id="notification-search" name="q" type="text" value="{{ filter_values.q }}" class="custom-filter-input" placeholder="ابحث في نص الإشعار أو المرسل" style="border: 1px solid #b9a779 !important; box-shadow: none !important; outline: none !important;">
             </div>
             {% if user_role != 'Employee' %}
             <div class="filter-field">
                 <label for="notification-type"><i class="fa-solid fa-layer-group"></i> القسم</label>
-                <select id="notification-type" name="type" class="form-select filter-input">
+                <select id="notification-type" name="type" class="custom-filter-input">
                     <option value="">كل الأقسام</option>
                     <option value="SYSTEM" {% if filter_values.type == 'SYSTEM' %}selected{% endif %}>نظام</option>
                     <option value="EMPLOYEE" {% if filter_values.type == 'EMPLOYEE' %}selected{% endif %}>موظفون</option>
@@ -409,7 +558,7 @@
             {% endif %}
             <div class="filter-field">
                 <label for="notification-importance"><i class="fa-solid fa-flag"></i> الأهمية</label>
-                <select id="notification-importance" name="importance" class="form-select filter-input">
+                <select id="notification-importance" name="importance" class="custom-filter-input">
                     <option value="">كل المستويات</option>
                     <option value="high" {% if filter_values.importance == 'high' %}selected{% endif %}>مهمة</option>
                     <option value="normal" {% if filter_values.importance == 'normal' %}selected{% endif %}>عادية</option>
@@ -418,7 +567,7 @@
             </div>
             <div class="filter-field">
                 <label for="notification-read"><i class="fa-solid fa-circle-check"></i> الحالة</label>
-                <select id="notification-read" name="read" class="form-select filter-input">
+                <select id="notification-read" name="read" class="custom-filter-input">
                     <option value="">كل الحالات</option>
                     <option value="unread" {% if filter_values.read == 'unread' %}selected{% endif %}>غير مقروءة</option>
                     <option value="read" {% if filter_values.read == 'read' %}selected{% endif %}>مقروءة</option>
@@ -426,7 +575,7 @@
             </div>
             <div class="filter-field">
                 <label for="notification-period"><i class="fa-regular fa-clock"></i> الفترة</label>
-                <select id="notification-period" name="period" class="form-select filter-input">
+                <select id="notification-period" name="period" class="custom-filter-input">
                     <option value="">كل الفترات</option>
                     <option value="today" {% if filter_values.period == 'today' %}selected{% endif %}>اليوم</option>
                     <option value="week" {% if filter_values.period == 'week' %}selected{% endif %}>آخر 7 أيام</option>
@@ -474,6 +623,7 @@
                                 {% else %}
                                 <span class="read-state" title="مقروء"><i class="fa-solid fa-check-double"></i> مقروء</span>
                                 {% endif %}
+                                <button type="button" onclick="deleteNotification({{ notification.id }}, this)" class="delete-notif-btn" title="حذف الإشعار" aria-label="حذف الإشعار"><i class="fa-solid fa-trash-alt"></i></button>
                             </div>
                         </div>
                     </article>
@@ -525,6 +675,38 @@ function markAllRead() {
     fetch('/core/notifications/mark-all-read/', { method: 'POST', headers: csrfHeaders() })
         .then(response => response.json())
         .then(data => { if (data.success) location.reload(); });
+}
+
+function deleteNotification(notificationId, button) {
+    if (confirm('هل أنت متأكد من حذف هذا الإشعار؟')) {
+        const notificationItem = button.closest('.notification-item');
+        notificationItem.style.opacity = '0';
+        notificationItem.style.transform = 'translateX(-20px)';
+        notificationItem.style.transition = 'all 0.3s ease';
+        
+        setTimeout(() => {
+            fetch(`/core/notifications/${notificationId}/delete/`, { method: 'POST', headers: csrfHeaders() })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        notificationItem.remove();
+                        location.reload();
+                    }
+                });
+        }, 300);
+    }
+}
+
+function clearAllNotifications() {
+    if (confirm('هل أنت متأكد من حذف جميع الإشعارات؟')) {
+        fetch('/core/notifications/clear-all/', { method: 'POST', headers: csrfHeaders() })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                }
+            });
+    }
 }
 </script>
 {% endblock %}

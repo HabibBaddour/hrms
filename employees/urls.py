@@ -15,6 +15,8 @@ urlpatterns = [
     path('payslips/<int:payslip_id>/', views.payslip_detail_view, name='payslip_detail'),
     path('payslips/<int:payslip_id>/pdf/', views.export_payslip_pdf, name='payslip_pdf'),
     path('advance-request/', views.advance_request_view, name='advance_request'),
+    path('advance/<int:advance_id>/approve/', views.approve_advance_request, name='approve_advance'),
+    path('advance/<int:advance_id>/reject/', views.reject_advance_request, name='reject_advance'),
     # مسار جلب المسميات الوظيفية للقسم
     path('api/positions/', views.get_positions_by_department, name='get_positions_by_department'),
 ]
