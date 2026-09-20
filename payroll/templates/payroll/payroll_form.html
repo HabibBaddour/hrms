@@ -1043,6 +1043,9 @@ if (employeeSelect) {
                 salary > 0 ? salary.toFixed(2) : '';
         }
 
+        insuranceManuallyEdited = false;
+        updateInsuranceDefaults();
+
         loadAttendanceDeductions();
         calculateTotals();
     });
