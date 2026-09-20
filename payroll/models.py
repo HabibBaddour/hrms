@@ -81,7 +81,26 @@ class Payroll(models.Model):
     # الخصومات
     deductions_absence = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name="خصم الغياب")
     deductions_delay = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name="خصم التأخير")
-    insurance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name="التأمينات")
+    health_insurance = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="التأمين الصحي",
+    )
+
+    social_insurance = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="التأمينات الاجتماعية",
+    )
+
+    insurance = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name="التأمينات",
+    )
     other_deductions = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name="خصومات أخرى")
 
     # بيانات الصرف / الحوالة
@@ -107,6 +126,11 @@ class Payroll(models.Model):
         verbose_name_plural = "كشوف الرواتب"
 
     def save(self, *args, **kwargs):
+        # التأمينات = الصحي + الاجتماعي
+        self.insurance = (
+            self.health_insurance + self.social_insurance
+        )
+
         # حساب صافي الراتب تلقائياً عند الحفظ
         self.net_salary = self.total_earnings - self.total_deductions
         super().save(*args, **kwargs)

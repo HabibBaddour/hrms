@@ -68,8 +68,8 @@ class PayrollForm(forms.ModelForm):
         fields = (
             'employee', 'month', 'year', 'basic_salary', 'allowances',
             'bonuses', 'overtime_pay', 'deductions_absence', 'deductions_delay',
-            'insurance', 'other_deductions', 'payment_method', 'bank_name',
-            'account_number',
+            'health_insurance', 'social_insurance', 'other_deductions',
+            'payment_method', 'bank_name', 'account_number',
         )
         widgets = {
             'month': forms.Select(choices=MONTH_CHOICES),

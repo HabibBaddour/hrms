@@ -13,9 +13,9 @@ from datetime import timedelta
 from types import SimpleNamespace
 from employees.models import Employee, Contract
 from departments.models import Department, Position
-from leaves.models import LeaveRequest  # اضبط اسم الموديل بحسب مشروعك
+from leaves.models import LeaveRequest
 from leaves.services import get_pending_leaves_count
-from payroll.models import Payroll
+from payroll.models import Payroll, SalaryAdvance
 from performance.models import PerformanceEvaluation
 from core.models import InternalMessage, SystemNotification
 
@@ -341,6 +341,22 @@ def employee_dashboard(request):
         pending_leaves = LeaveRequest.objects.filter(employee=employee_profile, status='PENDING').count()
         recent_leaves = LeaveRequest.objects.filter(employee=employee_profile).order_by('-created_at')[:3]
 
+        latest_leave_request = recent_leaves[0] if recent_leaves else None
+        latest_salary_advance = SalaryAdvance.objects.filter(
+            employee=employee_profile
+        ).order_by('-created_at', '-id').first()
+
+        my_request_breakdown = [
+            {
+                'label': 'إجازة',
+                'count': LeaveRequest.objects.filter(employee=employee_profile).count(),
+            },
+            {
+                'label': 'سلفة',
+                'count': SalaryAdvance.objects.filter(employee=employee_profile).count(),
+            },
+        ]
+
         try:
             leave_balance = employee_profile.get_annual_leave_balance()
         except Exception:
@@ -370,6 +386,11 @@ def employee_dashboard(request):
         if department is not None:
             team_size = Employee.objects.filter(department=department).count()
 
+    max_my_request_count = max(
+        (item['count'] for item in my_request_breakdown),
+        default=0
+    )
+
     my_leave_breakdown = []
     if employee_profile:
         for code, label in LeaveRequest.LeaveType.choices:
@@ -381,6 +402,10 @@ def employee_dashboard(request):
         'pending_leaves': pending_leaves,
         'leave_balance': leave_balance,
         'recent_leaves': recent_leaves,
+        'my_request_breakdown': my_request_breakdown,
+        'max_my_request_count': max_my_request_count,
+        'latest_leave_request': latest_leave_request,
+        'latest_salary_advance': latest_salary_advance,
         'last_payroll': last_payroll,
         'employee_profile': employee_profile,
         'annual_remaining': annual_remaining,

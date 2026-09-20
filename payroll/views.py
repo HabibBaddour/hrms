@@ -1,5 +1,9 @@
 from decimal import Decimal
-from datetime import datetime
+from datetime import datetime, date, timedelta
+from calendar import monthrange
+from django.utils import timezone
+
+from attendance.models import AttendanceLog
 from io import BytesIO
 from types import SimpleNamespace
 
@@ -18,6 +22,8 @@ from departments.models import Department, Position
 from payroll.models import Payroll
 from .forms import PayrollForm, SalaryAdvanceForm
 
+from django.http import HttpResponse, JsonResponse
+
 
 ARABIC_MONTHS = [
     (1, 'يناير'), (2, 'فبراير'), (3, 'مارس'), (4, 'أبريل'),
@@ -25,6 +31,152 @@ ARABIC_MONTHS = [
     (9, 'سبتمبر'), (10, 'أكتوبر'), (11, 'نوفمبر'), (12, 'ديسمبر'),
 ]
 
+def _calculate_attendance_deductions(employee, month, year):
+    """
+    حساب خصم الغياب والتأخير اعتمادًا على سجلات الحضور الفعلية.
+
+    يوم الجمعة عطلة أسبوعية حسب منطق النظام الحالي.
+    بداية الدوام: 08:00
+    ساعات العمل اليومية: 8 ساعات
+    """
+
+    if not employee or not employee.user_id:
+        return Decimal('0.00'), Decimal('0.00')
+
+    try:
+        month = int(month)
+        year = int(year)
+    except (TypeError, ValueError):
+        return Decimal('0.00'), Decimal('0.00')
+
+    if not (1 <= month <= 12):
+        return Decimal('0.00'), Decimal('0.00')
+
+    first_day = date(year, month, 1)
+    last_day = date(
+        year,
+        month,
+        monthrange(year, month)[1],
+    )
+
+    # الجمعة عطلة أسبوعية.
+    working_days = sum(
+        1
+        for day_number in range(
+            (last_day - first_day).days + 1
+        )
+        if (
+            first_day + timedelta(days=day_number)
+        ).weekday() != 4
+    )
+
+    if working_days <= 0:
+        return Decimal('0.00'), Decimal('0.00')
+
+    logs = AttendanceLog.objects.filter(
+        employee_id=employee.user_id,
+        date__gte=first_day,
+        date__lte=last_day,
+    )
+
+    absent_days = 0
+    late_minutes = 0
+
+    for log in logs:
+        if log.status == AttendanceLog.STATUS_ABSENT:
+            absent_days += 1
+
+        elif (
+            log.status == AttendanceLog.STATUS_LATE
+            and log.check_in
+        ):
+            check_in_local = timezone.localtime(
+                log.check_in
+            )
+
+            actual_minutes = (
+                check_in_local.hour * 60
+                + check_in_local.minute
+            )
+
+            start_minutes = 8 * 60
+
+            delay = actual_minutes - start_minutes
+
+            if delay > 0:
+                late_minutes += delay
+
+    basic_salary = employee.salary or Decimal('0.00')
+
+    daily_rate = (
+        basic_salary / Decimal(working_days)
+    )
+
+    absence_deduction = (
+        daily_rate * Decimal(absent_days)
+    )
+
+    hourly_rate = daily_rate / Decimal('8')
+
+    delay_deduction = (
+        hourly_rate
+        * Decimal(late_minutes)
+        / Decimal('60')
+    )
+
+    return (
+        absence_deduction.quantize(Decimal('0.01')),
+        delay_deduction.quantize(Decimal('0.01')),
+    )
+
+@login_required(login_url='login')
+def attendance_deductions_api(request):
+    employee_id = request.GET.get('employee')
+    month = request.GET.get('month')
+    year = request.GET.get('year') or datetime.now().year
+
+    if not employee_id or not month:
+        return JsonResponse(
+            {
+                'success': False,
+                'message': 'بيانات الموظف أو الشهر ناقصة.'
+            },
+            status=400,
+        )
+
+    try:
+        employee = Employee.objects.get(
+            pk=employee_id,
+            user__is_active=True,
+        )
+
+        absence_deduction, delay_deduction = (
+            _calculate_attendance_deductions(
+                employee,
+                int(month),
+                int(year),
+            )
+        )
+
+        return JsonResponse(
+            {
+                'success': True,
+                'absence_deduction': float(absence_deduction),
+                'delay_deduction': float(delay_deduction),
+                'total_deduction': float(
+                    absence_deduction + delay_deduction
+                ),
+            }
+        )
+
+    except Employee.DoesNotExist:
+        return JsonResponse(
+            {
+                'success': False,
+                'message': 'الموظف غير موجود.'
+            },
+            status=404,
+        )
 
 def _filter_value(value):
     """Normalize empty query-string values before applying ORM filters."""
@@ -173,10 +325,33 @@ def create_payroll(request):
                 f'كشف راتب {existing.employee.get_full_name()} عن شهر {existing.month_display} {existing.year} موجود مسبقاً — تم تحويلك إليه.',
             )
             return redirect('payroll_payslip', pk=existing.pk)
-    if form.is_valid():
-        payroll = form.save()
-        messages.success(request, f'تم إنشاء قسيمة راتب {payroll.employee.get_full_name()} بنجاح.')
-        return redirect('payroll_payslip', pk=payroll.pk)
+        if form.is_valid():
+            payroll = form.save(commit=False)
+
+            # حساب خصم الغياب والتأخير من سجلات الحضور الفعلية.
+            absence_deduction, delay_deduction = (
+                _calculate_attendance_deductions(
+                    payroll.employee,
+                    payroll.month,
+                    payroll.year,
+                )
+            )
+
+            payroll.deductions_absence = absence_deduction
+            payroll.deductions_delay = delay_deduction
+
+            payroll.save()
+
+            messages.success(
+                request,
+                f'تم إنشاء قسيمة راتب {payroll.employee.get_full_name()} '
+                f'مع احتساب خصم الغياب والتأخير تلقائياً.'
+            )
+
+            return redirect(
+                'payroll_payslip',
+                pk=payroll.pk,
+            )
     context = {
         'form': form,
         'employee_options': form.fields['employee'].queryset,
